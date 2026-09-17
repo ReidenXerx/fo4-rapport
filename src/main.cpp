@@ -1,0 +1,92 @@
+#include "Config.h"
+#include "Scheduler.h"
+
+namespace
+{
+	// Must run AFTER F4SE::Init: log_directory() is built from GetSaveFolderName(),
+	// which Init is what populates. Called any earlier it resolves to
+	// "Documents/My Games//F4SE" and the log lands next to the game's folder
+	// instead of inside it.
+	void InitLogging()
+	{
+		auto path = logger::log_directory();
+		if (!path) {
+			return;
+		}
+		*path /= AF_PROJECT_NAME ".log"sv;
+
+		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+		log->set_level(spdlog::level::info);
+		log->flush_on(spdlog::level::info);
+
+		spdlog::set_default_logger(std::move(log));
+		spdlog::set_pattern("[%H:%M:%S.%e] [%l] %v"s);
+	}
+
+	void MessageHandler(F4SE::MessagingInterface::Message* a_message)
+	{
+		if (!a_message) {
+			return;
+		}
+
+		switch (a_message->type) {
+		case F4SE::MessagingInterface::kGameDataReady:
+			AF::Config::GetSingleton().Load();
+			AF::Config::GetSingleton().LoadRaces();
+			AF::Scheduler::GetSingleton().Start();
+			break;
+		case F4SE::MessagingInterface::kNewGame:
+		case F4SE::MessagingInterface::kPostLoadGame:
+			AF::Scheduler::GetSingleton().OnLoad();
+			break;
+		case F4SE::MessagingInterface::kPreLoadGame:
+			AF::Scheduler::GetSingleton().OnUnload();
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a_f4se, F4SE::PluginInfo* a_info)
+{
+	// No logging here. Our log file cannot be opened until F4SE::Init has run,
+	// and a refusal below is recorded in f4se.log by F4SE itself.
+	a_info->infoVersion = F4SE::PluginInfo::kVersion;
+	a_info->name = AF_PROJECT_NAME;
+	a_info->version = AF_VERSION_MAJOR;
+
+	if (a_f4se->IsEditor()) {
+		return false;
+	}
+
+	// Every address this plugin resolves is an OG 1.10.163 id. Refusing any
+	// other runtime is the honest failure: the alternative is resolving
+	// addresses that mean something else.
+	if (a_f4se->RuntimeVersion() != F4SE::RUNTIME_1_10_163) {
+		return false;
+	}
+
+	return true;
+}
+
+extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f4se)
+{
+	// false: keep F4SE from installing its own logger over ours. Its logger names
+	// the file after GetPluginName(), which is empty for a classic Query/Load
+	// plugin — that is how this plugin's first run wrote to a file called ".log".
+	F4SE::Init(a_f4se, false);
+
+	InitLogging();
+	logger::info("{} v{}", AF_PROJECT_NAME, AF_VERSION_STRING);
+
+	const auto messaging = F4SE::GetMessagingInterface();
+	if (!messaging || !messaging->RegisterListener(MessageHandler)) {
+		logger::critical("could not register the messaging listener");
+		return false;
+	}
+
+	logger::info("loaded");
+	return true;
+}
