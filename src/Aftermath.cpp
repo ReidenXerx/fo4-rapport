@@ -251,7 +251,7 @@ namespace RP
 	// pack -- so this is worked out from what the packs DO populate. Every act tag
 	// is "<giver part>To<receiver part>", and per-actor `gender` is used
 	// everywhere: 760 F, 1260 M.
-	std::uint32_t Aftermath::ReceiverOf(
+	std::vector<std::uint32_t> Aftermath::ReceiversOf(
 		std::string_view a_tags, std::uint32_t a_first, std::uint32_t a_second) const
 	{
 		const auto lowered = Lower(a_tags);
@@ -264,7 +264,7 @@ namespace RP
 		const auto onEitherPart = has("tomouth"sv) || has("toanus"sv) ||
 		                          has("blowjob"sv) || has("analingus"sv) || has("anusto"sv);
 		if (!onAFemalePart && !onEitherPart) {
-			return 0;
+			return {};
 		}
 
 		const auto sexOf = [&](std::uint32_t a_formID) {
@@ -277,24 +277,27 @@ namespace RP
 		// A mixed pair answers itself, and that is 559 of the 562 two-actor
 		// animations that name both genders.
 		if (firstSex == 1 && secondSex == 0) {
-			return a_first;
+			return { a_first };
 		}
 		if (firstSex == 0 && secondSex == 1) {
-			return a_second;
+			return { a_second };
 		}
 
 		// Nothing vaginal happens between two actors of the same sex, so a
-		// female-only part with no female pairing is a tag we cannot place.
+		// female-only part with no female pairing is a tag that names nobody here.
 		if (onAFemalePart && !onEitherPart) {
-			return 0;
+			return {};
 		}
 
-		// Same sex, or a sex nobody told us. The slot AAF placed them in is what
-		// is left: slot 0 is the receiving role 559 times against 3.
-		if (_slot0 != 0 && (_slot0 == a_first || _slot0 == a_second)) {
-			return _slot0;
-		}
-		return 0;
+		// Same sex, or a sex nobody told us. Nothing available separates them:
+		// AAF's `role` is dead, sex says nothing, and the slot order that would
+		// settle it is locked inside a packed Var that Papyrus cannot open.
+		//
+		// So both, which is the owner's call and the better arithmetic -- neither
+		// leaves two people wrong, both leaves one. The regions are still only the
+		// ones this scene's tags actually named, so nobody gets a hole that was
+		// never touched.
+		return { a_first, a_second };
 	}
 
 	void Aftermath::NoteTags(std::string_view a_tags)
@@ -356,17 +359,28 @@ namespace RP
 
 		// WHO, before what. Applying to both is what put cum on the neck of a
 		// Diamond City guard who was on the giving end of it.
-		const auto receiver = ReceiverOf(tags, a_first, a_second);
-		const auto other = receiver == a_first ? a_second : a_first;
+		const auto receivers = ReceiversOf(tags, a_first, a_second);
 		_slot0 = 0;
 		_slot1 = 0;
-		if (receiver == 0) {
+		if (receivers.empty()) {
 			logger::info(
-				"aftermath: cannot tell which of {:08X} and {:08X} this landed on, so it lands on "
-				"neither - the wrong one is worse than none. A same-sex pair is the usual reason: "
-				"the actor slot order would settle it, and Papyrus cannot unpack it. (tags: {})",
-				a_first, a_second, tags);
+				"aftermath: the tags name no act that leaves anything on anybody (tags: {})", tags);
 			return;
+		}
+
+		std::string who;
+		for (const auto formID : receivers) {
+			if (!who.empty()) {
+				who += " and ";
+			}
+			who += std::format("{:08X}", formID);
+		}
+		if (receivers.size() == 1) {
+			who += std::format(
+				"; {:08X} was on the other end and keeps nothing",
+				receivers.front() == a_first ? a_second : a_first);
+		} else {
+			who += " (a same-sex pair: nothing available says which of them received, so both do)";
 		}
 
 		const auto sets = SetsFor(tags);
@@ -394,11 +408,12 @@ namespace RP
 					tags);
 				return;
 			}
-			Apply(receiver, "CMkz:" + regions, expires);
+			for (const auto formID : receivers) {
+				Apply(formID, "CMkz:" + regions, expires);
+			}
 			logger::info(
-				"aftermath: {:08X} keeps Moisturizer [{}] until hour {:.1f} (now {:.1f}); "
-				"{:08X} was on the other end and keeps nothing",
-				receiver, regions, expires, now, other);
+				"aftermath: {} keep(s) Moisturizer [{}] until hour {:.1f} (now {:.1f})",
+				who, regions, expires, now);
 			return;
 		}
 
@@ -408,13 +423,14 @@ namespace RP
 				named += ", ";
 			}
 			named += set;
-			Apply(receiver, set, expires);
+			for (const auto formID : receivers) {
+				Apply(formID, set, expires);
+			}
 		}
 
 		logger::info(
-			"aftermath: {:08X} keeps [{}] until hour {:.1f} (now {:.1f}); {:08X} was on the other "
-			"end and keeps nothing",
-			receiver, named, expires, now, other);
+			"aftermath: {} keep(s) [{}] until hour {:.1f} (now {:.1f})",
+			who, named, expires, now);
 	}
 
 	void Aftermath::Apply(std::uint32_t a_formID, const std::string& a_setID, float a_expiresAt)

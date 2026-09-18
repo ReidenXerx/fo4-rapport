@@ -140,7 +140,14 @@ namespace RP
 		// Which of the two a scene's cum belongs to, or 0 when nothing here can
 		// tell. Nothing is applied in that case: the wrong person is worse than
 		// nobody, because on a clothed NPC the face is the only region that shows.
-		[[nodiscard]] std::uint32_t ReceiverOf(
+		// Who a scene's cum belongs to: one of them, both, or nobody.
+		//
+		// A mixed pair resolves to one -- the tag names the receiving part and sex
+		// says who owns it. A same-sex pair resolves to BOTH, deliberately: nothing
+		// available can separate them, and applying to neither leaves two people
+		// wrong where applying to both leaves one. Empty means the tags named no
+		// act at all, which is a kiss and really should leave nothing.
+		[[nodiscard]] std::vector<std::uint32_t> ReceiversOf(
 			std::string_view a_tags, std::uint32_t a_first, std::uint32_t a_second) const;
 
 		std::string        _sceneTags;   // accumulated across one scene

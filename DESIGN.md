@@ -537,12 +537,16 @@ That covers the 559 of 562 two-actor animations that pair `('F','M')`. The givin
 nothing at all, which is what was asked for; a smaller amount on them would be a config line, not a
 redesign.
 
-**Same-sex pairs are left alone, deliberately.** Sex cannot separate them, and the thing that would
--- AAF's actor slot order, where slot 0 is the receiving role 559 times against 3 -- is a Var
-holding a packed array. Papyrus refuses `var as Var[]`, and the function that unpacks it is an F4SE
-addition to `Utility` that is not in the vanilla `Utility.pex`. Declaring a native signature that
-cannot be verified fails at RUNTIME, not at compile time, and that is a worse trade than a same-sex
-scene leaving nothing. The log says which case it hit.
+**Same-sex pairs get it on BOTH** (owner's call: *"for m-m we can just apply for both actors in
+holes was touched, I think it's good compromise"*). Nothing available separates them: `role` is
+dead, sex says nothing, and the slot order that would settle it -- slot 0 being the receiving role
+559 times against 3 -- arrives as a Var holding a packed array. Papyrus refuses `var as Var[]`, and
+the function that unpacks it is an F4SE addition to `Utility` absent from the vanilla `Utility.pex`;
+declaring an unverifiable native signature fails at RUNTIME rather than at compile time.
+
+Both is the better arithmetic: applying to neither leaves two people wrong, applying to both leaves
+one. And the regions are still only the ones the scene's tags actually named, so nobody gets a hole
+that was never touched.
 
 **Why this matters more than it looks:** AAF strips clothing for a scene and the NPC re-equips
 afterwards, so on a clothed settler the FACE is the only region anyone sees. Putting the oral region
