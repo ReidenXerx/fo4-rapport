@@ -606,9 +606,19 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		; with the pack it was written against.
 		AAF:AAF_API:PositionSettings ps = _api.GetPositionSettings()
 		ps.includeTags = asSetID
-		ps.excludeTags = asExtra
+
+		; Only when this stage HAS exclusions. GetPositionSettings presets
+		; excludeTags to "default_excludetags", which is the player's own AAF
+		; exclusion list, and writing an empty string over it threw their settings
+		; away on every stage that did not happen to name any of its own.
+		If asExtra != ""
+			ps.excludeTags = asExtra
+		EndIf
 		_api.ChangePosition(target, ps)
 		Rapport:Core.Trace("stage: asked AAF for [" + asSetID + "] on " + aiFormID)
+	ElseIf aiKind == 13
+		Self.RelocateFor(aiFormID)
+		Return
 	ElseIf aiKind == 12
 		; A NAMED position, which is how a tree gets chosen. AAF has no tree
 		; function -- the word does not appear in its Papyrus at all, because trees
@@ -795,6 +805,75 @@ Function AskStartAAF()
 	Else
 		Rapport:Core.NoteAAFRevivalChoice(false)
 	EndIf
+EndFunction
+
+; The pair gets up and carries on somewhere else.
+;
+; AAF's ChangePosition cannot leave the furniture a scene began on --
+; PositionSettings carries no field for it, and asking for a NoFurn position
+; while on a desk is simply refused. So moving means ending this scene and
+; starting another, which is also exactly what it looks like in game.
+;
+; The request keeps its id and its place in _inFlight; only the scene underneath
+; it changes. sceneID goes back to 0 so the next OnSceneInit binds the new scene
+; to the same request, and the plugin has already been told this ending is a move
+; so nothing is written to the ledger and no cum is applied halfway through.
+Function RelocateFor(Int aiFirstID)
+	If _api == None
+		Return
+	EndIf
+
+	Int index = Self.FindRequestByActor(aiFirstID)
+	If index < 0
+		Rapport:Core.Trace("relocate: no request is in flight for " + aiFirstID + " - nothing to move")
+		Return
+	EndIf
+
+	Actor akFirst = _inFlight[index].first
+	Actor akSecond = _inFlight[index].second
+	If akFirst == None || akSecond == None
+		Return
+	EndIf
+
+	Rapport:Core.Trace("relocate: stopping the scene so " + aiFirstID + " and their partner can carry on away from the furniture")
+	_api.StopScene(akFirst, -1)
+
+	Request entry = _inFlight[index]
+	entry.sceneID = 0
+	_inFlight[index] = entry
+
+	Actor[] actors = new Actor[2]
+	actors[0] = akFirst
+	actors[1] = akSecond
+
+	AAF:AAF_API:SceneSettings settings = _api.GetSceneSettings()
+	settings.duration = _inFlight[index].duration
+	settings.usePackages = true
+	settings.skipWalk = false
+	settings.isNPCControlled = true
+	settings.preventFurniture = true     ; the whole point of the move
+	settings.meta = "Rapport,autonomy"
+
+	_api.StartScene(actors, settings)
+	Rapport:Core.Trace("relocate: asked AAF for a new scene without furniture for request " + _inFlight[index].id)
+EndFunction
+
+; The in-flight request one actor belongs to, by form id, or -1.
+Int Function FindRequestByActor(Int aiFormID)
+	If _inFlight == None
+		Return -1
+	EndIf
+	Int i = 0
+	While i < _inFlight.Length
+		If _inFlight[i].first != None && _inFlight[i].first.GetFormID() == aiFormID
+			Return i
+		EndIf
+		If _inFlight[i].second != None && _inFlight[i].second.GetFormID() == aiFormID
+			Return i
+		EndIf
+		i += 1
+	EndWhile
+	Return -1
 EndFunction
 
 ; Every morph id in the engine's facial table, as AAF wants them: one string of

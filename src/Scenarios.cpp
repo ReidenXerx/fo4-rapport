@@ -278,6 +278,7 @@ namespace RP
 			}
 
 			_running = scenario;
+			_movedThisScene = false;
 			_first = a_first;
 			_second = a_second;
 			_stage = scenario->stages.size();   // EnterStage moves it to the first playable one
@@ -429,12 +430,46 @@ namespace RP
 					"scenario \"{}\": AAF refused \"{}\" for stage \"{}\" - trying the next one ({})",
 					_running->id, stage.options[_option - 1], stage.id, a_why);
 				SendCurrentOption(outgoing);
+			} else if (!_movedThisScene) {
+				// Where they ARE is the problem, not the stage. AAF's ChangePosition
+				// cannot leave the furniture a scene started on, so a desk with one
+				// missionary animation on it refuses everything a prelude asks for.
+				// Rather than skip the stage, the pair gets up and carries on
+				// somewhere without furniture -- which is where the variety is.
+				_movedThisScene = true;
+				logger::info(
+					"scenario \"{}\": nothing in stage \"{}\" works WHERE THEY ARE ({}) - moving "
+					"them somewhere without furniture and trying this stage again",
+					_running->id, stage.id, a_why);
+				PapyrusLink::GetSingleton().BeginRelocation();
+				outgoing.push_back(Order{ Order::Kind::kRelocate, _first, {}, {} });
 			} else {
 				logger::warn(
-					"scenario \"{}\": nothing in stage \"{}\" works for this pair here - moving on ({})",
+					"scenario \"{}\": nothing in stage \"{}\" works for this pair here, and they "
+					"have already moved once this scene - skipping it ({})",
 					_running->id, stage.id, a_why);
 				EnterStage(_stage + 1, outgoing);
 			}
+		}
+		PapyrusLink::GetSingleton().QueueOrders(outgoing);
+	}
+
+	// The scene came back somewhere else. Re-run the stage that could not be
+	// filled, from its first option: the old refusals were about the old place.
+	void Scenarios::OnRelocated()
+	{
+		std::vector<Order> outgoing;
+		{
+			NamedLock lock{ _lock, "scenarios" };
+			if (!_running || _stage >= _running->stages.size()) {
+				return;
+			}
+			logger::info(
+				"scenario \"{}\": they have moved - trying stage \"{}\" again from the top",
+				_running->id, _running->stages[_stage].id);
+			_option = 0;
+			_stageStartedAt = std::chrono::steady_clock::now();
+			SendCurrentOption(outgoing);
 		}
 		PapyrusLink::GetSingleton().QueueOrders(outgoing);
 	}

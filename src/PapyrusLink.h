@@ -146,6 +146,12 @@ namespace RP
 		void RestoreInFlightPair(std::uint32_t a_first, std::uint32_t a_second);
 
 		void OnBridgeReady(bool a_aafPresent);
+		// The scene is being restarted elsewhere for the SAME request. Its ending
+		// is a move, not a finish: no ledger entry, no aftermath, no cooldown, and
+		// the pair stays in flight throughout.
+		void BeginRelocation();
+		[[nodiscard]] bool Relocating() const noexcept { return _relocating.load(); }
+
 		void OnSceneStarted(std::int32_t a_request);
 		void OnSceneEnded(std::int32_t a_request);
 		void OnRequestFailed(std::int32_t a_request, std::string_view a_why);
@@ -195,6 +201,7 @@ namespace RP
 
 		std::atomic_bool          _bridgeReady{ false };
 		std::atomic_bool          _sceneInFlight{ false };
+		std::atomic_bool          _relocating{ false };
 		std::atomic<std::int32_t> _nextRequest{ 1 };
 		std::chrono::steady_clock::time_point _requestedAt{};
 

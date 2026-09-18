@@ -601,9 +601,26 @@ namespace RP
 		_stopAsked = true;
 	}
 
+	void PapyrusLink::BeginRelocation()
+	{
+		_relocating.store(true);
+	}
+
 	void PapyrusLink::OnSceneStarted(std::int32_t a_request)
 	{
 		_started.fetch_add(1);
+
+		if (_relocating.exchange(false)) {
+			logger::info(
+				"request {}: scene restarted somewhere else - the story carries on from the stage "
+				"that could not be filled",
+				a_request);
+			_sceneRunning = true;
+			_stopAsked = false;
+			Scenarios::GetSingleton().OnRelocated();
+			return;
+		}
+
 		logger::info("request {}: scene started", a_request);
 
 		// The clock starts HERE, not when the request was made: AAF walks the pair
@@ -856,6 +873,17 @@ namespace RP
 	{
 		_ended.fetch_add(1);
 		logger::info("request {}: scene ended", a_request);
+
+		// A relocation ends the old scene on purpose. Nothing about it is a
+		// finish: no ledger entry, no aftermath, no cooldown, and the pair stays in
+		// flight because the story is still running -- somewhere else.
+		if (_relocating.load()) {
+			logger::info(
+				"request {}: its old scene ended because the pair is moving, not because anything "
+				"finished - nothing recorded",
+				a_request);
+			return;
+		}
 
 		// Only for the scene we still believe is running.
 		//

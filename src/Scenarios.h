@@ -146,6 +146,10 @@ namespace RP
 		// an animation exists for THIS pair.
 		void OnRefused(std::string_view a_why);
 
+		// The scene has restarted somewhere else. The stage that could not be
+		// filled where they were gets another go, from its first option.
+		void OnRelocated();
+
 	private:
 
 		mutable std::timed_mutex _lock;
@@ -154,6 +158,11 @@ namespace RP
 		const Scenario* _running{ nullptr };
 		std::size_t     _stage{ 0 };
 		std::size_t     _option{ 0 };
+
+		// One move per scene, not per stage. AAF re-walks the pair on every
+		// restart -- 12.5 seconds across a market, measured -- and a story that
+		// relocates at every stage is two people wandering, not a story.
+		bool            _movedThisScene{ false };
 		std::uint32_t   _first{ 0 };
 		std::uint32_t   _second{ 0 };
 		std::chrono::steady_clock::time_point _stageStartedAt{};

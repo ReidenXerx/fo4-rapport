@@ -72,7 +72,15 @@ namespace RP
 			// AAF has no tree API, but a position may declare one, so naming the
 			// position is naming the tree -- and it is the only way to reach a
 			// climax, every standalone one being hidden by design.
-			kChangeToPosition = 12
+			kChangeToPosition = 12,
+
+			// Stop the scene and start it again with furniture refused, so the pair
+			// carries on somewhere else. AAF's ChangePosition cannot leave the
+			// furniture a scene began on -- PositionSettings has no field for it,
+			// and asking for a NoFurn position on a desk is simply refused -- so
+			// moving means a new scene, which is also what it looks like: they get
+			// up and walk.
+			kRelocate = 13
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };
