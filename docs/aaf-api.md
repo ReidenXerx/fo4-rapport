@@ -93,6 +93,50 @@ Two consequences for anything driving AAF:
 Locking an actor *before* calling `StartScene` is therefore a deadlock rather than a reservation:
 the flag that tells other mods "this one is taken" tells AAF the same thing.
 
+## Appearance: overlays, morphs and expressions
+
+Three API groups drive how an actor looks, and all three take a string id that is defined in XML
+rather than in code:
+
+| | |
+| --- | --- |
+| `ApplyOverlaySet(actor, id)` / `RemoveOverlaySet(actor, id)` | Skin overlays, through LooksMenu |
+| `ApplyMorphSet(actor, id)` | Body morphs |
+| `ApplyMFGSet(actor, id)`, `AddMFGBlock`, `RemoveMFGBlock` | Facial expressions |
+
+An `overlaySetData` XML names LooksMenu overlay *templates*, and those templates live with the
+textures in whichever mod provides them:
+
+```xml
+<overlaySet id="Belly">
+  <overlayGroup duration="300" quantity="1">
+    <overlay template="Belly_1" alpha="100" isFemale="true"/>
+```
+
+`quantity` picks that many at random from the group. **`duration` is AAF's own**, confirmed in
+`common.xsd` as a float attribute of `overlayGroupType` — so a timed overlay needs no code, only an
+XML set with the duration you want.
+
+What it does not give you is persistence: an in-session timer does not survive a save, a reload or
+the game closing mid-count, and an overlay stranded that way stays on the actor forever. Holding
+`{actor, setID, expiresAt}` in game time, in a co-save, and removing it on a tick is the part a
+framework adds.
+
+### Assets are a separate thing from logic
+
+On the reference setup the cum overlays come from CumOverlays v1.4, which bundles two unrelated
+things: **assets** (`CumOverlays - Textures.ba2`, 57 templates in
+`F4SE/Plugins/F4EE/Overlays/CumOverlays.esp/overlays.json`, `CumOverlays.esp` for LooksMenu to key
+against, and `AAF/Cum_overlayData.xml` defining the sets) and **logic** (`CumOverlay_Main.pex`,
+`CumOverlay_Starter.pex`, an MCM page).
+
+The logic is replaceable; the assets are not, any more than an animation pack is. Treat such a mod
+as a resource dependency and drive its sets yourself.
+
+Coverage of those 57 templates: Anal, Back, Belly x5, Body, Breast x5, Butt x4, DP x4, Kidneys x2,
+Vaginal x2, with male-body and mutant variants. **There is no face or mouth template among them**,
+so anything aimed at the face needs a pack that provides one.
+
 ## The stat layer is empty, and that matters
 
 AAF's schema (`Data/AAF/common.xsd`) supports `relationshipStat` with `isPersistent`, `decayRate`,
