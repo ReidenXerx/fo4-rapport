@@ -30,6 +30,15 @@
     "include  tags AAF may choose from for this stage. Any one of them.",
     "exclude  tags AAF must avoid -- furniture it cannot use, acts that do not",
     "         belong in this moment.",
+    "handover true means this stage asks AAF for NOTHING and lets whatever is",
+    "         already playing carry on. AAF's packs ship position trees -- 85 here,",
+    "         22 ending in an explicit Climax branch -- and a position that declares",
+    "         one walks its own stages on the pack author's timings, ending in a real",
+    "         orgasm animation. Our stage clock was cutting those off. A climax also",
+    "         cannot be requested: UAP hides every standalone climax position and",
+    "         nulls its animation, deliberately, because the tree is the way there.",
+    "         So the last stage stops asking, keeps the face and the aftermath, and",
+    "         lets AAF finish the story. Costs nothing when there is no tree.",
     "face     the Rapport expression set for this stage. Expressions follow the",
     "         STORY now, not a percentage of the clock: a percentage cannot know",
     "         that 40% of this scene is still foreplay.",
@@ -89,9 +98,9 @@
         },
         {
           "id": "finish",
-          "seconds": 20,
-          "include": "Climax,ClimaxM",
-          "exclude": "",
+          "comment": "Long on purpose: a BP70 tree runs six authored stages before its Climax branch.",
+          "seconds": 90,
+          "handover": true,
           "face": "Rapport_Climax"
         }
       ]
@@ -117,9 +126,8 @@
         },
         {
           "id": "finish",
-          "seconds": 25,
-          "include": "Climax,ClimaxM",
-          "exclude": "Rough,Aggressive",
+          "seconds": 75,
+          "handover": true,
           "face": "Rapport_Climax"
         }
       ]

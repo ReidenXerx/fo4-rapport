@@ -611,6 +611,29 @@ thing: a tree chains specific positions from ONE pack, is authored by that pack,
 across this entire install. A scenario is narrative and pack-agnostic. A stage may still name a tree
 where a pack has a good one.
 
+**Measured 2026-09-19, and it changes the last stage.** A tree is not reachable through the API --
+the word "tree" appears nowhere in AAF's entire Papyrus source, because trees run in the SWF. It is
+reachable through the POSITION layer, which is the layer scenarios already drive: a `position` may
+carry `positionTree="..."`, and 40 of the visible F_M positions here do. 85 trees are installed and
+22 end in an explicit `Climax` branch, each on the pack author's own timings:
+
+    Play Stage 1 -> ... -> Play Stage 6 -> Climax -> Finish
+
+Which means the stage clock was CUTTING THEM OFF. A stage lands on a tree-bearing position, AAF
+begins walking it, and thirty seconds later the next stage takes it away long before Climax.
+
+And a climax cannot be asked for instead. UAP's override file sets `isHidden="true"` on its
+`<defaults>` and `animation="Null"` on every standalone climax position, deliberately, because the
+tree is how you are meant to reach one. AAF's refusal of `includeTags(CLIMAX)` was correct; the
+count of "visible climax positions" that contradicted it came from reading the data before the
+merge and missing `<defaults>` inheritance.
+
+So the FINAL stage of a scenario hands over: it asks AAF for nothing, keeps the face and the
+aftermath, which are Rapport's own, and lets AAF finish the story it started. Owner's decision,
+2026-09-19. Overriding UAP back was considered and rejected: it fights a deliberate design and
+changes animation behaviour for every AAF mod on the install, to recover something the tree route
+already provides.
+
 Four decisions, owner's:
 
 1. **Only an addon chooses a scenario.** Rapport executes; it does not select. Consequence, stated

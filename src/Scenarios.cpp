@@ -102,7 +102,12 @@ namespace RP
 				stage.options = Split(stage.include);
 				stage.exclude = raw.value("exclude", std::string{});
 				stage.face = raw.value("face", std::string{});
-				if (stage.id.empty() || stage.include.empty()) {
+				stage.handover = raw.value("handover", false);
+
+				// A handover stage asks AAF for nothing, so it needs no tags. Every
+				// other stage does: without them there is nothing to request and the
+				// stage would silently do nothing at all.
+				if (stage.id.empty() || (stage.include.empty() && !stage.handover)) {
 					logger::warn(
 						"scenarios: a stage of \"{}\" has no id or no include tags - skipped",
 						scenario.id);
@@ -211,7 +216,9 @@ namespace RP
 	{
 		for (auto& scenario : _scenarios) {
 			for (auto& stage : scenario.stages) {
-				stage.playable = AnyContentFor(stage.include);
+				// A handover stage requests nothing, so there is nothing it could
+				// fail to find. It is always playable.
+				stage.playable = stage.handover || AnyContentFor(stage.include);
 				if (!stage.playable) {
 					logger::warn(
 						"scenarios: \"{}\" stage \"{}\" will be skipped - nothing installed carries "
@@ -307,12 +314,19 @@ namespace RP
 		_option = 0;
 		_stageStartedAt = std::chrono::steady_clock::now();
 
-		logger::info(
-			"scenario \"{}\": stage \"{}\" for {:.0f}s, any of [{}]{}",
-			_running->id, stage.id, stage.seconds, stage.include,
-			stage.exclude.empty() ? "" : std::format(" avoiding [{}]", stage.exclude));
+		if (stage.handover) {
+			logger::info(
+				"scenario \"{}\": stage \"{}\" for {:.0f}s - handing the ending to AAF. No position "
+				"change is asked for, so a position that declares a tree walks it to its own climax",
+				_running->id, stage.id, stage.seconds);
+		} else {
+			logger::info(
+				"scenario \"{}\": stage \"{}\" for {:.0f}s, any of [{}]{}",
+				_running->id, stage.id, stage.seconds, stage.include,
+				stage.exclude.empty() ? "" : std::format(" avoiding [{}]", stage.exclude));
 
-		SendCurrentOption(a_out);
+			SendCurrentOption(a_out);
+		}
 
 		// The face belongs to the stage, not to a percentage of the clock.
 		if (!stage.face.empty()) {
@@ -348,6 +362,17 @@ namespace RP
 		{
 			NamedLock lock{ _lock, "scenarios" };
 			if (!_running || _stage >= _running->stages.size()) {
+				return;
+			}
+
+			// A handover stage asked for nothing, so a refusal cannot be about it.
+			// Something else in the scene was refused; advancing the option counter
+			// here would skip the handover and end the story early.
+			if (_running->stages[_stage].handover) {
+				logger::info(
+					"scenario \"{}\": AAF refused something during the handover stage \"{}\" ({}) - "
+					"ignoring it, this stage asked for nothing",
+					_running->id, _running->stages[_stage].id, a_why);
 				return;
 			}
 

@@ -36,6 +36,26 @@ namespace RP
 			std::string exclude;   // tags it must avoid
 			std::string face;      // the expression set for this moment
 			bool        playable{ true };   // false when nothing installed matches
+
+			// Ask AAF for NOTHING and let whatever is playing carry on.
+			//
+			// AAF's packs ship position trees -- 85 of them here, 22 ending in an
+			// explicit Climax branch -- and a position that declares one walks its
+			// own stages on the pack author's timings:
+			//
+			//     Play Stage 1 -> ... -> Play Stage 6 -> Climax -> Finish
+			//
+			// Which means our stage clock was CUTTING THOSE OFF: a stage lands on a
+			// tree-bearing position, AAF starts walking it, and thirty seconds later
+			// the next stage yanks it away long before Climax. A climax cannot be
+			// asked for either -- UAP hides every standalone climax position and
+			// nulls its animation, deliberately, because the tree is how you are
+			// meant to reach one.
+			//
+			// So the last stage stops asking. Rapport keeps the face and the
+			// aftermath, which are its own, and AAF finishes the story it started.
+			// Costs nothing when the position has no tree: it simply keeps playing.
+			bool        handover{ false };
 		};
 
 		struct Scenario
