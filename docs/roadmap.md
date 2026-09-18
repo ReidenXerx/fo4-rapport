@@ -22,6 +22,10 @@ Agreed 2026-09-18. Order is by dependency, not by appetite: each item needs the 
 
 | **M4 the whole chain** | **2026-09-18 21:48. Scan, score, scene, expressions, stop, scene end, ledger, aftermath, apply — end to end, unattended, and then straight into the next scene.** |
 
+| 4 scenarios | `Scenarios` — sex as a story. A named pipeline of stages, each a narrative ROLE with a duration and acceptable tags rather than a position. Rapport executes one; only an addon chooses it. See A-24. |
+| 4b moisturizer | Commonwealth Moisturizer as an aftermath backend — worn geometry and morphing headparts rather than texture overlays, driven through its own API from an optional second plugin so no Rapport script names a type that mod owns. Roles and layering: the receiving actor, in the hole last touched. |
+| 5 aaf watchdog | `AAFHealth` — AAF stops answering after a load and nothing says so. Restarted through its own `EveryTime_Initialization`; a stopped main quest asks the player first. |
+
 ## Now
 
 **It runs.** One scene, start to finish, everything downstream of it working:
@@ -75,8 +79,15 @@ and nothing but memory would have turned it off again.
 4. **The addon API** — Papyrus functions and an F4SE message API. The moment it exists, the autonomy
    policy leaves Rapport's scheduler for Chemistry, where it belongs.
 
-5. **M3 hardening** — `FindMatchingAnimations` as a pre-check so a pair with no content is never
-   chosen, interruption handling, travel and privacy.
+5. **M3 hardening** — interruption handling, travel and privacy.
+
+   **Not** `FindMatchingAnimations` as a pre-check. That was the plan and it is rejected: it is
+   asynchronous, its argument layout has never been observed in this project, and a stage that
+   stalls waiting for an answer is worse than one quietly dropped. The deeper reason is that the
+   question it would answer is the wrong one — a tag index knows a tag exists SOMEWHERE, never
+   whether an animation exists for THIS pair in THIS place. AAF's own refusal is the only real
+   evidence, which is why a stage offers alternatives and they are tried one at a time until one
+   is accepted. Do not rebuild this without new evidence that addresses those two reasons.
 
 6. **More framework** — the owner has a queue of ideas here, and this is the right place for them.
    The debug hub was the first of them and has already been pulled forward. Remaining:
