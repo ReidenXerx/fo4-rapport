@@ -37,6 +37,41 @@ when it scans the import directory. Those are quarantined, leaving **9,641 usabl
 tools/papyrus_setup.py <champollion.exe> <output dir>
 ```
 
+### The scripts that reconstruction silently drops
+
+10,271 pex went in and 9,641 sources came out, and the gap is not only the 381 quarantined
+empties. **A script that is nothing but native declarations has no bytecode, so Champollion
+produces nothing at all for it** — no file, no error, no entry in the quarantine. `Utility` is
+exactly that shape: `Utility.pex` was extracted with the other 10,270, no `Utility.psc` ever
+appeared, and so `Utility.Wait` was simply unavailable with nothing saying why.
+
+`tools/pex_natives.py` writes those sources from the pex directly. The function table carries the
+return type, the parameter names and their types, and the global/native flags, so each declaration
+is read out of the thing that defines it rather than transcribed from a wiki. It refuses rather
+than guesses: if a function turns out to have instructions it stops, and if the parse does not
+consume the file to its last byte it writes nothing.
+
+```
+python tools/pex_natives.py <in.pex> [out.psc]
+```
+
+Two things that cost an hour and are worth writing down:
+
+- The Fallout 4 object header has **a `u8` between the doc string and the user flags** that the
+  Skyrim layout does not. Get it wrong and the parse survives the header, drifts, and dies hundreds
+  of bytes later with a nonsense error. Its position was settled by evidence rather than assumed:
+  reading it *before* the doc string also consumes all 10,271 vanilla scripts without complaint,
+  because the doc string is almost always empty and the byte almost always zero. On the scripts
+  where the two readings differ, the wrong one reports every script's doc string as that script's
+  own name.
+- **`UI` is F4SE's, not Bethesda's** — its pex header names `ianpatt` and an f4se build path — which
+  is why it appears in no vanilla BA2. It needs no reconstruction at all: F4SE ships the real
+  source at `Data/Scripts/Source/UI.psc`, comments, default arguments and all. Copy it.
+
+`UI.IsMenuOpen` is worth knowing for its own sake. `UI.Load` puts an asset inside a menu that must
+already exist, so anything driving Scaleform — AAF's entire event channel, and every restart of it
+— silently does nothing when that menu is absent.
+
 ## The one thing this costs you
 
 **Decompiled sources lose every default argument value.** Papyrus compiles a default into the
