@@ -139,10 +139,13 @@ namespace RP
 		// Who a scene of ours had hold of when the save was written. Nothing else
 		// can tell us, because AAF's own scene state does not survive a save and
 		// the plugin starts from nothing.
-		[[nodiscard]] std::pair<std::uint32_t, std::uint32_t> InFlightPair() const noexcept
-		{
-			return { static_cast<std::uint32_t>(_inFlightFirst), static_cast<std::uint32_t>(_inFlightSecond) };
-		}
+		// Read under the lock. The save callback runs on the main thread while a
+		// Papyrus thread can be zeroing this pair one field at a time, and a read
+		// landing between the two writes records (0, second) -- which on the next
+		// load releases only `second` and leaves `first` flagged busy for the rest
+		// of the playthrough. That is exactly the damage this record exists to
+		// prevent, failing in the one case it was built for.
+		[[nodiscard]] std::pair<std::uint32_t, std::uint32_t> InFlightPair() const;
 		void RestoreInFlightPair(std::uint32_t a_first, std::uint32_t a_second);
 
 		void OnBridgeReady(bool a_aafPresent);
@@ -152,6 +155,15 @@ namespace RP
 		[[nodiscard]] std::string ChooseScenePosition();
 
 		void OnSceneStarted(std::int32_t a_request);
+
+	private:
+		// One place that lets a request go. The five fields used to be cleared by
+		// hand in three teardown paths and drifted -- two of them left the scenario
+		// name and the duration behind, so a late call could choose a tree for a
+		// scenario that was over and a pair of form id zero.
+		void ClearInFlight();
+
+	public:
 		void OnSceneEnded(std::int32_t a_request);
 		void OnRequestFailed(std::int32_t a_request, std::string_view a_why);
 

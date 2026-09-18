@@ -470,6 +470,17 @@ namespace RP
 		}
 
 		const auto request = _nextRequest.fetch_add(1);
+
+		// The pending request and the in-flight block are published TOGETHER, under
+		// one lock.
+		//
+		// They used to be two steps: _pending inside the lock, the latch after it.
+		// TakeRequest runs on the Papyrus thread and only needs _pending, so the
+		// bridge could collect the request and call ScenePosition() while this
+		// thread was still mid-latch -- reading _inFlightScenario as a string_view
+		// while assign() was reallocating it. That is not a stale value, it is a
+		// freed buffer, and this whole block is shared between the VM threads and
+		// the scheduler's main-thread slice with nothing else holding it together.
 		{
 			NamedLock lock{ _counter, "request counter" };
 			_pending = Pending{
@@ -478,16 +489,16 @@ namespace RP
 				static_cast<std::int32_t>(a_second->GetFormID()),
 				a_duration
 			};
-		}
 
-		_inFlightFirst = static_cast<std::int32_t>(a_first->GetFormID());
-		_inFlightSecond = static_cast<std::int32_t>(a_second->GetFormID());
-		_inFlightDuration = a_duration;
-		_inFlightScenario.assign(a_scenario);
-		_inFlightRequest = request;
-		_sceneRunning = false;
-		_stopAsked = false;
-		_requestedAt = std::chrono::steady_clock::now();
+			_inFlightFirst = static_cast<std::int32_t>(a_first->GetFormID());
+			_inFlightSecond = static_cast<std::int32_t>(a_second->GetFormID());
+			_inFlightDuration = a_duration;
+			_inFlightScenario.assign(a_scenario);
+			_inFlightRequest = request;
+			_sceneRunning = false;
+			_stopAsked = false;
+			_requestedAt = std::chrono::steady_clock::now();
+		}
 		_queued.fetch_add(1);
 
 		logger::info(
@@ -558,11 +569,7 @@ namespace RP
 
 		Release(static_cast<std::uint32_t>(_inFlightFirst));
 		Release(static_cast<std::uint32_t>(_inFlightSecond));
-		_inFlightFirst = 0;
-		_inFlightSecond = 0;
-		_inFlightRequest = 0;
-		_sceneRunning = false;
-		_stopAsked = false;
+		ClearInFlight();
 		_sceneInFlight.store(false);
 	}
 
@@ -590,6 +597,7 @@ namespace RP
 
 	std::int32_t PapyrusLink::SceneToStop()
 	{
+		NamedLock lock{ _counter, "request counter" };
 		if (!_sceneRunning || _stopAsked || _inFlightRequest == 0) {
 			return 0;
 		}
@@ -618,18 +626,30 @@ namespace RP
 
 	void PapyrusLink::NoteStopAsked()
 	{
+		NamedLock lock{ _counter, "request counter" };
 		_stopAsked = true;
 	}
 
 	std::string PapyrusLink::ChooseScenePosition()
 	{
-		if (_inFlightScenario.empty()) {
+		// Snapshot under the lock, choose outside it. Copying the scenario name is
+		// the point: this runs on the Papyrus thread while the scheduler's thread
+		// can be assigning that same std::string, and handing a string_view into it
+		// across a reallocation is a freed buffer, not a stale name.
+		std::string   scenario;
+		std::uint32_t first = 0;
+		std::uint32_t second = 0;
+		{
+			NamedLock lock{ _counter, "request counter" };
+			scenario = _inFlightScenario;
+			first = static_cast<std::uint32_t>(_inFlightFirst);
+			second = static_cast<std::uint32_t>(_inFlightSecond);
+		}
+
+		if (scenario.empty()) {
 			return {};
 		}
-		return Scenarios::GetSingleton().ChooseSceneStart(
-			_inFlightScenario,
-			static_cast<std::uint32_t>(_inFlightFirst),
-			static_cast<std::uint32_t>(_inFlightSecond));
+		return Scenarios::GetSingleton().ChooseSceneStart(scenario, first, second);
 	}
 
 	void PapyrusLink::OnSceneStarted(std::int32_t a_request)
@@ -787,6 +807,13 @@ namespace RP
 		QueueOrder(Order{ Order::Kind::kRelease, a_formID, {} });
 	}
 
+	std::pair<std::uint32_t, std::uint32_t> PapyrusLink::InFlightPair() const
+	{
+		NamedLock lock{ _counter, "request counter" };
+		return { static_cast<std::uint32_t>(_inFlightFirst),
+			static_cast<std::uint32_t>(_inFlightSecond) };
+	}
+
 	void PapyrusLink::RestoreInFlightPair(std::uint32_t a_first, std::uint32_t a_second)
 	{
 		if (a_first == 0 && a_second == 0) {
@@ -925,43 +952,70 @@ namespace RP
 		_ended.fetch_add(1);
 		logger::info("request {}: scene ended", a_request);
 
-		// Only for the scene we still believe is running.
+		// Only for the scene we still believe is running, and the CHECK and the
+		// SNAPSHOT happen together under one lock.
 		//
 		// AAF's OnSceneEnd can arrive long after this framework has given up on a
 		// scene -- 94 seconds late, in the run that found this -- and by then the
 		// in-flight pair belongs to somebody else's request. Crediting them writes
 		// the wrong couple into the SAVE: a scene they never had, a cooldown they
 		// did not earn, and cum on an actor who was not there.
-		if (a_request != _inFlightRequest) {
-			logger::warn(
-				"request {}: its scene ended, but {} - so the ledger and the aftermath are left "
-				"alone rather than credited to whoever is in flight now",
-				a_request,
-				_inFlightRequest == 0
-					? "this framework had already released it"
-					: std::format("request {} is the one in flight", _inFlightRequest));
-			return;
+		//
+		// Checking and then reading as two unlocked steps left a window of its own:
+		// the watchdog clears the PAIR before it clears the request id, so a guard
+		// could pass and the read that followed find zeroes -- a scene that really
+		// did end, correctly accepted, and then recorded for nobody. The window is
+		// not nanoseconds either; the watchdog takes three other locks inside it.
+		std::uint32_t first = 0;
+		std::uint32_t second = 0;
+		{
+			NamedLock lock{ _counter, "request counter" };
+			if (a_request != _inFlightRequest) {
+				logger::warn(
+					"request {}: its scene ended, but {} - so the ledger and the aftermath are left "
+					"alone rather than credited to whoever is in flight now",
+					a_request,
+					_inFlightRequest == 0
+						? "this framework had already released it"
+						: std::format("request {} is the one in flight", _inFlightRequest));
+				return;
+			}
+			first = static_cast<std::uint32_t>(_inFlightFirst);
+			second = static_cast<std::uint32_t>(_inFlightSecond);
 		}
 
+		// The state is released FIRST, under the lock, so nothing arriving while the
+		// collaborators run can mistake this scene for the live one.
+		ClearInFlight();
+
+		// Then the bookkeeping, outside the lock and on the snapshot -- Ledger and
+		// Aftermath take their own locks and the save callback takes ours, so
+		// holding _counter across them would close a cycle.
+		//
 		// A scene that ENDED is the only thing worth remembering. One that failed
 		// says nothing about these two beyond "not now", and writing it as history
 		// would put a cooldown on people who never had a scene.
-		if (_inFlightFirst != 0 && _inFlightSecond != 0) {
-			Ledger::GetSingleton().RecordScene(
-				static_cast<std::uint32_t>(_inFlightFirst),
-				static_cast<std::uint32_t>(_inFlightSecond));
-			Aftermath::GetSingleton().OnSceneEnded(
-				static_cast<std::uint32_t>(_inFlightFirst),
-				static_cast<std::uint32_t>(_inFlightSecond));
+		if (first != 0 && second != 0) {
+			Ledger::GetSingleton().RecordScene(first, second);
+			Aftermath::GetSingleton().OnSceneEnded(first, second);
 		}
 		Expressions::GetSingleton().OnSceneEnded();
 		Scenarios::GetSingleton().End();
+		_sceneInFlight.store(false);
+	}
+
+	// One place that lets a request go, so the five fields cannot drift apart
+	// again. Under the lock, and touching nothing that takes another one.
+	void PapyrusLink::ClearInFlight()
+	{
+		NamedLock lock{ _counter, "request counter" };
 		_inFlightFirst = 0;
 		_inFlightSecond = 0;
 		_inFlightRequest = 0;
+		_inFlightDuration = 0.0f;
+		_inFlightScenario.clear();
 		_sceneRunning = false;
 		_stopAsked = false;
-		_sceneInFlight.store(false);
 	}
 
 	void PapyrusLink::OnRequestFailed(std::int32_t a_request, std::string_view a_why)
@@ -998,11 +1052,7 @@ namespace RP
 			static_cast<std::uint32_t>(_inFlightSecond));
 		Expressions::GetSingleton().OnSceneEnded();
 
-		_inFlightFirst = 0;
-		_inFlightSecond = 0;
-		_inFlightRequest = 0;
-		_sceneRunning = false;
-		_stopAsked = false;
+		ClearInFlight();
 		_sceneInFlight.store(false);
 	}
 }
