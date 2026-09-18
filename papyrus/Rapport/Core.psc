@@ -48,6 +48,16 @@ String Function DebugValue(Int aiIndex) Global Native
 ; than offering the same unusable pair on every tick.
 Function NoteActorBusy(Int aiFormID) Global Native
 
+; The request whose scene has run for as long as we asked, or 0. AAF does not
+; enforce the duration it is given, so somebody has to -- and it is the plugin,
+; because the bridge has exactly ONE timer that is known to work. Every attempt
+; to start a second one killed the function that started it.
+Int Function SceneToStop() Global Native
+
+; Said once, after StopScene has been asked for, so the poll does not ask again
+; every three seconds while AAF winds the scene down.
+Function NoteStopAsked() Global Native
+
 ; ---- aftermath -----------------------------------------------------------
 ; The tags AAF put on an animation, as one string. Only the bridge hears them,
 ; and the plugin is what decides what a scene leaves behind, so they come over

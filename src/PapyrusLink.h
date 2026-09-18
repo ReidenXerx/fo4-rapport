@@ -42,9 +42,20 @@ namespace RP
 		[[nodiscard]] std::int32_t TakenSecondID() const noexcept { return _takenSecond; }
 		[[nodiscard]] float        TakenDuration() const noexcept { return _takenDuration; }
 
-		// Belt and braces: Papyrus has its own timer, but if the bridge itself stops
-		// answering, nothing else would ever clear the in-flight flag.
+		// Belt and braces: if the bridge stops answering, nothing else would ever
+		// clear the in-flight flag.
 		void CheckWatchdog(float a_sceneSeconds);
+
+		// The request whose scene has run for as long as we asked, or 0. AAF does
+		// not enforce the duration it is given, so somebody has to, and the clock
+		// belongs here: the bridge has exactly ONE timer that is known to work --
+		// its poll -- and every attempt to add a second one killed the function
+		// that started it. 17 polls, then the poll that called StartTimer with a
+		// second id, then nothing.
+		[[nodiscard]] std::int32_t SceneToStop();
+
+		// Papyrus has asked AAF to stop it; do not ask again every three seconds.
+		void NoteStopAsked();
 
 		// Every AAF event the bridge receives is counted here. The point is not the
 		// count: it is that "no AAF event has EVER arrived" becomes a fact the log
@@ -128,6 +139,10 @@ namespace RP
 		std::int32_t _inFlightFirst{ 0 };
 		std::int32_t _inFlightSecond{ 0 };
 		float        _inFlightDuration{ 0.0f };
+		std::int32_t _inFlightRequest{ 0 };
+		std::chrono::steady_clock::time_point _sceneStartedAt{};
+		bool         _sceneRunning{ false };
+		bool         _stopAsked{ false };
 
 		// Two queues, because two scripts drain them. Rapport's own bridge must
 		// never name a Commonwealth Moisturizer type -- it would then carry an

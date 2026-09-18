@@ -1,0 +1,167 @@
+[20:29:37.170] [info] Rapport v0.1.0
+[20:29:37.170] [info] ledger: registered with the save game
+[20:29:37.170] [info] loaded
+[20:30:08.410] [info] papyrus: bound 37 native functions on Rapport:Core
+[20:30:32.921] [info] config: 13 key(s) from Data\F4SE\Plugins\Rapport.ini — tick 20s, warmup 60s, budget 0.25 ms, radius 4096, maxScenes 1, scene 30s, dry run false, verbose true
+[20:30:32.921] [info] race allowed: Human (Fallout4.esm 0x00013746 -> 00013746)
+[20:30:32.921] [info] race allowed: Ghoul (Fallout4.esm 0x000EAFB6 -> 000EAFB6)
+[20:30:32.921] [info] race allowed: SynthGen1 (Fallout4.esm 0x000E8D09 -> 000E8D09)
+[20:30:32.921] [info] race allowed: SynthGen2 (Fallout4.esm 0x0010BD65 -> 0010BD65)
+[20:30:32.921] [info] race allowed: SynthGen2Valentine (Fallout4.esm 0x002261A4 -> 002261A4)
+[20:30:32.921] [info] race allowed: DLC03_SynthGen2DiMa (DLCCoast.esm 0x00042EBB -> 03042EBB)
+[20:30:32.921] [info] scoring: range 1536, observers within 900 | proximity 1.50, faction 0.60, interior 0.30, night 0.25, per observer -0.20, player near -0.50
+[20:30:32.922] [info] debug hub: applying profile "off"
+[20:30:32.922] [info] debug hub: engine logging already off
+[20:30:32.922] [info] debug hub:   aaf  debug_to_papyrus_log = false
+[20:30:32.922] [info] debug hub:   aaf  troubleshooting_level = 0
+[20:30:32.922] [info] aftermath: using Commonwealth Moisturizer (worn meshes)
+[20:30:32.923] [info] aftermath: kzSemen_Female.nif has morph data - it will follow each actor's body
+[20:30:32.923] [info] aftermath: kzSemen_Male.nif has morph data - it will follow each actor's body
+[20:30:32.923] [info] aftermath: both aftermath mods are installed - Rapport drives the meshes and SILENCES both, because a mod still listening to AAF goes on painting the same bodies on its own schedule
+[20:30:32.923] [info] aftermath: 31 tag rule(s), 12 game hours
+[20:30:32.923] [info] expressions: 0% Rapport_Anticipation, 25% Rapport_Pleasure_1, 50% Rapport_Pleasure_2, 80% Rapport_Pleasure_3, 95% Rapport_Climax; then Rapport_Dazed for 20s, then Rapport_Clear
+[20:30:32.924] [info] takeover: 2 quest(s) from CumOverlays.esp will be STOPPED - Rapport owns persistent aftermath, so nothing else may apply it. Two reasons, either one sufficient: CumOverlays' own timer removes the same overlay TEMPLATES ours draw from and would strip them minutes into a twelve-hour window; and when Moisturizer is the backend, CumOverlays left running would paint its flat textures over the meshes
+[20:30:32.924] [info] takeover: 1 quest(s) from ComMoisturizer.esp will be STOPPED - Rapport owns persistent aftermath, so its AAF listener must not also be applying cum on its own schedule -- whether Rapport is driving this mod or the other one. Only the listener is stopped: CMkz_SemenLib is the library Rapport calls and has to keep running
+[20:30:32.924] [info] takeover: 9 quest(s) from AAF_SEU.esp will be STOPPED - Rapport replaces Sex 'Em Up; two mods watching for scene opportunities means two mods reserving the same actors, and SEU keeps its own hooks into AAF
+[20:30:32.924] [info] takeover: AAF_AutonomyEnhanced.esp is not installed - nothing to take over there
+[20:30:32.924] [info] papyrus: bridge quest 28000800 is loaded
+[20:30:32.924] [info] scheduler started (tick 20s)
+[20:30:38.139] [info] ledger: cleared for a new game or a load
+[20:30:49.479] [info] ledger: after loading, 0 actor(s), 0 standing overlay(s), 0 face(s) to clear
+[20:30:49.479] [info] session ready — warming up for 60s before the first tick
+[20:30:52.558] [info] moisturizer: connected to the CMkz library
+[20:30:52.880] [info] moisturizer: its player timer was 5.000000 minute(s) - setting it to 0, because Rapport removes this from the save in game hours
+[20:30:52.898] [info] moisturizer: its NPC timer was 5.000000 minute(s) - setting it to 0
+[20:30:52.963] [info] moisturizer: connected to the CMkz library
+[20:30:52.963] [info] moisturizer: connected to the CMkz library
+[20:31:00.106] [info] debug hub: applied 2 of 2 setting(s)
+[20:31:00.235] [info] takeover: STOPPED CumOverlay_Main - Rapport owns persistent aftermath, so nothing else may apply it. Two reasons, either one sufficient: CumOverlays' own timer removes the same overlay TEMPLATES ours draw from and would strip them minutes into a twelve-hour window; and when Moisturizer is the backend, CumOverlays left running would paint its flat textures over the meshes
+[20:31:00.352] [info] takeover: STOPPED CumOverlay_Starter - Rapport owns persistent aftermath, so nothing else may apply it. Two reasons, either one sufficient: CumOverlays' own timer removes the same overlay TEMPLATES ours draw from and would strip them minutes into a twelve-hour window; and when Moisturizer is the backend, CumOverlays left running would paint its flat textures over the meshes
+[20:31:00.469] [info] takeover: STOPPED CMkz_EventHandler - Rapport owns persistent aftermath, so its AAF listener must not also be applying cum on its own schedule -- whether Rapport is driving this mod or the other one. Only the listener is stopped: CMkz_SemenLib is the library Rapport calls and has to keep running
+[20:31:00.585] [info] takeover: STOPPED SEUQuest - Rapport replaces Sex 'Em Up; two mods watching for scene opportunities means two mods reserving the same actors, and SEU keeps its own hooks into AAF
+[20:31:00.669] [info] takeover: SEUScanQuest was already stopped - left alone
+[20:31:00.752] [info] takeover: SEUFlirtDialogueQuest was already stopped - left alone
+[20:31:00.869] [info] takeover: STOPPED SEUPlayerLoadQuest - Rapport replaces Sex 'Em Up; two mods watching for scene opportunities means two mods reserving the same actors, and SEU keeps its own hooks into AAF
+[20:31:00.985] [info] takeover: STOPPED SEUMCM - Rapport replaces Sex 'Em Up; two mods watching for scene opportunities means two mods reserving the same actors, and SEU keeps its own hooks into AAF
+[20:31:01.068] [info] takeover: SEUFlirtSimpleQuest was already stopped - left alone
+[20:31:01.152] [info] takeover: SEUProstitutionQuest was already stopped - left alone
+[20:31:01.235] [info] takeover: SEUSurrenderScan was already stopped - left alone
+[20:31:01.318] [info] takeover: SEUSurrenderQuest was already stopped - left alone
+[20:31:01.352] [info] bridge: connected to AAF 1741 build Beta
+[20:31:01.369] [info] bridge ready and listening every 3.0s
+[20:31:49.602] [info] tick 1: 54 actors -> 9 candidates in 1 slice(s), 0.037 ms total, worst slice 0.037 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 25, race 12, dialogue 0, quest 5)
+[20:31:49.602] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:31:49.602] [info]    best pair CLEARS the 0.90 bar (9 candidates)
+[20:31:49.602] [info]    would pair Geneva + Diamond City Security — score 1.16 (apart 243, faction shared, outdoors, day, observers 2, player watching)
+[20:31:49.602] [info]    would pair Johnny Friendly + Polly — score 1.02 (apart 724, faction shared, outdoors, day, observers 2)
+[20:31:49.602] [info]    would pair Genevieve + Malcom Latimer — score 0.80 (apart 415, faction different, outdoors, day, observers 1)
+[20:31:49.602] [info] request 1: queued Geneva (00002F0B) and Diamond City Security (000F61B6) for 30s
+[20:31:51.481] [info] bridge: request 1 starting for 12043 and 1008054, aaf status 2
+[20:31:51.807] [info] aaf: OnWalkInit args[11] [0]=0 [1]=[[Actor <GenevaREF (00002F0B)>], [Actor < (000F61B6)>]] [2]=None [3]=1313664 [4]=[-1.#IND00, -1.#IND00, -1.#IND00, -1.#IND00] [5]=Rapport,autonomy [6]=30.000000 [7]=True [8]=None [9]=[UAP] BP70 - Locker Sex [10]=["LOVE5", "TEASE", "", "PenisToVagina", "BP70", "HELD1", "FROMFRONT", "DOM3", "Neutral", "STIM3", "F_M", "NULLTOSELF", "Locker", "Carry"]
+[20:32:02.033] [info] aaf: OnSceneInit args[11] [0]=0 [1]=[[Actor <GenevaREF (00002F0B)>], [Actor < (000F61B6)>]] [2]=None [3]=1313664 [4]=[91.658241, -2629.885254, 330.000000, 198.816360] [5]=Rapport,autonomy [6]=30.000000 [7]=True [8]=None [9]=[UAP] BP70 - Locker Sex [10]=["LOVE5", "TEASE", "", "PenisToVagina", "BP70", "HELD1", "FROMFRONT", "DOM3", "Neutral", "STIM3", "F_M", "NULLTOSELF", "Locker", "Carry"]
+[20:32:02.050] [info] request 1: scene started
+[20:32:02.050] [info] expressions: driving 00002F0B and 000F61B6 over 30s
+[20:32:02.384] [info] aaf: OnAnimationStart args[14] [0]=0 [1]=[[Actor <GenevaREF (00002F0B)>], [Actor < (000F61B6)>]] [2]=[UAP] BP70 - Locker Sex [3]=["LOVE5", "TEASE", "", "PenisToVagina", "BP70", "HELD1", "FROMFRONT", "DOM3", "Neutral", "STIM3", "F_M", "NULLTOSELF", "Locker", "Carry"] [4]=Rapport,autonomy [5]=1313664 [6]=[] [7]=0 [8]=False [9]=[] [10]=[] [11]=[] [12]=[] [13]=[]
+[20:32:09.639] [info] tick 2: 54 actors -> 6 candidates in 1 slice(s), 0.021 ms total, worst slice 0.021 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 26, race 12, dialogue 0, quest 7)
+[20:32:09.639] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:32:09.639] [info]    best pair misses the 0.90 bar (6 candidates)
+[20:32:09.639] [info]    would pair Genevieve + Malcom Latimer — score 0.88 (apart 361, faction different, outdoors, day, observers 1)
+[20:32:09.639] [info]    would pair John + Polly — score 0.56 (apart 1030, faction shared, outdoors, day, observers 3)
+[20:32:09.639] [info]    would pair Polly + Malcom Latimer — score 0.44 (apart 1283, faction shared, outdoors, day, observers 3)
+[20:32:29.667] [info] tick 3: 54 actors -> 7 candidates in 1 slice(s), 0.029 ms total, worst slice 0.029 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 25, race 12, dialogue 0, quest 7)
+[20:32:29.667] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:32:29.667] [info]    best pair CLEARS the 0.90 bar (7 candidates)
+[20:32:29.667] [info]    would pair John + Cathy — score 1.77 (apart 180, faction shared, outdoors, day, observers 2)
+[20:32:29.667] [info]    would pair John + Polly — score 0.56 (apart 1030, faction shared, outdoors, day, observers 3)
+[20:32:29.667] [info]    would pair Cathy + Polly — score 0.48 (apart 1184, faction shared, outdoors, day, observers 3)
+[20:32:29.667] [info]    holding: a scene is already running
+[20:32:49.695] [info] tick 4: 54 actors -> 8 candidates in 1 slice(s), 0.027 ms total, worst slice 0.027 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 24, race 12, dialogue 0, quest 7)
+[20:32:49.695] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:32:49.695] [info]    best pair CLEARS the 0.90 bar (8 candidates)
+[20:32:49.695] [info]    would pair Polly + Diamond City Security — score 1.20 (apart 561, faction shared, outdoors, day, observers 2)
+[20:32:49.695] [info]    would pair John + Cathy — score 1.20 (apart 180, faction shared, outdoors, day, observers 4)
+[20:32:49.695] [info]    would pair John + Diamond City Security — score 0.74 (apart 484, faction shared, outdoors, day, observers 4)
+[20:32:49.695] [info]    holding: a scene is already running
+[20:33:09.730] [info] tick 5: 54 actors -> 7 candidates in 1 slice(s), 0.021 ms total, worst slice 0.021 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 25, race 12, dialogue 0, quest 7)
+[20:33:09.730] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:33:09.730] [info]    best pair CLEARS the 0.90 bar (7 candidates)
+[20:33:09.730] [info]    would pair John + Cathy — score 1.57 (apart 180, faction shared, outdoors, day, observers 3)
+[20:33:09.730] [info]    would pair Genevieve + Malcom Latimer — score 0.80 (apart 415, faction different, outdoors, day, observers 1)
+[20:33:09.730] [info]    would pair John + Polly — score 0.56 (apart 1030, faction shared, outdoors, day, observers 3)
+[20:33:09.730] [info]    holding: a scene is already running
+[20:33:29.750] [info] tick 6: 54 actors -> 7 candidates in 1 slice(s), 0.021 ms total, worst slice 0.021 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 25, race 12, dialogue 0, quest 7)
+[20:33:29.750] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:33:29.750] [info]    best pair CLEARS the 0.90 bar (7 candidates)
+[20:33:29.750] [info]    would pair John + Cathy — score 1.77 (apart 180, faction shared, outdoors, day, observers 1)
+[20:33:29.750] [info]    would pair Genevieve + Malcom Latimer — score 0.80 (apart 415, faction different, outdoors, day, observers 1)
+[20:33:29.750] [info]    would pair John + Polly — score 0.56 (apart 1030, faction shared, outdoors, day, observers 3)
+[20:33:29.750] [info]    holding: a scene is already running
+[20:33:49.785] [info] tick 7: 54 actors -> 10 candidates in 1 slice(s), 0.022 ms total, worst slice 0.022 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 22, race 12, dialogue 0, quest 7)
+[20:33:49.785] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:33:49.785] [info]    best pair CLEARS the 0.90 bar (10 candidates)
+[20:33:49.785] [info]    would pair John + Diamond City Security — score 1.33 (apart 326, faction shared, outdoors, day, observers 3)
+[20:33:49.785] [info]    would pair Cathy + Diamond City Security — score 1.14 (apart 457, faction shared, outdoors, day, observers 3)
+[20:33:49.785] [info]    would pair Patricia Jackson + Polly — score 0.96 (apart 329, faction shared, outdoors, day, observers 4)
+[20:33:49.785] [info]    holding: a scene is already running
+[20:34:09.812] [info] tick 8: 54 actors -> 7 candidates in 1 slice(s), 0.025 ms total, worst slice 0.025 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 25, race 12, dialogue 0, quest 7)
+[20:34:09.812] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:34:09.812] [info]    best pair misses the 0.90 bar (7 candidates)
+[20:34:09.812] [info]    would pair John + Cathy — score 0.73 (apart 180, faction shared, outdoors, day, observers 5)
+[20:34:09.812] [info]    would pair Polly + Malcom Latimer — score 0.44 (apart 1283, faction shared, outdoors, day, observers 3)
+[20:34:09.812] [info]    would pair Genevieve + Malcom Latimer — score 0.32 (apart 825, faction different, outdoors, day, observers 1)
+[20:34:29.829] [info] tick 9: 54 actors -> 9 candidates in 1 slice(s), 0.021 ms total, worst slice 0.021 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 23, race 12, dialogue 0, quest 7)
+[20:34:29.829] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:34:29.829] [info]    best pair CLEARS the 0.90 bar (9 candidates)
+[20:34:29.829] [info]    would pair Johnny Friendly + Melvin Koch — score 1.93 (apart 91, faction shared, outdoors, day, observers 2)
+[20:34:29.829] [info]    would pair Johnny Friendly + Polly — score 1.02 (apart 724, faction shared, outdoors, day, observers 2)
+[20:34:29.829] [info]    would pair Johnny Friendly + Malcom Latimer — score 0.87 (apart 888, faction shared, outdoors, day, observers 2)
+[20:34:29.829] [info]    holding: a scene is already running
+[20:34:49.867] [info] tick 10: 54 actors -> 11 candidates in 1 slice(s), 0.021 ms total, worst slice 0.021 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 23, race 12, dialogue 0, quest 5)
+[20:34:49.867] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:34:49.867] [info]    best pair CLEARS the 0.90 bar (11 candidates)
+[20:34:49.867] [info]    would pair Johnny Friendly + Melvin Koch — score 1.93 (apart 91, faction shared, outdoors, day, observers 2)
+[20:34:49.867] [info]    would pair John + Cathy — score 1.20 (apart 180, faction shared, outdoors, day, observers 4)
+[20:34:49.867] [info]    would pair Johnny Friendly + Polly — score 1.02 (apart 724, faction shared, outdoors, day, observers 2)
+[20:34:49.867] [info]    holding: a scene is already running
+[20:34:49.867] [info] health: 3 aaf event(s), last 167s ago
+[20:34:49.867] [info] health: bridge ready, 1 queued, 1 collected, 1 started, 0 ended, 0 failed, a scene is in flight
+[20:34:49.867] [info] health: the save remembers 0 actor(s) and 0 standing overlay(s)
+[20:34:49.867] [info] health: 17 poll(s), 0 order(s) waiting
+[20:34:49.867] [info] budget so far: 10 slices, 0.025 ms average, 0.037 ms worst
+[20:35:09.892] [info] tick 11: 54 actors -> 12 candidates in 1 slice(s), 0.021 ms total, worst slice 0.021 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 22, race 12, dialogue 0, quest 5)
+[20:35:09.892] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:35:09.892] [info]    best pair CLEARS the 0.90 bar (12 candidates)
+[20:35:09.892] [info]    would pair Johnny Friendly + Melvin Koch — score 1.73 (apart 91, faction shared, outdoors, day, observers 3)
+[20:35:09.892] [info]    would pair John + Cathy — score 1.57 (apart 180, faction shared, outdoors, day, observers 3)
+[20:35:09.892] [info]    would pair Geneva + Diamond City Security — score 1.09 (apart 167, faction shared, outdoors, day, observers 3, player watching)
+[20:35:09.892] [info]    holding: a scene is already running
+[20:35:29.925] [info] tick 12: 54 actors -> 12 candidates in 1 slice(s), 0.021 ms total, worst slice 0.021 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 22, race 12, dialogue 0, quest 5)
+[20:35:29.925] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:35:29.925] [error] watchdog: nothing has been heard about the running scene for 210s - releasing
+[20:35:29.925] [info] expressions: scene over - Rapport_Dazed for 20s, then clearing
+[20:35:29.925] [info]    best pair CLEARS the 0.90 bar (12 candidates)
+[20:35:29.925] [info]    would pair Johnny Friendly + Melvin Koch — score 1.73 (apart 91, faction shared, outdoors, day, observers 3)
+[20:35:29.925] [info]    would pair John + Cathy — score 1.20 (apart 180, faction shared, outdoors, day, observers 4)
+[20:35:29.925] [info]    would pair Geneva + Diamond City Security — score 1.09 (apart 167, faction shared, outdoors, day, observers 3, player watching)
+[20:35:29.925] [info] request 2: queued Johnny Friendly (2E00BA97) and Melvin Koch (00130DC4) for 30s
+[20:35:49.941] [info] tick 13: 54 actors -> 11 candidates in 1 slice(s), 0.018 ms total, worst slice 0.018 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 23, race 12, dialogue 0, quest 5)
+[20:35:49.941] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:35:49.941] [info]    best pair CLEARS the 0.90 bar (11 candidates)
+[20:35:49.941] [info]    would pair Johnny Friendly + Melvin Koch — score 1.93 (apart 91, faction shared, outdoors, day, observers 2)
+[20:35:49.941] [info]    would pair John + Cathy — score 1.20 (apart 180, faction shared, outdoors, day, observers 4)
+[20:35:49.941] [info]    would pair Geneva + Diamond City Security — score 1.09 (apart 167, faction shared, outdoors, day, observers 3, player watching)
+[20:35:49.941] [info]    holding: a scene is already running
+[20:36:09.974] [info] tick 14: 54 actors -> 13 candidates in 1 slice(s), 0.022 ms total, worst slice 0.022 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 21, race 12, dialogue 0, quest 5)
+[20:36:09.974] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:36:09.974] [info]    best pair CLEARS the 0.90 bar (13 candidates)
+[20:36:09.974] [info]    would pair Johnny Friendly + Melvin Koch — score 1.36 (apart 91, faction shared, outdoors, day, observers 4)
+[20:36:09.974] [info]    would pair John + Diamond City Security — score 1.23 (apart 394, faction shared, outdoors, day, observers 3)
+[20:36:09.974] [info]    would pair Geneva + Diamond City Security — score 1.09 (apart 167, faction shared, outdoors, day, observers 3, player watching)
+[20:36:09.974] [info]    holding: a scene is already running
+[20:36:29.997] [info] tick 15: 54 actors -> 12 candidates in 1 slice(s), 0.021 ms total, worst slice 0.021 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 22, race 12, dialogue 0, quest 5)
+[20:36:29.997] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[20:36:29.997] [info]    best pair CLEARS the 0.90 bar (12 candidates)
+[20:36:29.997] [info]    would pair Johnny Friendly + Melvin Koch — score 1.73 (apart 91, faction shared, outdoors, day, observers 3)
+[20:36:29.997] [info]    would pair John + Cathy — score 1.57 (apart 180, faction shared, outdoors, day, observers 3)
+[20:36:29.997] [info]    would pair Geneva + Diamond City Security — score 1.09 (apart 167, faction shared, outdoors, day, observers 3, player watching)
+[20:36:29.997] [info]    holding: a scene is already running

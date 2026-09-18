@@ -8,16 +8,14 @@ Scriptname Rapport:Bridge extends Quest
  Style note: the base sources are decompiled and so carry no default argument
  values. Every argument is passed explicitly. See docs/papyrus-toolchain.md.}
 
+; ONE timer, and it is the only one this script has ever been able to keep.
+;
+; The poll ran 17 times and stopped at the exact poll that called StartTimer with
+; a SECOND id, and the two places that used a second id both aborted at that
+; statement -- the scene timer never fired, the stop timer never fired, and the
+; poll never came back. So the clock for everything else lives on the plugin
+; side, where it already lived for the watchdog, and Papyrus only ever asks.
 Int Property kPollTimer = 1 AutoReadOnly
-Int Property kSceneTimer = 2 AutoReadOnly
-
-; The scene has run for as long as we asked. AAF does not end it on its own: a
-; 30-second scene was still going three and a half minutes later, OnSceneEnd
-; never arrived, and everything downstream of a scene ending -- aftermath, the
-; cooldown, releasing the actors -- waited for an event that was never coming.
-; So ending it is ours to do. AAF stops one with StopScene(actor, -1), which is
-; what its own code does when an actor wanders out of range.
-Int Property kStopTimer = 3 AutoReadOnly
 
 Struct Request
   Int id
@@ -132,27 +130,6 @@ EndFunction
 ; job thread and the VM packs arguments through the per-thread scrap heap. So the
 ; bridge asks instead, on its own thread, and almost every ask returns nothing.
 Event OnTimer(Int aiTimerID)
-	If aiTimerID == kStopTimer
-		If _inFlight.Length > 0
-			Rapport:Core.Trace("bridge: request " + _inFlight[0].id + " has run its length - asking AAF to stop it")
-			Self.StopSceneFor(_inFlight[0])
-		EndIf
-		Return
-	EndIf
-
-	If aiTimerID == kSceneTimer
-		If _inFlight.Length > 0
-			; Ask AAF to stop it before giving up locally. If a scene IS running,
-			; this is what makes it end properly -- actors released, keywords
-			; cleared, OnSceneEnd sent. Releasing our side while AAF carries on is
-			; how an NPC ends up animating with nobody watching them.
-			Rapport:Core.Trace("bridge: giving up on request " + _inFlight[0].id + " - stopping anything AAF still has running")
-			Self.StopSceneFor(_inFlight[0])
-			Self.Release(0, "AAF never reported the scene ending")
-		EndIf
-		Return
-	EndIf
-
 	If aiTimerID != kPollTimer
 		Return
 	EndIf
@@ -167,6 +144,18 @@ Event OnTimer(Int aiTimerID)
 
 	If _ready
 		Rapport:Core.Pump()
+
+		; AAF does not end a scene when the duration it was given runs out, so we
+		; do. The plugin holds the clock and answers with a request id or nothing.
+		Int stopping = Rapport:Core.SceneToStop()
+		If stopping != 0
+			Int index = Self.FindRequest(stopping)
+			If index >= 0
+				Rapport:Core.Trace("bridge: request " + stopping + " has run its length - asking AAF to stop it")
+				Self.StopSceneFor(_inFlight[index])
+			EndIf
+			Rapport:Core.NoteStopAsked()
+		EndIf
 
 		Int request = Rapport:Core.TakeRequest()
 		If request != 0
@@ -236,10 +225,9 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 	Rapport:Core.Trace("bridge: request " + aiRequest + " starting for " + akFirst.GetFormID() + " and " + akSecond.GetFormID() + ", aaf status " + _api.GetAAFStatus())
 	_api.StartScene(actors, settings)
 
-	; A scene that never begins must not wedge the framework. AAF answers with an
-	; event or it does not answer at all, and the first run of this code sat on
-	; "a scene is already running" for three minutes because nothing ever came back.
-	Self.StartTimer(afDuration + 60.0, kSceneTimer)
+	; No timer here. This statement used to be StartTimer with a second id, and it
+	; took the poll with it: seventeen polls, then this line, then silence. The
+	; plugin's watchdog covers a scene that never begins, and it always did.
 EndFunction
 
 ; Ends a scene AAF is running. -1 is AAF's own "all of it" -- the value its
@@ -292,11 +280,10 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 			entry.sceneID = akArgs[3] as Int
 			_inFlight[index] = entry
 		EndIf
+		; SceneStarted is what starts the plugin's clock for this scene -- here,
+		; not when the request was made, because AAF walks the two of them across
+		; a market first and that walk is not the scene.
 		Rapport:Core.SceneStarted(_inFlight[index].id)
-
-		; The clock starts HERE, not when the request was made: AAF walks the two
-		; of them across a market first, and that walk is not the scene.
-		Self.StartTimer(_inFlight[index].duration, kStopTimer)
 	EndIf
 EndEvent
 

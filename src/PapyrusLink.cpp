@@ -82,6 +82,16 @@ namespace
 		RP::Expressions::GetSingleton().Pump();
 	}
 
+	std::int32_t Papyrus_SceneToStop(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().SceneToStop();
+	}
+
+	void Papyrus_NoteStopAsked(std::monostate)
+	{
+		RP::PapyrusLink::GetSingleton().NoteStopAsked();
+	}
+
 	std::int32_t Papyrus_TakeOverlayOrder(std::monostate)
 	{
 		return RP::PapyrusLink::GetSingleton().TakeOverlayOrder();
@@ -276,6 +286,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorBusy"sv, Papyrus_NoteActorBusy, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "Pump"sv, Papyrus_Pump, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SceneToStop"sv, Papyrus_SceneToStop, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteStopAsked"sv, Papyrus_NoteStopAsked, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverlayOrder"sv, Papyrus_TakeOverlayOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderActorID"sv, Papyrus_OrderActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderSetID"sv, Papyrus_OrderSetID, std::nullopt, false);
@@ -303,7 +315,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 37 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 39 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -349,6 +361,9 @@ namespace RP
 		_inFlightFirst = static_cast<std::int32_t>(a_first->GetFormID());
 		_inFlightSecond = static_cast<std::int32_t>(a_second->GetFormID());
 		_inFlightDuration = a_duration;
+		_inFlightRequest = request;
+		_sceneRunning = false;
+		_stopAsked = false;
 		_requestedAt = std::chrono::steady_clock::now();
 		_queued.fetch_add(1);
 
@@ -406,6 +421,9 @@ namespace RP
 		Release(static_cast<std::uint32_t>(_inFlightSecond));
 		_inFlightFirst = 0;
 		_inFlightSecond = 0;
+		_inFlightRequest = 0;
+		_sceneRunning = false;
+		_stopAsked = false;
 		_sceneInFlight.store(false);
 	}
 
@@ -419,10 +437,32 @@ namespace RP
 		}
 	}
 
+	std::int32_t PapyrusLink::SceneToStop()
+	{
+		if (!_sceneRunning || _stopAsked || _inFlightRequest == 0) {
+			return 0;
+		}
+		const auto elapsed =
+			std::chrono::duration<float>{ std::chrono::steady_clock::now() - _sceneStartedAt }.count();
+		return elapsed >= _inFlightDuration ? _inFlightRequest : 0;
+	}
+
+	void PapyrusLink::NoteStopAsked()
+	{
+		_stopAsked = true;
+	}
+
 	void PapyrusLink::OnSceneStarted(std::int32_t a_request)
 	{
 		_started.fetch_add(1);
 		logger::info("request {}: scene started", a_request);
+
+		// The clock starts HERE, not when the request was made: AAF walks the pair
+		// to each other first, and that walk is not the scene. Measured at 12.5
+		// seconds across an open market -- 40% of a thirty-second scene.
+		_sceneStartedAt = std::chrono::steady_clock::now();
+		_sceneRunning = true;
+		_stopAsked = false;
 
 		Expressions::GetSingleton().OnSceneStarted(
 			static_cast<std::uint32_t>(_inFlightFirst),
@@ -619,6 +659,9 @@ namespace RP
 		Expressions::GetSingleton().OnSceneEnded();
 		_inFlightFirst = 0;
 		_inFlightSecond = 0;
+		_inFlightRequest = 0;
+		_sceneRunning = false;
+		_stopAsked = false;
 		_sceneInFlight.store(false);
 	}
 
@@ -634,6 +677,9 @@ namespace RP
 
 		_inFlightFirst = 0;
 		_inFlightSecond = 0;
+		_inFlightRequest = 0;
+		_sceneRunning = false;
+		_stopAsked = false;
 		_sceneInFlight.store(false);
 	}
 }
