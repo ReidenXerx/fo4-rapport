@@ -58,6 +58,16 @@ namespace RP
 		// once per animation; a scene plays several, so they accumulate.
 		void NoteTags(std::string_view a_tags);
 
+		// An actor's sex, reported by the bridge when it starts a request, because
+		// only Papyrus holds a real Actor to ask. 0 male, 1 female, anything else
+		// unknown.
+		void NoteSex(std::uint32_t a_formID, std::int32_t a_sex);
+
+		// The order AAF actually placed them in, from OnAnimationStart. Slot 0 is
+		// the receiving role in 559 of 562 two-actor animations that name both
+		// genders, which is the only thing that separates a same-sex pair.
+		void NoteSlots(std::uint32_t a_slot0, std::uint32_t a_slot1);
+
 		// The scene ended. Works out what it left on these two and queues the
 		// orders. Clears the accumulated tags either way.
 		void OnSceneEnded(std::uint32_t a_first, std::uint32_t a_second);
@@ -127,7 +137,16 @@ namespace RP
 
 		Backend _backend{ Backend::kNone };
 
+		// Which of the two a scene's cum belongs to, or 0 when nothing here can
+		// tell. Nothing is applied in that case: the wrong person is worse than
+		// nobody, because on a clothed NPC the face is the only region that shows.
+		[[nodiscard]] std::uint32_t ReceiverOf(
+			std::string_view a_tags, std::uint32_t a_first, std::uint32_t a_second) const;
+
 		std::string        _sceneTags;   // accumulated across one scene
+		std::uint32_t      _slot0{ 0 };
+		std::uint32_t      _slot1{ 0 };
+		std::unordered_map<std::uint32_t, std::int32_t> _sex;
 		std::vector<Mark>  _marks;
 	};
 }

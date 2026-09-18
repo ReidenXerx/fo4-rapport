@@ -64,6 +64,15 @@ Function NoteStopAsked() Global Native
 ; raw and are parsed on the other side.
 Function NoteSceneTags(String asTags) Global Native
 
+; An actor's sex: 0 male, 1 female, anything else unknown. Reported from Papyrus
+; because only Papyrus holds a real Actor to ask.
+Function NoteActorSex(Int aiFormID, Int aiSex) Global Native
+
+; The order AAF actually placed the two of them in. Slot 0 is the receiving role
+; in 559 of the 562 two-actor animations that name both genders, and it is the
+; only thing that tells a same-sex pair apart.
+Function NoteSceneSlots(Int aiSlot0, Int aiSlot1) Global Native
+
 ; Called at the top of every poll, before anything is collected. Everything that
 ; has to happen on a clock finer than the scheduler's twenty seconds lives behind
 ; it: the expression progression through a scene, and the clearing afterwards.

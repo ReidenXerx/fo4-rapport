@@ -213,6 +213,11 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 		Return
 	EndIf
 
+	; Their sexes, while we hold real Actors. The plugin decides from this which
+	; one a scene's cum belongs to -- the receiving one, and only them.
+	Rapport:Core.NoteActorSex(akFirst.GetFormID(), akFirst.GetLeveledActorBase().GetSex())
+	Rapport:Core.NoteActorSex(akSecond.GetFormID(), akSecond.GetLeveledActorBase().GetSex())
+
 	Request entry = new Request
 	entry.id = aiRequest
 	entry.first = akFirst
@@ -348,6 +353,19 @@ Event AAF:AAF_API.OnAnimationStart(AAF:AAF_API akSender, Var[] akArgs)
 		EndIf
 	EndIf
 EndEvent
+
+; NOTE: the actor SLOT ORDER is not read.
+;
+; akArgs[1] is AAF's actor list in the order it placed them, and slot 0 is the
+; receiving role in 559 of 562 two-actor animations -- it would settle a same-sex
+; pair, which sex alone cannot. But it is a Var holding a packed array, Papyrus
+; refuses "var as Var[]", and the function that unpacks it is an F4SE addition to
+; Utility that is not in the vanilla Utility.pex. Declaring a native signature
+; that cannot be verified fails at RUNTIME rather than at compile time, which is
+; a worse trade than leaving a same-sex scene with nothing on either actor.
+;
+; So: mixed pairs are resolved by sex, same-sex pairs are left alone and said so
+; in the log.
 
 Event AAF:AAF_API.OnAnimationStop(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnAnimationStop", akArgs)

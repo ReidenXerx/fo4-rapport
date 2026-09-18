@@ -67,6 +67,22 @@ namespace
 	// AAF's tags say what an animation WAS, and only the bridge can hear them. The
 	// plugin decides what that leaves behind, so the tags have to come over.
 
+	// Only Papyrus holds a real Actor to ask, so the sex comes from there rather
+	// than from a form lookup on whichever thread happens to be running.
+	void Papyrus_NoteActorSex(std::monostate, std::int32_t a_formID, std::int32_t a_sex)
+	{
+		RP::Aftermath::GetSingleton().NoteSex(static_cast<std::uint32_t>(a_formID), a_sex);
+	}
+
+	// The order AAF actually placed them in. It is the only thing that separates a
+	// same-sex pair, and slot 0 is the receiving role in 559 of the 562 two-actor
+	// animations that name both genders.
+	void Papyrus_NoteSceneSlots(std::monostate, std::int32_t a_slot0, std::int32_t a_slot1)
+	{
+		RP::Aftermath::GetSingleton().NoteSlots(
+			static_cast<std::uint32_t>(a_slot0), static_cast<std::uint32_t>(a_slot1));
+	}
+
 	void Papyrus_NoteSceneTags(std::monostate, RE::BSFixedString a_tags)
 	{
 		// BOTH. One decides what a scene leaves behind, the other decides what the
@@ -324,6 +340,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteEvent"sv, Papyrus_NoteEvent, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorBusy"sv, Papyrus_NoteActorBusy, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteActorSex"sv, Papyrus_NoteActorSex, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteSceneSlots"sv, Papyrus_NoteSceneSlots, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "Pump"sv, Papyrus_Pump, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneToStop"sv, Papyrus_SceneToStop, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteStopAsked"sv, Papyrus_NoteStopAsked, std::nullopt, false);
@@ -354,7 +372,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 39 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 41 native functions on {}", kCoreScript);
 		return true;
 	}
 

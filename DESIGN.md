@@ -520,3 +520,30 @@ that stops a development default reaching a release is somebody noticing.
 **The general rule:** a default chosen for shipping is not automatically right for developing, and a
 diagnostic switched off "because it costs something" is a trade you should be able to name. The cost
 here was framerate on a machine that was not measuring framerate.
+
+## A-21 - aftermath lands on the receiving actor only (2026-09-18)
+
+Owner, after seeing it on both: *"cum should be only on passive role char"*. Confirmed in game -- a
+Diamond City guard had it on his neck after being on the giving end of a blowjob.
+
+**AAF's own `role` attribute is dead**: zero occurrences across every installed pack. What the packs
+DO populate is per-actor `gender` (760 F, 1260 M), and every act tag is `<giver part>To<receiver
+part>`. So the receiver is read from the tag and the pair's sexes:
+
+- `...ToVagina`, `...ToNipples`, `Cunnilingus` -> the female
+- `...ToMouth`, `...ToAnus`, `Blowjob`, `Analingus` -> the female in a mixed pair
+
+That covers the 559 of 562 two-actor animations that pair `('F','M')`. The giving partner gets
+nothing at all, which is what was asked for; a smaller amount on them would be a config line, not a
+redesign.
+
+**Same-sex pairs are left alone, deliberately.** Sex cannot separate them, and the thing that would
+-- AAF's actor slot order, where slot 0 is the receiving role 559 times against 3 -- is a Var
+holding a packed array. Papyrus refuses `var as Var[]`, and the function that unpacks it is an F4SE
+addition to `Utility` that is not in the vanilla `Utility.pex`. Declaring a native signature that
+cannot be verified fails at RUNTIME, not at compile time, and that is a worse trade than a same-sex
+scene leaving nothing. The log says which case it hit.
+
+**Why this matters more than it looks:** AAF strips clothing for a scene and the NPC re-equips
+afterwards, so on a clothed settler the FACE is the only region anyone sees. Putting the oral region
+on the wrong partner is the most visible mistake this framework can make.

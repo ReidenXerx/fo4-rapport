@@ -232,6 +232,71 @@ namespace RP
 		return regions;
 	}
 
+	void Aftermath::NoteSex(std::uint32_t a_formID, std::int32_t a_sex)
+	{
+		NamedLock lock{ _lock, "aftermath" };
+		_sex[a_formID] = a_sex;
+	}
+
+	void Aftermath::NoteSlots(std::uint32_t a_slot0, std::uint32_t a_slot1)
+	{
+		NamedLock lock{ _lock, "aftermath" };
+		_slot0 = a_slot0;
+		_slot1 = a_slot1;
+	}
+
+	// Which of the two it landed on.
+	//
+	// AAF's own `role` attribute is dead -- zero occurrences across every installed
+	// pack -- so this is worked out from what the packs DO populate. Every act tag
+	// is "<giver part>To<receiver part>", and per-actor `gender` is used
+	// everywhere: 760 F, 1260 M.
+	std::uint32_t Aftermath::ReceiverOf(
+		std::string_view a_tags, std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		const auto lowered = Lower(a_tags);
+		const auto has = [&](std::string_view a_part) {
+			return lowered.find(a_part) != std::string::npos;
+		};
+
+		const auto onAFemalePart = has("tovagina"sv) || has("tonipples"sv) ||
+		                           has("cunnilingus"sv) || has("vaginato"sv);
+		const auto onEitherPart = has("tomouth"sv) || has("toanus"sv) ||
+		                          has("blowjob"sv) || has("analingus"sv) || has("anusto"sv);
+		if (!onAFemalePart && !onEitherPart) {
+			return 0;
+		}
+
+		const auto sexOf = [&](std::uint32_t a_formID) {
+			const auto found = _sex.find(a_formID);
+			return found == _sex.end() ? -1 : found->second;
+		};
+		const auto firstSex = sexOf(a_first);
+		const auto secondSex = sexOf(a_second);
+
+		// A mixed pair answers itself, and that is 559 of the 562 two-actor
+		// animations that name both genders.
+		if (firstSex == 1 && secondSex == 0) {
+			return a_first;
+		}
+		if (firstSex == 0 && secondSex == 1) {
+			return a_second;
+		}
+
+		// Nothing vaginal happens between two actors of the same sex, so a
+		// female-only part with no female pairing is a tag we cannot place.
+		if (onAFemalePart && !onEitherPart) {
+			return 0;
+		}
+
+		// Same sex, or a sex nobody told us. The slot AAF placed them in is what
+		// is left: slot 0 is the receiving role 559 times against 3.
+		if (_slot0 != 0 && (_slot0 == a_first || _slot0 == a_second)) {
+			return _slot0;
+		}
+		return 0;
+	}
+
 	void Aftermath::NoteTags(std::string_view a_tags)
 	{
 		NamedLock lock{ _lock, "aftermath" };
@@ -289,6 +354,21 @@ namespace RP
 			return;
 		}
 
+		// WHO, before what. Applying to both is what put cum on the neck of a
+		// Diamond City guard who was on the giving end of it.
+		const auto receiver = ReceiverOf(tags, a_first, a_second);
+		const auto other = receiver == a_first ? a_second : a_first;
+		_slot0 = 0;
+		_slot1 = 0;
+		if (receiver == 0) {
+			logger::info(
+				"aftermath: cannot tell which of {:08X} and {:08X} this landed on, so it lands on "
+				"neither - the wrong one is worse than none. A same-sex pair is the usual reason: "
+				"the actor slot order would settle it, and Papyrus cannot unpack it. (tags: {})",
+				a_first, a_second, tags);
+			return;
+		}
+
 		const auto sets = SetsFor(tags);
 		if (sets.empty()) {
 			logger::info("aftermath: nothing to leave behind (tags: {})", tags);
@@ -314,11 +394,11 @@ namespace RP
 					tags);
 				return;
 			}
-			Apply(a_first, "CMkz:" + regions, expires);
-			Apply(a_second, "CMkz:" + regions, expires);
+			Apply(receiver, "CMkz:" + regions, expires);
 			logger::info(
-				"aftermath: {:08X} and {:08X} keep Moisturizer [{}] until hour {:.1f} (now {:.1f})",
-				a_first, a_second, regions, expires, now);
+				"aftermath: {:08X} keeps Moisturizer [{}] until hour {:.1f} (now {:.1f}); "
+				"{:08X} was on the other end and keeps nothing",
+				receiver, regions, expires, now, other);
 			return;
 		}
 
@@ -328,13 +408,13 @@ namespace RP
 				named += ", ";
 			}
 			named += set;
-			Apply(a_first, set, expires);
-			Apply(a_second, set, expires);
+			Apply(receiver, set, expires);
 		}
 
 		logger::info(
-			"aftermath: {:08X} and {:08X} keep [{}] until hour {:.1f} (now {:.1f})",
-			a_first, a_second, named, expires, now);
+			"aftermath: {:08X} keeps [{}] until hour {:.1f} (now {:.1f}); {:08X} was on the other "
+			"end and keeps nothing",
+			receiver, named, expires, now, other);
 	}
 
 	void Aftermath::Apply(std::uint32_t a_formID, const std::string& a_setID, float a_expiresAt)
