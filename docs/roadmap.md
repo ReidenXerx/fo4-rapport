@@ -16,6 +16,21 @@ Agreed 2026-09-18. Order is by dependency, not by appetite: each item needs the 
 **AAF events reaching the bridge.** Everything below waits on it: without them Rapport cannot tell
 when a scene began, ended, or who was in it, and the watchdog is doing all the releasing.
 
+## Pulled forward
+
+**The debug hub** (was item 6). One profile in `debug.json` drives diagnostics across the whole
+stack, because debugging this mod means debugging three at once and each keeps its settings
+somewhere different:
+
+| Tier | What | When it applies |
+| --- | --- | --- |
+| Live | AAF settings via `ChangeSetting`, any MCM mod's settings via `MCM.SetModSetting*` | Immediately |
+| Next launch | `bEnableLogging` / `bEnableTrace` in `Fallout4Custom.ini`, backed up once | The engine reads them at startup, and Rapport says so |
+
+Every change is named in `Rapport.log`. The point is not switching diagnostics on, it is switching
+them reliably back off — a stray `troubleshooting_level` put six modal pop-ups in front of the owner
+and nothing but memory would have turned it off again.
+
 ## Next
 
 1. **Co-save state** — need, cooldowns, last partner, refusal memory. Versioned, length-checked,
@@ -33,7 +48,8 @@ when a scene began, ended, or who was in it, and the watchdog is doing all the r
 5. **M3 hardening** — `FindMatchingAnimations` as a pre-check so a pair with no content is never
    chosen, interruption handling, travel and privacy.
 
-6. **More framework** — the owner has a queue of ideas here, and this is the right place for them:
+6. **More framework** — the owner has a queue of ideas here, and this is the right place for them.
+   The debug hub was the first of them and has already been pulled forward. Remaining:
    general sex mechanics that every future mod reuses. Rapport is the ecosystem's shared layer, so
    anything two mods would both want belongs here rather than in an addon.
 

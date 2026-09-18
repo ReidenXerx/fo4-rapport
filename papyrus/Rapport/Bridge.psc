@@ -71,6 +71,8 @@ Function Connect()
 
 	_ready = true
 
+	Self.ApplyDebugProfile()
+
 	; Both of these must happen on every load, not only the first: the timer may
 	; not have survived, and the plugin has no memory of the last session.
 	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
@@ -258,6 +260,56 @@ Function ReleaseActor(Actor akActor)
 		akActor.RemoveKeyword(_api.AAF_ActorBusy)
 	EndIf
 	_api.SetActorLocked(akActor, false)
+EndFunction
+
+; The debug hub's other half. AAF and MCM are both Papyrus-side, so the plugin
+; reads debug.json and hands the table over; applying it has to happen here.
+Function ApplyDebugProfile()
+	Int count = Rapport:Core.DebugCount()
+	If count <= 0
+		Return
+	EndIf
+
+	Bool mcmReady = MCM.IsInstalled()
+	Int applied = 0
+	Int i = 0
+	While i < count
+		String target = Rapport:Core.DebugTarget(i)
+		String settingKey = Rapport:Core.DebugKey(i)
+		String value = Rapport:Core.DebugValue(i)
+
+		If target == "aaf"
+			If _api != None
+				_api.ChangeSetting(settingKey, value)
+				applied += 1
+			EndIf
+		ElseIf target == "mcm"
+			If mcmReady
+				String modName = Rapport:Core.DebugMod(i)
+				String kind = Rapport:Core.DebugType(i)
+				If kind == "bool"
+					MCM.SetModSettingBool(modName, settingKey, value == "true")
+				ElseIf kind == "int"
+					MCM.SetModSettingInt(modName, settingKey, value as Int)
+				ElseIf kind == "float"
+					MCM.SetModSettingFloat(modName, settingKey, value as Float)
+				Else
+					MCM.SetModSettingString(modName, settingKey, value)
+				EndIf
+				applied += 1
+			Else
+				Rapport:Core.Trace("debug hub: MCM is not installed, so " + settingKey + " was not applied")
+			EndIf
+		EndIf
+
+		i += 1
+	EndWhile
+
+	If mcmReady
+		MCM.RefreshMenu()
+	EndIf
+
+	Rapport:Core.Trace("debug hub: applied " + applied + " of " + count + " setting(s)")
 EndFunction
 
 Int Function FindRequest(Int aiRequest)

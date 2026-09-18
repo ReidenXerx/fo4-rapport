@@ -1,0 +1,43 @@
+{
+  "comment": [
+    "One switch for diagnostics across the whole stack.",
+    "",
+    "Debugging this mod means debugging three at once, and each keeps its settings",
+    "somewhere different: AAF takes them at runtime through its API, anything with",
+    "an MCM page takes them by name, and the engine's Papyrus logging is an ini the",
+    "game reads once at startup. A profile here drives all three.",
+    "",
+    "Everything Rapport changes is named in Rapport.log, because the point of this",
+    "is not switching diagnostics on - it is switching them reliably back off.",
+    "",
+    "The papyrus flags take effect on the NEXT launch, not this one, and Rapport",
+    "says so when it writes them. Fallout4Custom.ini is backed up once, the first",
+    "time, to Fallout4Custom.ini.before-rapport-debug.",
+    "",
+    "Ship with active = off. Papyrus tracing slows the script engine, which is the",
+    "exact cost this mod exists to avoid adding to."
+  ],
+
+  "active": "debug",
+
+  "profiles": {
+    "off": {
+      "papyrus": { "enabled": false },
+      "aaf": {
+        "debug_to_papyrus_log": "false",
+        "troubleshooting_level": "0"
+      },
+      "mcm": []
+    },
+
+    "debug": {
+      "papyrus": { "enabled": true },
+      "aaf": {
+        "debug_to_papyrus_log": "true",
+        "troubleshooting_level": "0"
+      },
+      "mcm": [
+      ]
+    }
+  }
+}

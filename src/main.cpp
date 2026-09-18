@@ -1,4 +1,5 @@
 #include "Config.h"
+#include "DebugHub.h"
 #include "PapyrusLink.h"
 #include "Scheduler.h"
 
@@ -36,6 +37,7 @@ namespace
 			RP::Config::GetSingleton().Load();
 			RP::Config::GetSingleton().LoadRaces();
 			RP::Config::GetSingleton().LoadScoring();
+			RP::DebugHub::GetSingleton().Load();
 			RP::PapyrusLink::GetSingleton().OnDataReady();
 			RP::Scheduler::GetSingleton().Start();
 			break;

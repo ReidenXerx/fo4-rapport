@@ -1,6 +1,7 @@
 #include "PapyrusLink.h"
 
 #include "Config.h"
+#include "DebugHub.h"
 
 namespace
 {
@@ -48,6 +49,52 @@ namespace
 		RP::PapyrusLink::GetSingleton().NoteEvent(a_name.c_str());
 	}
 
+	// ---- the debug hub's table, read by the bridge on connect ----------------
+
+	std::int32_t Papyrus_DebugCount(std::monostate)
+	{
+		return static_cast<std::int32_t>(RP::DebugHub::GetSingleton().Entries().size());
+	}
+
+	[[nodiscard]] const RP::DebugHub::Entry* DebugEntry(std::int32_t a_index)
+	{
+		const auto& entries = RP::DebugHub::GetSingleton().Entries();
+		if (a_index < 0 || static_cast<std::size_t>(a_index) >= entries.size()) {
+			return nullptr;
+		}
+		return &entries[static_cast<std::size_t>(a_index)];
+	}
+
+	RE::BSFixedString Papyrus_DebugTarget(std::monostate, std::int32_t a_index)
+	{
+		const auto entry = DebugEntry(a_index);
+		return entry ? (entry->target == RP::DebugHub::Target::kAAF ? "aaf" : "mcm") : "";
+	}
+
+	RE::BSFixedString Papyrus_DebugMod(std::monostate, std::int32_t a_index)
+	{
+		const auto entry = DebugEntry(a_index);
+		return entry ? entry->mod.c_str() : "";
+	}
+
+	RE::BSFixedString Papyrus_DebugKey(std::monostate, std::int32_t a_index)
+	{
+		const auto entry = DebugEntry(a_index);
+		return entry ? entry->key.c_str() : "";
+	}
+
+	RE::BSFixedString Papyrus_DebugType(std::monostate, std::int32_t a_index)
+	{
+		const auto entry = DebugEntry(a_index);
+		return entry ? entry->type.c_str() : "";
+	}
+
+	RE::BSFixedString Papyrus_DebugValue(std::monostate, std::int32_t a_index)
+	{
+		const auto entry = DebugEntry(a_index);
+		return entry ? entry->value.c_str() : "";
+	}
+
 	void Papyrus_BridgeReady(std::monostate, bool a_aafPresent)
 	{
 		RP::PapyrusLink::GetSingleton().OnBridgeReady(a_aafPresent);
@@ -91,12 +138,18 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "PollSeconds"sv, Papyrus_PollSeconds, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NeedsHandshake"sv, Papyrus_NeedsHandshake, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteEvent"sv, Papyrus_NoteEvent, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DebugCount"sv, Papyrus_DebugCount, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DebugTarget"sv, Papyrus_DebugTarget, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DebugMod"sv, Papyrus_DebugMod, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DebugKey"sv, Papyrus_DebugKey, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DebugType"sv, Papyrus_DebugType, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DebugValue"sv, Papyrus_DebugValue, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BridgeReady"sv, Papyrus_BridgeReady, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneStarted"sv, Papyrus_SceneStarted, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 12 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 18 native functions on {}", kCoreScript);
 		return true;
 	}
 

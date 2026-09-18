@@ -34,6 +34,16 @@ Float Function PollSeconds() Global Native
 ; a reader has to notice is missing.
 Function NoteEvent(String asEventName) Global Native
 
+; ---- the debug hub -------------------------------------------------------
+; Settings Rapport wants applied to OTHER mods, read from debug.json. The plugin
+; cannot apply these itself: AAF and MCM are both Papyrus-side.
+Int Function DebugCount() Global Native
+String Function DebugTarget(Int aiIndex) Global Native
+String Function DebugMod(Int aiIndex) Global Native
+String Function DebugKey(Int aiIndex) Global Native
+String Function DebugType(Int aiIndex) Global Native
+String Function DebugValue(Int aiIndex) Global Native
+
 ; ---- reporting back ------------------------------------------------------
 Function BridgeReady(Bool abAafPresent) Global Native
 Function SceneStarted(Int aiRequest) Global Native
