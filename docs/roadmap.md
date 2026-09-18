@@ -20,11 +20,28 @@ Agreed 2026-09-18. Order is by dependency, not by appetite: each item needs the 
 | 1c safeguards | `SCNE` / `FACE` records, stale-array release, NaN expiry, pruning, `PanicClear`. See `docs/safeguards.md` and A-15. |
 | 3b takeover | Three mods now: CumOverlays, Sex 'Em Up, Autonomy Enhanced. Each owned by a feature. See A-16. |
 
+| **M4 the whole chain** | **2026-09-18 21:48. Scan, score, scene, expressions, stop, scene end, ledger, aftermath, apply — end to end, unattended, and then straight into the next scene.** |
+
 ## Now
 
-**Watching all of it behave in a real game.** Built and deployed, none of it proven: the ledger has
-never been read back out of a save, no overlay or expression has been applied by Rapport, and no
-quest of another mod has been stopped by it. Each logs enough to be decisive on a single run.
+**It runs.** One scene, start to finish, everything downstream of it working:
+
+```
+expressions: 5% through - Rapport_Anticipation ... 95% - Rapport_Climax   (5 steps, both actors)
+bridge: request 1 has run its length - asking AAF to stop it
+aaf: OnSceneEnd                                    <- StopScene DOES produce it
+request 1: scene ended
+ledger: 00002F0B and 000F61B6 have now had 1 and 1 scene(s), at hour 780.0
+aftermath: keep Moisturizer [OF] until hour 792.0
+moisturizer: applied front=True oral=True rear=False
+expressions: clearing 2 face(s) - the afterglow is over
+2 candidate(s) within the 24-hour cooldown        <- the ledger is READ, not just written
+```
+
+The tag routing earned its design in that one scene: it began on `PenisToVagina` and drifted into an
+Atomic Lust blowjob tagged `PenisToMouth`, and aftermath accumulated both across the animations and
+resolved `[OF]` — oral and front. That is the behaviour the accumulate-then-decide-at-scene-end
+shape exists for, arrived at by accident rather than by test.
 
 ## Pulled forward
 

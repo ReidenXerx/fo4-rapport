@@ -1,0 +1,209 @@
+[21:45:17.246] [info] Rapport v0.1.0
+[21:45:17.247] [info] ledger: registered with the save game
+[21:45:17.247] [info] loaded
+[21:45:48.193] [info] papyrus: bound 39 native functions on Rapport:Core
+[21:46:12.276] [info] config: 13 key(s) from Data\F4SE\Plugins\Rapport.ini — tick 20s, warmup 60s, budget 0.25 ms, radius 4096, maxScenes 1, scene 30s, dry run false, verbose true
+[21:46:12.276] [info] race allowed: Human (Fallout4.esm 0x00013746 -> 00013746)
+[21:46:12.276] [info] race allowed: Ghoul (Fallout4.esm 0x000EAFB6 -> 000EAFB6)
+[21:46:12.276] [info] race allowed: SynthGen1 (Fallout4.esm 0x000E8D09 -> 000E8D09)
+[21:46:12.276] [info] race allowed: SynthGen2 (Fallout4.esm 0x0010BD65 -> 0010BD65)
+[21:46:12.276] [info] race allowed: SynthGen2Valentine (Fallout4.esm 0x002261A4 -> 002261A4)
+[21:46:12.276] [info] race allowed: DLC03_SynthGen2DiMa (DLCCoast.esm 0x00042EBB -> 03042EBB)
+[21:46:12.277] [info] scoring: range 1536, observers within 900 | proximity 1.50, faction 0.60, interior 0.30, night 0.25, per observer -0.20, player near -0.50
+[21:46:12.277] [warning] debug hub: profile "debug" is a DEVELOPMENT profile. Papyrus tracing is on and it slows the script engine. Set "active" to "off" in debug.json before shipping.
+[21:46:12.277] [info] debug hub: engine logging already on
+[21:46:12.277] [info] debug hub:   aaf  debug_to_papyrus_log = true
+[21:46:12.277] [info] debug hub:   aaf  troubleshooting_level = 0
+[21:46:12.277] [info] aftermath: using Commonwealth Moisturizer (worn meshes)
+[21:46:12.277] [info] aftermath: kzSemen_Female.nif has morph data - it will follow each actor's body
+[21:46:12.277] [info] aftermath: kzSemen_Male.nif has morph data - it will follow each actor's body
+[21:46:12.277] [info] aftermath: both aftermath mods are installed - Rapport drives the meshes and SILENCES both, because a mod still listening to AAF goes on painting the same bodies on its own schedule
+[21:46:12.277] [info] aftermath: 31 tag rule(s), 12 game hours
+[21:46:12.277] [info] expressions: 0% Rapport_Anticipation, 25% Rapport_Pleasure_1, 50% Rapport_Pleasure_2, 80% Rapport_Pleasure_3, 95% Rapport_Climax; then Rapport_Dazed for 20s, then Rapport_Clear
+[21:46:12.277] [info] takeover: 2 quest(s) from CumOverlays.esp will be STOPPED - Rapport owns persistent aftermath, so nothing else may apply it. Two reasons, either one sufficient: CumOverlays' own timer removes the same overlay TEMPLATES ours draw from and would strip them minutes into a twelve-hour window; and when Moisturizer is the backend, CumOverlays left running would paint its flat textures over the meshes
+[21:46:12.277] [info] takeover: 1 quest(s) from ComMoisturizer.esp will be STOPPED - Rapport owns persistent aftermath, so its AAF listener must not also be applying cum on its own schedule -- whether Rapport is driving this mod or the other one. Only the listener is stopped: CMkz_SemenLib is the library Rapport calls and has to keep running
+[21:46:12.277] [info] takeover: 9 quest(s) from AAF_SEU.esp will be STOPPED - Rapport replaces Sex 'Em Up; two mods watching for scene opportunities means two mods reserving the same actors, and SEU keeps its own hooks into AAF
+[21:46:12.277] [info] takeover: AAF_AutonomyEnhanced.esp is not installed - nothing to take over there
+[21:46:12.278] [info] papyrus: bridge quest 28000800 is loaded
+[21:46:12.278] [info] scheduler started (tick 20s)
+[21:46:17.477] [info] ledger: cleared for a new game or a load
+[21:46:28.916] [info] ledger: after loading, 0 actor(s), 0 standing overlay(s), 0 face(s) to clear
+[21:46:28.916] [info] session ready — warming up for 60s before the first tick
+[21:46:31.797] [info] moisturizer: connected to the CMkz library
+[21:46:32.037] [info] moisturizer: its player timer was 5.000000 minute(s) - setting it to 0, because Rapport removes this from the save in game hours
+[21:46:32.062] [info] moisturizer: its NPC timer was 5.000000 minute(s) - setting it to 0
+[21:46:32.113] [info] moisturizer: connected to the CMkz library
+[21:46:32.149] [info] moisturizer: connected to the CMkz library
+[21:46:39.116] [info] debug hub: applied 2 of 2 setting(s)
+[21:46:39.249] [info] takeover: STOPPED CumOverlay_Main - Rapport owns persistent aftermath, so nothing else may apply it. Two reasons, either one sufficient: CumOverlays' own timer removes the same overlay TEMPLATES ours draw from and would strip them minutes into a twelve-hour window; and when Moisturizer is the backend, CumOverlays left running would paint its flat textures over the meshes
+[21:46:39.366] [info] takeover: STOPPED CumOverlay_Starter - Rapport owns persistent aftermath, so nothing else may apply it. Two reasons, either one sufficient: CumOverlays' own timer removes the same overlay TEMPLATES ours draw from and would strip them minutes into a twelve-hour window; and when Moisturizer is the backend, CumOverlays left running would paint its flat textures over the meshes
+[21:46:39.483] [info] takeover: STOPPED CMkz_EventHandler - Rapport owns persistent aftermath, so its AAF listener must not also be applying cum on its own schedule -- whether Rapport is driving this mod or the other one. Only the listener is stopped: CMkz_SemenLib is the library Rapport calls and has to keep running
+[21:46:39.601] [info] takeover: STOPPED SEUQuest - Rapport replaces Sex 'Em Up; two mods watching for scene opportunities means two mods reserving the same actors, and SEU keeps its own hooks into AAF
+[21:46:39.682] [info] takeover: SEUScanQuest was already stopped - left alone
+[21:46:39.766] [info] takeover: SEUFlirtDialogueQuest was already stopped - left alone
+[21:46:39.882] [info] takeover: STOPPED SEUPlayerLoadQuest - Rapport replaces Sex 'Em Up; two mods watching for scene opportunities means two mods reserving the same actors, and SEU keeps its own hooks into AAF
+[21:46:40.000] [info] takeover: STOPPED SEUMCM - Rapport replaces Sex 'Em Up; two mods watching for scene opportunities means two mods reserving the same actors, and SEU keeps its own hooks into AAF
+[21:46:40.082] [info] takeover: SEUFlirtSimpleQuest was already stopped - left alone
+[21:46:40.166] [info] takeover: SEUProstitutionQuest was already stopped - left alone
+[21:46:40.249] [info] takeover: SEUSurrenderScan was already stopped - left alone
+[21:46:40.332] [info] takeover: SEUSurrenderQuest was already stopped - left alone
+[21:46:40.366] [info] bridge: connected to AAF 1741 build Beta
+[21:46:40.382] [info] bridge ready and listening every 3.0s
+[21:47:28.946] [info] tick 1: 54 actors -> 4 candidates in 1 slice(s), 0.035 ms total, worst slice 0.035 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 30, race 12, dialogue 0, quest 5)
+[21:47:28.946] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[21:47:28.946] [info]    best pair CLEARS the 0.90 bar (4 candidates)
+[21:47:28.946] [info]    would pair Geneva + Diamond City Security — score 1.59 (apart 167, faction shared, outdoors, day, observers 3)
+[21:47:28.946] [info]    would pair Mayor McDonough + Diamond City Security — score 0.38 (apart 669, faction shared, outdoors, day, observers 3, player watching)
+[21:47:28.946] [info]    would pair Mayor McDonough + Geneva — score 0.21 (apart 836, faction shared, outdoors, day, observers 3, player watching)
+[21:47:28.946] [info] request 1: queued Geneva (00002F0B) and Diamond City Security (000F61B6) for 30s
+[21:47:31.775] [info] pump: entering with a scene in flight
+[21:47:31.775] [info] pump: returned normally
+[21:47:31.925] [info] bridge: request 1 starting for 12043 and 1008054, aaf status 2
+[21:47:31.984] [info] bridge: StartScene returned for request 1
+[21:47:32.209] [info] aaf: OnWalkInit args[11] [0]=0 [1]=[[Actor <GenevaREF (00002F0B)>], [Actor < (000F61B6)>]] [2]=None [3]=1318330 [4]=[-1.#IND00, -1.#IND00, -1.#IND00, -1.#IND00] [5]=Rapport,autonomy [6]=30.000000 [7]=True [8]=None [9]=[UAP] Atomic Lust - Blowjob (Player House Chair) [10]=["Neutral", "F_M", "FROMFRONT", "HELD3", "PenisToMouth", "", "LOVE3", "STIM1", "Rufgt", "NULLTOSELF", "Armchair", "DOM-5", "Blowjob"]
+[21:47:34.792] [info] pump: entering with a scene in flight
+[21:47:34.792] [info] pump: returned normally
+[21:47:37.819] [info] pump: entering with a scene in flight
+[21:47:37.819] [info] pump: returned normally
+[21:47:40.853] [info] pump: entering with a scene in flight
+[21:47:40.853] [info] pump: returned normally
+[21:47:42.437] [info] aaf: OnSceneInit args[11] [0]=0 [1]=[[Actor <GenevaREF (00002F0B)>], [Actor < (000F61B6)>]] [2]=None [3]=1318330 [4]=[-664.068909, -1868.642212, 331.728638, 275.983002] [5]=Rapport,autonomy [6]=30.000000 [7]=True [8]=None [9]=[UAP] Atomic Lust - Blowjob (Player House Chair) [10]=["Neutral", "F_M", "FROMFRONT", "HELD3", "PenisToMouth", "", "LOVE3", "STIM1", "Rufgt", "NULLTOSELF", "Armchair", "DOM-5", "Blowjob"]
+[21:47:42.453] [info] request 1: scene started
+[21:47:42.453] [info] expressions: driving 00002F0B and 000F61B6 over 30s
+[21:47:42.771] [info] aaf: OnAnimationStart args[14] [0]=0 [1]=[[Actor <GenevaREF (00002F0B)>], [Actor < (000F61B6)>]] [2]=[UAP] Atomic Lust - Blowjob (Player House Chair) [3]=["Neutral", "F_M", "FROMFRONT", "HELD3", "PenisToMouth", "", "LOVE3", "STIM1", "Rufgt", "NULLTOSELF", "Armchair", "DOM-5", "Blowjob"] [4]=Rapport,autonomy [5]=1318330 [6]=[] [7]=0 [8]=False [9]=[] [10]=[] [11]=[] [12]=[] [13]=[]
+[21:47:43.870] [info] pump: entering with a scene in flight
+[21:47:43.870] [info] expressions: 5% through - Rapport_Anticipation
+[21:47:43.870] [info] pump: returned normally
+[21:47:43.988] [info] face: asked AAF for Rapport_Anticipation on 12043
+[21:47:44.071] [info] face: asked AAF for Rapport_Anticipation on 1008054
+[21:47:46.892] [info] pump: entering with a scene in flight
+[21:47:46.893] [info] pump: returned normally
+[21:47:48.995] [info] tick 2: 54 actors -> 10 candidates in 1 slice(s), 0.033 ms total, worst slice 0.033 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 22, race 12, dialogue 0, quest 7)
+[21:47:48.995] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[21:47:48.995] [info]    best pair CLEARS the 0.90 bar (10 candidates)
+[21:47:48.995] [info]    would pair John + Cathy — score 1.57 (apart 180, faction shared, outdoors, day, observers 3)
+[21:47:48.995] [info]    would pair Johnny Friendly + Melvin Koch — score 1.36 (apart 91, faction shared, outdoors, day, observers 4)
+[21:47:48.995] [info]    would pair Johnny Friendly + Polly — score 0.82 (apart 724, faction shared, outdoors, day, observers 3)
+[21:47:48.995] [info]    holding: a scene is already running
+[21:47:49.925] [info] pump: entering with a scene in flight
+[21:47:49.925] [info] pump: returned normally
+[21:47:52.956] [info] pump: entering with a scene in flight
+[21:47:52.956] [info] expressions: 35% through - Rapport_Pleasure_1
+[21:47:52.956] [info] pump: returned normally
+[21:47:53.083] [info] face: asked AAF for Rapport_Pleasure_1 on 12043
+[21:47:53.176] [info] face: asked AAF for Rapport_Pleasure_1 on 1008054
+[21:47:55.984] [info] pump: entering with a scene in flight
+[21:47:55.984] [info] pump: returned normally
+[21:47:58.999] [info] pump: entering with a scene in flight
+[21:47:58.999] [info] expressions: 55% through - Rapport_Pleasure_2
+[21:47:58.999] [info] pump: returned normally
+[21:47:59.120] [info] face: asked AAF for Rapport_Pleasure_2 on 12043
+[21:47:59.203] [info] face: asked AAF for Rapport_Pleasure_2 on 1008054
+[21:48:02.017] [info] pump: entering with a scene in flight
+[21:48:02.017] [info] pump: returned normally
+[21:48:05.041] [info] pump: entering with a scene in flight
+[21:48:05.041] [info] pump: returned normally
+[21:48:08.068] [info] pump: entering with a scene in flight
+[21:48:08.068] [info] expressions: 85% through - Rapport_Pleasure_3
+[21:48:08.068] [info] pump: returned normally
+[21:48:08.188] [info] face: asked AAF for Rapport_Pleasure_3 on 12043
+[21:48:08.272] [info] face: asked AAF for Rapport_Pleasure_3 on 1008054
+[21:48:09.043] [info] tick 3: 54 actors -> 9 candidates in 1 slice(s), 0.029 ms total, worst slice 0.029 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 23, race 12, dialogue 0, quest 7)
+[21:48:09.043] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[21:48:09.043] [info]    best pair CLEARS the 0.90 bar (9 candidates)
+[21:48:09.043] [info]    would pair Cathy + Diamond City Security — score 1.34 (apart 322, faction shared, outdoors, day, observers 3)
+[21:48:09.043] [info]    would pair John + Cathy — score 1.20 (apart 180, faction shared, outdoors, day, observers 4)
+[21:48:09.043] [info]    would pair John + Diamond City Security — score 1.20 (apart 413, faction shared, outdoors, day, observers 3)
+[21:48:09.043] [info]    holding: a scene is already running
+[21:48:11.101] [info] pump: entering with a scene in flight
+[21:48:11.101] [info] expressions: 95% through - Rapport_Climax
+[21:48:11.101] [info] pump: returned normally
+[21:48:11.222] [info] face: asked AAF for Rapport_Climax on 12043
+[21:48:11.313] [info] face: asked AAF for Rapport_Climax on 1008054
+[21:48:14.118] [info] pump: entering with a scene in flight
+[21:48:14.118] [info] pump: returned normally
+[21:48:14.154] [info] bridge: request 1 has run its length - asking AAF to stop it
+[21:48:14.185] [info] bridge: StopScene returned for request 1
+[21:48:17.134] [info] pump: entering with a scene in flight
+[21:48:17.134] [info] pump: returned normally
+[21:48:20.151] [info] pump: entering with a scene in flight
+[21:48:20.151] [info] pump: returned normally
+[21:48:22.433] [info] aaf: OnAnimationStop args[14] [0]=0 [1]=[[Actor <GenevaREF (00002F0B)>], [Actor < (000F61B6)>]] [2]=[UAP] Atomic Lust - Blowjob (Player House Chair) [3]=["Neutral", "F_M", "FROMFRONT", "HELD3", "PenisToMouth", "", "LOVE3", "STIM1", "Rufgt", "NULLTOSELF", "Armchair", "DOM-5", "Blowjob"] [4]=Rapport,autonomy [5]=1318330 [6]=[[Actor < (000F61B6)>]] [7]=0 [8]=False [9]=[] [10]=[] [11]=[] [12]=[] [13]=[]
+[21:48:23.048] [info] aaf: OnSceneEnd args[14] [0]=0 [1]=[[Actor <GenevaREF (00002F0B)>], [Actor < (000F61B6)>]] [2]=[UAP] Atomic Lust - Blowjob (Player House Chair) [3]=["Neutral", "F_M", "FROMFRONT", "HELD3", "PenisToMouth", "", "LOVE3", "STIM1", "Rufgt", "NULLTOSELF", "Armchair", "DOM-5", "Blowjob"] [4]=Rapport,autonomy [5]=1318330 [6]=[[Actor < (000F61B6)>]] [7]=0 [8]=False [9]=[] [10]=[] [11]=[] [12]=[] [13]=[]
+[21:48:23.065] [info] request 1: scene ended
+[21:48:23.065] [info] ledger: 00002F0B and 000F61B6 have now had 1 and 1 scene(s), at hour 780.0
+[21:48:23.065] [info] aftermath: 00002F0B and 000F61B6 keep Moisturizer [OF] until hour 792.0 (now 780.0)
+[21:48:23.065] [info] expressions: scene over - Rapport_Dazed for 20s, then clearing
+[21:48:23.300] [info] face: asked AAF for Rapport_Dazed on 12043
+[21:48:23.386] [info] face: asked AAF for Rapport_Dazed on 1008054
+[21:48:29.074] [info] tick 4: 54 actors -> 10 candidates in 1 slice(s), 0.033 ms total, worst slice 0.033 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 24, race 12, dialogue 0, quest 5)
+[21:48:29.074] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[21:48:29.074] [info]    2 candidate(s) within the 24-hour cooldown
+[21:48:29.075] [info] aftermath: hour 780.0 - 2 applied, 0 expired, 2 still standing, 0 waiting for their owner to be nearby
+[21:48:29.075] [info]    best pair CLEARS the 0.90 bar (8 candidates)
+[21:48:29.075] [info]    would pair Johnny Friendly + Polly — score 1.02 (apart 724, faction shared, outdoors, day, observers 2)
+[21:48:29.075] [info]    would pair Genevieve + Malcom Latimer — score 1.00 (apart 283, faction different, outdoors, day, observers 1)
+[21:48:29.075] [info]    would pair John + Cathy — score 0.73 (apart 180, faction shared, outdoors, day, observers 5)
+[21:48:29.075] [info] request 2: queued Johnny Friendly (2E00BA97) and Polly (00002CD5) for 30s
+[21:48:29.230] [info] pump: entering with a scene in flight
+[21:48:29.230] [info] pump: returned normally
+[21:48:29.329] [info] 2E00BA97 is flagged busy in AAF - passing over them for 300s
+[21:48:29.347] [warning] request 2: the first actor is already busy in AAF
+[21:48:31.559] [info] moisturizer: applied front=True oral=True rear=False to 1008054
+[21:48:31.932] [info] moisturizer: applied front=True oral=True rear=False to 12043
+[21:48:44.349] [info] expressions: clearing 2 face(s) - the afterglow is over
+[21:48:44.497] [info] face: cleared Rapport_Clear from 12043
+[21:48:44.638] [info] face: cleared Rapport_Clear from 1008054
+[21:48:49.120] [info] tick 5: 54 actors -> 10 candidates in 1 slice(s), 0.027 ms total, worst slice 0.027 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 24, race 12, dialogue 0, quest 5)
+[21:48:49.120] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[21:48:49.120] [info]    1 candidate(s) benched: AAF still has them flagged busy
+[21:48:49.120] [info]    2 candidate(s) within the 24-hour cooldown
+[21:48:49.120] [info]    best pair CLEARS the 0.90 bar (7 candidates)
+[21:48:49.120] [info]    would pair John + Cathy — score 1.57 (apart 180, faction shared, outdoors, day, observers 3)
+[21:48:49.120] [info]    would pair Genevieve + Malcom Latimer — score 0.80 (apart 415, faction different, outdoors, day, observers 1)
+[21:48:49.120] [info]    would pair John + Polly — score 0.56 (apart 1030, faction shared, outdoors, day, observers 3)
+[21:48:49.120] [info] request 3: queued John (00002CCC) and Cathy (00002CD1) for 30s
+[21:48:50.395] [info] pump: entering with a scene in flight
+[21:48:50.395] [info] pump: returned normally
+[21:48:50.545] [info] bridge: request 3 starting for 11468 and 11473, aaf status 2
+[21:48:50.624] [info] bridge: StartScene returned for request 3
+[21:48:50.855] [info] aaf: OnWalkInit args[11] [0]=0 [1]=[[HaircutScript <JohnREF (00002CCC)>], [Actor <CathyREF (00002CD1)>]] [2]=None [3]=726113 [4]=[-1.#IND00, -1.#IND00, -1.#IND00, -1.#IND00] [5]=Rapport,autonomy [6]=30.000000 [7]=True [8]=None [9]=(CHAK) Couch Cuddle B1 [10]=["LOVING", "SEUKissing", "", "NONSEX", "Couch", "KISSING", "NULLTOSELF", "AVILAS", "FOREPLAY"]
+[21:48:53.428] [info] pump: entering with a scene in flight
+[21:48:53.428] [info] pump: returned normally
+[21:48:56.445] [info] pump: entering with a scene in flight
+[21:48:56.445] [info] pump: returned normally
+[21:48:59.465] [info] pump: entering with a scene in flight
+[21:48:59.465] [info] pump: returned normally
+[21:49:01.049] [info] aaf: OnSceneInit args[11] [0]=0 [1]=[[HaircutScript <JohnREF (00002CCC)>], [Actor <CathyREF (00002CD1)>]] [2]=None [3]=726113 [4]=[1195.289795, 1145.479004, -1502.164673, 181.054535] [5]=Rapport,autonomy [6]=30.000000 [7]=True [8]=None [9]=(CHAK) Couch Cuddle B1 [10]=["LOVING", "SEUKissing", "", "NONSEX", "Couch", "KISSING", "NULLTOSELF", "AVILAS", "FOREPLAY"]
+[21:49:01.066] [info] request 3: scene started
+[21:49:01.066] [info] expressions: driving 00002CCC and 00002CD1 over 30s
+[21:49:01.148] [info] aaf: OnAnimationStart args[14] [0]=0 [1]=[[HaircutScript <JohnREF (00002CCC)>], [Actor <CathyREF (00002CD1)>]] [2]=(CHAK) Couch Cuddle B1 [3]=["LOVING", "SEUKissing", "", "NONSEX", "Couch", "KISSING", "NULLTOSELF", "AVILAS", "FOREPLAY"] [4]=Rapport,autonomy [5]=726113 [6]=[] [7]=0 [8]=False [9]=[] [10]=[] [11]=[] [12]=[] [13]=[]
+[21:49:02.497] [info] pump: entering with a scene in flight
+[21:49:02.497] [info] expressions: no act tag in this scene - holding Rapport_Kiss
+[21:49:02.497] [info] pump: returned normally
+[21:49:02.615] [info] face: asked AAF for Rapport_Kiss on 11468
+[21:49:02.698] [info] face: asked AAF for Rapport_Kiss on 11473
+[21:49:05.527] [info] pump: entering with a scene in flight
+[21:49:05.527] [info] pump: returned normally
+[21:49:08.553] [info] pump: entering with a scene in flight
+[21:49:08.553] [info] pump: returned normally
+[21:49:09.150] [info] tick 6: 54 actors -> 10 candidates in 1 slice(s), 0.024 ms total, worst slice 0.024 ms (stale 0, unloaded 0, child 2, dead 1, combat 0, out of range 22, race 12, dialogue 0, quest 7)
+[21:49:09.150] [info]    races rejected (6 distinct): 0002047E x6, 000359F4 x2, 000A563A x1, 000C9ACF x1, 000DFB33 x1, 0001D698 x1
+[21:49:09.150] [info]    1 candidate(s) benched: AAF still has them flagged busy
+[21:49:09.150] [info]    2 candidate(s) within the 24-hour cooldown
+[21:49:09.150] [info]    best pair misses the 0.90 bar (7 candidates)
+[21:49:09.150] [info]    would pair Melvin Koch + Malcom Latimer — score 0.64 (apart 926, faction shared, outdoors, day, observers 3)
+[21:49:09.150] [info]    would pair Genevieve + Malcom Latimer — score 0.42 (apart 727, faction different, outdoors, day, observers 1)
+[21:49:09.150] [info]    would pair Patricia Jackson + Melvin Koch — score 0.40 (apart 386, faction shared, outdoors, day, observers 5)
+[21:49:11.578] [info] pump: entering with a scene in flight
+[21:49:11.578] [info] pump: returned normally
+[21:49:14.595] [info] pump: entering with a scene in flight
+[21:49:14.595] [info] pump: returned normally
+[21:49:17.627] [info] pump: entering with a scene in flight
+[21:49:17.627] [info] pump: returned normally
+[21:49:20.644] [info] pump: entering with a scene in flight
+[21:49:20.644] [info] pump: returned normally
+[21:49:23.661] [info] pump: entering with a scene in flight
+[21:49:23.661] [info] pump: returned normally
+[21:49:26.678] [info] pump: entering with a scene in flight
+[21:49:26.678] [info] pump: returned normally

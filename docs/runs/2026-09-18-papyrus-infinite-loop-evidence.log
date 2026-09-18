@@ -1,0 +1,44 @@
+Evidence: FindRequestByActors spinning forever (see commit 5b465fa)
+Papyrus.0.log was 12552386 lines / 912 MB; 6273996 mention Rapport.
+First 40 Rapport lines follow; they repeat identically for the rest.
+
+[09/18/2026 - 09:38:37PM] warning: Variable _connecting on script Rapport:Bridge loaded from save not found within the actual object. This variable will be skipped.
+[09/18/2026 - 09:38:38PM] warning: Function Rapport:Bridge..OnTimer in stack frame 0 in stack 1355880 differs from the in-game resource files - using version from save
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.ApplyDebugProfile() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.Connect() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.OnTimer() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.ApplyDebugProfile() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.Connect() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.OnTimer() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.FindRequestByActors() - "<unknown file>" Line ?
+	[RapportBridgeQuest (28000800)].Rapport:Bridge.::remote_AAF:AAF_API_OnAnimationStart() - "<unknown file>" Line ?
