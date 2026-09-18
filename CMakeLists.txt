@@ -25,6 +25,8 @@ set(SOURCES
 	"src/ActorScan.cpp"
 	"src/Pairing.h"
 	"src/Pairing.cpp"
+	"src/PapyrusLink.h"
+	"src/PapyrusLink.cpp"
 	"src/Scheduler.h"
 	"src/Scheduler.cpp"
 	"src/main.cpp"

@@ -1,6 +1,7 @@
 #include "Scheduler.h"
 
 #include "Config.h"
+#include "PapyrusLink.h"
 #include "Pairing.h"
 
 namespace RP
@@ -163,6 +164,8 @@ namespace RP
 
 			const auto& weights = Config::GetSingleton().Weights();
 
+			auto& link = PapyrusLink::GetSingleton();
+
 			if (ranked.empty()) {
 				logger::info("   no viable pair ({} candidates, {} watching)",
 					candidates.size(), _scan.ObserverPositions().size());
@@ -172,8 +175,9 @@ namespace RP
 					weights.minimumScore, candidates.size());
 				for (const auto& pair : ranked) {
 					logger::info(
-						"   would pair {} + {} — score {:.2f} (apart {:.0f}, faction {}, {}, {}, "
+						"   {} {} + {} — score {:.2f} (apart {:.0f}, faction {}, {}, {}, "
 						"observers {}{})",
+						"would pair",
 						pair.first->GetDisplayFullName(), pair.second->GetDisplayFullName(),
 						pair.score, pair.signals.distance,
 						pair.signals.sharedFaction ? "shared" : "different",
@@ -181,6 +185,20 @@ namespace RP
 						pair.signals.night ? "night" : "day",
 						pair.signals.observers,
 						pair.signals.playerNear ? ", player watching" : "");
+				}
+			}
+
+			// The only place anything is acted on. A dry run reports and stops here;
+			// this is a stand-in for the Chemistry addon, which will own the decision
+			// once it exists.
+			const auto& settings = Config::GetSingleton();
+			if (!settings.dryRun && !ranked.empty() && ranked.front().score >= weights.minimumScore) {
+				if (link.Busy()) {
+					logger::info("   holding: a scene is already running");
+				} else if (!link.Ready()) {
+					logger::info("   holding: the bridge is not ready");
+				} else {
+					link.RequestScene(ranked.front().first, ranked.front().second, settings.sceneSeconds);
 				}
 			}
 		}

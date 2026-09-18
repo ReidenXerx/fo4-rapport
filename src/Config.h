@@ -13,6 +13,11 @@ namespace RP
 		float         frameBudgetMs{ 0.25f };   // budget for one main-thread slice
 		float         scanRadius{ 4096.0f };    // units around the player
 		std::uint32_t maxConcurrentScenes{ 1 };
+		float         sceneSeconds{ 30.0f };
+
+		// True by default on purpose: a fresh install watches and reports, and
+		// starts nothing until someone turns it on deliberately.
+		bool          dryRun{ true };
 		bool          verbose{ false };
 
 		[[nodiscard]] static Config& GetSingleton() noexcept;

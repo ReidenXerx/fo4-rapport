@@ -87,6 +87,10 @@ namespace RP
 					scanRadius = Clamp(std::stof(value), 512.0f, 16384.0f);
 				} else if (key == "MaxConcurrentScenes") {
 					maxConcurrentScenes = Clamp<std::uint32_t>(std::stoul(value), 1, 4);
+				} else if (key == "SceneSeconds") {
+					sceneSeconds = Clamp(std::stof(value), 5.0f, 600.0f);
+				} else if (key == "DryRun") {
+					dryRun = !(value == "0" || value == "false" || value == "False");
 				} else if (key == "Verbose") {
 					verbose = (value == "1" || value == "true" || value == "True");
 				} else {
@@ -99,8 +103,10 @@ namespace RP
 		}
 
 		logger::info(
-			"config: {} key(s) from {} — tick {}s, warmup {}s, budget {:.2f} ms, radius {:.0f}, maxScenes {}, verbose {}",
-			read, path.string(), tickSeconds, warmupSeconds, frameBudgetMs, scanRadius, maxConcurrentScenes, verbose);
+			"config: {} key(s) from {} — tick {}s, warmup {}s, budget {:.2f} ms, radius {:.0f}, "
+			"maxScenes {}, scene {:.0f}s, dry run {}, verbose {}",
+			read, path.string(), tickSeconds, warmupSeconds, frameBudgetMs, scanRadius,
+			maxConcurrentScenes, sceneSeconds, dryRun, verbose);
 	}
 }
 

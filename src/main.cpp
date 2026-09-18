@@ -1,4 +1,5 @@
 #include "Config.h"
+#include "PapyrusLink.h"
 #include "Scheduler.h"
 
 namespace
@@ -35,6 +36,7 @@ namespace
 			RP::Config::GetSingleton().Load();
 			RP::Config::GetSingleton().LoadRaces();
 			RP::Config::GetSingleton().LoadScoring();
+			RP::PapyrusLink::GetSingleton().OnDataReady();
 			RP::Scheduler::GetSingleton().Start();
 			break;
 		case F4SE::MessagingInterface::kNewGame:
@@ -81,6 +83,12 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 
 	InitLogging();
 	logger::info("{} v{}", RP_PROJECT_NAME, RP_VERSION_STRING);
+
+	const auto papyrus = F4SE::GetPapyrusInterface();
+	if (!papyrus || !papyrus->Register(RP::PapyrusLink::RegisterNatives)) {
+		logger::critical("could not register the papyrus functions");
+		return false;
+	}
 
 	const auto messaging = F4SE::GetMessagingInterface();
 	if (!messaging || !messaging->RegisterListener(MessageHandler)) {
