@@ -102,6 +102,11 @@ namespace RP
 
 		void ChooseBackend(const std::string& a_wanted);
 
+		// Says out loud whether the worn meshes can follow an actor's body. They
+		// can only do so from a .tri that a BodySlide build produces, and a fresh
+		// install has none -- which looks exactly like the mod being broken.
+		void CheckMoisturizerMorphs();
+
 		void Apply(std::uint32_t a_formID, const std::string& a_setID, float a_expiresAt);
 
 		mutable std::mutex _lock;

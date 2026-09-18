@@ -162,10 +162,53 @@ namespace RP
 		}
 
 		logger::info("aftermath: using {}", Name(_backend));
+		if (_backend == Backend::kMoisturizer) {
+			CheckMoisturizerMorphs();
+		}
 		if (hasMoisturizer && hasOverlays && _backend == Backend::kMoisturizer) {
 			logger::info(
 				"aftermath: CumOverlays is also installed and is left alone - Rapport drives one "
 				"of them, never both, or two sets of art end up on the same body");
+		}
+	}
+
+	void Aftermath::CheckMoisturizerMorphs()
+	{
+		// A worn mesh is built to ONE body shape. LooksMenu can then morph it per
+		// actor at runtime -- but only from a .tri of morph data sitting beside the
+		// .nif, and that file is produced by a BodySlide build with "Build Morphs"
+		// ticked. Moisturizer ships the .nif alone for every body except
+		// AtomicMuscle, so a fresh install has a mesh that CANNOT morph and will
+		// fit the base body rather than the player's.
+		//
+		// Nothing in the game says this. The mesh simply looks wrong, and the
+		// obvious conclusion -- that the mod is broken -- is the wrong one.
+		const std::filesystem::path meshes{ "Data/Meshes/kziitd/semen" };
+		std::error_code ec;
+		if (!std::filesystem::exists(meshes, ec)) {
+			logger::warn(
+				"aftermath: Commonwealth Moisturizer is installed but {} does not exist - its FOMOD's "
+				"body option was not installed, so there is no mesh to put on anybody",
+				meshes.string());
+			return;
+		}
+
+		for (const auto& name : { "kzSemen_Female"sv, "kzSemen_Male"sv }) {
+			const auto nif = meshes / (std::string{ name } + ".nif");
+			if (!std::filesystem::exists(nif, ec)) {
+				continue;
+			}
+			const auto tri = meshes / (std::string{ name } + ".tri");
+			if (std::filesystem::exists(tri, ec)) {
+				logger::info("aftermath: {}.nif has morph data - it will follow each actor's body", name);
+			} else {
+				logger::warn(
+					"aftermath: {}.nif has NO morph data beside it ({} is missing). It is built to one "
+					"body shape and cannot follow anybody's: on a body that is not the one it was "
+					"built to, it will not line up. Build the semen outfit in BodySlide against your "
+					"own preset with \"Build Morphs\" ticked - that build is what produces the .tri.",
+					name, tri.filename().string());
+			}
 		}
 	}
 

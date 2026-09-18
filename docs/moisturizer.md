@@ -71,9 +71,38 @@ had just applied.
 ## What the player has to do
 
 - **Install it via its FOMOD**, choosing the body that matches theirs — `11 Body CBBE` here.
-- **Build the semen outfit in BodySlide** against their own preset. Without this the mesh is built
-  to the base body and will not match.
+- **Build the semen outfit in BodySlide** against their own preset, with **Build Morphs** ticked.
+
+  Worth being exact about why, because the obvious objection is a good one: *can it not just morph
+  to fit anybody?* It can — that is precisely what Build Morphs buys. LooksMenu morphs a worn mesh
+  per actor at runtime (`f4ee.ini`, `[BodyMorph] bEnable=1`, `bEnableModelPreprocessor=1`), and the
+  player's own body already works that way: `FemaleBody.nif` sits next to `FemaleBody.tri` in
+  CharacterAssets.
+
+  But the morph data has to exist. Moisturizer ships the `.nif` **alone** for every body option
+  except AtomicMuscle — CBBE, FusionGirl and BodyTalk3 have no `.tri` at all. So a fresh install has
+  a mesh that physically cannot morph, and the BodySlide run is not an alternative to morphing:
+  **it is what produces the morph data.**
+
+  And morphs are deltas from the shape a mesh was built to, not absolute fitting. A morph says
+  "20% larger than the base this was built against"; if the semen mesh is built to base CBBE and the
+  body to a preset, the morph moves both equally and the mismatch survives. The base still has to
+  match.
+
+  Rapport checks for the `.tri` at startup and says which of the two situations it is in, because
+  the failure looks exactly like the mod being broken.
 - **Enable `Rapport_Moisturizer.esp`** alongside `Rapport.esp`.
+
+## Does per-actor morphing buy anything here?
+
+Only if NPCs have individual bodies, and on this machine they do not. There is no
+`F4SE/Plugins/F4EE/BodyGen/` folder, so BodyGen is enabled with no templates to randomise from and
+every NPC wears the same built body. The 159 XMLs under `Data/DiverseBodiesRedux/BodymorphsFemale`
+are **BodySlide presets**, not runtime morphs — an offline library for building a specific body, not
+something the game reads.
+
+So one build against one preset currently fits every NPC in the game, and Build Morphs is worth
+ticking for what it costs (nothing) rather than for what it changes today.
 
 ## Known limits
 
