@@ -20,7 +20,6 @@ EndStruct
 AAF:AAF_API _api
 Request[] _inFlight
 Bool _ready = false
-Bool _connecting = false
 
 ;---------------------------------------------------------------------------
 ; Startup
@@ -39,12 +38,15 @@ EndEvent
 ; Rapport.dll starts from nothing every launch. A script that remembered it had
 ; already connected left the freshly loaded plugin believing there was no bridge.
 Function Connect()
-	; OnQuestInit and OnInit both fire, on different threads, and raced: the first
-	; run logged an empty AAF build because AAF had not filled it yet.
-	If _connecting
-		Return
-	EndIf
-	_connecting = true
+	; No _connecting guard. It was a script variable, so it lived in the save, and
+	; a game closed between setting it and clearing it left it true forever --
+	; after which every Connect() returned immediately and silently, and the bridge
+	; could never introduce itself again. The race it protected against (OnQuestInit
+	; and OnInit both firing) only ever produced a duplicate log line, which is a
+	; far smaller problem than a permanently deaf mod.
+	;
+	; Nothing below is unsafe to run twice: registering for the same event twice is
+	; idempotent, and BridgeReady is just a report.
 
 	_inFlight = new Request[0]
 
@@ -52,7 +54,6 @@ Function Connect()
 	; which is why it cannot see an AAF installed the other way round.
 	_api = AAF:AAF_API.GetAPI()
 	If _api == None
-		_connecting = false
 		Rapport:Core.Trace("bridge: AAF not found - no scene can be started")
 		Rapport:Core.BridgeReady(false)
 		Return
@@ -69,7 +70,6 @@ Function Connect()
 	RegisterForCustomEvent(_api, "OnAnimationQueryResult")
 
 	_ready = true
-	_connecting = false
 
 	; Both of these must happen on every load, not only the first: the timer may
 	; not have survived, and the plugin has no memory of the last session.
