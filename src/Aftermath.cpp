@@ -86,6 +86,7 @@ namespace RP
 
 		_enabled = document.value("enabled", true);
 		_hours = document.value("hours", 12.0f);
+		_layers = (std::max)(1, document.value("layers", 3));
 		_requireClimax = document.value("requireClimax", false);
 
 		if (const auto regions = document.find("regions"); regions != document.end() && regions->is_object()) {
@@ -126,8 +127,8 @@ namespace RP
 		ChooseBackend(document.value("backend", std::string{ "auto" }));
 
 		logger::info(
-			"aftermath: {} tag rule(s), {:.0f} game hours{}",
-			_rules.size(), _hours, _requireClimax ? ", climax required" : "");
+			"aftermath: {} tag rule(s), {:.0f} game hours, {} layer(s){}",
+			_rules.size(), _hours, _layers, _requireClimax ? ", climax required" : "");
 	}
 
 	void Aftermath::ChooseBackend(const std::string& a_wanted)
@@ -307,6 +308,13 @@ namespace RP
 			_sceneTags.push_back(',');
 		}
 		_sceneTags.append(a_tags);
+
+		// Only an animation that names an act replaces the last one. A kiss or a
+		// transition playing after the sex must not erase where the scene actually
+		// got to.
+		if (!SetsFor(a_tags).empty()) {
+			_lastActTags.assign(a_tags);
+		}
 	}
 
 	std::vector<std::string> Aftermath::SetsFor(std::string_view a_tags) const
@@ -344,6 +352,7 @@ namespace RP
 		NamedLock lock{ _lock, "aftermath" };
 
 		const auto tags = std::exchange(_sceneTags, {});
+		const auto act = std::exchange(_lastActTags, {});
 		if (!_enabled) {
 			return;
 		}
@@ -359,7 +368,7 @@ namespace RP
 
 		// WHO, before what. Applying to both is what put cum on the neck of a
 		// Diamond City guard who was on the giving end of it.
-		const auto receivers = ReceiversOf(tags, a_first, a_second);
+		const auto receivers = ReceiversOf(act, a_first, a_second);
 		_slot0 = 0;
 		_slot1 = 0;
 		if (receivers.empty()) {
@@ -383,7 +392,9 @@ namespace RP
 			who += " (a same-sex pair: nothing available says which of them received, so both do)";
 		}
 
-		const auto sets = SetsFor(tags);
+		// The LAST act, not every act. A scene that went from vaginal to a blowjob
+		// finishes on the blowjob.
+		const auto sets = SetsFor(act);
 		if (sets.empty()) {
 			logger::info("aftermath: nothing to leave behind (tags: {})", tags);
 			return;

@@ -551,3 +551,21 @@ that was never touched.
 **Why this matters more than it looks:** AAF strips clothing for a scene and the NPC re-equips
 afterwards, so on a clothed settler the FACE is the only region anyone sees. Putting the oral region
 on the wrong partner is the most visible mistake this framework can make.
+
+## A-22 - a lot of cum, in the LAST hole touched (2026-09-18)
+
+Owner: *"A lot of cum I mean apply a lot of cum but in the last touched hole"*.
+
+Corrects A-13's reading. Tags still accumulate across a scene, but only the tags of the **last
+animation that named an act** decide anything. A scene that drifts from vaginal into a blowjob
+finishes on the blowjob; it does not leave a mark everywhere it passed through. A kiss or a
+transition playing afterwards does not erase it, because only tags that resolve to sets replace the
+last act -- everything else is still recorded, so "no animation told us anything" stays
+distinguishable from "nothing it told us was an act".
+
+**Quantity is a count, not a spread.** Moisturizer's `ApplyRandCumAtLocations` places ONE decal per
+region per call, and `PickRandomFromAVArray` skips any slot whose ActorValue is already set rather
+than re-rolling it -- it only wipes and starts over when every slot in the region is full. So repeat
+calls STACK. `layers` (3 by default) is how much lands in the one place.
+
+The overlay backend ignores `layers`: its quantity is per set in `Rapport_overlayData.xml`.

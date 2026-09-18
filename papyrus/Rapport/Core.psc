@@ -114,6 +114,10 @@ Bool Function MoisturizerRear() Global Native
 ; The same thing as text, for the log only.
 String Function MoisturizerRegions() Global Native
 
+; How many times to ask for cum in the same place. Its picker skips slots that
+; are already used rather than re-rolling them, so this stacks distinct decals.
+Int Function MoisturizerLayers() Global Native
+
 ; True when Rapport has chosen Moisturizer as its aftermath backend. False means
 ; stand down entirely -- either CumOverlays is driving or the feature is off.
 Bool Function MoisturizerWanted() Global Native

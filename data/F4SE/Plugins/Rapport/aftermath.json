@@ -37,6 +37,21 @@
   ],
   "backend": "auto",
 
+  "comment_layers": [
+    "How much, in the one place it landed. Moisturizer puts ONE decal per region",
+    "per call, and its own picker skips slots that are already used rather than",
+    "re-rolling them -- so three calls means three distinct decals, not the same",
+    "one three times. It only wipes and starts over once a region is full.",
+    "",
+    "This is the 'a lot of cum' knob. It stacks in ONE place because the place is",
+    "the last hole the scene touched; spreading it over every hole a long scene",
+    "passed through was the wrong reading of 'a lot'.",
+    "",
+    "Overlay backend ignores this: quantity is set per set in",
+    "Rapport_overlayData.xml instead."
+  ],
+  "layers": 3,
+
   "comment_regions": [
     "Moisturizer's API takes three places rather than named sets: front, oral,",
     "rear. This says which of them each set corresponds to, so the tag mapping",

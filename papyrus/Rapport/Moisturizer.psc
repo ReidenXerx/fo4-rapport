@@ -153,8 +153,16 @@ Function DoMoisturizerOrder(Int aiKind, Int aiFormID, Bool abFront, Bool abOral,
 		; should be rare -- but taking the order off the queue is not the same as
 		; carrying it out, so a miss is handed back rather than quietly dropped.
 		If target.Is3DLoaded()
-			_lib.ApplyRandCumAtLocations(target, abFront, abOral, abRear, 0)
-			Rapport:Core.Trace("moisturizer: applied front=" + abFront + " oral=" + abOral + " rear=" + abRear + " to " + aiFormID)
+			; Once per layer. Its picker skips slots already in use and only wipes
+			; the region when every slot is full, so these stack into a lot of cum
+			; in one place rather than re-rolling the same decal.
+			Int layers = Rapport:Core.MoisturizerLayers()
+			Int n = 0
+			While n < layers
+				_lib.ApplyRandCumAtLocations(target, abFront, abOral, abRear, 0)
+				n += 1
+			EndWhile
+			Rapport:Core.Trace("moisturizer: applied front=" + abFront + " oral=" + abOral + " rear=" + abRear + " x" + layers + " to " + aiFormID)
 		Else
 			Rapport:Core.DeferOrder(aiFormID)
 			Rapport:Core.Trace("moisturizer: " + aiFormID + " is not loaded - deferred to the next tick")

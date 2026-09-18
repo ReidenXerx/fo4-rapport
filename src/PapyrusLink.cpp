@@ -204,6 +204,11 @@ namespace
 		RP::Aftermath::GetSingleton().Defer(static_cast<std::uint32_t>(a_formID));
 	}
 
+	std::int32_t Papyrus_MoisturizerLayers(std::monostate)
+	{
+		return RP::Aftermath::GetSingleton().Layers();
+	}
+
 	bool Papyrus_MoisturizerWanted(std::monostate)
 	{
 		return RP::Aftermath::GetSingleton().Which() == RP::Aftermath::Backend::kMoisturizer;
@@ -355,6 +360,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerFront"sv, Papyrus_MoisturizerFront, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerOral"sv, Papyrus_MoisturizerOral, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerRear"sv, Papyrus_MoisturizerRear, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "MoisturizerLayers"sv, Papyrus_MoisturizerLayers, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerWanted"sv, Papyrus_MoisturizerWanted, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeoverCount"sv, Papyrus_TakeoverCount, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeoverFormID"sv, Papyrus_TakeoverFormID, std::nullopt, false);
@@ -372,7 +378,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 41 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 42 native functions on {}", kCoreScript);
 		return true;
 	}
 

@@ -54,6 +54,11 @@ namespace RP
 		void Load();
 		[[nodiscard]] bool Enabled() const noexcept { return _enabled; }
 
+		// How many times the mesh backend is asked to apply, in one place. Its
+		// picker skips slots that are already used, so this stacks distinct decals
+		// rather than re-rolling one.
+		[[nodiscard]] std::int32_t Layers() const noexcept { return _layers; }
+
 		// Tags seen during a scene, joined by commas, as AAF reported them. Called
 		// once per animation; a scene plays several, so they accumulate.
 		void NoteTags(std::string_view a_tags);
@@ -124,6 +129,7 @@ namespace RP
 
 		bool  _enabled{ true };
 		float _hours{ 12.0f };
+		std::int32_t _layers{ 3 };
 		bool  _requireClimax{ false };
 
 		// tag, lowercased -> the sets it calls for. A vector rather than a map so
@@ -150,7 +156,14 @@ namespace RP
 		[[nodiscard]] std::vector<std::uint32_t> ReceiversOf(
 			std::string_view a_tags, std::uint32_t a_first, std::uint32_t a_second) const;
 
-		std::string        _sceneTags;   // accumulated across one scene
+		// Everything heard this scene, for the log: it is what separates "no
+		// animation ever told us anything" from "nothing it told us was an act".
+		std::string        _sceneTags;
+
+		// The tags of the last animation that named an ACT, and the only ones that
+		// decide anything. A scene finishes where it finishes; it should not leave
+		// a mark everywhere it passed through on the way.
+		std::string        _lastActTags;
 		std::uint32_t      _slot0{ 0 };
 		std::uint32_t      _slot1{ 0 };
 		std::unordered_map<std::uint32_t, std::int32_t> _sex;
