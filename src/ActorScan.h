@@ -31,10 +31,19 @@ namespace AF
 		[[nodiscard]] bool Step(float a_budgetMs);
 
 		[[nodiscard]] const ScanCounters& Counters() const noexcept { return _counters; }
+
+		// form id -> how many actors were rejected for wearing it. A count alone
+		// cannot tell "this cell is full of dogs" from "the race field is wrong",
+		// and that difference decides whether there is a bug.
+		[[nodiscard]] const std::unordered_map<std::uint32_t, std::uint32_t>& RejectedRaces() const noexcept
+		{
+			return _rejectedRaces;
+		}
 		[[nodiscard]] std::size_t         Size() const noexcept { return _handles.size(); }
 		[[nodiscard]] std::uint32_t       Slices() const noexcept { return _slices; }
 
 	private:
+		std::unordered_map<std::uint32_t, std::uint32_t> _rejectedRaces;
 		std::vector<RE::ActorHandle> _handles;
 		std::size_t                  _cursor{ 0 };
 		ScanCounters                 _counters;

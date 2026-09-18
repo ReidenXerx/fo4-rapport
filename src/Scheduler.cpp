@@ -62,11 +62,17 @@ namespace AF
 			}
 
 			if (_passInFlight.exchange(true)) {
-				// The previous pass has not finished its slices yet. Skipping is
-				// correct: a tick we cannot afford is a tick we do not take.
-				logger::warn("tick skipped — previous pass still in flight");
+				// The previous pass has not finished yet. Skipping is correct — a
+				// tick we cannot afford is a tick we do not take — but say so once
+				// per pass, not on every 250 ms wake-up. The first run after a load
+				// waited 18 seconds for the main thread and wrote 74 identical
+				// warnings.
+				if (!_skipReported.exchange(true)) {
+					logger::warn("tick due while the previous pass is still in flight — waiting for it");
+				}
 				continue;
 			}
+			_skipReported.store(false);
 
 			// The next deadline is set when this pass FINISHES, not here. A task
 			// posted to the main thread runs whenever the game gets round to it,
@@ -122,6 +128,22 @@ namespace AF
 			_ticks, _scan.Size(), counters.candidates, _scan.Slices(), _passMs, _worstSliceMs,
 			counters.stale, counters.notLoaded, counters.child, counters.dead, counters.inCombat,
 			counters.outOfRange, counters.raceNotAllowed, counters.inDialogue, counters.questDriven);
+
+		if (Config::GetSingleton().verbose && !_scan.RejectedRaces().empty()) {
+			std::vector<std::pair<std::uint32_t, std::uint32_t>> byCount{
+				_scan.RejectedRaces().begin(), _scan.RejectedRaces().end()
+			};
+			std::ranges::sort(byCount, [](const auto& a, const auto& b) { return a.second > b.second; });
+
+			std::string census;
+			for (std::size_t i = 0; i < byCount.size() && i < 8; ++i) {
+				if (!census.empty()) {
+					census += ", ";
+				}
+				census += std::format("{:08X} x{}", byCount[i].first, byCount[i].second);
+			}
+			logger::info("   races rejected ({} distinct): {}", byCount.size(), census);
+		}
 
 		if (_ticks % 10 == 0) {
 			logger::info(

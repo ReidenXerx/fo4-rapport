@@ -2,22 +2,56 @@
   "comment": [
     "Which races may be autonomy candidates. This is an ALLOW-list on purpose:",
     "an actor whose race is not listed here is never selected. A missing entry",
-    "therefore means 'no scene', never 'a scene with the wrong actor' — the only",
+    "therefore means 'no scene', never 'a scene with the wrong actor' \u2014 the only",
     "acceptable failure direction for the adults-only rule.",
     "Form ids come from AAF's own Data/AAF/AAF_raceData_Fallout4.xml, so this list",
     "cannot drift from what AAF is able to animate. AAF's race list contains no",
     "child race at all; children are excluded by absence here as well as by the",
-    "engine's own IsChild() check."
+    "engine's own IsChild() check.",
+    "Verified against every raceData file in Data/AAF: AAF knows exactly six human-skeleton races on this setup, and these are them. Anything else it could not animate as a human anyway, so rejecting an unlisted race costs nothing."
   ],
   "allow": [
-    { "id": "Human",              "plugin": "Fallout4.esm", "form": "0x00013746" },
-    { "id": "Ghoul",              "plugin": "Fallout4.esm", "form": "0x000EAFB6" },
-    { "id": "SynthGen1",          "plugin": "Fallout4.esm", "form": "0x000E8D09" },
-    { "id": "SynthGen2",          "plugin": "Fallout4.esm", "form": "0x0010BD65" },
-    { "id": "SynthGen2Valentine", "plugin": "Fallout4.esm", "form": "0x002261A4" }
+    {
+      "id": "Human",
+      "plugin": "Fallout4.esm",
+      "form": "0x00013746"
+    },
+    {
+      "id": "Ghoul",
+      "plugin": "Fallout4.esm",
+      "form": "0x000EAFB6"
+    },
+    {
+      "id": "SynthGen1",
+      "plugin": "Fallout4.esm",
+      "form": "0x000E8D09"
+    },
+    {
+      "id": "SynthGen2",
+      "plugin": "Fallout4.esm",
+      "form": "0x0010BD65"
+    },
+    {
+      "id": "SynthGen2Valentine",
+      "plugin": "Fallout4.esm",
+      "form": "0x002261A4"
+    },
+    {
+      "id": "DLC03_SynthGen2DiMa",
+      "plugin": "DLCCoast.esm",
+      "form": "0x00042EBB"
+    }
   ],
   "available_but_off": [
-    { "id": "Supermutant",         "plugin": "Fallout4.esm", "form": "0x0001A009" },
-    { "id": "SupermutantBehemoth", "plugin": "Fallout4.esm", "form": "0x000BB7D9" }
+    {
+      "id": "Supermutant",
+      "plugin": "Fallout4.esm",
+      "form": "0x0001A009"
+    },
+    {
+      "id": "SupermutantBehemoth",
+      "plugin": "Fallout4.esm",
+      "form": "0x000BB7D9"
+    }
   ]
 }

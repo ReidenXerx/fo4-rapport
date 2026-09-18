@@ -45,6 +45,7 @@ namespace AF
 	void ActorScan::Begin(float a_radius)
 	{
 		_handles.clear();
+		_rejectedRaces.clear();
 		_cursor = 0;
 		_counters = {};
 		_slices = 0;
@@ -95,6 +96,7 @@ namespace AF
 				++_counters.inCombat;
 			} else if (!Config::GetSingleton().IsRaceAllowed(actor->race)) {
 				++_counters.raceNotAllowed;
+				++_rejectedRaces[actor->race ? actor->race->GetFormID() : 0u];
 			} else if (actor->talkingToPlayer) {
 				++_counters.inDialogue;
 			} else if (IsQuestDriven(*actor)) {

@@ -26,6 +26,7 @@ namespace AF
 		std::atomic_bool _started{ false };
 		std::atomic_bool _inSession{ false };
 		std::atomic_bool _passInFlight{ false };
+		std::atomic_bool _skipReported{ false };
 
 		std::mutex                            _clockLock;
 		std::chrono::steady_clock::time_point _nextTickAt{};
