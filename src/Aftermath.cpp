@@ -377,6 +377,9 @@ namespace RP
 			return;
 		}
 
+		// The subject on its own; the explanation goes AFTER the sentence, not
+		// inside its subject, which is how the first version of this line came out
+		// as "00002F0B; 000F61B6 was on the other end and keeps nothing keep(s)".
 		std::string who;
 		for (const auto formID : receivers) {
 			if (!who.empty()) {
@@ -384,13 +387,13 @@ namespace RP
 			}
 			who += std::format("{:08X}", formID);
 		}
-		if (receivers.size() == 1) {
-			who += std::format(
-				"; {:08X} was on the other end and keeps nothing",
-				receivers.front() == a_first ? a_second : a_first);
-		} else {
-			who += " (a same-sex pair: nothing available says which of them received, so both do)";
-		}
+		const std::string because =
+			receivers.size() == 1
+				? std::format(
+					  " - {:08X} was on the other end and keeps nothing",
+					  receivers.front() == a_first ? a_second : a_first)
+				: std::string{ " - a same-sex pair, and nothing available says which of them "
+				               "received, so both do" };
 
 		// The LAST act, not every act. A scene that went from vaginal to a blowjob
 		// finishes on the blowjob.
@@ -423,8 +426,8 @@ namespace RP
 				Apply(formID, "CMkz:" + regions, expires);
 			}
 			logger::info(
-				"aftermath: {} keep(s) Moisturizer [{}] until hour {:.1f} (now {:.1f})",
-				who, regions, expires, now);
+				"aftermath: {} keep(s) Moisturizer [{}] until hour {:.1f} (now {:.1f}){}",
+				who, regions, expires, now, because);
 			return;
 		}
 
@@ -440,8 +443,8 @@ namespace RP
 		}
 
 		logger::info(
-			"aftermath: {} keep(s) [{}] until hour {:.1f} (now {:.1f})",
-			who, named, expires, now);
+			"aftermath: {} keep(s) [{}] until hour {:.1f} (now {:.1f}){}",
+			who, named, expires, now, because);
 	}
 
 	void Aftermath::Apply(std::uint32_t a_formID, const std::string& a_setID, float a_expiresAt)
@@ -552,10 +555,22 @@ namespace RP
 	{
 		NamedLock lock{ _lock, "aftermath" };
 		_marks = std::move(a_marks);
-		// Nothing is asked for here. The next tick does it, by which time the game
-		// is actually running and the bridge is listening.
+
+		// Whether a restored mark needs asking for again depends entirely on the
+		// backend, and getting this wrong ADDS cum on every reload.
+		//
+		// An OVERLAY is LooksMenu state applied at runtime; it may or may not have
+		// survived, and asking twice is free because AAF will not apply the same
+		// overlay to an actor twice. So: ask again.
+		//
+		// A MOISTURIZER mark is an equipped armour piece with object mods, and
+		// ActorValues recording which slots are used. All of that is ordinary game
+		// state that came back with the save. Asking again does not refresh it --
+		// its picker SKIPS the slots already set and fills new ones, so a reload
+		// would stack another full set of layers, and another, until the region
+		// filled and wiped. Already on, already correct: leave it.
 		for (auto& mark : _marks) {
-			mark.asked = false;
+			mark.asked = mark.setID.starts_with("CMkz:");
 		}
 	}
 

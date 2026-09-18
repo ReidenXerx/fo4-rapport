@@ -115,6 +115,27 @@ That has a design consequence worth stating: the face is the region doing the vi
 makes getting ROLES right more valuable than it looks. Putting the oral region on the wrong partner
 is currently the most visible thing Rapport can get wrong.
 
+## Reloading does not re-apply it
+
+The two backends need opposite treatment on load, and getting it wrong adds cum every time you
+reload.
+
+An **overlay** is LooksMenu state applied at runtime. It may not have survived, and asking twice is
+free because AAF will not put the same overlay on an actor twice. So a restored overlay mark is
+asked for again.
+
+A **Moisturizer** mark is an equipped armour piece with object mods, plus ActorValues recording which
+slots are used. That is ordinary game state and it comes back with the save by itself. Asking again
+does not refresh it: `PickRandomFromAVArray` SKIPS the slots already set and fills new ones, so every
+reload would stack another full set of `layers`, and another, until the region filled and wiped.
+
+Measured before the fix: a reload turned `x3` into `x6`.
+
+This is also why "the cum is still there after a reload" does not, on its own, demonstrate that the
+co-save works. It would look identical with an empty ledger -- and then nothing would know to remove
+it at its expiry hour. The log line `ledger: read N standing overlay(s) from the save` is the thing
+that actually proves it.
+
 ## Known limits
 
 - **`Is3DLoaded` is mandatory.** Unlike an overlay, a worn mesh cannot be applied to somebody who is
