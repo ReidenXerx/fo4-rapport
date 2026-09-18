@@ -14,8 +14,19 @@
     "says so when it writes them. Fallout4Custom.ini is backed up once, the first",
     "time, to Fallout4Custom.ini.before-rapport-debug.",
     "",
-    "Ship with active = off. Papyrus tracing slows the script engine, which is the",
-    "exact cost this mod exists to avoid adding to."
+    "DEVELOPMENT default is \"debug\". SHIPPING default is \"off\".",
+    "",
+    "Papyrus tracing slows the script engine, which is the exact cost this mod",
+    "exists not to add - so it must be off in a release. On a development machine",
+    "that reasoning does not apply, and applying it anyway cost five debugging runs",
+    "spent chasing a dying Papyrus stack with the Papyrus log switched off.",
+    "",
+    "It is cheap to leave on: troubleshooting_level stays 0 in both profiles, so",
+    "there are no modal pop-ups. The pop-ups that interrupted the owner once came",
+    "from that setting, never from logging.",
+    "",
+    "Rapport says loudly at startup when this profile is active, so it cannot ship",
+    "this way without somebody having read the warning."
   ],
 
   "active": "debug",

@@ -116,7 +116,19 @@ namespace RP
 		}
 		const auto& profile = (*profiles)[_profile];
 
-		logger::info("debug hub: applying profile \"{}\"", _profile);
+		if (_profile == "off") {
+			logger::info("debug hub: applying profile \"off\"");
+		} else {
+			// Loud on purpose. Leaving diagnostics on is right on a development
+			// machine and wrong in a release -- Papyrus tracing slows the script
+			// engine, which is the one cost this mod exists not to add. The only
+			// thing that stops a dev default shipping is somebody noticing, so
+			// this makes it impossible not to.
+			logger::warn(
+				"debug hub: profile \"{}\" is a DEVELOPMENT profile. Papyrus tracing is on and it "
+				"slows the script engine. Set \"active\" to \"off\" in debug.json before shipping.",
+				_profile);
+		}
 
 		// ---- the engine's own logging, which needs a restart --------------------
 		if (const auto papyrus = profile.find("papyrus"); papyrus != profile.end()) {

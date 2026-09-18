@@ -501,3 +501,22 @@ This is the rule for every future integration, not a one-off. Settings are diffe
 **Corollary:** an order taken off a queue is gone whether or not anything happened, so an order that
 could not be carried out is handed back (`DeferOrder`) rather than dropped. A worn mesh cannot be
 applied to an actor who is not loaded, which makes that a real case rather than a hypothetical one.
+
+## A-20 - diagnostics stay ON during development (2026-09-18)
+
+The `debug` profile is the DEVELOPMENT default. `off` is the SHIPPING default.
+
+Papyrus tracing slows the script engine, which is the one cost this mod exists not to add - so a
+release must ship with it off. That reasoning does not apply to a development machine, and applying
+it anyway cost five debugging runs: a Papyrus stack died on every one of them while the Papyrus log,
+the VM's own account of exactly that, was switched off.
+
+It is cheap to leave on. `troubleshooting_level` is 0 in both profiles, so there are no modal
+pop-ups - those came from that setting once, never from logging.
+
+Rapport now warns loudly at startup whenever a non-`off` profile is active, because the only thing
+that stops a development default reaching a release is somebody noticing.
+
+**The general rule:** a default chosen for shipping is not automatically right for developing, and a
+diagnostic switched off "because it costs something" is a trade you should be able to name. The cost
+here was framerate on a machine that was not measuring framerate.

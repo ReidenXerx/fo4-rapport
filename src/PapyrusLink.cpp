@@ -88,8 +88,22 @@ namespace
 	void Papyrus_Pump(std::monostate)
 	{
 		RP::PapyrusLink::GetSingleton().NotePump();
+
+		// Loud, and only while a scene is running, so it is a handful of lines per
+		// scene rather than a flood. It exists because the last run produced three
+		// negatives -- no deadlock, no exception, no step -- which rules out our
+		// locks and our exceptions but leaves "was Pump even entered?" unanswered.
+		// The counter above proves the NATIVE was called; this proves the body was.
+		const auto watching = RP::PapyrusLink::GetSingleton().Busy();
+		if (watching) {
+			logger::info("pump: entering with a scene in flight");
+		}
+
 		try {
 			RP::Expressions::GetSingleton().Pump();
+			if (watching) {
+				logger::info("pump: returned normally");
+			}
 		} catch (const std::exception& e) {
 			logger::critical("Pump threw: {} - the bridge's poll would have died here silently", e.what());
 		} catch (...) {
