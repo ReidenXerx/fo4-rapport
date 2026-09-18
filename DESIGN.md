@@ -220,3 +220,86 @@ reputation consequences if someone sees.
 - Whether the AAF API behaves the same under Proton as on Windows (test in M2).
 - NPC voices: FO4 dialogue is voiced, so subtitles-only answers may feel flat. Decide in P2 whether reusing vanilla lines per voice type is worth the effort.
 - Adding player lines to generic NPCs without disturbing vanilla or quest dialogue (strict conditions, low-priority topics, test with dialogue overhauls).
+
+---
+
+# Amendments
+
+Decisions taken after v0.2 of this document, each one the owner's. The sections above
+are unchanged; where they disagree with an amendment, the amendment wins.
+
+## A-1 (2026-09-17) — Three mods, not one
+
+The document describes one mod with two modules on a shared core. It ships instead as a
+**pure framework plus two addons**, so the proposals side can iterate and release without
+re-releasing the autonomy core.
+
+| | |
+| --- | --- |
+| **Autonomy Framework** | Plumbing only. Scheduler, actor enumeration and filtering, AAF bridge and actor locking, spot finding and privacy, attraction/need/cooldown/refusal state, co-save. Ships a public API (Papyrus functions and an F4SE message API) and no behaviour of its own. |
+| **NPC Autonomy** (addon) | Decides when and whom. Requires the framework. |
+| **Player Proposals** (addon) | Replaces Sex 'Em Up. Dialogue, the player's own choices. Requires the framework. |
+
+The framework owns everything both addons would otherwise duplicate, so there is one scan,
+one actor lock, and one saved state. Two independent mods were rejected: two schedulers
+would scan the same actors, two co-saves would hold contradictory cooldowns, and both could
+select the same NPC with only AAF's `SetActorLocked` preventing a collision.
+
+The cost, accepted knowingly: the public API has to exist before either addon works, and a
+careless framework change can break an addon.
+
+## A-2 (2026-09-17) — Replace, don't coexist
+
+AAF Autonomy Enhanced and AAF Sex 'Em Up are both removed when ours ships. Autonomy Enhanced
+distributes a per-NPC perk on a timer, which is the pattern this design exists to eliminate.
+
+## A-3 (2026-09-17) — We define the attraction stat
+
+AAF's relationship layer is empty: no `relationshipStat` is defined anywhere, and of 12,120
+compiled scripts in the reference load order nothing but AAF itself calls the stat API (see
+`docs/aaf-api.md`). The framework therefore ships its own `actorStatData` declaring a
+persistent Attraction relationship stat and writes it through AAF's API, so AAF's own UI
+shows it and other mods can read it. The F4SE co-save remains authoritative for need,
+cooldowns, last partner and refusal memory.
+
+## A-4 (2026-09-17) — Who is eligible
+
+- **Races:** Human, Ghoul, SynthGen1, SynthGen2, SynthGen2Valentine, DLC03_SynthGen2DiMa.
+  Not supermutants, not creatures. These are exactly the six human-skeleton races AAF can
+  animate on the reference setup; the list is an allow-list, so an unlisted race is never a
+  candidate and a missing entry means "no scene" rather than "a scene with the wrong actor".
+- **NPCs:** generic and named alike, but never one a quest is actively directing. Membership
+  of a quest alias is not the test — settlers sit in settlement aliases permanently — an
+  alias with *instanced packages* is.
+
+## A-5 (2026-09-17) — Private by default, public if bold
+
+Privacy is preferred and scored rather than required. A pair with high enough attraction, or
+in a place that permits it (a raider camp, a bar), may go ahead in the open. The spot finder
+stays load-bearing for the common case.
+
+## A-6 (2026-09-17) — Non-hostile, factions weighted
+
+A pair must be non-hostile to each other by the engine's own check. Shared faction, shared
+location and time together raise the score, so same-faction pairs are far likelier while a
+cross-faction pairing remains possible when everything else is favourable.
+
+## A-7 (2026-09-17) — CommonLibF4 variant settled
+
+The document's open question is answered: **alandtse/CommonLibF4**, OG-only
+(`ENABLE_FALLOUT_NG/VR=OFF`). Ryan-rsm-McKenzie's original has no `ProcessLists`, no `TES`
+and no reference enumeration, so loaded actors cannot be enumerated with it at all.
+
+## A-8 (2026-09-18) — The performance gate is met, measured
+
+M0 and M1's filters, on a running game:
+
+| | Sanctuary | Diamond City |
+| --- | --- | --- |
+| Actors | 75-78 | 49-50 |
+| Candidates | 19-22 | 22-24 |
+| Cost per pass | 0.004-0.015 ms | 0.012-0.028 ms |
+
+Against the 0.25 ms/frame budget that is roughly 0.2 us per actor, and a pass has never
+needed a second slice. `IsChild()` is confirmed to reach the engine's implementation
+(Diamond City reports `child 2`, Sanctuary `child 0` because it has no children).

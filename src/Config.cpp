@@ -27,6 +27,11 @@ namespace AF
 		return singleton;
 	}
 
+	std::filesystem::path Config::ScoringPath()
+	{
+		return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "AutonomyFramework" / "scoring.json";
+	}
+
 	std::filesystem::path Config::RacesPath()
 	{
 		return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "AutonomyFramework" / "races.json";
@@ -164,5 +169,34 @@ namespace AF
 		if (_allowedRaces.empty()) {
 			logger::error("no race resolved — nothing will ever be selected");
 		}
+	}
+}
+
+namespace AF
+{
+	void Config::LoadScoring()
+	{
+		const auto path = ScoringPath();
+		std::ifstream file{ path };
+		if (!file) {
+			logger::info("no {} — using built-in weights", path.string());
+			return;
+		}
+
+		nlohmann::json document;
+		try {
+			file >> document;
+		} catch (const std::exception& e) {
+			logger::error("{} is not valid json ({}) — using built-in weights", path.string(), e.what());
+			return;
+		}
+
+		_weights.LoadFrom(document);
+		logger::info(
+			"scoring: range {:.0f}, observers within {:.0f} | proximity {:.2f}, faction {:.2f}, "
+			"interior {:.2f}, night {:.2f}, per observer -{:.2f}, player near -{:.2f}",
+			_weights.maxPairDistance, _weights.observerRadius, _weights.proximity,
+			_weights.sharedFaction, _weights.interior, _weights.night, _weights.perObserver,
+			_weights.playerNear);
 	}
 }

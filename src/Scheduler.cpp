@@ -1,6 +1,7 @@
 #include "Scheduler.h"
 
 #include "Config.h"
+#include "Pairing.h"
 
 namespace AF
 {
@@ -143,6 +144,45 @@ namespace AF
 				census += std::format("{:08X} x{}", byCount[i].first, byCount[i].second);
 			}
 			logger::info("   races rejected ({} distinct): {}", byCount.size(), census);
+		}
+
+		// Dry run: rank the pairs and say what would happen. Nothing below touches an
+		// actor, reserves anyone, or starts anything — that is a later milestone, and
+		// the whole point of this one is to read the decisions before they are real.
+		{
+			std::vector<RE::Actor*> candidates;
+			candidates.reserve(_scan.Candidates().size());
+			for (const auto& handle : _scan.Candidates()) {
+				if (const auto actor = handle.get(); actor) {
+					candidates.push_back(actor.get());
+				}
+			}
+
+			const auto ranked = RankPairs(
+				candidates, _scan.ObserverPositions(), Config::GetSingleton().Weights(), 3);
+
+			const auto& weights = Config::GetSingleton().Weights();
+
+			if (ranked.empty()) {
+				logger::info("   no viable pair ({} candidates, {} watching)",
+					candidates.size(), _scan.ObserverPositions().size());
+			} else {
+				logger::info("   best pair {} the {:.2f} bar ({} candidates)",
+					ranked.front().score >= weights.minimumScore ? "CLEARS" : "misses",
+					weights.minimumScore, candidates.size());
+				for (const auto& pair : ranked) {
+					logger::info(
+						"   would pair {} + {} — score {:.2f} (apart {:.0f}, faction {}, {}, {}, "
+						"observers {}{})",
+						pair.first->GetDisplayFullName(), pair.second->GetDisplayFullName(),
+						pair.score, pair.signals.distance,
+						pair.signals.sharedFaction ? "shared" : "different",
+						pair.signals.interior ? "indoors" : "outdoors",
+						pair.signals.night ? "night" : "day",
+						pair.signals.observers,
+						pair.signals.playerNear ? ", player watching" : "");
+				}
+			}
 		}
 
 		if (_ticks % 10 == 0) {

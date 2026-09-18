@@ -23,6 +23,8 @@ set(SOURCES
 	"src/Config.cpp"
 	"src/ActorScan.h"
 	"src/ActorScan.cpp"
+	"src/Pairing.h"
+	"src/Pairing.cpp"
 	"src/Scheduler.h"
 	"src/Scheduler.cpp"
 	"src/main.cpp"

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Pairing.h"
+
 namespace AF
 {
 	// Read once at startup from Data/F4SE/Plugins/AutonomyFramework.ini.
@@ -20,6 +22,9 @@ namespace AF
 		// Needs the data handler, so this runs when the game's data is ready —
 		// never at plugin load, when no plugin is resolvable yet.
 		void LoadRaces();
+		void LoadScoring();
+
+		[[nodiscard]] const PairWeights& Weights() const noexcept { return _weights; }
 
 		[[nodiscard]] bool IsRaceAllowed(const RE::TESRace* a_race) const noexcept
 		{
@@ -30,8 +35,10 @@ namespace AF
 
 		[[nodiscard]] static std::filesystem::path IniPath();
 		[[nodiscard]] static std::filesystem::path RacesPath();
+		[[nodiscard]] static std::filesystem::path ScoringPath();
 
 	private:
 		std::unordered_set<const RE::TESRace*> _allowedRaces;
+		PairWeights                            _weights{};
 	};
 }

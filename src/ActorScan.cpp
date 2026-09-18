@@ -46,6 +46,8 @@ namespace AF
 	{
 		_handles.clear();
 		_rejectedRaces.clear();
+		_candidates.clear();
+		_observerPositions.clear();
 		_cursor = 0;
 		_counters = {};
 		_slices = 0;
@@ -75,41 +77,51 @@ namespace AF
 		const auto started = std::chrono::steady_clock::now();
 		const auto budget = std::chrono::duration<float, std::milli>{ a_budgetMs };
 		const auto player = RE::PlayerCharacter::GetSingleton();
+		const auto& config = Config::GetSingleton();
 
 		std::size_t sinceClock = 0;
 		while (_cursor < _handles.size()) {
-			const auto actorPtr = _handles[_cursor++].get();
+			const auto handle = _handles[_cursor++];
+			const auto actorPtr = handle.get();
+			const auto actor = actorPtr.get();
 			++_counters.seen;
 
-			const auto actor = actorPtr.get();
 			if (!actor) {
 				++_counters.stale;
 			} else if (actor == player) {
-				// The player is never an autonomy candidate; they participate by choice.
+				// The player is never an autonomy candidate; they take part by choice.
 			} else if (!actor->Get3D()) {
 				++_counters.notLoaded;
 			} else if (actor->IsChild()) {
 				++_counters.child;
 			} else if (actor->IsDead(true)) {
 				++_counters.dead;
-			} else if (actor->IsInCombat()) {
-				++_counters.inCombat;
-			} else if (!Config::GetSingleton().IsRaceAllowed(actor->race)) {
-				++_counters.raceNotAllowed;
-				++_rejectedRaces[actor->race ? actor->race->GetFormID() : 0u];
-			} else if (actor->talkingToPlayer) {
-				++_counters.inDialogue;
-			} else if (IsQuestDriven(*actor)) {
-				++_counters.questDriven;
 			} else {
-				const auto here = actor->GetPosition();
-				const auto dx = here.x - _origin.x;
-				const auto dy = here.y - _origin.y;
-				const auto dz = here.z - _origin.z;
-				if ((dx * dx + dy * dy + dz * dz) > _radiusSq) {
-					++_counters.outOfRange;
+				// Past this point the actor is loaded and alive, so they can witness
+				// a scene even when they could never take part in one. Privacy is
+				// about who can see, not about who is eligible.
+				_observerPositions.push_back(actor->GetPosition());
+
+				if (actor->IsInCombat()) {
+					++_counters.inCombat;
+				} else if (!config.IsRaceAllowed(actor->race)) {
+					++_counters.raceNotAllowed;
+					++_rejectedRaces[actor->race ? actor->race->GetFormID() : 0u];
+				} else if (actor->talkingToPlayer) {
+					++_counters.inDialogue;
+				} else if (IsQuestDriven(*actor)) {
+					++_counters.questDriven;
 				} else {
-					++_counters.candidates;
+					const auto here = actor->GetPosition();
+					const auto dx = here.x - _origin.x;
+					const auto dy = here.y - _origin.y;
+					const auto dz = here.z - _origin.z;
+					if ((dx * dx + dy * dy + dz * dz) > _radiusSq) {
+						++_counters.outOfRange;
+					} else {
+						++_counters.candidates;
+						_candidates.push_back(handle);
+					}
 				}
 			}
 

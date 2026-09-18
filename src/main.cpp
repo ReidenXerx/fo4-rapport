@@ -34,6 +34,7 @@ namespace
 		case F4SE::MessagingInterface::kGameDataReady:
 			AF::Config::GetSingleton().Load();
 			AF::Config::GetSingleton().LoadRaces();
+			AF::Config::GetSingleton().LoadScoring();
 			AF::Scheduler::GetSingleton().Start();
 			break;
 		case F4SE::MessagingInterface::kNewGame:

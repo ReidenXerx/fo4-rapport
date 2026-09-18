@@ -39,11 +39,24 @@ namespace AF
 		{
 			return _rejectedRaces;
 		}
+
+		// Handles, not pointers: a pass spans several frames and an actor collected
+		// in the first slice can be unloaded before the last one.
+		[[nodiscard]] const std::vector<RE::ActorHandle>& Candidates() const noexcept { return _candidates; }
+
+		// Everyone loaded and alive, whatever their race — a brahmin cannot be a
+		// candidate but a settler standing next to one can still see them.
+		[[nodiscard]] const std::vector<RE::NiPoint3>& ObserverPositions() const noexcept
+		{
+			return _observerPositions;
+		}
 		[[nodiscard]] std::size_t         Size() const noexcept { return _handles.size(); }
 		[[nodiscard]] std::uint32_t       Slices() const noexcept { return _slices; }
 
 	private:
 		std::unordered_map<std::uint32_t, std::uint32_t> _rejectedRaces;
+		std::vector<RE::ActorHandle>                     _candidates;
+		std::vector<RE::NiPoint3>                        _observerPositions;
 		std::vector<RE::ActorHandle> _handles;
 		std::size_t                  _cursor{ 0 };
 		ScanCounters                 _counters;

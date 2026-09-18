@@ -1,0 +1,31 @@
+{
+  "comment": [
+    "Weights for pair scoring. The framework measures; these decide what the",
+    "measurements are worth, so policy lives here rather than in the plugin.",
+    "",
+    "Two of these are curves rather than straight lines, deliberately:",
+    "  proximity falls off with the square of distance, so standing together beats",
+    "  merely sharing a faction -- without it, two guards on opposite sides of a",
+    "  market outscored two people already next to each other.",
+    "  the crowd penalty is zero up to observerTolerance and then climbs steeply.",
+    "  In this world nobody is shy about it; nobody performs for ten people either.",
+    "",
+    "Privacy is never a veto, only a price. Hostility is the only hard gate."
+  ],
+
+  "maxPairDistance": 1536.0,
+  "observerRadius": 900.0,
+
+  "proximityFalloff": 2.0,
+  "observerTolerance": 2,
+  "observerFalloff": 1.5,
+
+  "proximity": 1.5,
+  "sharedFaction": 0.6,
+  "interior": 0.3,
+  "night": 0.25,
+  "perObserver": 0.2,
+  "playerNear": 0.5,
+
+  "minimumScore": 0.9
+}
