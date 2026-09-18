@@ -153,9 +153,9 @@ namespace
 	// What AAF says about itself, reported on every poll. The plugin cannot ask
 	// -- GetAAFStatus is Papyrus -- and the number has to arrive on the same poll
 	// that acts on it, or the watchdog would be reasoning about a stale one.
-	void Papyrus_NoteAAFStatus(std::monostate, std::int32_t a_status)
+	void Papyrus_NoteAAFStatus(std::monostate, std::int32_t a_status, bool a_hudReady)
 	{
-		RP::AAFHealth::GetSingleton().NoteStatus(a_status);
+		RP::AAFHealth::GetSingleton().NoteStatus(a_status, a_hudReady);
 	}
 
 	// The player's answer to "AAF's quest is not running - start it?".

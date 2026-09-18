@@ -163,10 +163,11 @@ Event OnTimer(Int aiTimerID)
 		; "AAF's quest is stopped" are different facts, and 0 is already spoken
 		; for. Reporting a real status we did not read would be the worse bug --
 		; it is what makes a broken framework look like a quiet one.
+		Bool hudReady = UI.IsMenuOpen("HUDMenu")
 		If _api == None
-			Rapport:Core.NoteAAFStatus(-1)
+			Rapport:Core.NoteAAFStatus(-1, hudReady)
 		Else
-			Rapport:Core.NoteAAFStatus(_api.GetAAFStatus())
+			Rapport:Core.NoteAAFStatus(_api.GetAAFStatus(), hudReady)
 		EndIf
 
 		Rapport:Core.Pump()
@@ -570,6 +571,9 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	ElseIf aiKind == 10
 		Self.AskStartAAF()
 		Return
+	ElseIf aiKind == 11
+		Self.RestartAAFQuest()
+		Return
 	EndIf
 
 	If _api == None
@@ -646,9 +650,53 @@ Function ReviveAAF()
 		Return
 	EndIf
 
-	Rapport:Core.Trace("aaf watchdog: calling AAF's own EveryTime_Initialization")
+	; The state BEFORE the call, because six attempts vanished without a trace and
+	; "we asked" is not evidence that anything heard.
+	;
+	; The swf path is the decisive one. AAF's updater blanks it and only fills it
+	; from its OnAAFReady handler, so while AAF is unready it is always empty and
+	; EveryTime_Initialization takes its ui.Load branch rather than .reboot. If it
+	; is STILL empty on the next attempt, that ui.Load never completed -- there was
+	; no menu to load into. If it has filled, the interface loaded and simply never
+	; announced itself, which is a different mod's bug and not ours to fix.
+	Rapport:Core.Trace("aaf watchdog: before - quest running " + mq.IsRunning() + ", swf path \"" + mq.getSWFPath() + "\", HUDMenu open " + UI.IsMenuOpen("HUDMenu") + ", looking controls " + Game.IsLookingControlsEnabled())
+
 	mq.EveryTime_Initialization()
 	Rapport:Core.Trace("aaf watchdog: asked - AAF answers when its interface comes back up")
+EndFunction
+
+; AAF's own harder reboot, and the last thing tried.
+;
+; Stop() then Start() on the main quest is what AAF's updater does to itself when
+; the version changes (AAF_UpdaterQuestScript.CheckVersion). It is heavier than
+; re-running an init because a quest stop RESETS the script -- which is why
+; GAME_DATA is carried across by hand here, exactly as AAF carries it. That string
+; comes from setGameID and is the identity AAF's stored data is keyed to; losing
+; it would leave AAF believing this is a different save.
+Function RestartAAFQuest()
+	AAF:AAF_MainQuestScript mq = AAF:AAF_MainQuestScript.GetMainQuestScript()
+	If mq == None
+		Rapport:Core.Trace("aaf watchdog: AAF's main quest does not resolve - AAF is not installed")
+		Return
+	EndIf
+
+	String carried = mq.getGAME_DATA()
+	Rapport:Core.Trace("aaf watchdog: the gentle restart did not take - stopping and starting AAF's main quest, carrying its game data \"" + carried + "\" across")
+
+	; Back to back, with no wait between them. That is not an oversight: it is
+	; exactly what AAF's own updater does on a version change, and the base source
+	; reconstruction has no Utility.psc to wait with anyway.
+	mq.Stop()
+	mq.Start()
+
+	; Put it back only if the restart cleared it. Writing over a value AAF has
+	; already restored itself would be the one way this makes things worse.
+	If mq.getGAME_DATA() == "" && carried != ""
+		mq.saveGAME_DATA(carried)
+		Rapport:Core.Trace("aaf watchdog: restored AAF's game data after the restart")
+	EndIf
+
+	Rapport:Core.Trace("aaf watchdog: AAF's main quest restarted, running " + mq.IsRunning() + ", game data \"" + mq.getGAME_DATA() + "\"")
 EndFunction
 
 ; AAF's main quest is stopped, which is a different failure from a quiet one.

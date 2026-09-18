@@ -35,10 +35,11 @@ namespace RP
 		}
 	}
 
-	void AAFHealth::NoteStatus(std::int32_t a_status)
+	void AAFHealth::NoteStatus(std::int32_t a_status, bool a_hudReady)
 	{
 		NamedLock lock{ _lock, "aaf health" };
 		_status = a_status;
+		_hudReady = a_hudReady;
 	}
 
 	std::int32_t AAFHealth::Status() const
@@ -54,6 +55,7 @@ namespace RP
 		_attempts = 0;
 		_asked = false;
 		_gaveUp = false;
+		_heldForMenu = false;
 		_unhealthySince.reset();
 		_lastAttemptAt.reset();
 	}
@@ -128,6 +130,7 @@ namespace RP
 				_attempts = 0;
 				_asked = false;
 				_gaveUp = false;
+				_heldForMenu = false;
 			}
 			return std::nullopt;
 		}
@@ -158,6 +161,22 @@ namespace RP
 			return std::nullopt;
 		}
 
+		// Not unless HUDMenu is actually open. Every cure below ends in a
+		// UI.Load into that menu, so firing one while it is absent does not fail
+		// -- it is counted as an attempt having tried nothing, and three of those
+		// exhaust the budget in under a minute while the player stares at a load
+		// screen. This is the same emptiness that swallowed AAF's own reboot.
+		if (!_hudReady) {
+			if (!_heldForMenu) {
+				_heldForMenu = true;
+				logger::info(
+					"aaf watchdog: holding off - HUDMenu is not open, and the restart has to "
+					"reach it. Waiting rather than spending an attempt on nothing");
+			}
+			return std::nullopt;
+		}
+		_heldForMenu = false;
+
 		// A stopped quest is a different failure from a quiet one, and starting
 		// another mod's quest is a bigger act than re-running its own init. The
 		// reason it is stopped may be that AAF is on its way out of this save --
@@ -186,6 +205,19 @@ namespace RP
 
 		++_attempts;
 		_lastAttemptAt = now;
+
+		// The last attempt is AAF's own harder reboot rather than a fourth polite
+		// request. Six gentle restarts across two loads changed nothing, so
+		// repeating it a seventh time is not a plan.
+		if (_attempts >= config.aafReviveAttempts) {
+			logger::warn(
+				"aaf watchdog: AAF has been at status {} for {:.0f}s and the gentle restart has "
+				"not taken - stopping and starting its main quest, which is what AAF does to "
+				"itself on a version change (attempt {} of {}, the last)",
+				_status, outage, _attempts, config.aafReviveAttempts);
+			return Order{ Order::Kind::kRestartAAFQuest, 0, {}, {} };
+		}
+
 		logger::warn(
 			"aaf watchdog: AAF has been at status {} for {:.0f}s - calling its own "
 			"EveryTime_Initialization (attempt {} of {})",

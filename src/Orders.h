@@ -58,7 +58,14 @@ namespace RP
 			// is a bigger act than re-running its init, and the reason may be that
 			// AAF is being removed from this save -- which nothing here can see and
 			// the player can. So this one asks.
-			kAskStartAAF = 10
+			kAskStartAAF = 10,
+
+			// The gentle restart did not take. This is AAF's OWN harder reboot --
+			// Stop() then Start() on its main quest, which is what its updater does
+			// to itself when the version changes. GAME_DATA is carried across by
+			// hand, exactly as AAF carries it, because a quest stop resets the
+			// script and that string is the identity its stored data is keyed to.
+			kRestartAAFQuest = 11
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

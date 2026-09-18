@@ -66,7 +66,15 @@ Int Function SceneToStop() Global Native
 ;    0  AAF's main quest is stopped
 ;    1  running, but its interface has never announced itself
 ;    2  ready
-Function NoteAAFStatus(Int aiStatus) Global Native
+;
+; abHUDReady is UI.IsMenuOpen("HUDMenu") -- the exact condition the cure needs,
+; not a proxy for it. Every restart AAF performs ends in
+; UI.Load("HUDMenu", "root1", "AAF.swf", ...), and F4SE's own UI.psc spells out
+; that shape: the asset loads as a child of a variable inside a menu that has to
+; be there already. On a load screen it is not, which is how AAF lost its reboot
+; to begin with -- and an attempt spent that way is counted without anything
+; having been tried.
+Function NoteAAFStatus(Int aiStatus, Bool abHUDReady) Global Native
 
 ; The player's answer to "AAF's quest is not running - start it?". Recorded so
 ; that a no is a no for the session, and so the log says which of the two it was.

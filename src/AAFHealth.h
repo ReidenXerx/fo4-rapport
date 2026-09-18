@@ -51,7 +51,17 @@ namespace RP
 
 		// Reported by the bridge on every poll, immediately before Pump, so the
 		// number this acts on can never be a stale one.
-		void NoteStatus(std::int32_t a_status);
+		// a_hudReady is UI.IsMenuOpen("HUDMenu") -- not a proxy for it, the exact
+		// condition the cure needs. Every restart AAF performs ends in
+		//
+		//     UI.Load("HUDMenu", "root1", "AAF.swf", ...)
+		//
+		// and F4SE's own UI.psc documents that shape: the asset is loaded as a
+		// child of a variable inside a menu that must already be there. On a load
+		// screen it is not, the call reaches nothing, and that is how AAF lost its
+		// reboot in the first place. Firing the cure into the same emptiness does
+		// not fail -- it is counted as an attempt while having tried nothing.
+		void NoteStatus(std::int32_t a_status, bool a_hudReady);
 
 		// Decides, on the same poll as everything else. Queues at most one order.
 		void Pump();
@@ -80,6 +90,8 @@ namespace RP
 		std::uint32_t _attempts{ 0 };
 		std::uint32_t _revivals{ 0 };   // times it came back after we restarted it
 		bool          _asked{ false };  // the quest-stopped question, asked once
+		bool          _hudReady{ false };
+		bool          _heldForMenu{ false };   // said once, not every poll
 		bool          _gaveUp{ false };
 
 		std::optional<std::chrono::steady_clock::time_point> _unhealthySince;
