@@ -15,6 +15,16 @@ namespace RP
 		std::uint32_t maxConcurrentScenes{ 1 };
 		float         sceneSeconds{ 30.0f };
 
+		// NOT a length. A scene runs for as long as the animation's author made it:
+		// a position tree walks its own stages and exits through its own Finish
+		// branch, and cutting that short is how a climax gets lost.
+		//
+		// This is the deadlock breaker, and it has to exist because AAF does not
+		// end a scene that has no tree -- the duration it is given is ignored, and
+		// the actors stay flagged busy until somebody calls StopScene. So a scene
+		// that has run this long is not a long scene, it is a stuck one.
+		float         maxSceneSeconds{ 900.0f };
+
 		// How long an actor AAF refused as busy is left out of the running. AAF's
 		// busy flag outlives our request -- it is cleared by the scene ending, and
 		// a scene we never started never ends -- so without this the scheduler

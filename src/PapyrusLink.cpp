@@ -494,11 +494,19 @@ namespace RP
 		return request;
 	}
 
-	void PapyrusLink::CheckWatchdog(float a_sceneSeconds)
+	void PapyrusLink::CheckWatchdog()
 	{
 		if (!_sceneInFlight.load()) {
 			return;
 		}
+
+		// The same budget the stop uses, so the two cannot disagree about when a
+		// scene has gone wrong. This used to be handed Config::sceneSeconds -- the
+		// default for a plain scene, nothing to do with the one running -- which
+		// with the default of 30 made the limit 210s. athome asks for 285, so every
+		// scenario scene was released mid-play without fail, and its real ending
+		// then arrived to find somebody else in flight.
+		const auto a_sceneSeconds = Config::GetSingleton().maxSceneSeconds;
 
 		// Generous: the scene's own length, the bridge's own timeout, and room for
 		// AAF to walk two people across a market before anyone calls it stuck.
@@ -565,9 +573,27 @@ namespace RP
 		if (!_sceneRunning || _stopAsked || _inFlightRequest == 0) {
 			return 0;
 		}
+		// Deliberately NOT _inFlightDuration. A scene lasts as long as its author
+		// made it: a tree walks its own authored stages and leaves through its own
+		// Finish branch, and stopping it on our clock is exactly how the climax was
+		// being lost -- the ending is the last thing to happen, so ours was the one
+		// part guaranteed to be cut.
+		//
+		// What remains is a deadlock breaker. AAF does not end a scene that has no
+		// tree, so without something here the pair stays flagged busy for the rest
+		// of the save.
 		const auto elapsed =
 			std::chrono::duration<float>{ std::chrono::steady_clock::now() - _sceneStartedAt }.count();
-		return elapsed >= _inFlightDuration ? _inFlightRequest : 0;
+		if (elapsed < Config::GetSingleton().maxSceneSeconds) {
+			return 0;
+		}
+
+		logger::warn(
+			"request {}: running for {:.0f}s with no ending from AAF - stopping it. This is the "
+			"deadlock breaker, not a length: either the animation has no tree to leave through, or "
+			"something is stuck",
+			_inFlightRequest, elapsed);
+		return _inFlightRequest;
 	}
 
 	void PapyrusLink::NoteStopAsked()
@@ -831,6 +857,24 @@ namespace RP
 		_ended.fetch_add(1);
 		logger::info("request {}: scene ended", a_request);
 
+		// Only for the scene we still believe is running.
+		//
+		// AAF's OnSceneEnd can arrive long after this framework has given up on a
+		// scene -- 94 seconds late, in the run that found this -- and by then the
+		// in-flight pair belongs to somebody else's request. Crediting them writes
+		// the wrong couple into the SAVE: a scene they never had, a cooldown they
+		// did not earn, and cum on an actor who was not there.
+		if (a_request != _inFlightRequest) {
+			logger::warn(
+				"request {}: its scene ended, but {} - so the ledger and the aftermath are left "
+				"alone rather than credited to whoever is in flight now",
+				a_request,
+				_inFlightRequest == 0
+					? "this framework had already released it"
+					: std::format("request {} is the one in flight", _inFlightRequest));
+			return;
+		}
+
 		// A scene that ENDED is the only thing worth remembering. One that failed
 		// says nothing about these two beyond "not now", and writing it as history
 		// would put a cooldown on people who never had a scene.
@@ -856,6 +900,18 @@ namespace RP
 	{
 		_failed.fetch_add(1);
 		logger::warn("request {}: {}", a_request, a_why);
+
+		// Same rule as a late ending, for the same reason: a request that failed
+		// before it ever started is not the one whose scene is running, and tearing
+		// that scene's state down here would hand the next request a pair it never
+		// asked for.
+		if (a_request != _inFlightRequest) {
+			logger::warn(
+				"request {}: failed, but it is not the request in flight ({}) - leaving that "
+				"scene's state alone",
+				a_request, _inFlightRequest);
+			return;
+		}
 
 		Ledger::GetSingleton().RecordRefusal(
 			static_cast<std::uint32_t>(_inFlightFirst),

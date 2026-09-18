@@ -198,7 +198,7 @@ namespace RP
 
 			const auto& weights = Config::GetSingleton().Weights();
 
-			link.CheckWatchdog(Config::GetSingleton().sceneSeconds);
+			link.CheckWatchdog();
 			link.CheckBridgeAlive();
 
 			// Expiry is checked on the tick rather than on a timer of its own: it

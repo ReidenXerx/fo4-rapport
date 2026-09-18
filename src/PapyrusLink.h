@@ -59,7 +59,14 @@ namespace RP
 
 		// Belt and braces: if the bridge stops answering, nothing else would ever
 		// clear the in-flight flag.
-		void CheckWatchdog(float a_sceneSeconds);
+		// Takes no length: it uses the duration of the scene ACTUALLY in flight.
+		//
+		// It used to be handed Config::sceneSeconds, which is the default length
+		// for a plain scene and has nothing to do with a scenario's. With the
+		// default of 30 that made the limit 210s, and athome asks for 285 -- so
+		// every scenario scene was released mid-play, without fail, and then its
+		// real ending arrived to find someone else in flight.
+		void CheckWatchdog();
 
 		// The request whose scene has run for as long as we asked, or 0. AAF does
 		// not enforce the duration it is given, so somebody has to, and the clock
