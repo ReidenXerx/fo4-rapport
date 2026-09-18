@@ -1,5 +1,9 @@
 # AAF's real API
 
+> **See also `docs/aaf-under-the-hood.md`** — the behaviour underneath these calls: the load race
+> that leaves AAF permanently deaf, why a climax cannot be requested, what `ChangePosition` cannot
+> do, and which of AAF's answers are lies. This file is the call shapes; that one is the traps.
+
 Read out of the installed mod on 2026-09-17, not from memory or a wiki.
 
 - Function list: the debug table inside `AAF_V1-7-4-1/Scripts/AAF/AAF_API.pex` (pex 3.9, gameID 2,
