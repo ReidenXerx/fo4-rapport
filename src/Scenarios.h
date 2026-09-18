@@ -163,6 +163,13 @@ namespace RP
 		// restart -- 12.5 seconds across a market, measured -- and a story that
 		// relocates at every stage is two people wandering, not a story.
 		bool            _movedThisScene{ false };
+
+		// While this is set the pair is being walked somewhere else and the stage
+		// clock is STOPPED. Without it Pump keeps counting through the walk -- 12.5
+		// seconds across a market, measured -- and advances past the very stage the
+		// move was made for.
+		bool            _awaitingMove{ false };
+		std::chrono::steady_clock::time_point _moveRequestedAt{};
 		std::uint32_t   _first{ 0 };
 		std::uint32_t   _second{ 0 };
 		std::chrono::steady_clock::time_point _stageStartedAt{};

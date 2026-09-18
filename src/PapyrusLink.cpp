@@ -606,6 +606,15 @@ namespace RP
 		_relocating.store(true);
 	}
 
+	void PapyrusLink::CancelRelocation()
+	{
+		if (_relocating.exchange(false)) {
+			logger::warn(
+				"the move never happened - treating scene ends as endings again, because a flag "
+				"left set here would silently stop every scene being recorded");
+		}
+	}
+
 	void PapyrusLink::OnSceneStarted(std::int32_t a_request)
 	{
 		_started.fetch_add(1);

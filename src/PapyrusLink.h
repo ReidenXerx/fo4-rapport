@@ -150,6 +150,11 @@ namespace RP
 		// is a move, not a finish: no ledger entry, no aftermath, no cooldown, and
 		// the pair stays in flight throughout.
 		void BeginRelocation();
+
+		// The move never arrived. Without this the flag stays set for the rest of
+		// the session and EVERY scene end after it is read as a move -- so nothing
+		// is ever written to the ledger and nobody ever gets a cooldown again.
+		void CancelRelocation();
 		[[nodiscard]] bool Relocating() const noexcept { return _relocating.load(); }
 
 		void OnSceneStarted(std::int32_t a_request);

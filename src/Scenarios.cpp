@@ -38,6 +38,15 @@ namespace
 	}
 }
 
+namespace
+{
+	// How long the pair is given to be walked somewhere else. AAF's walk was
+	// measured at 12.5 seconds across an open market, and a restart adds its own
+	// delay, so this is generous on purpose: giving up early would skip the stage
+	// the move exists to make possible.
+	constexpr float kMoveGraceSeconds = 45.0f;
+}
+
 namespace RP
 {
 	Scenarios& Scenarios::GetSingleton() noexcept
@@ -279,6 +288,7 @@ namespace RP
 
 			_running = scenario;
 			_movedThisScene = false;
+			_awaitingMove = false;
 			_first = a_first;
 			_second = a_second;
 			_stage = scenario->stages.size();   // EnterStage moves it to the first playable one
@@ -437,6 +447,8 @@ namespace RP
 				// Rather than skip the stage, the pair gets up and carries on
 				// somewhere without furniture -- which is where the variety is.
 				_movedThisScene = true;
+				_awaitingMove = true;
+				_moveRequestedAt = std::chrono::steady_clock::now();
 				logger::info(
 					"scenario \"{}\": nothing in stage \"{}\" works WHERE THEY ARE ({}) - moving "
 					"them somewhere without furniture and trying this stage again",
@@ -467,6 +479,7 @@ namespace RP
 			logger::info(
 				"scenario \"{}\": they have moved - trying stage \"{}\" again from the top",
 				_running->id, _running->stages[_stage].id);
+			_awaitingMove = false;
 			_option = 0;
 			_stageStartedAt = std::chrono::steady_clock::now();
 			SendCurrentOption(outgoing);
@@ -480,6 +493,29 @@ namespace RP
 		{
 			NamedLock lock{ _lock, "scenarios" };
 			if (!_running || _stage >= _running->stages.size()) {
+				return;
+			}
+
+			// Stopped while they walk. The stage this move was made for has not had
+			// its chance yet, and counting through the walk would step over it.
+			if (_awaitingMove) {
+				const auto waiting = std::chrono::duration<float>{
+					std::chrono::steady_clock::now() - _moveRequestedAt
+				}.count();
+				if (waiting < kMoveGraceSeconds) {
+					return;
+				}
+
+				// It never came back. Give the flag up rather than stalling the
+				// story here forever, and give up the plugin's one too -- left set,
+				// it reads every later scene end as a move and nothing is recorded.
+				logger::warn(
+					"scenario \"{}\": the move was asked for {:.0f}s ago and no scene has started "
+					"- carrying on without it",
+					_running->id, waiting);
+				_awaitingMove = false;
+				PapyrusLink::GetSingleton().CancelRelocation();
+				EnterStage(_stage + 1, outgoing);
 				return;
 			}
 
@@ -500,6 +536,10 @@ namespace RP
 		NamedLock lock{ _lock, "scenarios" };
 		if (_running) {
 			logger::info("scenario \"{}\": over", _running->id);
+		}
+		if (_awaitingMove) {
+			_awaitingMove = false;
+			PapyrusLink::GetSingleton().CancelRelocation();
 		}
 		_running = nullptr;
 		_stage = 0;
