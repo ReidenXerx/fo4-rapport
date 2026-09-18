@@ -165,6 +165,7 @@ namespace RP
 			const auto& weights = Config::GetSingleton().Weights();
 
 			auto& link = PapyrusLink::GetSingleton();
+			link.CheckWatchdog(Config::GetSingleton().sceneSeconds);
 
 			if (ranked.empty()) {
 				logger::info("   no viable pair ({} candidates, {} watching)",

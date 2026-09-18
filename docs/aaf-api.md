@@ -64,6 +64,35 @@ Three of these do work the design assumed we would have to build:
   walk on them. A pair with no content should never be selected.
 - **`OnSceneEnd`** — the end signal, so cooldowns start from the truth rather than from a timer.
 
+## StartScene stamps the actors busy, and only a finished scene clears it
+
+`StartScene` is not a request AAF might decline quietly and forget. Its Papyrus half does this
+before handing the call to AAF's DLL:
+
+```papyrus
+actors[I].AddKeyWord(AAF_ActorBusy)
+```
+
+and `SetActorLocked` does the same with `AAF_ActorLocked`. Both are ordinary keywords on the actor,
+and both persist in the save. AAF refuses to animate an actor carrying either one.
+
+So a request that never becomes a scene leaves the NPC flagged busy **forever**. Measured: one NPC
+picked by three failed runs in a row stopped being usable by AAF at all, which then looked exactly
+like AAF ignoring us for some other reason. `GetAAFStatus()` returning 2 (`AAF_ReadyStatus + 1`,
+set when AAF's DLL reports ready) is what ruled out the alternatives.
+
+Two consequences for anything driving AAF:
+
+- **Check before asking.** `AAF:AAF_API` exposes `Keyword Property AAF_ActorBusy` and
+  `AAF_ActorLocked`, so `akActor.HasKeyword(_api.AAF_ActorBusy)` is a cheap pre-flight. An actor
+  carrying either is someone else's, or a casualty of an earlier failure.
+- **Clean up after a failure.** `RemoveKeyword(_api.AAF_ActorBusy)` and `SetActorLocked(actor,
+  false)` on every request that does not end in a real scene. AAF clears the flag itself when a
+  scene ends properly, and only then.
+
+Locking an actor *before* calling `StartScene` is therefore a deadlock rather than a reservation:
+the flag that tells other mods "this one is taken" tells AAF the same thing.
+
 ## The stat layer is empty, and that matters
 
 AAF's schema (`Data/AAF/common.xsd`) supports `relationshipStat` with `isPersistent`, `decayRate`,

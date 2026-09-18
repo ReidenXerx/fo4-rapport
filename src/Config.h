@@ -15,6 +15,10 @@ namespace RP
 		std::uint32_t maxConcurrentScenes{ 1 };
 		float         sceneSeconds{ 30.0f };
 
+		// How often the Papyrus bridge asks whether there is a scene to start.
+		// Almost every ask returns nothing, so this is a doorbell, not a scan.
+		float         pollSeconds{ 3.0f };
+
 		// True by default on purpose: a fresh install watches and reports, and
 		// starts nothing until someone turns it on deliberately.
 		bool          dryRun{ true };

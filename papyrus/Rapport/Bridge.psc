@@ -8,6 +8,9 @@ Scriptname Rapport:Bridge extends Quest
  Style note: the base sources are decompiled and so carry no default argument
  values. Every argument is passed explicitly. See docs/papyrus-toolchain.md.}
 
+Int Property kPollTimer = 1 AutoReadOnly
+Int Property kSceneTimer = 2 AutoReadOnly
+
 Struct Request
   Int id
   Actor first
@@ -17,6 +20,7 @@ EndStruct
 AAF:AAF_API _api
 Request[] _inFlight
 Bool _ready = false
+Bool _connecting = false
 
 ;---------------------------------------------------------------------------
 ; Startup
@@ -30,10 +34,17 @@ Event OnInit()
 	Self.Connect()
 EndEvent
 
+; Runs on quest start AND on every game load, because the two halves of this mod
+; have different lifetimes: this script's variables persist in the save, while
+; Rapport.dll starts from nothing every launch. A script that remembered it had
+; already connected left the freshly loaded plugin believing there was no bridge.
 Function Connect()
-	If _ready
+	; OnQuestInit and OnInit both fire, on different threads, and raced: the first
+	; run logged an empty AAF build because AAF had not filled it yet.
+	If _connecting
 		Return
 	EndIf
+	_connecting = true
 
 	_inFlight = new Request[0]
 
@@ -41,6 +52,7 @@ Function Connect()
 	; which is why it cannot see an AAF installed the other way round.
 	_api = AAF:AAF_API.GetAPI()
 	If _api == None
+		_connecting = false
 		Rapport:Core.Trace("bridge: AAF not found - no scene can be started")
 		Rapport:Core.BridgeReady(false)
 		Return
@@ -49,6 +61,7 @@ Function Connect()
 	; AAF_API re-broadcasts every event MainQuestScript sends, so these register
 	; on the API object rather than on the quest behind it.
 	RegisterForCustomEvent(_api, "OnAAFReady")
+	RegisterForCustomEvent(_api, "OnWalkInit")
 	RegisterForCustomEvent(_api, "OnSceneInit")
 	RegisterForCustomEvent(_api, "OnSceneEnd")
 	RegisterForCustomEvent(_api, "OnAnimationStart")
@@ -56,6 +69,11 @@ Function Connect()
 	RegisterForCustomEvent(_api, "OnAnimationQueryResult")
 
 	_ready = true
+	_connecting = false
+
+	; Both of these must happen on every load, not only the first: the timer may
+	; not have survived, and the plugin has no memory of the last session.
+	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
 	Rapport:Core.Trace("bridge: connected to AAF " + _api.GetVersion() + " build " + _api.GetBuild())
 	Rapport:Core.BridgeReady(true)
 EndFunction
@@ -64,7 +82,37 @@ EndFunction
 ; Called by the native scheduler once it has chosen a pair.
 ;---------------------------------------------------------------------------
 
-Function BeginRequest(Int aiRequest, Actor akFirst, Actor akSecond, Float afDuration)
+; The doorbell. The scheduler never calls into the VM -- doing so crashed the
+; game twice inside DispatchMethodCallImpl, because F4SE tasks run on a BSJobs
+; job thread and the VM packs arguments through the per-thread scrap heap. So the
+; bridge asks instead, on its own thread, and almost every ask returns nothing.
+Event OnTimer(Int aiTimerID)
+	If aiTimerID == kSceneTimer
+		If _inFlight.Length > 0
+			Rapport:Core.Trace("bridge: giving up on request " + _inFlight[0].id + " - AAF never reported a scene")
+			Self.Release(0, "AAF never started the scene")
+		EndIf
+		Return
+	EndIf
+
+	If aiTimerID != kPollTimer
+		Return
+	EndIf
+
+	If _ready
+		Int request = Rapport:Core.TakeRequest()
+		If request != 0
+			Self.BeginRequest(request, Rapport:Core.TakenFirstID(), Rapport:Core.TakenSecondID(), Rapport:Core.TakenDuration())
+		EndIf
+	EndIf
+
+	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
+EndEvent
+
+Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDuration)
+	Actor akFirst = Game.GetForm(aiFirstID) as Actor
+	Actor akSecond = Game.GetForm(aiSecondID) as Actor
+
 	If !_ready || _api == None
 		Rapport:Core.RequestFailed(aiRequest, "bridge not connected")
 		Return
@@ -75,16 +123,21 @@ Function BeginRequest(Int aiRequest, Actor akFirst, Actor akSecond, Float afDura
 		Return
 	EndIf
 
-	; Reserve both actors before anything moves them. AAF's own lock is what stops
-	; a second system picking the same NPC, and taking it late is exactly the
-	; window in which that happens.
-	If !_api.SetActorLocked(akFirst, true)
-		Rapport:Core.RequestFailed(aiRequest, "could not reserve the first actor")
+	; No SetActorLocked here. Locking before StartScene looked like prudent
+	; reservation and was in fact a deadlock: the flag means "this actor is busy"
+	; to AAF as well. AAF owns the actors for a scene it is running, and it walks
+	; them there itself -- StartScene stamps them AAF_ActorBusy on our behalf.
+	;
+	; Which is exactly why an actor already carrying either flag must be left
+	; alone: AAF will silently refuse a busy actor, and a request that died
+	; without cleaning up leaves that flag on an NPC permanently. One NPC picked
+	; by three failed runs became unusable for the rest of the save.
+	If Self.IsOccupied(akFirst)
+		Rapport:Core.RequestFailed(aiRequest, "the first actor is already busy in AAF")
 		Return
 	EndIf
-	If !_api.SetActorLocked(akSecond, true)
-		_api.SetActorLocked(akFirst, false)
-		Rapport:Core.RequestFailed(aiRequest, "could not reserve the second actor")
+	If Self.IsOccupied(akSecond)
+		Rapport:Core.RequestFailed(aiRequest, "the second actor is already busy in AAF")
 		Return
 	EndIf
 
@@ -106,8 +159,13 @@ Function BeginRequest(Int aiRequest, Actor akFirst, Actor akSecond, Float afDura
 	settings.preventFurniture = false
 	settings.meta = "Rapport,autonomy"   ; so a scene of ours is identifiable as ours
 
-	Rapport:Core.Trace("bridge: request " + aiRequest + " starting for " + akFirst.GetFormID() + " and " + akSecond.GetFormID())
+	Rapport:Core.Trace("bridge: request " + aiRequest + " starting for " + akFirst.GetFormID() + " and " + akSecond.GetFormID() + ", aaf status " + _api.GetAAFStatus())
 	_api.StartScene(actors, settings)
+
+	; A scene that never begins must not wedge the framework. AAF answers with an
+	; event or it does not answer at all, and the first run of this code sat on
+	; "a scene is already running" for three minutes because nothing ever came back.
+	Self.StartTimer(afDuration + 60.0, kSceneTimer)
 EndFunction
 
 Function CancelRequest(Int aiRequest)
@@ -122,7 +180,15 @@ EndFunction
 ;---------------------------------------------------------------------------
 
 Event AAF:AAF_API.OnAAFReady(AAF:AAF_API akSender, Var[] akArgs)
+	; The per-load handshake. AAF initialises on every game load and our
+	; registration for this survives in the save, so this is the one thing that
+	; reliably happens after a load with no quest-start event to hang off.
 	Rapport:Core.Trace("aaf: ready")
+	Self.Connect()
+EndEvent
+
+Event AAF:AAF_API.OnWalkInit(AAF:AAF_API akSender, Var[] akArgs)
+	Self.TraceArgs("OnWalkInit", akArgs)
 EndEvent
 
 Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
@@ -160,6 +226,31 @@ EndEvent
 ; Housekeeping
 ;---------------------------------------------------------------------------
 
+Bool Function IsOccupied(Actor akActor)
+	If _api == None || akActor == None
+		Return true
+	EndIf
+	If _api.AAF_ActorBusy != None && akActor.HasKeyword(_api.AAF_ActorBusy)
+		Return true
+	EndIf
+	If _api.AAF_ActorLocked != None && akActor.HasKeyword(_api.AAF_ActorLocked)
+		Return true
+	EndIf
+	Return false
+EndFunction
+
+; Undo what AAF stamped on our behalf. On a scene that ends properly AAF clears
+; this itself; on one that never started, nothing would.
+Function ReleaseActor(Actor akActor)
+	If _api == None || akActor == None
+		Return
+	EndIf
+	If _api.AAF_ActorBusy != None && akActor.HasKeyword(_api.AAF_ActorBusy)
+		akActor.RemoveKeyword(_api.AAF_ActorBusy)
+	EndIf
+	_api.SetActorLocked(akActor, false)
+EndFunction
+
 Int Function FindRequest(Int aiRequest)
 	Int i = 0
 	While i < _inFlight.Length
@@ -184,20 +275,15 @@ EndFunction
 Function Release(Int aiIndex, String asWhy)
 	Request entry = _inFlight[aiIndex]
 
-	If _api != None
-		If entry.first != None
-			_api.SetActorLocked(entry.first, false)
-		EndIf
-		If entry.second != None
-			_api.SetActorLocked(entry.second, false)
-		EndIf
-	EndIf
-
 	_inFlight.Remove(aiIndex, 1)
 
 	If asWhy == ""
 		Rapport:Core.SceneEnded(entry.id)
 	Else
+		; A request that failed leaves AAF's busy flag behind. Clearing it is the
+		; difference between one wasted attempt and an NPC nobody can ever use.
+		Self.ReleaseActor(entry.first)
+		Self.ReleaseActor(entry.second)
 		Rapport:Core.RequestFailed(entry.id, asWhy)
 	EndIf
 EndFunction
