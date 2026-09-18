@@ -619,6 +619,9 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	ElseIf aiKind == 13
 		Self.RelocateFor(aiFormID)
 		Return
+	ElseIf aiKind == 14
+		Self.ResumeElsewhereFor(aiFormID)
+		Return
 	ElseIf aiKind == 12
 		; A NAMED position, which is how a tree gets chosen. AAF has no tree
 		; function -- the word does not appear in its Papyrus at all, because trees
@@ -835,12 +838,47 @@ Function RelocateFor(Int aiFirstID)
 		Return
 	EndIf
 
+	; STOP ONLY. The new scene cannot begin here.
+	;
+	; StopScene is asynchronous, and starting the next one in the same breath
+	; earns "[088] Failed to join actor to scene because that actor is already
+	; part of a currently running scene" -- measured, and the old scene then ended
+	; one second after the refusal. So this ends the scene and nothing more; the
+	; plugin hears AAF's own OnSceneEnd, which is the signal that the actors are
+	; free again, and sends kResumeElsewhere back.
 	Rapport:Core.Trace("relocate: stopping the scene so " + aiFirstID + " and their partner can carry on away from the furniture")
-	_api.StopScene(akFirst, -1)
 
 	Request entry = _inFlight[index]
 	entry.sceneID = 0
 	_inFlight[index] = entry
+
+	_api.StopScene(akFirst, -1)
+EndFunction
+
+; The old scene has ended and the actors are free, so they start again somewhere
+; without furniture -- same request, same pair, new scene underneath.
+Function ResumeElsewhereFor(Int aiFirstID)
+	If _api == None
+		Return
+	EndIf
+
+	Int index = Self.FindRequestByActor(aiFirstID)
+	If index < 0
+		Rapport:Core.Trace("relocate: no request is in flight for " + aiFirstID + " any more - not resuming")
+		Return
+	EndIf
+
+	Actor akFirst = _inFlight[index].first
+	Actor akSecond = _inFlight[index].second
+	If akFirst == None || akSecond == None
+		Return
+	EndIf
+
+	; Belt and braces: AAF said the scene ended, and its busy keywords should be
+	; gone with it. If either is still flagged the new scene would be refused for
+	; the same reason the first attempt was.
+	Self.ReleaseActor(akFirst)
+	Self.ReleaseActor(akSecond)
 
 	Actor[] actors = new Actor[2]
 	actors[0] = akFirst

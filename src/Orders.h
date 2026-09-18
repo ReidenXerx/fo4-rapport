@@ -80,7 +80,17 @@ namespace RP
 			// and asking for a NoFurn position on a desk is simply refused -- so
 			// moving means a new scene, which is also what it looks like: they get
 			// up and walk.
-			kRelocate = 13
+			kRelocate = 13,
+
+			// The old scene has now actually ended, so the new one can begin.
+			//
+			// These are two orders and not one because StopScene is ASYNCHRONOUS.
+			// Calling it and starting the next scene in the same breath earns
+			// "[088] Failed to join actor to scene because that actor is already
+			// part of a currently running scene" -- measured, the old scene ended
+			// one second after the refusal. AAF's own OnSceneEnd is the signal that
+			// the actors are free, so the restart waits for it.
+			kResumeElsewhere = 14
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

@@ -889,8 +889,16 @@ namespace RP
 		if (_relocating.load()) {
 			logger::info(
 				"request {}: its old scene ended because the pair is moving, not because anything "
-				"finished - nothing recorded",
+				"finished - nothing recorded. Starting the new one now that AAF has let the actors "
+				"go",
 				a_request);
+
+			// NOW, not when the move was asked for. The actors are only free once
+			// AAF says the old scene is over, and starting before that is refused
+			// outright.
+			_sceneRunning = false;
+			QueueOrder(Order{ Order::Kind::kResumeElsewhere,
+				static_cast<std::uint32_t>(_inFlightFirst), {}, {} });
 			return;
 		}
 
