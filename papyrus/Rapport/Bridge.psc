@@ -99,6 +99,14 @@ Event OnTimer(Int aiTimerID)
 		Return
 	EndIf
 
+	; Registrations do not survive a recompile, and _ready does survive the save,
+	; so the script alone can end up permanently deaf: connected in its own memory,
+	; registered for nothing. The plugin's fresh-every-session state is the only
+	; reliable trigger for re-establishing them.
+	If Rapport:Core.NeedsHandshake()
+		Self.Connect()
+	EndIf
+
 	If _ready
 		Int request = Rapport:Core.TakeRequest()
 		If request != 0

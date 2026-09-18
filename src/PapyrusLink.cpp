@@ -33,6 +33,11 @@ namespace
 		return RP::PapyrusLink::GetSingleton().TakenDuration();
 	}
 
+	bool Papyrus_NeedsHandshake(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().NeedsHandshake();
+	}
+
 	float Papyrus_PollSeconds(std::monostate)
 	{
 		return RP::Config::GetSingleton().pollSeconds;
@@ -79,12 +84,13 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "TakenSecondID"sv, Papyrus_TakenSecondID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakenDuration"sv, Papyrus_TakenDuration, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PollSeconds"sv, Papyrus_PollSeconds, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NeedsHandshake"sv, Papyrus_NeedsHandshake, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BridgeReady"sv, Papyrus_BridgeReady, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneStarted"sv, Papyrus_SceneStarted, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 10 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 11 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -138,13 +144,6 @@ namespace RP
 
 	std::int32_t PapyrusLink::TakeRequest()
 	{
-		// Being asked is proof the bridge is alive, and it is proof that survives a
-		// save: the script's own memory of having connected does not tell a freshly
-		// loaded plugin anything.
-		if (!_bridgeReady.exchange(true)) {
-			logger::info("bridge is asking for work - treating it as ready");
-		}
-
 		std::scoped_lock lock{ _counter };
 		if (_pending.request == 0) {
 			return 0;

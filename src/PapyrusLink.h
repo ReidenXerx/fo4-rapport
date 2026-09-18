@@ -31,6 +31,11 @@ namespace RP
 
 		// ---- called from Papyrus ----
 		std::int32_t TakeRequest();
+
+		// The plugin is the only part of this mod that reliably starts fresh every
+		// session, so it owns the answer to "have we introduced ourselves yet?".
+		// The script cannot answer it: its variables persist in the save.
+		[[nodiscard]] bool NeedsHandshake() const noexcept { return !_bridgeReady.load(); }
 		[[nodiscard]] std::int32_t TakenFirstID() const noexcept { return _takenFirst; }
 		[[nodiscard]] std::int32_t TakenSecondID() const noexcept { return _takenSecond; }
 		[[nodiscard]] float        TakenDuration() const noexcept { return _takenDuration; }

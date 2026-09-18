@@ -19,6 +19,12 @@ Int Function TakenFirstID() Global Native
 Int Function TakenSecondID() Global Native
 Float Function TakenDuration() Global Native
 
+; True until the bridge has introduced itself in THIS session. The script cannot
+; work this out for itself: its own variables persist in the save while the
+; plugin starts from nothing, so a script that remembers connecting will never
+; re-register its event handlers after a reload.
+Bool Function NeedsHandshake() Global Native
+
 ; How often the bridge should ask, in seconds. Read from the ini, so the poll
 ; interval is not a number buried in a script.
 Float Function PollSeconds() Global Native
