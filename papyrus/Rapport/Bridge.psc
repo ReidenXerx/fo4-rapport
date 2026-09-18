@@ -11,11 +11,20 @@ Scriptname Rapport:Bridge extends Quest
 Int Property kPollTimer = 1 AutoReadOnly
 Int Property kSceneTimer = 2 AutoReadOnly
 
+; The scene has run for as long as we asked. AAF does not end it on its own: a
+; 30-second scene was still going three and a half minutes later, OnSceneEnd
+; never arrived, and everything downstream of a scene ending -- aftermath, the
+; cooldown, releasing the actors -- waited for an event that was never coming.
+; So ending it is ours to do. AAF stops one with StopScene(actor, -1), which is
+; what its own code does when an actor wanders out of range.
+Int Property kStopTimer = 3 AutoReadOnly
+
 Struct Request
   Int id
   Actor first
   Actor second
   Int sceneID      ; AAF's own handle for the scene, learned from OnSceneInit
+  Float duration   ; how long we asked for; nothing else will enforce it
 EndStruct
 
 AAF:AAF_API _api
@@ -103,6 +112,12 @@ Function Connect()
 
 	; Both of these must happen on every load, not only the first: the timer may
 	; not have survived, and the plugin has no memory of the last session.
+	; Cancel first. OnQuestInit and OnInit both call Connect, and the first live
+	; run started three overlapping polls in the bridge because each one
+	; started another timer. Papyrus cannot be asked whether a timer is already
+	; running, and a remembered flag is the thing that has wedged this mod twice,
+	; so cancelling unconditionally is the answer that needs no state at all.
+	Self.CancelTimer(kPollTimer)
 	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
 	Rapport:Core.Trace("bridge: connected to AAF " + _api.GetVersion() + " build " + _api.GetBuild())
 	Rapport:Core.BridgeReady(true)
@@ -117,10 +132,23 @@ EndFunction
 ; job thread and the VM packs arguments through the per-thread scrap heap. So the
 ; bridge asks instead, on its own thread, and almost every ask returns nothing.
 Event OnTimer(Int aiTimerID)
+	If aiTimerID == kStopTimer
+		If _inFlight.Length > 0
+			Rapport:Core.Trace("bridge: request " + _inFlight[0].id + " has run its length - asking AAF to stop it")
+			Self.StopSceneFor(_inFlight[0])
+		EndIf
+		Return
+	EndIf
+
 	If aiTimerID == kSceneTimer
 		If _inFlight.Length > 0
-			Rapport:Core.Trace("bridge: giving up on request " + _inFlight[0].id + " - AAF never reported a scene")
-			Self.Release(0, "AAF never started the scene")
+			; Ask AAF to stop it before giving up locally. If a scene IS running,
+			; this is what makes it end properly -- actors released, keywords
+			; cleared, OnSceneEnd sent. Releasing our side while AAF carries on is
+			; how an NPC ends up animating with nobody watching them.
+			Rapport:Core.Trace("bridge: giving up on request " + _inFlight[0].id + " - stopping anything AAF still has running")
+			Self.StopSceneFor(_inFlight[0])
+			Self.Release(0, "AAF never reported the scene ending")
 		EndIf
 		Return
 	EndIf
@@ -190,6 +218,7 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 	entry.first = akFirst
 	entry.second = akSecond
 	entry.sceneID = 0
+	entry.duration = afDuration
 	_inFlight.Add(entry, 1)
 
 	Actor[] actors = new Actor[2]
@@ -211,6 +240,20 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 	; event or it does not answer at all, and the first run of this code sat on
 	; "a scene is already running" for three minutes because nothing ever came back.
 	Self.StartTimer(afDuration + 60.0, kSceneTimer)
+EndFunction
+
+; Ends a scene AAF is running. -1 is AAF's own "all of it" -- the value its
+; MainQuestScript uses when an actor walks out of range. One actor is enough;
+; the scene is one thing, not one per participant.
+Function StopSceneFor(Request akEntry)
+	If _api == None
+		Return
+	EndIf
+	If akEntry.first != None
+		_api.StopScene(akEntry.first, -1)
+	ElseIf akEntry.second != None
+		_api.StopScene(akEntry.second, -1)
+	EndIf
 EndFunction
 
 Function CancelRequest(Int aiRequest)
@@ -250,6 +293,10 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 			_inFlight[index] = entry
 		EndIf
 		Rapport:Core.SceneStarted(_inFlight[index].id)
+
+		; The clock starts HERE, not when the request was made: AAF walks the two
+		; of them across a market first, and that walk is not the scene.
+		Self.StartTimer(_inFlight[index].duration, kStopTimer)
 	EndIf
 EndEvent
 

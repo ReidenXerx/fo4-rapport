@@ -21,24 +21,24 @@
 
   "entries": [
     {
-      "reason": "Rapport owns persistent aftermath; CumOverlays' own timer removes the same overlay TEMPLATES ours draw from, and would strip them minutes into a twelve-hour window",
+      "reason": "Rapport owns persistent aftermath, so nothing else may apply it. Two reasons, either one sufficient: CumOverlays' own timer removes the same overlay TEMPLATES ours draw from and would strip them minutes into a twelve-hour window; and when Moisturizer is the backend, CumOverlays left running would paint its flat textures over the meshes",
       "plugin": "CumOverlays.esp",
       "quests": [
         { "formID": "0x000802", "name": "CumOverlay_Main" },
         { "formID": "0x000803", "name": "CumOverlay_Starter" }
       ],
       "restore": "start",
-      "whileFeature": "aftermath-overlay"
+      "whileFeature": "aftermath"
     },
 
     {
-      "reason": "Rapport drives Commonwealth Moisturizer through its own modder API, so its AAF listener must not also be applying cum on its own schedule. Only the listener is stopped -- CMkz_SemenLib is the library Rapport calls and has to keep running",
+      "reason": "Rapport owns persistent aftermath, so its AAF listener must not also be applying cum on its own schedule -- whether Rapport is driving this mod or the other one. Only the listener is stopped: CMkz_SemenLib is the library Rapport calls and has to keep running",
       "plugin": "ComMoisturizer.esp",
       "quests": [
         { "formID": "0x0008DB", "name": "CMkz_EventHandler" }
       ],
       "restore": "start",
-      "whileFeature": "aftermath-moisturizer"
+      "whileFeature": "aftermath"
     },
 
     {

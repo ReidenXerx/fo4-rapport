@@ -50,6 +50,15 @@ namespace
 			break;
 		case F4SE::MessagingInterface::kNewGame:
 		case F4SE::MessagingInterface::kPostLoadGame:
+			// Said out loud on every load, including when it is nothing. F4SE only
+			// calls the load callback when the save HAS data for us, so a save
+			// written before this build logs not one line -- and "the ledger loaded
+			// and was empty" then looks identical to "the ledger never loaded".
+			logger::info(
+				"ledger: after loading, {} actor(s), {} standing overlay(s), {} face(s) to clear",
+				RP::Ledger::GetSingleton().Size(),
+				RP::Aftermath::GetSingleton().Size(),
+				RP::Expressions::GetSingleton().Wearing().size());
 			RP::Scheduler::GetSingleton().OnLoad();
 			break;
 		case F4SE::MessagingInterface::kPreLoadGame:

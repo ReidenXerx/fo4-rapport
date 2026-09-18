@@ -165,10 +165,12 @@ namespace RP
 		if (_backend == Backend::kMoisturizer) {
 			CheckMoisturizerMorphs();
 		}
-		if (hasMoisturizer && hasOverlays && _backend == Backend::kMoisturizer) {
+		if (hasMoisturizer && hasOverlays) {
 			logger::info(
-				"aftermath: CumOverlays is also installed and is left alone - Rapport drives one "
-				"of them, never both, or two sets of art end up on the same body");
+				"aftermath: both aftermath mods are installed - Rapport drives {} and SILENCES both, "
+				"because a mod still listening to AAF goes on painting the same bodies on its own "
+				"schedule",
+				_backend == Backend::kMoisturizer ? "the meshes" : "the overlays");
 		}
 	}
 

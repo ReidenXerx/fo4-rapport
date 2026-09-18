@@ -196,3 +196,31 @@ authoritative copy for need, cooldowns and refusal memory.
 
 `tools/pexnames.py` dumps the function list from any compiled Papyrus script's debug table. No
 decompiler needed, and it cannot be wrong about names the way a wiki can.
+
+## AAF does not enforce the duration you pass it
+
+`SceneSettings.duration` is handed to AAF's DLL and AAF's own `getDefaultSceneDuration()` fills it in
+when a caller does not, so it looks like the scene length. It is not, or at least not reliably:
+
+> Measured 2026-09-18. A scene requested with `duration = 30.0` was still running **three and a half
+> minutes later**. `OnSceneEnd` never arrived, the actors kept their `AAF_ActorBusy` keywords, and
+> the framework sat on "a scene is already running" until its own watchdog fired.
+
+The registration name was not the problem, and this is worth stating because it was the obvious
+suspect: `AAF_API` re-broadcasts with `SendCustomEvent("aaf:aaf_api_OnSceneEnd", akArgs)`, which is
+exactly what the bridge registers for. AAF simply had not ended the scene, so there was no event to
+send.
+
+**So ending a scene is the caller's job.** AAF's own `MainQuestScript` does it when an actor walks
+out of range:
+
+```papyrus
+AAF_API.StopScene(akObj2 as Actor, -1)    ; -1 is "all of it"
+```
+
+One actor is enough -- a scene is one thing, not one per participant -- and the proper stop is what
+produces `OnSceneEnd`, releases the actors and clears the keywords. Releasing your own side while
+AAF carries on leaves two NPCs animating with nobody watching them.
+
+**Time the stop from `OnSceneInit`, not from the request.** AAF walks the pair to each other first,
+and that walk is not the scene: request to scene start measured 12.5 seconds in an open market.

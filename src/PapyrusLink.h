@@ -53,6 +53,11 @@ namespace RP
 		// that worked and a scene that never started produced identical logs.
 		void NoteEvent(std::string_view a_name);
 
+		// Counted on every poll. A frozen count means the bridge stopped asking --
+		// which looks exactly like "the framework decided to do nothing", and this
+		// run could not tell those apart.
+		void NotePump() { _pumps.fetch_add(1); }
+
 		// An actor the bridge found already flagged busy by AAF. Two things follow
 		// from that flag: they cannot be animated, and nothing we do clears it --
 		// only a scene ending does. So the honest response is to stop offering them
@@ -148,6 +153,7 @@ namespace RP
 		std::atomic<std::uint32_t> _failed{ 0 };
 		std::atomic<std::uint32_t> _events{ 0 };
 		std::atomic<std::uint32_t> _busySkips{ 0 };
+		std::atomic<std::uint32_t> _pumps{ 0 };
 
 		// Written from the VM thread, read from the scheduler's main-thread slice.
 		mutable std::mutex _busyLock;

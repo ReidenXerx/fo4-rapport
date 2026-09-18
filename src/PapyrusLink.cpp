@@ -64,7 +64,10 @@ namespace
 
 	void Papyrus_NoteSceneTags(std::monostate, RE::BSFixedString a_tags)
 	{
+		// BOTH. One decides what a scene leaves behind, the other decides what the
+		// face does while it happens, and they read the same tags for it.
 		RP::Aftermath::GetSingleton().NoteTags(a_tags.c_str());
+		RP::Expressions::GetSingleton().NoteTags(a_tags.c_str());
 	}
 
 	// The second doorbell. Same shape as the first and for the same reason: the
@@ -75,6 +78,7 @@ namespace
 	// progression through a scene, and the clearing afterwards.
 	void Papyrus_Pump(std::monostate)
 	{
+		RP::PapyrusLink::GetSingleton().NotePump();
 		RP::Expressions::GetSingleton().Pump();
 	}
 
@@ -578,6 +582,15 @@ namespace RP
 		logger::info(
 			"health: the save remembers {} actor(s) and {} standing overlay(s)",
 			Ledger::GetSingleton().Size(), Aftermath::GetSingleton().Size());
+
+		if (const auto pumps = _pumps.load(); pumps == 0) {
+			logger::error(
+				"health: the bridge has NEVER polled. Nothing timed can happen - no expression, no "
+				"overlay, no removal - and a framework that is not being asked looks identical to "
+				"one that has decided to do nothing.");
+		} else {
+			logger::info("health: {} poll(s), {} order(s) waiting", pumps, PendingOrders());
+		}
 
 		if (const auto skips = _busySkips.load(); skips > 0) {
 			std::scoped_lock lock{ _busyLock };

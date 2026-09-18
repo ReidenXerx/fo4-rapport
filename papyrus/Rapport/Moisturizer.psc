@@ -57,6 +57,12 @@ Function Connect()
 
 	Rapport:Core.Trace("moisturizer: connected to the CMkz library")
 	Self.NeutraliseOwnTimer()
+	; Cancel first. OnQuestInit and OnInit both call Connect, and the first live
+	; run started three overlapping polls in the moisturizer because each one
+	; started another timer. Papyrus cannot be asked whether a timer is already
+	; running, and a remembered flag is the thing that has wedged this mod twice,
+	; so cancelling unconditionally is the answer that needs no state at all.
+	Self.CancelTimer(kPollTimer)
 	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
 EndFunction
 
