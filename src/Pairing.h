@@ -1,6 +1,6 @@
 #pragma once
 
-namespace AF
+namespace RP
 {
 	// What the framework MEASURES about a pair. No judgement here: an addon decides
 	// what to do with these, the framework only says what is true of the two actors.

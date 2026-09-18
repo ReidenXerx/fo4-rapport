@@ -45,7 +45,7 @@ namespace
 	}
 }
 
-namespace AF
+namespace RP
 {
 	void PairWeights::LoadFrom(const nlohmann::json& a_json)
 	{

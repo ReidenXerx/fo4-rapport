@@ -2,7 +2,7 @@
 
 #include "ActorScan.h"
 
-namespace AF
+namespace RP
 {
 	// Owns the only repeating work in the plugin: a timer thread that asks the
 	// main thread for short slices. No per-NPC script, no polling loop, and

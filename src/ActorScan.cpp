@@ -40,7 +40,7 @@ namespace
 	}
 }
 
-namespace AF
+namespace RP
 {
 	void ActorScan::Begin(float a_radius)
 	{

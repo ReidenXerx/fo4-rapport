@@ -3,7 +3,7 @@
 #include "Config.h"
 #include "Pairing.h"
 
-namespace AF
+namespace RP
 {
 	Scheduler& Scheduler::GetSingleton() noexcept
 	{

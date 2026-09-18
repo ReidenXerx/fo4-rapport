@@ -303,3 +303,15 @@ M0 and M1's filters, on a running game:
 Against the 0.25 ms/frame budget that is roughly 0.2 us per actor, and a pass has never
 needed a second slice. `IsChild()` is confirmed to reach the engine's implementation
 (Diamond City reports `child 2`, Sanctuary `child 0` because it has no children).
+
+## A-9 (2026-09-18) — Names
+
+| | |
+| --- | --- |
+| **Rapport** | The framework. It holds what the name says: the attraction stat, who has been paired with whom, cooldowns, and refusal memory. Addons ask Rapport what two people feel about each other. Plugin `Rapport.dll`, config `Data/F4SE/Plugins/Rapport.ini` and `Data/F4SE/Plugins/Rapport/*.json`, C++ namespace `RP`. |
+| **Chemistry** | The NPC autonomy addon. Attraction, and the wasteland's other chemistry. |
+| *(unnamed)* | The Player Proposals addon, replacing Sex 'Em Up. Named when it is started. |
+
+"Autonomy" is deliberately not in any of these: AAF Autonomy Enhanced is what this replaces, and the
+two should not be confused on a mod list. The earlier `AutonomyFramework.ini` and
+`AutonomyFramework/*.json` paths in the Config section above are superseded by the Rapport names.

@@ -16,7 +16,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string] $Staging = 'D:\Vortex\fallout4\mods\AutonomyFramework-dev',
+    [string] $Staging = 'D:\Vortex\fallout4\mods\Rapport-dev',
     [string] $Config  = 'Release'
 )
 
@@ -33,22 +33,22 @@ if ($game) {
 
 $vortex = Get-Process -Name 'Vortex' -ErrorAction SilentlyContinue
 
-$dll = Join-Path $root "build\$Config\AutonomyFramework.dll"
+$dll = Join-Path $root "build\$Config\Rapport.dll"
 if (-not (Test-Path $dll)) {
     throw "No build at $dll. Build first."
 }
 
 $plugins = Join-Path $Staging 'F4SE\Plugins'
-New-Item -ItemType Directory -Force -Path (Join-Path $plugins 'AutonomyFramework') | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $plugins 'Rapport') | Out-Null
 
-Copy-Item $dll (Join-Path $plugins 'AutonomyFramework.dll') -Force
-Copy-Item (Join-Path $root 'data\F4SE\Plugins\AutonomyFramework.ini') $plugins -Force
-Copy-Item (Join-Path $root 'data\F4SE\Plugins\AutonomyFramework\*.json') (Join-Path $plugins 'AutonomyFramework') -Force
+Copy-Item $dll (Join-Path $plugins 'Rapport.dll') -Force
+Copy-Item (Join-Path $root 'data\F4SE\Plugins\Rapport.ini') $plugins -Force
+Copy-Item (Join-Path $root 'data\F4SE\Plugins\Rapport\*.json') (Join-Path $plugins 'Rapport') -Force
 
 # Report what actually landed in both places. A deploy that silently did nothing
 # looks exactly like a deploy that worked, so print the evidence.
-foreach ($path in (Join-Path $plugins 'AutonomyFramework.dll'),
-                  (Join-Path 'D:\GOGGames\Fallout 4 GOTY\Data\F4SE\Plugins' 'AutonomyFramework.dll')) {
+foreach ($path in (Join-Path $plugins 'Rapport.dll'),
+                  (Join-Path 'D:\GOGGames\Fallout 4 GOTY\Data\F4SE\Plugins' 'Rapport.dll')) {
     if (Test-Path $path) {
         $item = Get-Item $path
         Write-Host ("  {0}  {1} bytes  {2:HH:mm:ss}" -f $item.FullName, $item.Length, $item.LastWriteTime)
@@ -59,4 +59,4 @@ foreach ($path in (Join-Path $plugins 'AutonomyFramework.dll'),
 if ($vortex) {
     Write-Host "Vortex is open. Existing files updated in place through their hardlinks; press Deploy if you added a new one."
 }
-Write-Host "Deployed. Launch through F4SE; the log is Documents\My Games\Fallout4\F4SE\AutonomyFramework.log"
+Write-Host "Deployed. Launch through F4SE; the log is Documents\My Games\Fallout4\F4SE\Rapport.log"

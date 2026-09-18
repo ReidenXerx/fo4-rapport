@@ -13,7 +13,7 @@ namespace
 		if (!path) {
 			return;
 		}
-		*path /= AF_PROJECT_NAME ".log"sv;
+		*path /= RP_PROJECT_NAME ".log"sv;
 
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
@@ -32,17 +32,17 @@ namespace
 
 		switch (a_message->type) {
 		case F4SE::MessagingInterface::kGameDataReady:
-			AF::Config::GetSingleton().Load();
-			AF::Config::GetSingleton().LoadRaces();
-			AF::Config::GetSingleton().LoadScoring();
-			AF::Scheduler::GetSingleton().Start();
+			RP::Config::GetSingleton().Load();
+			RP::Config::GetSingleton().LoadRaces();
+			RP::Config::GetSingleton().LoadScoring();
+			RP::Scheduler::GetSingleton().Start();
 			break;
 		case F4SE::MessagingInterface::kNewGame:
 		case F4SE::MessagingInterface::kPostLoadGame:
-			AF::Scheduler::GetSingleton().OnLoad();
+			RP::Scheduler::GetSingleton().OnLoad();
 			break;
 		case F4SE::MessagingInterface::kPreLoadGame:
-			AF::Scheduler::GetSingleton().OnUnload();
+			RP::Scheduler::GetSingleton().OnUnload();
 			break;
 		default:
 			break;
@@ -55,8 +55,8 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a
 	// No logging here. Our log file cannot be opened until F4SE::Init has run,
 	// and a refusal below is recorded in f4se.log by F4SE itself.
 	a_info->infoVersion = F4SE::PluginInfo::kVersion;
-	a_info->name = AF_PROJECT_NAME;
-	a_info->version = AF_VERSION_MAJOR;
+	a_info->name = RP_PROJECT_NAME;
+	a_info->version = RP_VERSION_MAJOR;
 
 	if (a_f4se->IsEditor()) {
 		return false;
@@ -80,7 +80,7 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	F4SE::Init(a_f4se, false);
 
 	InitLogging();
-	logger::info("{} v{}", AF_PROJECT_NAME, AF_VERSION_STRING);
+	logger::info("{} v{}", RP_PROJECT_NAME, RP_VERSION_STRING);
 
 	const auto messaging = F4SE::GetMessagingInterface();
 	if (!messaging || !messaging->RegisterListener(MessageHandler)) {

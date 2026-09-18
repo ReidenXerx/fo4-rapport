@@ -19,7 +19,7 @@ namespace
 	}
 }
 
-namespace AF
+namespace RP
 {
 	Config& Config::GetSingleton() noexcept
 	{
@@ -29,19 +29,19 @@ namespace AF
 
 	std::filesystem::path Config::ScoringPath()
 	{
-		return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "AutonomyFramework" / "scoring.json";
+		return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport" / "scoring.json";
 	}
 
 	std::filesystem::path Config::RacesPath()
 	{
-		return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "AutonomyFramework" / "races.json";
+		return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport" / "races.json";
 	}
 
 	std::filesystem::path Config::IniPath()
 	{
 		// The game's working directory is its install root, and our DLL lives in
 		// Data/F4SE/Plugins next to the ini.
-		return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "AutonomyFramework.ini";
+		return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport.ini";
 	}
 
 	void Config::Load()
@@ -104,7 +104,7 @@ namespace AF
 	}
 }
 
-namespace AF
+namespace RP
 {
 	void Config::LoadRaces()
 	{
@@ -172,7 +172,7 @@ namespace AF
 	}
 }
 
-namespace AF
+namespace RP
 {
 	void Config::LoadScoring()
 	{

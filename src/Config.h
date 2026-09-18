@@ -2,9 +2,9 @@
 
 #include "Pairing.h"
 
-namespace AF
+namespace RP
 {
-	// Read once at startup from Data/F4SE/Plugins/AutonomyFramework.ini.
+	// Read once at startup from Data/F4SE/Plugins/Rapport.ini.
 	// Nothing here is read again at runtime, so a tick never pays for I/O.
 	struct Config
 	{

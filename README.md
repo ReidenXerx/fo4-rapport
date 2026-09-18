@@ -26,8 +26,8 @@ cmake -S . -B build -G "Visual Studio 17 2022" -A x64 \
 cmake --build build --config Release
 ```
 
-The result is `AutonomyFramework.dll`, which belongs in `Data/F4SE/Plugins` alongside
-`AutonomyFramework.ini` from `data/`.
+The result is `Rapport.dll`, which belongs in `Data/F4SE/Plugins` alongside
+`Rapport.ini` from `data/`.
 
 ## Where the numbers come from
 
