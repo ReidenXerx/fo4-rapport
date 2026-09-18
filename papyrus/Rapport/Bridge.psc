@@ -589,13 +589,31 @@ Int Function FindRequestByActors(Var[] akArgs)
 	; it is exact. Its position differs between events -- [3] on the init events,
 	; [5] on the animation ones -- so any argument that equals a scene id we are
 	; tracking counts, which survives a layout we have not seen yet.
+	; Every argument is tested for TYPE before it is read as one.
+	;
+	; The previous version cast blindly -- akArgs[a] as Int -- and akArgs[1] is an
+	; array of actor arrays. That cast fails with "Mismatched types", the failure
+	; takes the surrounding expression with it, and the loop counter is assigned
+	; None instead of being incremented. The loop then never advances.
+	;
+	; It span forever, on a stack that never ended, blocking every later OnTimer on
+	; this script. Six debugging runs were spent on the symptom -- "the poll dies
+	; when a scene starts" -- and the cause was 846,000 identical lines in the
+	; Papyrus log the whole time.
+	;
+	; The timing that made it look like anything else: sceneID is 0 until
+	; OnSceneInit sets it, so this inner loop never ran until the FIRST event after
+	; a scene began. That event is OnAnimationStart, which is why the poll always
+	; died exactly at scene start.
 	Int i = 0
 	While i < _inFlight.Length
 		If _inFlight[i].sceneID != 0
 			Int a = 0
 			While a < akArgs.Length
-				If akArgs[a] as Int == _inFlight[i].sceneID
-					Return i
+				If akArgs[a] is Int
+					If (akArgs[a] as Int) == _inFlight[i].sceneID
+						Return i
+					EndIf
 				EndIf
 				a += 1
 			EndWhile
