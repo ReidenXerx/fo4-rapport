@@ -198,7 +198,8 @@ namespace RP
 			_gaveUp = true;
 			logger::error(
 				"aaf watchdog: AAF has not answered after {} restart(s) over {:.0f}s - giving up. "
-				"No scene will start until AAF is working; restarting the game is the way back",
+				"No scene will start until AAF is working. LOADING A SAVE is usually enough: AAF "
+				"re-initialises both its quests on a load and the count starts again here",
 				_attempts, outage);
 			return std::nullopt;
 		}

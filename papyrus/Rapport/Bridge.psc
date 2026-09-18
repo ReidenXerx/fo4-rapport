@@ -622,6 +622,45 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	EndIf
 EndFunction
 
+; Clear the updater's saved SWF path, which is the whole bug.
+;
+; AAF_MainQuestScript.EveryTime_Initialization branches on
+; AAF_UpdaterQuestScript.getSWFPath(): empty means "load the interface", anything
+; else means "reboot the one already at this path". That variable lives in the
+; SAVE, and the only thing that blanks it is the UPDATER's own
+; EveryTime_Initialization -- which runs off its own OnPlayerLoadGame, not off
+; the main quest's.
+;
+; Both quests extend AAF_QuestBase and both register for OnPlayerLoadGame, and
+; Papyrus does not order delivery between them. That is the race:
+;
+;   updater first -> SWFPath blanked -> main sees "" -> UI.Load -> ready
+;   main first    -> main reads the STALE path -> ui.Invoke(path + ".reboot")
+;                    on a menu instance minted in a previous session, which no
+;                    longer exists. No error. AAF is deaf for the session.
+;
+; Measured: the path was byte-identical across two restart attempts
+; ("root1.instance166.instance165") where a real UI.Load mints a new instance
+; number every time, and AAF recovered only when an ordinary save load happened
+; to win the race the other way.
+;
+; So this makes the lucky ordering deterministic. It costs nothing when AAF is
+; healthy: blanking that path is what AAF itself writes there on every load.
+Function ClearStaleSWFPath()
+	AAF:AAF_UpdaterQuestScript updater = Game.GetFormFromFile(132529, "AAF.esm") as AAF:AAF_UpdaterQuestScript
+	If updater == None
+		updater = Game.GetFormFromFile(132529, "AAF.esp") as AAF:AAF_UpdaterQuestScript
+	EndIf
+
+	If updater == None
+		Rapport:Core.Trace("aaf watchdog: AAF's updater quest does not resolve - the interface can only be rebooted in place, not reloaded")
+		Return
+	EndIf
+
+	Rapport:Core.Trace("aaf watchdog: updater swf path was \"" + updater.getSWFPath() + "\" - clearing it so AAF loads its interface instead of rebooting a menu that is gone")
+	updater.EveryTime_Initialization()
+EndFunction
+
 ; AAF's own per-load initialisation, run again.
 ;
 ; Not a workaround bolted onto AAF from outside: EveryTime_Initialization is what
@@ -649,6 +688,8 @@ Function ReviveAAF()
 		Rapport:Core.Trace("aaf watchdog: AAF's main quest does not resolve - AAF is not installed")
 		Return
 	EndIf
+
+	Self.ClearStaleSWFPath()
 
 	; The state BEFORE the call, because six attempts vanished without a trace and
 	; "we asked" is not evidence that anything heard.
@@ -679,6 +720,13 @@ Function RestartAAFQuest()
 		Rapport:Core.Trace("aaf watchdog: AAF's main quest does not resolve - AAF is not installed")
 		Return
 	EndIf
+
+	; Before the restart, not only before the gentle cure. Start() runs AAF's
+	; OneTime_Initialization, which runs EveryTime_Initialization, which reads the
+	; same stale path -- so without this the restart re-enters the broken branch
+	; and a whole quest stop buys nothing. That is exactly what happened on the
+	; first attempt at it: the quest came back running and AAF stayed deaf.
+	Self.ClearStaleSWFPath()
 
 	String carried = mq.getGAME_DATA()
 	Rapport:Core.Trace("aaf watchdog: the gentle restart did not take - stopping and starting AAF's main quest, carrying its game data \"" + carried + "\" across")
