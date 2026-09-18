@@ -41,6 +41,38 @@ Corollaries worth keeping:
 - **Never guard before the first log line.** `_connecting` returned before anything was written, so
   the failure produced no output at all — the most expensive kind.
 
+## A Papyrus stack does not come back from an AAF call
+
+This is the one that cost three runs, because it wore two disguises first.
+
+Every AAF API function -- `StartScene`, `StopScene`, `ApplyOverlaySet`, `ApplyMFGSet`, all of them --
+ends in `AAF_MainQuestScript.sendEvent`, and that function is one line:
+
+```papyrus
+ui.Invoke("HUDMenu", SWFPath + ".receiver.sendEvent", eventData)
+```
+
+The call **delivers**: the scene starts, the overlay lands, AAF does exactly what was asked. The
+stack that made the call does not continue.
+
+The measurement, over three runs:
+
+| Run | What happened | Polls before it stopped |
+| --- | --- | --- |
+| 1 | poll called `BeginRequest` -> `StartScene` | 17, last one at the `StartScene` poll |
+| 2 | every `StartTimer` removed; same result | -- |
+| 3 | **request 1 returned early at the busy check and SURVIVED; request 2 reached `StartScene` and did not** | 19, last one at the `StartScene` poll |
+
+Run 3 is the one that settles it. The same function, `BeginRequest`, on two consecutive requests:
+the call that returned before reaching AAF left the poll alive, and the call that reached AAF killed
+it. Not the function, not the timers, not the expression layer that was blamed for two runs.
+
+**So the next poll is scheduled BEFORE any AAF work**, never after it. A stack that does not return
+then costs one poll instead of every poll that would have followed.
+
+A consequence to design around rather than discover: one poll gets through **at most one** AAF call.
+A drain loop with a budget of eight is a budget of one.
+
 ## One timer, and only one
 
 `Rapport:Bridge` keeps a single Papyrus timer — the poll. Everything else that needs a clock asks

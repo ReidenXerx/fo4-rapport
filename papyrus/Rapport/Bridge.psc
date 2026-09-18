@@ -134,6 +134,19 @@ Event OnTimer(Int aiTimerID)
 		Return
 	EndIf
 
+	; FIRST, before anything that can reach AAF.
+	;
+	; Every AAF API call ends in AAF_MainQuestScript.sendEvent, which is
+	; ui.Invoke("HUDMenu", ...). The call delivers -- scenes start, overlays are
+	; applied -- but the stack that made it does not come back. Two runs proved
+	; it: seventeen polls and then the poll that called StartScene, and then the
+	; same thing again with every StartTimer removed, which is what ruled the
+	; timers out. They were the second casualty.
+	;
+	; Scheduling the next poll before the work means a stack that never returns
+	; costs one poll rather than every poll after it.
+	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
+
 	; Registrations do not survive a recompile, and _ready does survive the save,
 	; so the script alone can end up permanently deaf: connected in its own memory,
 	; registered for nothing. The plugin's fresh-every-session state is the only
@@ -164,8 +177,6 @@ Event OnTimer(Int aiTimerID)
 
 		Self.DrainOverlayOrders()
 	EndIf
-
-	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
 EndEvent
 
 Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDuration)

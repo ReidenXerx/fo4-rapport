@@ -100,13 +100,16 @@ Event OnTimer(Int aiTimerID)
 		Return
 	EndIf
 
+	; Scheduled first, for the same reason as the bridge: equipping and unequipping
+	; armour on an actor is a good deal of engine work, and a stack that does not
+	; come back must not take the poll with it.
+	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
+
 	If _lib == None
 		Self.Connect()
 	Else
 		Self.DrainOrders()
 	EndIf
-
-	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
 EndEvent
 
 Function DrainOrders()
