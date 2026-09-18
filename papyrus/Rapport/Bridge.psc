@@ -156,6 +156,19 @@ Event OnTimer(Int aiTimerID)
 	EndIf
 
 	If _ready
+		; What AAF says about itself, FIRST, so the watchdog decides on a number
+		; taken this poll rather than on the last one it happened to see.
+		;
+		; -1 rather than 0 when there is no API to ask: "we could not ask" and
+		; "AAF's quest is stopped" are different facts, and 0 is already spoken
+		; for. Reporting a real status we did not read would be the worse bug --
+		; it is what makes a broken framework look like a quiet one.
+		If _api == None
+			Rapport:Core.NoteAAFStatus(-1)
+		Else
+			Rapport:Core.NoteAAFStatus(_api.GetAAFStatus())
+		EndIf
+
 		Rapport:Core.Pump()
 
 		; AAF does not end a scene when the duration it was given runs out, so we
@@ -283,7 +296,26 @@ Function DoStartScene(Int aiRequest)
 	settings.preventFurniture = false
 	settings.meta = "Rapport,autonomy"   ; so a scene of ours is identifiable as ours
 
-	Rapport:Core.Trace("bridge: request " + aiRequest + " starting for " + akFirst.GetFormID() + " and " + akSecond.GetFormID() + ", aaf status " + _api.GetAAFStatus())
+	; AAF's readiness, CHECKED rather than merely logged.
+	;
+	; GetAAFStatus() is AAF_ReadyStatus + 1, and AAF_ReadyStatus becomes 1 when
+	; AAF's DLL announces itself. So 2 means ready and anything less means it is
+	; not listening yet. Every scene that has ever worked logged 2; the one that
+	; vanished after three saves were loaded in a row logged 1, and StartScene
+	; went into a framework that was not there. No error, no event, nothing --
+	; just a request that never became a scene and a watchdog 210 seconds later.
+	;
+	; This number has been in the log since the first session and was never acted
+	; on. Failing here costs one tick; the scheduler simply offers the pair again.
+	Int status = _api.GetAAFStatus()
+	If status < 2
+		Rapport:Core.RequestFailed(aiRequest, "AAF is not ready (status " + status + ") - it has not announced itself since the last load")
+		Self.ReleaseActor(akFirst)
+		Self.ReleaseActor(akSecond)
+		Return
+	EndIf
+
+	Rapport:Core.Trace("bridge: request " + aiRequest + " starting for " + akFirst.GetFormID() + " and " + akSecond.GetFormID() + ", aaf status " + status)
 	_api.StartScene(actors, settings)
 	Rapport:Core.Trace("bridge: StartScene returned for request " + aiRequest)
 EndFunction
@@ -529,6 +561,17 @@ EndFunction
 
 ; Own stack. One order, and nothing it can block matters to anybody else.
 Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
+	; These two come BEFORE every guard below, deliberately. They are the orders
+	; sent when AAF is broken, and every guard below asks whether AAF is working
+	; -- including the one that returns early because form id 0 is not an actor.
+	If aiKind == 9
+		Self.ReviveAAF()
+		Return
+	ElseIf aiKind == 10
+		Self.AskStartAAF()
+		Return
+	EndIf
+
 	If _api == None
 		Return
 	EndIf
@@ -572,6 +615,76 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		_api.ApplyMFGSet(target, asSetID)
 		_api.RemoveMFGBlock(target, Self.AllMorphIDs())
 		Rapport:Core.Trace("face: cleared " + asSetID + " from " + aiFormID)
+	EndIf
+EndFunction
+
+; AAF's own per-load initialisation, run again.
+;
+; Not a workaround bolted onto AAF from outside: EveryTime_Initialization is what
+; AAF runs on Actor.OnPlayerLoadGame, and what AAF runs AGAIN itself when the
+; LooksMenu closes. It puts AAF_ReadyStatus back to 0, re-registers all
+; twenty-four of its external event handlers, and ends with
+;
+;     ui.Invoke("HUDMenu", SWFPath + ".reboot", None)
+;
+; which is the part that goes missing. That call reaches into a Scaleform menu,
+; and on a load screen -- or on the second of two loads in quick succession --
+; there is no menu there to take it. AAF then sits at status 1 for the rest of
+; the session: StartScene is accepted, no error comes back, no event arrives, and
+; the scene simply never happens. Three saves loaded in a row produced exactly
+; that, and the only trace was a number that had been in the log since the first
+; session with nobody acting on it.
+;
+; Nothing is checked afterwards on purpose. The reboot is asynchronous -- AAF is
+; ready when its SWF sends OnAAFReady back up, which is whenever the SWF gets
+; there -- so reading the status here would only ever show the 0 this call just
+; set. The watchdog sees the recovery on a later poll, and says so.
+Function ReviveAAF()
+	AAF:AAF_MainQuestScript mq = AAF:AAF_MainQuestScript.GetMainQuestScript()
+	If mq == None
+		Rapport:Core.Trace("aaf watchdog: AAF's main quest does not resolve - AAF is not installed")
+		Return
+	EndIf
+
+	Rapport:Core.Trace("aaf watchdog: calling AAF's own EveryTime_Initialization")
+	mq.EveryTime_Initialization()
+	Rapport:Core.Trace("aaf watchdog: asked - AAF answers when its interface comes back up")
+EndFunction
+
+; AAF's main quest is stopped, which is a different failure from a quiet one.
+; Starting another mod's quest is a bigger act than re-running its init, and the
+; reason it is stopped may be that AAF is on its way out of this save -- which
+; nothing in this framework can see and the player can.
+;
+; Show() blocks the stack it is called on until the player answers. That is fine
+; here and nowhere else: every order runs on its own stack via CallFunctionNoWait,
+; so the poll is not waiting on this.
+;
+; No EveryTime_Initialization afterwards. Start() fires OnQuestInit, which runs
+; AAF's own OneTime_Initialization, which calls it -- adding a second one would
+; interleave two inits for no gain. If it does not take, the watchdog sees status
+; 1 on a later poll and the ordinary restart handles it.
+Function AskStartAAF()
+	Message question = Game.GetFormFromFile(0x801, "Rapport.esp") as Message
+	If question == None
+		Rapport:Core.Trace("aaf watchdog: the question is missing from Rapport.esp - not asking")
+		Return
+	EndIf
+
+	AAF:AAF_MainQuestScript mq = AAF:AAF_MainQuestScript.GetMainQuestScript()
+	If mq == None
+		Rapport:Core.Trace("aaf watchdog: AAF's main quest does not resolve - AAF is not installed")
+		Return
+	EndIf
+
+	; Nine arguments because the decompiled base sources carry no default values.
+	Int answer = question.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+	If answer == 0
+		Rapport:Core.NoteAAFRevivalChoice(true)
+		mq.Start()
+		Rapport:Core.Trace("aaf watchdog: started AAF's main quest at the player's word")
+	Else
+		Rapport:Core.NoteAAFRevivalChoice(false)
 	EndIf
 EndFunction
 

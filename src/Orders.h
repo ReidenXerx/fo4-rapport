@@ -47,7 +47,18 @@ namespace RP
 			// Moisturizer type, or Rapport would carry an unresolvable reference
 			// on every install that does not have it.
 			kApplyMoisturizer = 6,
-			kClearMoisturizer = 7
+			kClearMoisturizer = 7,
+
+			// AAF has stopped answering: run its own EveryTime_Initialization
+			// again. Neither of these carries an actor or a set -- they are about
+			// the framework, not about anybody in it.
+			kReviveAAF = 9,
+
+			// AAF's main quest is not running at all. Starting another mod's quest
+			// is a bigger act than re-running its init, and the reason may be that
+			// AAF is being removed from this save -- which nothing here can see and
+			// the player can. So this one asks.
+			kAskStartAAF = 10
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

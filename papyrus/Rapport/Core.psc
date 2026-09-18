@@ -54,6 +54,24 @@ Function NoteActorBusy(Int aiFormID) Global Native
 ; to start a second one killed the function that started it.
 Int Function SceneToStop() Global Native
 
+; ---- the AAF watchdog ----------------------------------------------------
+; What AAF says about itself, reported on EVERY poll and immediately before
+; Pump, so the watchdog can never reason about a stale number.
+;
+; GetAAFStatus() is AAF_ReadyStatus + 1, except that it returns 0 when AAF's
+; main quest is not running at all. Those are two different failures needing two
+; different cures, and this framework spent a session collapsing them:
+;
+;   -1  ours: the bridge could not ask (no API)
+;    0  AAF's main quest is stopped
+;    1  running, but its interface has never announced itself
+;    2  ready
+Function NoteAAFStatus(Int aiStatus) Global Native
+
+; The player's answer to "AAF's quest is not running - start it?". Recorded so
+; that a no is a no for the session, and so the log says which of the two it was.
+Function NoteAAFRevivalChoice(Bool abYes) Global Native
+
 ; Said once, after StopScene has been asked for, so the poll does not ask again
 ; every three seconds while AAF winds the scene down.
 Function NoteStopAsked() Global Native

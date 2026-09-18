@@ -4,6 +4,7 @@
 #include "DebugHub.h"
 #include "Aftermath.h"
 #include "Expressions.h"
+#include "AAFHealth.h"
 #include "Ledger.h"
 #include "Scenarios.h"
 #include "Takeover.h"
@@ -126,6 +127,7 @@ namespace
 		}
 
 		try {
+			RP::AAFHealth::GetSingleton().Pump();
 			RP::Scenarios::GetSingleton().Pump();
 			RP::Expressions::GetSingleton().Pump();
 			if (watching) {
@@ -146,6 +148,20 @@ namespace
 			logger::critical("SceneToStop threw: {}", e.what());
 			return 0;
 		}
+	}
+
+	// What AAF says about itself, reported on every poll. The plugin cannot ask
+	// -- GetAAFStatus is Papyrus -- and the number has to arrive on the same poll
+	// that acts on it, or the watchdog would be reasoning about a stale one.
+	void Papyrus_NoteAAFStatus(std::monostate, std::int32_t a_status)
+	{
+		RP::AAFHealth::GetSingleton().NoteStatus(a_status);
+	}
+
+	// The player's answer to "AAF's quest is not running - start it?".
+	void Papyrus_NoteAAFRevivalChoice(std::monostate, bool a_yes)
+	{
+		RP::AAFHealth::GetSingleton().NoteChoice(a_yes);
 	}
 
 	void Papyrus_NoteStopAsked(std::monostate)
@@ -368,6 +384,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "Pump"sv, Papyrus_Pump, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneToStop"sv, Papyrus_SceneToStop, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteStopAsked"sv, Papyrus_NoteStopAsked, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteAAFStatus"sv, Papyrus_NoteAAFStatus, std::nullopt, false);
+		a_vm->BindNativeMethod(
+			kCoreScript, "NoteAAFRevivalChoice"sv, Papyrus_NoteAAFRevivalChoice, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverlayOrder"sv, Papyrus_TakeOverlayOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderActorID"sv, Papyrus_OrderActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderSetID"sv, Papyrus_OrderSetID, std::nullopt, false);
@@ -397,7 +416,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 44 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 46 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -501,6 +520,14 @@ namespace RP
 		// state we put on somebody, and not knowing what happened is exactly when
 		// they have to come off.
 		Expressions::GetSingleton().OnSceneEnded();
+
+		// And the scenario. Without this it keeps its stage clock running against a
+		// scene that is gone, advancing through the rest of its stages and asking a
+		// dead AAF to change position for each one -- forever, because nothing else
+		// ever ends a scenario. The expression layer was already being cleaned up
+		// here; this one was missed when scenarios were added.
+		Scenarios::GetSingleton().End();
+
 		Release(static_cast<std::uint32_t>(_inFlightFirst));
 		Release(static_cast<std::uint32_t>(_inFlightSecond));
 		_inFlightFirst = 0;
@@ -516,6 +543,11 @@ namespace RP
 		if (_bridgeReady.exchange(false)) {
 			logger::info("a save was loaded - the bridge will introduce itself again");
 		}
+
+		// AAF re-initialises on a load too, and that is exactly where it fails. Its
+		// grace period and its restart count both belong to THIS load; the previous
+		// one says nothing about it.
+		AAFHealth::GetSingleton().Reset();
 	}
 
 	void PapyrusLink::OnBridgeReady(bool a_aafPresent)
@@ -770,6 +802,8 @@ namespace RP
 			_bridgeReady.load() ? "ready" : "NOT READY",
 			queued, _collected.load(), _started.load(), _ended.load(), _failed.load(),
 			_sceneInFlight.load() ? "a scene is in flight" : "idle");
+
+		logger::info("health: {}", AAFHealth::GetSingleton().Summary());
 
 		logger::info(
 			"health: the save remembers {} actor(s) and {} standing overlay(s)",

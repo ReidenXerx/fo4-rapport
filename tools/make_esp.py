@@ -27,6 +27,21 @@ MASTER = 'Fallout4.esm'
 
 # The first object id a new plugin may use; below 0x800 is reserved.
 QUEST_FORMID = 0x01000800
+MESSAGE_FORMID = 0x01000801
+
+# The only thing Rapport ever has to ask the player. AAF's main quest being
+# stopped is the one failure this framework must not fix on its own: it may mean
+# AAF is on its way out of this save, which nothing in the plugin can see and the
+# player can. Every other AAF failure is repaired silently.
+#
+# ASCII only -- zstring() encodes as ascii and a smart quote is enough to fail it.
+MESSAGE_EDID = 'RapportAAFQuestStopped'
+MESSAGE_TITLE = 'Rapport'
+MESSAGE_BODY = (
+    'Advanced Animation Framework is installed, but its main quest is not running, '
+    'so no scene can start. Rapport can start it again. '
+    'If you are removing AAF from this save, leave it alone.')
+MESSAGE_BUTTONS = ('Start AAF', 'Leave it alone')
 
 
 def field(sig, data):
@@ -62,7 +77,28 @@ def group(label, records_blob):
             + records_blob)
 
 
-def build(script_name, quest_edid):
+def message_group():
+    # Shape copied from three real two-button boxes in Fallout4.esm
+    # (0024A36F, 0024A36E, 0024A36C): EDID, DESC, FULL, INAM, DNAM, then one ITXT
+    # per button, consecutive and with no conditions between them. DNAM bit 0 is
+    # what makes it a message box rather than a corner notification, and without
+    # it Show() returns immediately and the buttons are never seen.
+    #
+    # Those records are localized, so their DESC/FULL/ITXT hold four-byte string
+    # ids. Ours is not -- record('TES4', 0, ...) sets no flags, so bit 7 is clear
+    # -- and the same subrecords take literal text.
+    mesg = field('EDID', zstring(MESSAGE_EDID))
+    mesg += field('DESC', zstring(MESSAGE_BODY))
+    mesg += field('FULL', zstring(MESSAGE_TITLE))
+    mesg += field('INAM', struct.pack('<I', 0))     # no icon
+    mesg += field('DNAM', struct.pack('<I', 1))     # 0x01: message box
+    for button in MESSAGE_BUTTONS:
+        mesg += field('ITXT', zstring(button))
+
+    return group('MESG', record('MESG', MESSAGE_FORMID, mesg))
+
+
+def build(script_name, quest_edid, with_message):
     # ---- the quest ----------------------------------------------------------
     vmad = struct.pack('<hhH', 6, 2, 1)        # version, object format, script count
     vmad += wstring(script_name)
@@ -82,15 +118,21 @@ def build(script_name, quest_edid):
     quest_record = record('QUST', QUEST_FORMID, quest)
     quest_group = group('QUST', quest_record)
 
+    # Only the main plugin. The Moisturizer one exists so that no script naming a
+    # Commonwealth Moisturizer type loads without that mod, and it has no reason
+    # to carry a question the bridge asks.
+    extra = message_group() if with_message else b''
+    next_object = (MESSAGE_FORMID if with_message else QUEST_FORMID) + 1
+
     # ---- the header ---------------------------------------------------------
-    hedr = struct.pack('<fiI', 1.0, 1, QUEST_FORMID + 1)
+    hedr = struct.pack('<fiI', 1.0, 1 + (1 if with_message else 0), next_object)
     header_fields = field('HEDR', hedr)
     header_fields += field('CNAM', zstring(AUTHOR))
     header_fields += field('MAST', zstring(MASTER))
     header_fields += field('DATA', struct.pack('<Q', 0))
 
     header = record('TES4', 0, header_fields)
-    return header + quest_group
+    return header + quest_group + extra
 
 
 def main():
@@ -100,13 +142,16 @@ def main():
     script_name = sys.argv[2] if len(sys.argv) > 2 else SCRIPT_NAME
     quest_edid = sys.argv[3] if len(sys.argv) > 3 else QUEST_EDID
 
-    blob = build(script_name, quest_edid)
+    blob = build(script_name, quest_edid, script_name == SCRIPT_NAME)
     with open(sys.argv[1], 'wb') as fh:
         fh.write(blob)
     print('wrote {} ({} bytes)'.format(sys.argv[1], len(blob)))
     print('  quest  {} formID {:08X}'.format(quest_edid, QUEST_FORMID))
     print('  script {}'.format(script_name))
     print('  master {}'.format(MASTER))
+    if script_name == SCRIPT_NAME:
+        print('  message {} formID {:08X} ({} buttons)'.format(
+            MESSAGE_EDID, MESSAGE_FORMID, len(MESSAGE_BUTTONS)))
     return 0
 
 

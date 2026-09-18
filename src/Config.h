@@ -52,6 +52,22 @@ namespace RP
 		// Almost every ask returns nothing, so this is a doorbell, not a scan.
 		float         pollSeconds{ 3.0f };
 
+		// ---- the AAF watchdog ------------------------------------------------
+		// How long AAF gets to come back on its own before Rapport restarts it.
+		// A normal load has it answering within a couple of seconds; this is
+		// generous on purpose, because restarting a framework that was merely slow
+		// is worse than waiting.
+		float         aafReviveGraceSeconds{ 15.0f };
+
+		// Between restarts. The restart is asynchronous -- it ends in a call into a
+		// Scaleform menu and the answer comes back whenever the SWF is ready -- so
+		// asking again too soon proves nothing and risks interleaving two inits.
+		float         aafReviveRetrySeconds{ 12.0f };
+
+		// How many restarts before giving up and saying so. 0 turns the watchdog
+		// off entirely.
+		std::uint32_t aafReviveAttempts{ 3 };
+
 		// True by default on purpose: a fresh install watches and reports, and
 		// starts nothing until someone turns it on deliberately.
 		bool          dryRun{ true };
