@@ -81,6 +81,29 @@
   ],
   "requireClimax": false,
 
+  "comment_toys": [
+    "Toys leave cum, and generously. Owner's reasoning: a toy that ejaculates is",
+    "a real thing, and more to the point cum is what marks a scene as FINISHED --",
+    "so what caused it matters less than that it happened. A scene between two",
+    "women being permanently dry was the odd result, and the strap-on rules were",
+    "half-present already, which is worse than either answer."
+  ],
+
+  "comment_unmapped": [
+    "Deliberately absent, each for a reason:",
+    "",
+    "  Climax / ClimaxM   markers, not places. requireClimax reads them; they name",
+    "                     no body part, so there is no region to map them to.",
+    "  MouthToMouth       kissing leaves nothing, the same rule that makes a whole",
+    "                     foreplay scene leave nothing.",
+    "  MouthToFoot        no orifice involved.",
+    "  MouthToArmpit",
+    "",
+    "Re-run tools/tagaudit.py after installing any animation pack: a tag with no",
+    "rule looks exactly like a scene that was only kissing, and that script is the",
+    "only thing that tells them apart."
+  ],
+
   "tags": {
     "PenisToVagina":   ["Rapport_Vaginal", "Rapport_Body"],
     "StrapOnToVagina": ["Rapport_Vaginal"],
@@ -101,21 +124,43 @@
     "Analingus":       ["Rapport_Anal"],
     "HandToButt":      ["Rapport_Back"],
 
+    "PenisToFace":     ["Rapport_Oral", "Rapport_Body"],
     "PenisToMouth":    ["Rapport_Oral", "Rapport_Body"],
     "MouthToPenis":    ["Rapport_Oral", "Rapport_Body"],
     "Blowjob":         ["Rapport_Oral", "Rapport_Body"],
     "MouthToNipples":  ["Rapport_Oral"],
     "PenisToNipples":  ["Rapport_Oral"],
 
+    "StrapOnToEither": ["Rapport_Vaginal", "Rapport_Body"],
+    "StrapOnToAnus":   ["Rapport_Anal", "Rapport_Back"],
+    "StrapOnToMouth":  ["Rapport_Oral", "Rapport_Body"],
+    "StickToVagina":   ["Rapport_Vaginal", "Rapport_Body"],
+    "StickToAnus":     ["Rapport_Anal", "Rapport_Back"],
+    "StickToMouth":    ["Rapport_Oral", "Rapport_Body"],
+    "StickToNipples":  ["Rapport_Oral"],
+    "DildoToAnus":     ["Rapport_Anal", "Rapport_Back"],
+    "Dildo":           ["Rapport_Body"],
+    "Fisting":         ["Rapport_Vaginal"],
+    "FeetToVagina":    ["Rapport_Vaginal"],
+
+    "HandToNipples":   ["Rapport_Body"],
+    "HandToAnus":      ["Rapport_Back"],
+    "FingerToAnus":    ["Rapport_Back"],
+    "TongueToAnus":    ["Rapport_Anal"],
+    "RimJob":          ["Rapport_Anal"],
+    "Rimjob":          ["Rapport_Anal"],
+
     "PenisToEither":   ["Rapport_Body"],
     "PenisToHand":     ["Rapport_Body"],
     "HandToPenis":     ["Rapport_Body"],
     "HandtoPenis":     ["Rapport_Body"],
+    "Handjob":         ["Rapport_Body"],
+    "HandJob":         ["Rapport_Body"],
+    "69":              ["Rapport_Oral"],
     "PenisToFeet":     ["Rapport_Body"],
     "PenisToFoot":     ["Rapport_Body"],
     "FootToPenis":     ["Rapport_Body"],
-    "Masturbation":    ["Rapport_Body"],
-
-    "DP":              ["Rapport_DP", "Rapport_Body"]
+    "Footjob":         ["Rapport_Body"],
+    "Masturbation":    ["Rapport_Body"]
   }
 }

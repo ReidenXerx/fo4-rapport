@@ -569,3 +569,26 @@ than re-rolling it -- it only wipes and starts over when every slot in the regio
 calls STACK. `layers` (3 by default) is how much lands in the one place.
 
 The overlay backend ignores `layers`: its quantity is per set in `Rapport_overlayData.xml`.
+
+## A-23 - toys leave cum too, and the mapping is audited rather than guessed (2026-09-18)
+
+Owner: *"Let's imagine toys has cum function which ejaculate a lot. Actually real toys should do this
+also bc without cum sex isn't finished"*.
+
+So strap-ons, dildos, "Stick" tags, fisting, hands, feet and rimming all leave something. The
+reasoning is better than physical literalism: cum is what marks a scene as FINISHED, so what caused
+it matters less than that it happened. A scene between two women being permanently dry was the odd
+result, and the strap-on rules were half-present already -- which is worse than either answer.
+
+**`tools/tagaudit.py`** compares the rules against every tag the installed packs actually use.
+Coverage went 30 -> 52 of the 58 act-like tags in one pass, and it found real holes: `PenisToFace`
+produced nothing at all, `Handjob` (63 uses) contradicted `HandToPenis` which was already mapped,
+`Footjob` (29) contradicted `FootToPenis`, and a `DP` rule matched nothing any installed pack uses.
+
+Six tags are deliberately unmapped: `Climax`/`ClimaxM` are markers rather than places -- they name
+no body part -- and `MouthToMouth`, `MouthToFoot`, `MouthToArmpit` involve no orifice.
+
+**Run the audit after installing any animation pack.** A tag with no rule is indistinguishable in
+the log from a scene that was only kissing: both come out as "nothing to leave behind". The script
+is the only thing that separates them, which is the same instrument-not-argument rule as everywhere
+else in this project.
