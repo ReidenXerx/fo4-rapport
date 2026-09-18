@@ -591,6 +591,37 @@ namespace RP
 		return true;
 	}
 
+	void PapyrusLink::CheckBridgeAlive()
+	{
+		const auto pumps = _pumps.load();
+		const auto moved = pumps != _pumpsAtLastTick;
+		_pumpsAtLastTick = pumps;
+
+		if (moved) {
+			if (_stallReported) {
+				logger::info("the bridge is answering again after {} poll(s) total", pumps);
+				_stallReported = false;
+			}
+			return;
+		}
+
+		if (!_bridgeReady.load() || _stallReported) {
+			return;
+		}
+
+		_stallReported = true;
+		logger::error(
+			"THE BRIDGE HAS STOPPED POLLING. It last answered after {} poll(s) and has not asked "
+			"once in the last tick, so nothing timed can happen from here: no expression, no "
+			"overlay, no scene ending, no request collected. A poll with nothing to do and a poll "
+			"that never happened write the same log, which is why this is said out loud.{}",
+			pumps,
+			_sceneInFlight.load()
+				? " A scene is in flight, and the most likely cause is the AAF call that started it:"
+				  " a Papyrus stack does not return from one."
+				: "");
+	}
+
 	void PapyrusLink::LogHealth() const
 	{
 		const auto queued = _queued.load();

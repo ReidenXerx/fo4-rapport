@@ -69,6 +69,17 @@ namespace RP
 		// run could not tell those apart.
 		void NotePump() { _pumps.fetch_add(1); }
 
+		// Called once per scheduler tick. The bridge polls every PollSeconds and a
+		// tick is twenty seconds, so between two ticks the count MUST have moved.
+		// When it has not, the bridge has gone silent and nothing timed can happen
+		// -- no expression, no overlay, no scene ending, no request collected.
+		//
+		// This is an alarm rather than a number on the health line because the two
+		// states it separates are invisible: a poll with nothing to do writes
+		// exactly the same log as a poll that never happened, and three runs went
+		// into telling those apart by argument.
+		void CheckBridgeAlive();
+
 		// An actor the bridge found already flagged busy by AAF. Two things follow
 		// from that flag: they cannot be animated, and nothing we do clears it --
 		// only a scene ending does. So the honest response is to stop offering them
@@ -169,6 +180,8 @@ namespace RP
 		std::atomic<std::uint32_t> _events{ 0 };
 		std::atomic<std::uint32_t> _busySkips{ 0 };
 		std::atomic<std::uint32_t> _pumps{ 0 };
+		std::uint32_t _pumpsAtLastTick{ 0 };
+		bool          _stallReported{ false };
 
 		// Written from the VM thread, read from the scheduler's main-thread slice.
 		mutable std::mutex _busyLock;

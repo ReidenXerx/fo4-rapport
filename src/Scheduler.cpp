@@ -197,6 +197,7 @@ namespace RP
 			const auto& weights = Config::GetSingleton().Weights();
 
 			link.CheckWatchdog(Config::GetSingleton().sceneSeconds);
+			link.CheckBridgeAlive();
 
 			// Expiry is checked on the tick rather than on a timer of its own: it
 			// is two comparisons per standing overlay, and the tick is already the
