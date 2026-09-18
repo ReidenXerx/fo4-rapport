@@ -101,6 +101,12 @@ Function Connect()
 	RegisterForCustomEvent(_api, "aaf:aaf_api_OnSceneEnd")
 	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAnimationStart")
 	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAnimationStop")
+
+	; The tree's own progression. A scene started on a tree walks its authored
+	; stages by itself, and these are how it says so -- without them the faces are
+	; guessing from a clock while AAF is the one that knows.
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAnimationChange")
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnStageEvent")
 	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAnimationQueryResult")
 
 	_ready = true
@@ -297,6 +303,19 @@ Function DoStartScene(Int aiRequest)
 	settings.preventFurniture = false
 	settings.meta = "Rapport,autonomy"   ; so a scene of ours is identifiable as ours
 
+	; The tree this scene will run, chosen from the catalogue now that the plugin
+	; knows both sexes. THIS is the only moment a position can be chosen: AAF's
+	; ChangePosition refuses everything -- tags, a named position, even no filters
+	; at all -- while StartScene honours a position id without complaint.
+	;
+	; Empty means nothing in the catalogue reaches a climax for this pair, and the
+	; scene starts unconstrained rather than not at all. The plugin says so when
+	; that happens; it is not silent.
+	String chosen = Rapport:Core.ScenePosition()
+	If chosen != ""
+		settings.position = chosen
+	EndIf
+
 	; AAF's readiness, CHECKED rather than merely logged.
 	;
 	; GetAAFStatus() is AAF_ReadyStatus + 1, and AAF_ReadyStatus becomes 1 when
@@ -440,6 +459,16 @@ Event AAF:AAF_API.OnSceneEnd(AAF:AAF_API akSender, Var[] akArgs)
 	If index >= 0
 		Self.Release(index, "")
 	EndIf
+EndEvent
+
+Event AAF:AAF_API.OnAnimationChange(AAF:AAF_API akSender, Var[] akArgs)
+	; The tree moved to its next position. Logged raw for now: the argument layout
+	; has never been seen in this project, and the faces will follow it once it is.
+	Self.TraceArgs("OnAnimationChange", akArgs)
+EndEvent
+
+Event AAF:AAF_API.OnStageEvent(AAF:AAF_API akSender, Var[] akArgs)
+	Self.TraceArgs("OnStageEvent", akArgs)
 EndEvent
 
 Event AAF:AAF_API.OnAnimationQueryResult(AAF:AAF_API akSender, Var[] akArgs)
@@ -949,8 +978,13 @@ Function QueryAnimationsFor(Int aiFirstID, String asIncludeTags, String asExclud
 	actors[1] = akSecond
 
 	; Five arguments, all of them. The decompiled base sources carry no defaults.
-	_api.FindMatchingAnimations(actors, "Rapport:" + asIncludeTags, asIncludeTags, asExcludeTags, "")
-	Rapport:Core.Trace("query: asked AAF what it matches for [" + asIncludeTags + "] on this pair - the answer comes back as OnAnimationQueryResult")
+	String label = asIncludeTags
+	If label == ""
+		label = "NOFILTER"
+	EndIf
+
+	_api.FindMatchingAnimations(actors, "Rapport:" + label, asIncludeTags, asExcludeTags, "")
+	Rapport:Core.Trace("query: asked AAF what it matches for [" + label + "] on this pair - the answer comes back as OnAnimationQueryResult")
 EndFunction
 
 ; Every morph id in the engine's facial table, as AAF wants them: one string of

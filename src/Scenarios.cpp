@@ -339,17 +339,14 @@ namespace RP
 				stage.include, stage.exclude, composition, stage.requireEnding, stage.seconds);
 
 			if (chosen) {
+				// Named for the log only. The scene was already STARTED on a tree
+				// chosen the same way, and nothing can move it afterwards: naming a
+				// position mid-scene is refused exactly like naming tags was.
 				logger::info(
-					"scenario \"{}\": stage \"{}\" for {:.0f}s - chose \"{}\", a {}-stage tree "
-					"ending in a {}{}",
-					_running->id, stage.id, stage.seconds, chosen->positionID, chosen->stages,
-					TreeIndex::Describe(chosen->ending),
-					chosen->LengthKnown()
-						? std::format(" and authored for {:.0f}s", chosen->seconds)
-						: " of unrecorded length");
-
-				a_out.push_back(
-					Order{ Order::Kind::kChangeToPosition, _first, chosen->positionID, {} });
+					"scenario \"{}\": stage \"{}\" - the ending it would pick here is \"{}\" ({} "
+					"stages, {}). The scene is already on its tree and AAF is staging it",
+					_running->id, stage.id, chosen->positionID, chosen->stages,
+					TreeIndex::Describe(chosen->ending));
 			} else {
 				// Said out loud rather than silently behaving like a handover: "no
 				// tree qualified" and "this stage never wanted one" look identical
@@ -398,11 +395,15 @@ namespace RP
 			return;
 		}
 
+		// NO POSITION ORDER. ChangePosition does not work -- 26 refusals out of 26
+		// with tags, and refused again with a position id and no filters at all --
+		// so a stage no longer tries to move the scene. The tree chosen at
+		// StartScene does the staging, and a stage is now a MOOD: its face, for its
+		// share of the story.
 		logger::info(
-			"scenario \"{}\": trying \"{}\" for stage \"{}\" ({} of {})",
-			_running->id, stage.options[_option], stage.id, _option + 1, stage.options.size());
-		a_out.push_back(
-			Order{ Order::Kind::kChangePosition, _first, stage.options[_option], stage.exclude });
+			"scenario \"{}\": stage \"{}\" - {}",
+			_running->id, stage.id,
+			stage.face.empty() ? "no face of its own" : std::format("face {}", stage.face));
 
 		// And ask AAF what it thinks it has for that same tag. Apples to apples:
 		// the answer arrives on OnAnimationQueryResult and is logged raw, so a
@@ -411,6 +412,16 @@ namespace RP
 		if (Config::GetSingleton().diagnoseStageTags) {
 			a_out.push_back(
 				Order{ Order::Kind::kQueryAnimations, _first, stage.options[_option], stage.exclude });
+
+			// And the same question with NO filter at all, once per stage. Every
+			// tagged query has come back 0 -- including PenisToVagina, which 2320
+			// positions carry -- and a zero is only meaningful against a baseline.
+			// Non-zero here means the query works and tag matching is what fails.
+			// Zero here means the query itself is wrong and its other answers said
+			// nothing about the content.
+			if (_option == 0) {
+				a_out.push_back(Order{ Order::Kind::kQueryAnimations, _first, {}, {} });
+			}
 		}
 	}
 
@@ -495,6 +506,78 @@ namespace RP
 			SendCurrentOption(outgoing);
 		}
 		PapyrusLink::GetSingleton().QueueOrders(outgoing);
+	}
+
+	std::string Scenarios::ChooseSceneStart(
+		std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second)
+	{
+		NamedLock lock{ _lock, "scenarios" };
+
+		_chosenPosition.clear();
+		_chosenSeconds = 0.0f;
+
+		const auto scenario = Find(a_id);
+		if (!scenario) {
+			return {};
+		}
+
+		// The LAST stage describes the ending this scenario wants, and the ending
+		// is what the whole tree is chosen for: the pack author staged everything
+		// before it to arrive there.
+		const Stage* ending = nullptr;
+		for (auto it = scenario->stages.rbegin(); it != scenario->stages.rend(); ++it) {
+			if (!it->include.empty()) {
+				ending = &*it;
+				break;
+			}
+		}
+		if (!ending) {
+			return {};
+		}
+
+		const auto& index = TreeIndex::GetSingleton();
+		if (!index.Usable()) {
+			logger::warn(
+				"scenario \"{}\": no tree catalogue, so the scene starts unconstrained and its "
+				"ending is whatever AAF picks",
+				scenario->id);
+			return {};
+		}
+
+		const auto  composition = Aftermath::GetSingleton().CompositionOf(a_first, a_second);
+		const auto* chosen = index.Choose(
+			ending->include, ending->exclude, composition, ending->requireEnding, ending->seconds);
+
+		if (!chosen) {
+			// Said out loud, because a scene without a guaranteed ending is exactly
+			// what the owner asked to be sure of, and silence here would read as
+			// success.
+			logger::warn(
+				"scenario \"{}\": no {} tree reaches a climax with [{}] on this install, out of "
+				"{} indexed ({} with a real ending). The scene will still run, but nothing "
+				"guarantees how it finishes",
+				scenario->id, composition.empty() ? "any-pair" : composition, ending->include,
+				index.Size(), index.WithEnding());
+			return {};
+		}
+
+		_chosenPosition = chosen->positionID;
+		_chosenSeconds = chosen->seconds;
+
+		logger::info(
+			"scenario \"{}\": starting on \"{}\" - a {}-stage tree ending in a {}{}. AAF stages it "
+			"from here; Rapport keeps the faces and the aftermath",
+			scenario->id, chosen->positionID, chosen->stages,
+			TreeIndex::Describe(chosen->ending),
+			chosen->LengthKnown() ? std::format(" and authored for {:.0f}s", chosen->seconds)
+			                      : " of unrecorded length");
+		return _chosenPosition;
+	}
+
+	float Scenarios::ChosenSeconds() const
+	{
+		NamedLock lock{ _lock, "scenarios" };
+		return _chosenSeconds;
 	}
 
 	void Scenarios::Pump()

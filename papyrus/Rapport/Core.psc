@@ -86,6 +86,15 @@ Function NoteAAFRevivalChoice(Bool abYes) Global Native
 ; furniture with no scene at all.
 Bool Function RelocatingScene() Global Native
 
+; The position a scene should START on, chosen from the tree catalogue for the
+; scenario this request named. Empty means start unconstrained.
+;
+; Asked immediately before StartScene, and only there. AAF's ChangePosition does
+; not work -- refused 26 times out of 26 with tags, and refused again when handed
+; a position id and no filters at all -- so the one moment a position can be
+; chosen is the moment the scene begins. StartScene honours it.
+String Function ScenePosition() Global Native
+
 ; Said once, after StopScene has been asked for, so the poll does not ask again
 ; every three seconds while AAF winds the scene down.
 Function NoteStopAsked() Global Native

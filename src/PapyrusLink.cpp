@@ -167,6 +167,17 @@ namespace
 	// True while the pair is being moved. The bridge asks before it drops a
 	// request whose scene has ended, because a move ends the SCENE and not the
 	// REQUEST -- and dropping it left the resume with nothing to resume.
+	// The position this scene should START on, chosen from the tree catalogue for
+	// the scenario the request named. Empty means "start unconstrained".
+	//
+	// Asked at the one moment that can act on it. StartScene honours a position;
+	// ChangePosition does not honour anything.
+	RE::BSFixedString Papyrus_ScenePosition(std::monostate)
+	{
+		auto& link = RP::PapyrusLink::GetSingleton();
+		return link.ChooseScenePosition().c_str();
+	}
+
 	bool Papyrus_RelocatingScene(std::monostate)
 	{
 		return RP::PapyrusLink::GetSingleton().Relocating();
@@ -395,6 +406,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteAAFStatus"sv, Papyrus_NoteAAFStatus, std::nullopt, false);
 		a_vm->BindNativeMethod(
 			kCoreScript, "RelocatingScene"sv, Papyrus_RelocatingScene, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ScenePosition"sv, Papyrus_ScenePosition, std::nullopt, false);
 		a_vm->BindNativeMethod(
 			kCoreScript, "NoteAAFRevivalChoice"sv, Papyrus_NoteAAFRevivalChoice, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverlayOrder"sv, Papyrus_TakeOverlayOrder, std::nullopt, false);
@@ -426,7 +438,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 47 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 48 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -609,6 +621,17 @@ namespace RP
 	void PapyrusLink::NoteStopAsked()
 	{
 		_stopAsked = true;
+	}
+
+	std::string PapyrusLink::ChooseScenePosition()
+	{
+		if (_inFlightScenario.empty()) {
+			return {};
+		}
+		return Scenarios::GetSingleton().ChooseSceneStart(
+			_inFlightScenario,
+			static_cast<std::uint32_t>(_inFlightFirst),
+			static_cast<std::uint32_t>(_inFlightSecond));
 	}
 
 	void PapyrusLink::BeginRelocation()

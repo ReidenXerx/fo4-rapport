@@ -104,6 +104,25 @@ namespace RP
 		// as an ordinary single-animation one.
 		bool Begin(std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second);
 
+		// The position a scene should START on, chosen from the tree catalogue
+		// before StartScene is called. Empty when nothing qualifies, and then the
+		// scene starts unconstrained as it always did.
+		//
+		// This is the whole mechanism now. ChangePosition is abandoned: it was
+		// refused 26 times out of 26 with tags, and refused again when handed a
+		// position id and no filters at all -- AAF answered "there are no FEMALE
+		// HUMAN + MALE HUMAN animations" with includeTags(NONE), for a pair it
+		// starts scenes for constantly. Nothing about that is a content problem
+		// and nothing we pass changes it.
+		//
+		// StartScene takes the same position id and works, so the choice moves to
+		// the one moment that can act on it.
+		[[nodiscard]] std::string ChooseSceneStart(
+			std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second);
+
+		// How long the chosen tree is authored to run, or 0 when none was chosen.
+		[[nodiscard]] float ChosenSeconds() const;
+
 		// Advances when the current stage has run its seconds. Called on the same
 		// poll as everything else.
 		void Pump();
@@ -170,6 +189,10 @@ namespace RP
 		// move was made for.
 		bool            _awaitingMove{ false };
 		std::chrono::steady_clock::time_point _moveRequestedAt{};
+
+		// The tree this scene was started on, and what it is authored to run for.
+		std::string _chosenPosition;
+		float       _chosenSeconds{ 0.0f };
 		std::uint32_t   _first{ 0 };
 		std::uint32_t   _second{ 0 };
 		std::chrono::steady_clock::time_point _stageStartedAt{};

@@ -149,6 +149,11 @@ namespace RP
 		// The scene is being restarted elsewhere for the SAME request. Its ending
 		// is a move, not a finish: no ledger entry, no aftermath, no cooldown, and
 		// the pair stays in flight throughout.
+		// Asked by the bridge immediately before StartScene, once the actors' sexes
+		// have been reported -- the catalogue filters by the pair's composition, so
+		// it cannot be asked any earlier.
+		[[nodiscard]] std::string ChooseScenePosition();
+
 		void BeginRelocation();
 
 		// The move never arrived. Without this the flag stays set for the rest of
