@@ -44,6 +44,17 @@ namespace RP
 		// answering, nothing else would ever clear the in-flight flag.
 		void CheckWatchdog(float a_sceneSeconds);
 
+		// Every AAF event the bridge receives is counted here. The point is not the
+		// count: it is that "no AAF event has EVER arrived" becomes a fact the log
+		// states out loud, instead of an absence nobody notices. A whole night was
+		// spent diagnosing three different bugs out of one silence, because a scene
+		// that worked and a scene that never started produced identical logs.
+		void NoteEvent(std::string_view a_name);
+
+		// One line that says what has and has not happened. Logged periodically and
+		// on anything notable.
+		void LogHealth() const;
+
 		void OnBridgeReady(bool a_aafPresent);
 		void OnSceneStarted(std::int32_t a_request);
 		void OnSceneEnded(std::int32_t a_request);
@@ -71,5 +82,13 @@ namespace RP
 		std::atomic_bool          _sceneInFlight{ false };
 		std::atomic<std::int32_t> _nextRequest{ 1 };
 		std::chrono::steady_clock::time_point _requestedAt{};
+
+		std::atomic<std::uint32_t> _queued{ 0 };
+		std::atomic<std::uint32_t> _collected{ 0 };
+		std::atomic<std::uint32_t> _started{ 0 };
+		std::atomic<std::uint32_t> _ended{ 0 };
+		std::atomic<std::uint32_t> _failed{ 0 };
+		std::atomic<std::uint32_t> _events{ 0 };
+		std::chrono::steady_clock::time_point _lastEventAt{};
 	};
 }

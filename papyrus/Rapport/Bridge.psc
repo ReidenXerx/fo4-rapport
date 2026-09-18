@@ -191,6 +191,7 @@ Event AAF:AAF_API.OnAAFReady(AAF:AAF_API akSender, Var[] akArgs)
 	; The per-load handshake. AAF initialises on every game load and our
 	; registration for this survives in the save, so this is the one thing that
 	; reliably happens after a load with no quest-start event to hang off.
+	Rapport:Core.NoteEvent("OnAAFReady")
 	Rapport:Core.Trace("aaf: ready")
 	Self.Connect()
 EndEvent
@@ -297,6 +298,8 @@ Function Release(Int aiIndex, String asWhy)
 EndFunction
 
 Function TraceArgs(String asEvent, Var[] akArgs)
+	Rapport:Core.NoteEvent(asEvent)
+
 	If akArgs == None
 		Rapport:Core.Trace("aaf: " + asEvent + " (no args)")
 		Return

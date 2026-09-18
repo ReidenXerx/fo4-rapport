@@ -29,6 +29,11 @@ Bool Function NeedsHandshake() Global Native
 ; interval is not a number buried in a script.
 Float Function PollSeconds() Global Native
 
+; Every AAF event the bridge receives, by name. The plugin counts them so that
+; "no AAF event has ever arrived" is something the log SAYS rather than something
+; a reader has to notice is missing.
+Function NoteEvent(String asEventName) Global Native
+
 ; ---- reporting back ------------------------------------------------------
 Function BridgeReady(Bool abAafPresent) Global Native
 Function SceneStarted(Int aiRequest) Global Native

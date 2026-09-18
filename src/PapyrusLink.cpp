@@ -43,6 +43,11 @@ namespace
 		return RP::Config::GetSingleton().pollSeconds;
 	}
 
+	void Papyrus_NoteEvent(std::monostate, RE::BSFixedString a_name)
+	{
+		RP::PapyrusLink::GetSingleton().NoteEvent(a_name.c_str());
+	}
+
 	void Papyrus_BridgeReady(std::monostate, bool a_aafPresent)
 	{
 		RP::PapyrusLink::GetSingleton().OnBridgeReady(a_aafPresent);
@@ -85,12 +90,13 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "TakenDuration"sv, Papyrus_TakenDuration, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PollSeconds"sv, Papyrus_PollSeconds, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NeedsHandshake"sv, Papyrus_NeedsHandshake, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteEvent"sv, Papyrus_NoteEvent, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BridgeReady"sv, Papyrus_BridgeReady, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneStarted"sv, Papyrus_SceneStarted, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 11 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 12 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -134,6 +140,7 @@ namespace RP
 		}
 
 		_requestedAt = std::chrono::steady_clock::now();
+		_queued.fetch_add(1);
 
 		logger::info(
 			"request {}: queued {} ({:08X}) and {} ({:08X}) for {:.0f}s",
@@ -149,6 +156,7 @@ namespace RP
 			return 0;
 		}
 
+		_collected.fetch_add(1);
 		_takenFirst = _pending.first;
 		_takenSecond = _pending.second;
 		_takenDuration = _pending.duration;
@@ -193,17 +201,56 @@ namespace RP
 
 	void PapyrusLink::OnSceneStarted(std::int32_t a_request)
 	{
+		_started.fetch_add(1);
 		logger::info("request {}: scene started", a_request);
+	}
+
+	void PapyrusLink::NoteEvent(std::string_view a_name)
+	{
+		_events.fetch_add(1);
+		_lastEventAt = std::chrono::steady_clock::now();
+		(void)a_name;
+	}
+
+	void PapyrusLink::LogHealth() const
+	{
+		const auto queued = _queued.load();
+		const auto events = _events.load();
+
+		if (events == 0) {
+			// The sentence that would have saved a night. An absence, said out loud.
+			if (queued > 0) {
+				logger::error(
+					"health: {} scene(s) requested and NOT ONE AAF EVENT has arrived this session. "
+					"Scenes may well be running; this mod cannot see them, so cooldowns and scene "
+					"ends are guesses and the watchdog is doing all the releasing.",
+					queued);
+			} else {
+				logger::warn("health: no AAF event has arrived yet this session (nothing requested yet)");
+			}
+		} else {
+			const auto since = std::chrono::duration_cast<std::chrono::seconds>(
+				std::chrono::steady_clock::now() - _lastEventAt).count();
+			logger::info("health: {} aaf event(s), last {}s ago", events, since);
+		}
+
+		logger::info(
+			"health: bridge {}, {} queued, {} collected, {} started, {} ended, {} failed, {}",
+			_bridgeReady.load() ? "ready" : "NOT READY",
+			queued, _collected.load(), _started.load(), _ended.load(), _failed.load(),
+			_sceneInFlight.load() ? "a scene is in flight" : "idle");
 	}
 
 	void PapyrusLink::OnSceneEnded(std::int32_t a_request)
 	{
+		_ended.fetch_add(1);
 		logger::info("request {}: scene ended", a_request);
 		_sceneInFlight.store(false);
 	}
 
 	void PapyrusLink::OnRequestFailed(std::int32_t a_request, std::string_view a_why)
 	{
+		_failed.fetch_add(1);
 		logger::warn("request {}: {}", a_request, a_why);
 		_sceneInFlight.store(false);
 	}

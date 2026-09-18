@@ -205,6 +205,7 @@ namespace RP
 		}
 
 		if (_ticks % 10 == 0) {
+			PapyrusLink::GetSingleton().LogHealth();
 			logger::info(
 				"budget so far: {} slices, {:.3f} ms average, {:.3f} ms worst",
 				_sliceCount, _sliceCount ? _totalSliceMs / static_cast<double>(_sliceCount) : 0.0,
