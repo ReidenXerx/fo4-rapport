@@ -29,6 +29,18 @@ namespace RP
 		// stand-in that reads it.
 		float         cooldownHours{ 24.0f };
 
+		// Drop an actor's record once nothing has happened to them for this many
+		// GAME hours and they have no overlay standing. A long playthrough would
+		// otherwise carry every settler who ever met anyone. 0 keeps everything.
+		float         pruneHours{ 720.0f };
+
+		// The way out. With this set, the next load takes every overlay Rapport
+		// applied back off, clears every face it set, and empties the ledger --
+		// then says so and reminds you to turn it off again. It exists because an
+		// overlay this mod applied must never be something only this mod can
+		// remove.
+		bool          panicClear{ false };
+
 		// How often the Papyrus bridge asks whether there is a scene to start.
 		// Almost every ask returns nothing, so this is a doorbell, not a scan.
 		float         pollSeconds{ 3.0f };

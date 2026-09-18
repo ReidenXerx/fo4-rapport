@@ -25,6 +25,7 @@ namespace RP
 		std::jthread     _thread;
 		std::atomic_bool _started{ false };
 		std::atomic_bool _inSession{ false };
+		bool             _panicked{ false };   // PanicClear runs once per load
 		std::atomic_bool _passInFlight{ false };
 		std::atomic_bool _skipReported{ false };
 

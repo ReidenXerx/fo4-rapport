@@ -39,7 +39,6 @@ namespace RP
 	void Takeover::Load()
 	{
 		_items.clear();
-		_active = Aftermath::GetSingleton().Enabled();
 
 		const auto    path = ConfigPath();
 		std::ifstream file{ path };
@@ -71,6 +70,11 @@ namespace RP
 			const auto plugin = entry.value("plugin", std::string{});
 			const auto reason = entry.value("reason", std::string{});
 			const auto restore = entry.value("restore", std::string{ "start" });
+			const auto feature = entry.value("whileFeature", std::string{});
+
+			// An entry owned by a feature is only in force while that feature is.
+			const auto active = feature.empty() ||
+			                    (feature == "aftermath" && Aftermath::GetSingleton().Enabled());
 			const auto quests = entry.find("quests");
 			if (plugin.empty() || quests == entry.end() || !quests->is_array()) {
 				continue;
@@ -99,6 +103,8 @@ namespace RP
 				item.reason = reason;
 				item.formID = form->GetFormID();
 				item.restoreByStarting = restore != "none";
+				item.whileFeature = feature;
+				item.active = active;
 				_items.push_back(std::move(item));
 				++found;
 			}
@@ -111,7 +117,7 @@ namespace RP
 			} else {
 				logger::info(
 					"takeover: {} quest(s) from {} will be {} - {}",
-					found, plugin, _active ? "STOPPED" : "started again", reason);
+					found, plugin, active ? "STOPPED" : "started again", reason);
 			}
 		}
 	}

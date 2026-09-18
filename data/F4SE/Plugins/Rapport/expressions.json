@@ -1,0 +1,47 @@
+{
+  "comment": [
+    "The face during a scene.",
+    "",
+    "There are exactly ten mfgSet references across the whole AAF install, and the",
+    "pack that plays most often here has one of them: Sleep_EyesClosed. The faces",
+    "are blank because nothing asks them to be anything else. This fills that in.",
+    "",
+    "The sets are Rapport's own, in Data/AAF/Rapport_mfgSetData.xml, built from the",
+    "engine's own 50-entry facial morph table. No textures, no other mod, works on",
+    "a vanilla install.",
+    "",
+    "\"at\" is a fraction of the scene's length, so the progression stretches to fit",
+    "however long a scene runs rather than being a list of seconds that goes wrong",
+    "the moment a scene is short.",
+    "",
+    "A scene whose animations never carry an act tag is kissing or foreplay: it",
+    "gets kissSet for its whole length instead of building to a climax it is never",
+    "going to have.",
+    "",
+    "Expressions are applied with lock=true, which holds them against anything else",
+    "that would move the face. That is why clearSet exists and why everyone wearing",
+    "one is written into the save -- a scene that ends badly, or a save taken in the",
+    "middle of one, would otherwise leave somebody wearing it permanently."
+  ],
+
+  "enabled": true,
+
+  "steps": [
+    { "at": 0.00, "set": "Rapport_Anticipation" },
+    { "at": 0.25, "set": "Rapport_Pleasure_1" },
+    { "at": 0.50, "set": "Rapport_Pleasure_2" },
+    { "at": 0.80, "set": "Rapport_Pleasure_3" },
+    { "at": 0.95, "set": "Rapport_Climax" }
+  ],
+
+  "kissSet": "Rapport_Kiss",
+
+  "comment_after": [
+    "Afterwards: a dazed face for this many REAL seconds, then everything is",
+    "cleared. Real time is right here and game time is wrong -- this is about what",
+    "the player is watching, not about how long the day is."
+  ],
+  "afterSet": "Rapport_Dazed",
+  "dazedSeconds": 20,
+  "clearSet": "Rapport_Clear"
+}

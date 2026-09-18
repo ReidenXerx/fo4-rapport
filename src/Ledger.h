@@ -96,12 +96,24 @@ namespace RP
 
 		void Save(const F4SE::SerializationInterface* a_intfc) const;
 		void Load(const F4SE::SerializationInterface* a_intfc);
+		// Drops records that have gone cold. const because it runs from Save, which
+		// is the only place that has a reason to care how big this has got.
+		void Prune() const;
+
+		static void LoadFaces(
+			const F4SE::SerializationInterface* a_intfc,
+			std::uint32_t                       a_version,
+			std::uint32_t                       a_length);
+		static void LoadScene(
+			const F4SE::SerializationInterface* a_intfc,
+			std::uint32_t                       a_version,
+			std::uint32_t                       a_length);
 		static void LoadOverlays(
 			const F4SE::SerializationInterface* a_intfc,
 			std::uint32_t                       a_version,
 			std::uint32_t                       a_length);
 
-		mutable std::mutex                                 _lock;
-		std::unordered_map<std::uint32_t, ActorRecord>     _records;
+		mutable std::mutex                                         _lock;
+		mutable std::unordered_map<std::uint32_t, ActorRecord>     _records;
 	};
 }

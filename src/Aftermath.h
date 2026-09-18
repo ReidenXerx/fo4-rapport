@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Orders.h"
+
 namespace RP
 {
 	// What a scene leaves behind, and the removing of it.
@@ -31,21 +33,6 @@ namespace RP
 			bool asked{ false };
 		};
 
-		// An instruction for the bridge. The plugin cannot call AAF; only Papyrus
-		// can, and only on its own thread.
-		struct Order
-		{
-			enum class Kind
-			{
-				kApply = 1,
-				kRemove = 2
-			};
-
-			Kind          kind{ Kind::kApply };
-			std::uint32_t formID{ 0 };
-			std::string   setID;
-		};
-
 		[[nodiscard]] static Aftermath& GetSingleton() noexcept;
 
 		void Load();
@@ -68,13 +55,15 @@ namespace RP
 		// call into AAF that cannot be seen to have worked or failed.
 		void Tick(const std::vector<std::uint32_t>& a_here);
 
-		// ---- the bridge's half ---------------------------------------------
-		[[nodiscard]] std::optional<Order> TakeOrder();
-
 		// ---- the save --------------------------------------------------------
 		[[nodiscard]] std::vector<Mark> Marks() const;
 		void Restore(std::vector<Mark> a_marks);
 		void Clear();
+
+		// Takes everything off everyone, now. The panic switch and the uninstall
+		// path: an overlay Rapport applied must never be something only Rapport
+		// can remove.
+		void RemoveEverything(std::string_view a_why);
 
 		[[nodiscard]] std::size_t Size() const;
 
@@ -99,6 +88,5 @@ namespace RP
 
 		std::string        _sceneTags;   // accumulated across one scene
 		std::vector<Mark>  _marks;
-		std::deque<Order>  _orders;
 	};
 }

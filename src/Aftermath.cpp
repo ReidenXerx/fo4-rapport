@@ -1,6 +1,7 @@
 #include "Aftermath.h"
 
 #include "Ledger.h"
+#include "PapyrusLink.h"
 
 namespace
 {
@@ -225,7 +226,8 @@ namespace RP
 				// Removal goes out whether or not they are here. An overlay left on
 				// someone who wandered off is the failure this whole feature exists
 				// to prevent, and AAF takes the call either way.
-				_orders.push_back(Order{ Order::Kind::kRemove, mark->formID, mark->setID });
+				PapyrusLink::GetSingleton().QueueOrder(
+					Order{ Order::Kind::kRemoveOverlay, mark->formID, mark->setID });
 				mark = _marks.erase(mark);
 				++expired;
 				continue;
@@ -237,7 +239,8 @@ namespace RP
 			// same thing: the plugin has no memory of having asked.
 			if (!mark->asked) {
 				if (std::ranges::find(a_here, mark->formID) != a_here.end()) {
-					_orders.push_back(Order{ Order::Kind::kApply, mark->formID, mark->setID });
+					PapyrusLink::GetSingleton().QueueOrder(
+						Order{ Order::Kind::kApplyOverlay, mark->formID, mark->setID });
 					mark->asked = true;
 					++asked;
 				} else {
@@ -253,17 +256,6 @@ namespace RP
 				"their owner to be nearby",
 				now, asked, expired, _marks.size(), waiting);
 		}
-	}
-
-	std::optional<Aftermath::Order> Aftermath::TakeOrder()
-	{
-		std::scoped_lock lock{ _lock };
-		if (_orders.empty()) {
-			return std::nullopt;
-		}
-		auto order = _orders.front();
-		_orders.pop_front();
-		return order;
 	}
 
 	std::vector<Aftermath::Mark> Aftermath::Marks() const
@@ -287,8 +279,22 @@ namespace RP
 	{
 		std::scoped_lock lock{ _lock };
 		_marks.clear();
-		_orders.clear();
 		_sceneTags.clear();
+	}
+
+	void Aftermath::RemoveEverything(std::string_view a_why)
+	{
+		std::scoped_lock lock{ _lock };
+		if (_marks.empty()) {
+			return;
+		}
+
+		auto& link = PapyrusLink::GetSingleton();
+		for (const auto& mark : _marks) {
+			link.QueueOrder(Order{ Order::Kind::kRemoveOverlay, mark.formID, mark.setID });
+		}
+		logger::warn("aftermath: removing all {} standing overlay(s) - {}", _marks.size(), a_why);
+		_marks.clear();
 	}
 
 	std::size_t Aftermath::Size() const

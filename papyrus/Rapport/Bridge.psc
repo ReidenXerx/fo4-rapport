@@ -21,6 +21,7 @@ EndStruct
 AAF:AAF_API _api
 Request[] _inFlight
 Bool _ready = false
+String _allMorphIDs = ""
 
 ;---------------------------------------------------------------------------
 ; Startup
@@ -48,6 +49,20 @@ Function Connect()
 	;
 	; Nothing below is unsafe to run twice: registering for the same event twice is
 	; idempotent, and BridgeReady is just a report.
+
+	; Anything still in here belongs to a session that is over: this array lives in
+	; the save and the plugin does not. Dropping it without releasing the actors
+	; first is exactly how an NPC ends up carrying AAF_ActorBusy for the rest of
+	; the playthrough, unusable by every AAF mod on the machine.
+	If _inFlight != None && _inFlight.Length > 0
+		Rapport:Core.Trace("bridge: " + _inFlight.Length + " request(s) survived from a previous session - releasing their actors")
+		Int stale = 0
+		While stale < _inFlight.Length
+			Self.ReleaseActor(_inFlight[stale].first)
+			Self.ReleaseActor(_inFlight[stale].second)
+			stale += 1
+		EndWhile
+	EndIf
 
 	_inFlight = new Request[0]
 
@@ -123,6 +138,8 @@ Event OnTimer(Int aiTimerID)
 	EndIf
 
 	If _ready
+		Rapport:Core.Pump()
+
 		Int request = Rapport:Core.TakeRequest()
 		If request != 0
 			Self.BeginRequest(request, Rapport:Core.TakenFirstID(), Rapport:Core.TakenSecondID(), Rapport:Core.TakenDuration())
@@ -371,18 +388,52 @@ Function DrainOverlayOrders()
 		Actor target = Game.GetForm(formID) as Actor
 
 		If target == None
-			Rapport:Core.Trace("aftermath: " + formID + " no longer resolves - " + setID + " was not touched")
+			Rapport:Core.Trace("order: " + formID + " no longer resolves - " + setID + " was not carried out")
 		ElseIf kind == 1
 			_api.ApplyOverlaySet(target, setID)
 			Rapport:Core.Trace("aftermath: asked AAF for " + setID + " on " + formID)
 		ElseIf kind == 2
 			_api.RemoveOverlaySet(target, setID)
 			Rapport:Core.Trace("aftermath: asked AAF to remove " + setID + " from " + formID)
+		ElseIf kind == 3
+			_api.ApplyMFGSet(target, setID)
+			Rapport:Core.Trace("face: asked AAF for " + setID + " on " + formID)
+		ElseIf kind == 4
+			Self.ReleaseActor(target)
+			Rapport:Core.Trace("released the AAF busy keywords from " + formID)
+		ElseIf kind == 5
+			; Both halves. The zeroed set puts every morph back to nothing; the
+			; block removal is what lets go of them, because every expression
+			; Rapport applies is locked and a morph left locked at zero is a face
+			; that can no longer talk. No installed pack ships lock="false", so
+			; nothing here demonstrates that applying zeros alone releases it --
+			; and a frozen face is exactly the failure this is meant to prevent.
+			_api.ApplyMFGSet(target, setID)
+			_api.RemoveMFGBlock(target, Self.AllMorphIDs())
+			Rapport:Core.Trace("face: cleared " + setID + " from " + formID)
 		EndIf
 
 		budget -= 1
 		kind = Rapport:Core.TakeOverlayOrder()
 	EndWhile
+EndFunction
+
+; Every morph id in the engine's facial table, as AAF wants them: one string of
+; comma-separated numbers. Built once rather than written out, because a list of
+; fifty literals is a list with a typo in it.
+String Function AllMorphIDs()
+	If _allMorphIDs == ""
+		Int i = 0
+		While i < 50
+			If i == 0
+				_allMorphIDs = "0"
+			Else
+				_allMorphIDs = _allMorphIDs + "," + i
+			EndIf
+			i += 1
+		EndWhile
+	EndIf
+	Return _allMorphIDs
 EndFunction
 
 ; Amendment A-11: Rapport configures the mods it works alongside, automatically
@@ -395,9 +446,9 @@ Function ApplyTakeover()
 		Return
 	EndIf
 
-	Bool shouldStop = Rapport:Core.TakeoverShouldStop()
 	Int i = 0
 	While i < count
+		Bool shouldStop = Rapport:Core.TakeoverShouldStop(i)
 		Int formID = Rapport:Core.TakeoverFormID(i)
 		Quest target = Game.GetForm(formID) as Quest
 		String name = Rapport:Core.TakeoverName(i)

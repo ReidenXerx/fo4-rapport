@@ -2,6 +2,7 @@
 
 #include "Aftermath.h"
 #include "Config.h"
+#include "Expressions.h"
 #include "Ledger.h"
 #include "PapyrusLink.h"
 #include "Pairing.h"
@@ -31,6 +32,7 @@ namespace RP
 			_nextTickAt = std::chrono::steady_clock::now() + std::chrono::seconds{ config.warmupSeconds };
 		}
 		_inSession.store(true);
+		_panicked = false;
 		logger::info("session ready — warming up for {}s before the first tick", config.warmupSeconds);
 	}
 
@@ -199,6 +201,19 @@ namespace RP
 			// Expiry is checked on the tick rather than on a timer of its own: it
 			// is two comparisons per standing overlay, and the tick is already the
 			// place that knows what time it is.
+			// The way out, taken once per load. It runs here rather than at startup
+			// because the ledger is empty until the save has been read, and taking
+			// overlays off requires knowing which ones are on.
+			if (Config::GetSingleton().panicClear && !_panicked) {
+				_panicked = true;
+				logger::warn(
+					"PanicClear is set in Rapport.ini: taking everything back off. "
+					"Set it to 0 again once this save is clean, or it will run on every load.");
+				Aftermath::GetSingleton().RemoveEverything("PanicClear is set");
+				Expressions::GetSingleton().ClearEveryone("PanicClear is set");
+				Ledger::GetSingleton().Clear();
+			}
+
 			Aftermath::GetSingleton().Tick(_scan.LoadedIDs());
 
 			if (ranked.empty()) {

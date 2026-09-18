@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "DebugHub.h"
 #include "Aftermath.h"
+#include "Expressions.h"
 #include "Ledger.h"
 #include "Takeover.h"
 
@@ -69,6 +70,14 @@ namespace
 	// The second doorbell. Same shape as the first and for the same reason: the
 	// plugin cannot call AAF, so it leaves an instruction and the bridge collects
 	// it on the poll it is already making.
+	// Called at the top of every poll. Everything that has to happen on a clock
+	// finer than the scheduler's twenty seconds lives behind this: the expression
+	// progression through a scene, and the clearing afterwards.
+	void Papyrus_Pump(std::monostate)
+	{
+		RP::Expressions::GetSingleton().Pump();
+	}
+
 	std::int32_t Papyrus_TakeOverlayOrder(std::monostate)
 	{
 		return RP::PapyrusLink::GetSingleton().TakeOverlayOrder();
@@ -118,9 +127,10 @@ namespace
 		return item ? item->reason.c_str() : "";
 	}
 
-	bool Papyrus_TakeoverShouldStop(std::monostate)
+	bool Papyrus_TakeoverShouldStop(std::monostate, std::int32_t a_index)
 	{
-		return RP::Takeover::GetSingleton().ShouldTakeOver();
+		return a_index >= 0 &&
+		       RP::Takeover::GetSingleton().ShouldTakeOver(static_cast<std::size_t>(a_index));
 	}
 
 	// ---- the debug hub's table, read by the bridge on connect ----------------
@@ -214,6 +224,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteEvent"sv, Papyrus_NoteEvent, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorBusy"sv, Papyrus_NoteActorBusy, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "Pump"sv, Papyrus_Pump, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverlayOrder"sv, Papyrus_TakeOverlayOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderActorID"sv, Papyrus_OrderActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderSetID"sv, Papyrus_OrderSetID, std::nullopt, false);
@@ -233,7 +244,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 28 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 29 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -278,6 +289,7 @@ namespace RP
 
 		_inFlightFirst = static_cast<std::int32_t>(a_first->GetFormID());
 		_inFlightSecond = static_cast<std::int32_t>(a_second->GetFormID());
+		_inFlightDuration = a_duration;
 		_requestedAt = std::chrono::steady_clock::now();
 		_queued.fetch_add(1);
 
@@ -327,7 +339,12 @@ namespace RP
 		}
 		// Deliberately no ledger entry. The watchdog firing means we do not know
 		// what happened, and a guess written into a save outlives the session that
-		// made it.
+		// made it. The face and the busy flags are a different matter: those are
+		// state we put on somebody, and not knowing what happened is exactly when
+		// they have to come off.
+		Expressions::GetSingleton().OnSceneEnded();
+		Release(static_cast<std::uint32_t>(_inFlightFirst));
+		Release(static_cast<std::uint32_t>(_inFlightSecond));
 		_inFlightFirst = 0;
 		_inFlightSecond = 0;
 		_sceneInFlight.store(false);
@@ -347,6 +364,11 @@ namespace RP
 	{
 		_started.fetch_add(1);
 		logger::info("request {}: scene started", a_request);
+
+		Expressions::GetSingleton().OnSceneStarted(
+			static_cast<std::uint32_t>(_inFlightFirst),
+			static_cast<std::uint32_t>(_inFlightSecond),
+			_inFlightDuration);
 	}
 
 	void PapyrusLink::NoteEvent(std::string_view a_name)
@@ -356,18 +378,59 @@ namespace RP
 		(void)a_name;
 	}
 
+	void PapyrusLink::QueueOrder(Order a_order)
+	{
+		std::scoped_lock lock{ _orderLock };
+		_orders.push_back(std::move(a_order));
+	}
+
+	std::size_t PapyrusLink::PendingOrders() const
+	{
+		std::scoped_lock lock{ _orderLock };
+		return _orders.size();
+	}
+
 	std::int32_t PapyrusLink::TakeOverlayOrder()
 	{
-		const auto order = Aftermath::GetSingleton().TakeOrder();
-		if (!order) {
+		std::scoped_lock lock{ _orderLock };
+		if (_orders.empty()) {
 			_orderActor = 0;
 			_orderSet.clear();
 			return 0;
 		}
 
-		_orderActor = static_cast<std::int32_t>(order->formID);
-		_orderSet = order->setID;
-		return static_cast<std::int32_t>(order->kind);
+		const auto order = _orders.front();
+		_orders.pop_front();
+
+		_orderActor = static_cast<std::int32_t>(order.formID);
+		_orderSet = order.setID;
+		return static_cast<std::int32_t>(order.kind);
+	}
+
+	void PapyrusLink::Release(std::uint32_t a_formID)
+	{
+		if (a_formID == 0) {
+			return;
+		}
+		QueueOrder(Order{ Order::Kind::kRelease, a_formID, {} });
+	}
+
+	void PapyrusLink::RestoreInFlightPair(std::uint32_t a_first, std::uint32_t a_second)
+	{
+		if (a_first == 0 && a_second == 0) {
+			return;
+		}
+
+		// A save taken in the middle of a scene. AAF stamped both of them busy and
+		// only a scene ending clears that -- and the scene this save remembers no
+		// longer exists anywhere. Left alone they are unusable by every AAF mod on
+		// the machine, for the rest of the playthrough, and nothing says why.
+		logger::warn(
+			"a scene was running when this save was made: releasing {:08X} and {:08X}, "
+			"which AAF would otherwise leave flagged busy forever",
+			a_first, a_second);
+		Release(a_first);
+		Release(a_second);
 	}
 
 	void PapyrusLink::NoteActorBusy(std::uint32_t a_formID)
@@ -459,6 +522,7 @@ namespace RP
 				static_cast<std::uint32_t>(_inFlightFirst),
 				static_cast<std::uint32_t>(_inFlightSecond));
 		}
+		Expressions::GetSingleton().OnSceneEnded();
 		_inFlightFirst = 0;
 		_inFlightSecond = 0;
 		_sceneInFlight.store(false);
@@ -472,6 +536,7 @@ namespace RP
 		Ledger::GetSingleton().RecordRefusal(
 			static_cast<std::uint32_t>(_inFlightFirst),
 			static_cast<std::uint32_t>(_inFlightSecond));
+		Expressions::GetSingleton().OnSceneEnded();
 
 		_inFlightFirst = 0;
 		_inFlightSecond = 0;

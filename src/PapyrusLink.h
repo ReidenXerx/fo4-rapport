@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Orders.h"
+
 namespace RP
 {
 	// The join between the native scheduler and the one Papyrus script.
@@ -58,15 +60,30 @@ namespace RP
 		void NoteActorBusy(std::uint32_t a_formID);
 		[[nodiscard]] bool IsActorBusy(std::uint32_t a_formID);
 
-		// The aftermath doorbell, latched exactly like the scene one so the two
-		// follow-up calls cannot see a different order from the one handed out.
+		// The second doorbell, shared by overlays and expressions. Latched exactly
+		// like the scene one so the two follow-up calls cannot see a different
+		// order from the one handed out.
+		void         QueueOrder(Order a_order);
 		std::int32_t TakeOverlayOrder();
+		[[nodiscard]] std::size_t PendingOrders() const;
 		[[nodiscard]] std::int32_t       OrderActorID() const noexcept { return _orderActor; }
 		[[nodiscard]] const std::string& OrderSetID() const noexcept { return _orderSet; }
 
 		// One line that says what has and has not happened. Logged periodically and
 		// on anything notable.
 		void LogHealth() const;
+
+		// Asks the bridge to take AAF's busy and locked keywords off this actor.
+		void Release(std::uint32_t a_formID);
+
+		// Who a scene of ours had hold of when the save was written. Nothing else
+		// can tell us, because AAF's own scene state does not survive a save and
+		// the plugin starts from nothing.
+		[[nodiscard]] std::pair<std::uint32_t, std::uint32_t> InFlightPair() const noexcept
+		{
+			return { static_cast<std::uint32_t>(_inFlightFirst), static_cast<std::uint32_t>(_inFlightSecond) };
+		}
+		void RestoreInFlightPair(std::uint32_t a_first, std::uint32_t a_second);
 
 		void OnBridgeReady(bool a_aafPresent);
 		void OnSceneStarted(std::int32_t a_request);
@@ -96,9 +113,12 @@ namespace RP
 		// and several handoffs away.
 		std::int32_t _inFlightFirst{ 0 };
 		std::int32_t _inFlightSecond{ 0 };
+		float        _inFlightDuration{ 0.0f };
 
-		std::int32_t _orderActor{ 0 };
-		std::string  _orderSet;
+		mutable std::mutex _orderLock;
+		std::deque<Order>  _orders;
+		std::int32_t       _orderActor{ 0 };
+		std::string        _orderSet;
 
 		std::atomic_bool          _bridgeReady{ false };
 		std::atomic_bool          _sceneInFlight{ false };

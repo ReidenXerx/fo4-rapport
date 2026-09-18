@@ -24,6 +24,14 @@ namespace RP
 			std::string   reason;
 			std::uint32_t formID{ 0 };   // resolved, runtime
 			bool          restoreByStarting{ true };
+
+			// Which of Rapport's features owns this takeover. Empty means Rapport
+			// itself does and it always applies; "aftermath" means it lasts only as
+			// long as that feature is on, because the reason for it goes away with
+			// the feature. Switching aftermath off must put CumOverlays back
+			// WITHOUT putting Sex 'Em Up back.
+			std::string   whileFeature;
+			bool          active{ true };
 		};
 
 		[[nodiscard]] static Takeover& GetSingleton() noexcept;
@@ -34,15 +42,16 @@ namespace RP
 
 		[[nodiscard]] const std::vector<Item>& Items() const noexcept { return _items; }
 
-		// True while Rapport owns the feature these takeovers exist for. When it
-		// is false the bridge starts the quests again instead of stopping them.
-		[[nodiscard]] bool ShouldTakeOver() const noexcept { return _active; }
-		void SetActive(bool a_active) noexcept { _active = a_active; }
+		// True while Rapport owns the feature THIS takeover exists for. When it is
+		// false the bridge starts that quest again instead of stopping it.
+		[[nodiscard]] bool ShouldTakeOver(std::size_t a_index) const noexcept
+		{
+			return a_index < _items.size() && _items[a_index].active;
+		}
 
 		[[nodiscard]] static std::filesystem::path ConfigPath();
 
 	private:
 		std::vector<Item> _items;
-		bool              _active{ true };
 	};
 }

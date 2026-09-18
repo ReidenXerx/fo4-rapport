@@ -54,8 +54,16 @@ Function NoteActorBusy(Int aiFormID) Global Native
 ; raw and are parsed on the other side.
 Function NoteSceneTags(String asTags) Global Native
 
-; The second doorbell. 0 when there is nothing, 1 to apply the set, 2 to remove
-; it. Collected on the same poll as the scene doorbell, for the same reason: the
+; Called at the top of every poll, before anything is collected. Everything that
+; has to happen on a clock finer than the scheduler's twenty seconds lives behind
+; it: the expression progression through a scene, and the clearing afterwards.
+Function Pump() Global Native
+
+; The second doorbell. 0 when there is nothing, then:
+;   1  apply an overlay set      2  remove an overlay set
+;   3  apply a facial expression 4  take AAF's busy keywords off this actor
+;   5  clear a facial expression -- the zeroed set AND the block removal
+; Collected on the same poll as the scene doorbell, for the same reason: the
 ; plugin cannot call AAF, and Papyrus is the only side that can.
 Int Function TakeOverlayOrder() Global Native
 Int Function OrderActorID() Global Native
@@ -70,10 +78,10 @@ Int Function TakeoverFormID(Int aiIndex) Global Native
 String Function TakeoverName(Int aiIndex) Global Native
 String Function TakeoverReason(Int aiIndex) Global Native
 
-; False when Rapport no longer owns the feature -- then the same list is STARTED
-; again instead, which is what makes the takeover reversible rather than a
-; permanent edit to somebody else's mod.
-Bool Function TakeoverShouldStop() Global Native
+; False when Rapport no longer owns the feature THIS entry belongs to -- then it
+; is STARTED again instead, which is what makes the takeover reversible rather
+; than a permanent edit to somebody else's mod.
+Bool Function TakeoverShouldStop(Int aiIndex) Global Native
 
 ; ---- reporting back ------------------------------------------------------
 Function BridgeReady(Bool abAafPresent) Global Native

@@ -1,6 +1,9 @@
 #include "Ledger.h"
 
 #include "Aftermath.h"
+#include "Config.h"
+#include "Expressions.h"
+#include "PapyrusLink.h"
 
 namespace
 {
@@ -17,6 +20,8 @@ namespace
 	constexpr auto kPluginID = FourCC("RPRT");
 	constexpr auto kActorRecord = FourCC("ACTR");
 	constexpr auto kOverlayRecord = FourCC("OVRL");
+	constexpr auto kFaceRecord = FourCC("FACE");
+	constexpr auto kSceneRecord = FourCC("SCNE");
 	constexpr std::uint32_t kVersion = 1;
 
 	// A corrupt length could otherwise ask for an enormous allocation before the
@@ -159,12 +164,15 @@ namespace RP
 		// playthrough's history into another.
 		GetSingleton().Clear();
 		Aftermath::GetSingleton().Clear();
+		Expressions::GetSingleton().Reset();
 		logger::info("ledger: cleared for a new game or a load");
 	}
 
 	void Ledger::Save(const F4SE::SerializationInterface* a_intfc) const
 	{
 		std::scoped_lock lock{ _lock };
+
+		Prune();
 
 		if (!a_intfc->OpenRecord(kActorRecord, kVersion)) {
 			logger::error("ledger: could not open the save record - this save will remember nothing");
@@ -223,6 +231,68 @@ namespace RP
 			a_intfc->WriteRecordData(entry);
 		}
 		logger::info("ledger: wrote {} standing overlay(s) into the save", written);
+
+		// Who is wearing a face we put on them. Applied with lock=true, so nothing
+		// else will ever take it off; if the game ends here, this list is the only
+		// thing that knows to.
+		const auto faces = Expressions::GetSingleton().Wearing();
+		if (a_intfc->OpenRecord(kFaceRecord, kVersion)) {
+			const auto faceCount = static_cast<std::uint32_t>(faces.size());
+			a_intfc->WriteRecordData(faceCount);
+			for (const auto formID : faces) {
+				a_intfc->WriteRecordData(formID);
+			}
+			if (faceCount > 0) {
+				logger::info("ledger: wrote {} actor(s) wearing a Rapport face", faceCount);
+			}
+		}
+
+		// And who a scene had hold of. AAF stamped them busy, and only a scene
+		// ending clears that -- a scene that this save is about to outlive.
+		const auto [first, second] = PapyrusLink::GetSingleton().InFlightPair();
+		if (a_intfc->OpenRecord(kSceneRecord, kVersion)) {
+			a_intfc->WriteRecordData(first);
+			a_intfc->WriteRecordData(second);
+			if (first != 0 || second != 0) {
+				logger::warn(
+					"ledger: this save is being written DURING a scene ({:08X}, {:08X}) - "
+					"the next load will release them",
+					first, second);
+			}
+		}
+	}
+
+	void Ledger::Prune() const
+	{
+		const auto hours = Config::GetSingleton().pruneHours;
+		const auto now = GameHours();
+		if (hours <= 0.0f || now < 0.0f) {
+			return;
+		}
+
+		// Anyone still wearing something keeps their record whatever its age: the
+		// overlay outlives the memory of how it got there, and dropping the record
+		// would not remove the overlay.
+		std::unordered_set<std::uint32_t> wearing;
+		for (const auto& mark : Aftermath::GetSingleton().Marks()) {
+			wearing.insert(mark.formID);
+		}
+
+		const auto before = _records.size();
+		std::erase_if(_records, [&](const auto& entry) {
+			const auto& [formID, record] = entry;
+			if (wearing.contains(formID)) {
+				return false;
+			}
+			const auto last = (std::max)(record.lastSceneAt, record.lastRefusedAt);
+			return last >= 0.0f && (now - last) > hours;
+		});
+
+		if (const auto dropped = before - _records.size(); dropped > 0) {
+			logger::info(
+				"ledger: dropped {} actor(s) nothing has happened to for {:.0f} game hours",
+				dropped, hours);
+		}
 	}
 
 	void Ledger::Load(const F4SE::SerializationInterface* a_intfc)
@@ -234,6 +304,14 @@ namespace RP
 		while (a_intfc->GetNextRecordInfo(type, version, length)) {
 			if (type == kOverlayRecord) {
 				LoadOverlays(a_intfc, version, length);
+				continue;
+			}
+			if (type == kFaceRecord) {
+				LoadFaces(a_intfc, version, length);
+				continue;
+			}
+			if (type == kSceneRecord) {
+				LoadScene(a_intfc, version, length);
 				continue;
 			}
 			if (type != kActorRecord) {
@@ -311,6 +389,64 @@ namespace RP
 		}
 	}
 
+	void Ledger::LoadFaces(
+		const F4SE::SerializationInterface* a_intfc,
+		std::uint32_t                       a_version,
+		std::uint32_t                       a_length)
+	{
+		if (a_version != kVersion) {
+			logger::warn("ledger: the save holds face version {} - skipped", a_version);
+			return;
+		}
+
+		std::uint32_t count = 0;
+		if (a_intfc->ReadRecordData(count) != sizeof(count)) {
+			return;
+		}
+		const auto expected = sizeof(std::uint32_t) * (static_cast<std::size_t>(count) + 1);
+		if (count > kMaxEntries || expected != a_length) {
+			logger::error(
+				"ledger: the face record says {} actor(s) ({} bytes) and is {} - refusing to read it",
+				count, expected, a_length);
+			return;
+		}
+
+		std::vector<std::uint32_t> wearing;
+		wearing.reserve(count);
+		for (std::uint32_t i = 0; i < count; ++i) {
+			std::uint32_t formID = 0;
+			if (a_intfc->ReadRecordData(formID) != sizeof(formID)) {
+				break;
+			}
+			if (const auto resolved = a_intfc->ResolveFormID(formID)) {
+				wearing.push_back(*resolved);
+			}
+		}
+		Expressions::GetSingleton().RestoreWearing(std::move(wearing));
+	}
+
+	void Ledger::LoadScene(
+		const F4SE::SerializationInterface* a_intfc,
+		std::uint32_t                       a_version,
+		std::uint32_t                       a_length)
+	{
+		if (a_version != kVersion || a_length != sizeof(std::uint32_t) * 2) {
+			logger::warn("ledger: the in-flight record does not look right - skipped");
+			return;
+		}
+
+		std::uint32_t first = 0;
+		std::uint32_t second = 0;
+		if (a_intfc->ReadRecordData(first) != sizeof(first) ||
+			a_intfc->ReadRecordData(second) != sizeof(second)) {
+			return;
+		}
+
+		const auto a = first ? a_intfc->ResolveFormID(first).value_or(0u) : 0u;
+		const auto b = second ? a_intfc->ResolveFormID(second).value_or(0u) : 0u;
+		PapyrusLink::GetSingleton().RestoreInFlightPair(a, b);
+	}
+
 	void Ledger::LoadOverlays(
 		const F4SE::SerializationInterface* a_intfc,
 		std::uint32_t                       a_version,
@@ -360,9 +496,21 @@ namespace RP
 			// A set id written by a corrupt or hostile save could be unterminated.
 			entry.setID[sizeof(entry.setID) - 1] = '\0';
 
+			// A save can carry an hour that makes no sense -- written by a build
+			// with a different window, or simply corrupt. An overlay whose expiry
+			// is NaN never expires, which is the one outcome this feature exists
+			// to prevent, so an unreadable hour becomes "now" rather than "never".
+			auto expires = entry.expiresAt;
+			if (!std::isfinite(expires)) {
+				logger::error(
+					"ledger: {:08X} has an unreadable expiry for {} - expiring it now instead",
+					*resolved, entry.setID);
+				expires = 0.0f;
+			}
+
 			Aftermath::Mark mark;
 			mark.formID = *resolved;
-			mark.expiresAt = entry.expiresAt;
+			mark.expiresAt = expires;
 			mark.setID = entry.setID;
 			mark.asked = false;
 			marks.push_back(std::move(mark));
