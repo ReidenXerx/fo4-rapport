@@ -1,5 +1,8 @@
 #include "Config.h"
 #include "DebugHub.h"
+#include "Aftermath.h"
+#include "Ledger.h"
+#include "Takeover.h"
 #include "PapyrusLink.h"
 #include "Scheduler.h"
 
@@ -38,6 +41,8 @@ namespace
 			RP::Config::GetSingleton().LoadRaces();
 			RP::Config::GetSingleton().LoadScoring();
 			RP::DebugHub::GetSingleton().Load();
+			RP::Aftermath::GetSingleton().Load();
+			RP::Takeover::GetSingleton().Load();
 			RP::PapyrusLink::GetSingleton().OnDataReady();
 			RP::Scheduler::GetSingleton().Start();
 			break;
@@ -90,6 +95,12 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	if (!papyrus || !papyrus->Register(RP::PapyrusLink::RegisterNatives)) {
 		logger::critical("could not register the papyrus functions");
 		return false;
+	}
+
+	// Before the messaging listener on purpose: the ledger's revert callback has
+	// to be in place before any load can happen, and a load can happen at once.
+	if (!RP::Ledger::Register(F4SE::GetSerializationInterface())) {
+		logger::error("nothing will be remembered between saves");
 	}
 
 	const auto messaging = F4SE::GetMessagingInterface();

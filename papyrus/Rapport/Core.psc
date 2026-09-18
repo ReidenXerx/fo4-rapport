@@ -44,6 +44,37 @@ String Function DebugKey(Int aiIndex) Global Native
 String Function DebugType(Int aiIndex) Global Native
 String Function DebugValue(Int aiIndex) Global Native
 
+; An actor AAF refused as busy. The scheduler sets them aside for a while rather
+; than offering the same unusable pair on every tick.
+Function NoteActorBusy(Int aiFormID) Global Native
+
+; ---- aftermath -----------------------------------------------------------
+; The tags AAF put on an animation, as one string. Only the bridge hears them,
+; and the plugin is what decides what a scene leaves behind, so they come over
+; raw and are parsed on the other side.
+Function NoteSceneTags(String asTags) Global Native
+
+; The second doorbell. 0 when there is nothing, 1 to apply the set, 2 to remove
+; it. Collected on the same poll as the scene doorbell, for the same reason: the
+; plugin cannot call AAF, and Papyrus is the only side that can.
+Int Function TakeOverlayOrder() Global Native
+Int Function OrderActorID() Global Native
+String Function OrderSetID() Global Native
+
+; ---- takeover ------------------------------------------------------------
+; Quests belonging to OTHER mods that Rapport stops while it owns a feature they
+; also do. The plugin resolves them against the load order; stopping a quest is
+; game state, so it happens here.
+Int Function TakeoverCount() Global Native
+Int Function TakeoverFormID(Int aiIndex) Global Native
+String Function TakeoverName(Int aiIndex) Global Native
+String Function TakeoverReason(Int aiIndex) Global Native
+
+; False when Rapport no longer owns the feature -- then the same list is STARTED
+; again instead, which is what makes the takeover reversible rather than a
+; permanent edit to somebody else's mod.
+Bool Function TakeoverShouldStop() Global Native
+
 ; ---- reporting back ------------------------------------------------------
 Function BridgeReady(Bool abAafPresent) Global Native
 Function SceneStarted(Int aiRequest) Global Native

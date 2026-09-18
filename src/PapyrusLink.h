@@ -51,6 +51,19 @@ namespace RP
 		// that worked and a scene that never started produced identical logs.
 		void NoteEvent(std::string_view a_name);
 
+		// An actor the bridge found already flagged busy by AAF. Two things follow
+		// from that flag: they cannot be animated, and nothing we do clears it --
+		// only a scene ending does. So the honest response is to stop offering them
+		// for a while rather than to keep asking and keep being refused.
+		void NoteActorBusy(std::uint32_t a_formID);
+		[[nodiscard]] bool IsActorBusy(std::uint32_t a_formID);
+
+		// The aftermath doorbell, latched exactly like the scene one so the two
+		// follow-up calls cannot see a different order from the one handed out.
+		std::int32_t TakeOverlayOrder();
+		[[nodiscard]] std::int32_t       OrderActorID() const noexcept { return _orderActor; }
+		[[nodiscard]] const std::string& OrderSetID() const noexcept { return _orderSet; }
+
 		// One line that says what has and has not happened. Logged periodically and
 		// on anything notable.
 		void LogHealth() const;
@@ -78,6 +91,15 @@ namespace RP
 		std::int32_t _takenSecond{ 0 };
 		float        _takenDuration{ 0.0f };
 
+		// The pending request is cleared the moment the bridge collects it, but the
+		// ledger needs the two actors when the scene ENDS -- which is minutes later
+		// and several handoffs away.
+		std::int32_t _inFlightFirst{ 0 };
+		std::int32_t _inFlightSecond{ 0 };
+
+		std::int32_t _orderActor{ 0 };
+		std::string  _orderSet;
+
 		std::atomic_bool          _bridgeReady{ false };
 		std::atomic_bool          _sceneInFlight{ false };
 		std::atomic<std::int32_t> _nextRequest{ 1 };
@@ -89,6 +111,11 @@ namespace RP
 		std::atomic<std::uint32_t> _ended{ 0 };
 		std::atomic<std::uint32_t> _failed{ 0 };
 		std::atomic<std::uint32_t> _events{ 0 };
+		std::atomic<std::uint32_t> _busySkips{ 0 };
+
+		// Written from the VM thread, read from the scheduler's main-thread slice.
+		mutable std::mutex _busyLock;
+		mutable std::unordered_map<std::uint32_t, std::chrono::steady_clock::time_point> _busyUntil;
 		std::chrono::steady_clock::time_point _lastEventAt{};
 	};
 }

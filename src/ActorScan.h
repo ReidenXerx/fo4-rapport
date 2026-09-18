@@ -50,6 +50,11 @@ namespace RP
 		{
 			return _observerPositions;
 		}
+		// Form ids of everyone loaded and alive this pass, in the same breath as the
+		// observer positions above. Aftermath needs it: an overlay can only be put
+		// back on an actor who is actually here.
+		[[nodiscard]] const std::vector<std::uint32_t>& LoadedIDs() const noexcept { return _loadedIDs; }
+
 		[[nodiscard]] std::size_t         Size() const noexcept { return _handles.size(); }
 		[[nodiscard]] std::uint32_t       Slices() const noexcept { return _slices; }
 
@@ -57,6 +62,7 @@ namespace RP
 		std::unordered_map<std::uint32_t, std::uint32_t> _rejectedRaces;
 		std::vector<RE::ActorHandle>                     _candidates;
 		std::vector<RE::NiPoint3>                        _observerPositions;
+		std::vector<std::uint32_t>                       _loadedIDs;
 		std::vector<RE::ActorHandle> _handles;
 		std::size_t                  _cursor{ 0 };
 		ScanCounters                 _counters;

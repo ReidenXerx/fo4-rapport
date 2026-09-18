@@ -1,6 +1,8 @@
 #include "Scheduler.h"
 
+#include "Aftermath.h"
 #include "Config.h"
+#include "Ledger.h"
 #include "PapyrusLink.h"
 #include "Pairing.h"
 
@@ -151,12 +153,40 @@ namespace RP
 		// actor, reserves anyone, or starts anything — that is a later milestone, and
 		// the whole point of this one is to read the decisions before they are real.
 		{
+			auto& link = PapyrusLink::GetSingleton();
+
 			std::vector<RE::Actor*> candidates;
 			candidates.reserve(_scan.Candidates().size());
+			const auto& ledger = Ledger::GetSingleton();
+			const auto  cooldown = Config::GetSingleton().cooldownHours;
+
+			std::uint32_t benched = 0;
+			std::uint32_t resting = 0;
 			for (const auto& handle : _scan.Candidates()) {
-				if (const auto actor = handle.get(); actor) {
-					candidates.push_back(actor.get());
+				const auto actor = handle.get();
+				if (!actor) {
+					continue;
 				}
+				// AAF will refuse anyone still carrying its busy flag, and the
+				// scoring does not know that. Ranking them anyway means the best
+				// pair is one that cannot be started, and the tick is wasted.
+				if (link.IsActorBusy(actor->GetFormID())) {
+					++benched;
+					continue;
+				}
+				// Stand-in policy, reading the framework's facts. The ledger says
+				// when; this line is the only thing that decides "too soon".
+				if (cooldown > 0.0f && ledger.HoursSinceScene(actor->GetFormID()) < cooldown) {
+					++resting;
+					continue;
+				}
+				candidates.push_back(actor.get());
+			}
+			if (benched > 0) {
+				logger::info("   {} candidate(s) benched: AAF still has them flagged busy", benched);
+			}
+			if (resting > 0) {
+				logger::info("   {} candidate(s) within the {:.0f}-hour cooldown", resting, cooldown);
 			}
 
 			const auto ranked = RankPairs(
@@ -164,8 +194,12 @@ namespace RP
 
 			const auto& weights = Config::GetSingleton().Weights();
 
-			auto& link = PapyrusLink::GetSingleton();
 			link.CheckWatchdog(Config::GetSingleton().sceneSeconds);
+
+			// Expiry is checked on the tick rather than on a timer of its own: it
+			// is two comparisons per standing overlay, and the tick is already the
+			// place that knows what time it is.
+			Aftermath::GetSingleton().Tick(_scan.LoadedIDs());
 
 			if (ranked.empty()) {
 				logger::info("   no viable pair ({} candidates, {} watching)",

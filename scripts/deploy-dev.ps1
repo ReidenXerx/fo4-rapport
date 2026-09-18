@@ -54,6 +54,7 @@ if (Test-Path $aafOverlay) {
     $aafTarget = Join-Path $Staging 'AAF'
     New-Item -ItemType Directory -Force -Path $aafTarget | Out-Null
     Copy-Item (Join-Path $aafOverlay '*.ini') $aafTarget -Force
+    Copy-Item (Join-Path $aafOverlay '*.xml') $aafTarget -Force
 }
 
 $esp = Join-Path $root 'build\esp\Rapport.esp'

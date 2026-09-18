@@ -1,0 +1,75 @@
+{
+  "comment": [
+    "What a scene leaves behind, and for how long.",
+    "",
+    "AAF tells us what an animation WAS through its tags -- the same vocabulary the",
+    "animation packs are written in. The tags below are matched without regard to",
+    "case against every animation of a scene, and the sets they name are applied to",
+    "both actors when the scene ends. A scene whose tags match nothing here leaves",
+    "nothing behind, which is what makes kissing and foreplay free: they simply have",
+    "no entry.",
+    "",
+    "The sets themselves are defined in Data/AAF/Rapport_overlayData.xml and carry no",
+    "AAF duration, so AAF never removes them. Rapport removes them, in game hours,",
+    "from the save -- which is the whole reason this is a framework feature and not",
+    "an XML one.",
+    "",
+    "Who receives what is decided by the set, not by this file: each set has a female",
+    "and a male condition and AAF picks the one that fits the actor."
+  ],
+
+  "enabled": true,
+
+  "comment_hours": [
+    "How long it stays visible, in GAME hours. 12 is most of a day: long enough to",
+    "still be there after the walk home, short enough not to be permanent. Real",
+    "time is the wrong unit -- a player who sleeps eight hours should not find it",
+    "unchanged, and one who stands still for ten minutes should."
+  ],
+  "hours": 12,
+
+  "comment_climax": [
+    "With requireClimax on, a scene leaves nothing behind unless an animation",
+    "tagged Climax actually played. That is more faithful and much rarer: many",
+    "packs never tag a climax at all, so the honest default is off."
+  ],
+  "requireClimax": false,
+
+  "tags": {
+    "PenisToVagina":   ["Rapport_Vaginal", "Rapport_Body"],
+    "StrapOnToVagina": ["Rapport_Vaginal"],
+    "DildoToVagina":   ["Rapport_Vaginal"],
+    "Vaginal":         ["Rapport_Vaginal"],
+    "MouthToVagina":   ["Rapport_Vaginal"],
+    "Cunnilingus":     ["Rapport_Vaginal"],
+    "HandToVagina":    ["Rapport_Vaginal"],
+    "VaginaToVagina":  ["Rapport_Vaginal"],
+    "VaginaToFace":    ["Rapport_Vaginal", "Rapport_Oral"],
+
+    "PenisToAnus":     ["Rapport_Anal", "Rapport_Back"],
+    "PenisTAnus":      ["Rapport_Anal", "Rapport_Back"],
+    "Anal":            ["Rapport_Anal"],
+    "TenAggroAnal":    ["Rapport_Anal", "Rapport_Back"],
+    "MouthToAnus":     ["Rapport_Anal"],
+    "AnusToMouth":     ["Rapport_Anal", "Rapport_Oral"],
+    "Analingus":       ["Rapport_Anal"],
+    "HandToButt":      ["Rapport_Back"],
+
+    "PenisToMouth":    ["Rapport_Oral", "Rapport_Body"],
+    "MouthToPenis":    ["Rapport_Oral", "Rapport_Body"],
+    "Blowjob":         ["Rapport_Oral", "Rapport_Body"],
+    "MouthToNipples":  ["Rapport_Oral"],
+    "PenisToNipples":  ["Rapport_Oral"],
+
+    "PenisToEither":   ["Rapport_Body"],
+    "PenisToHand":     ["Rapport_Body"],
+    "HandToPenis":     ["Rapport_Body"],
+    "HandtoPenis":     ["Rapport_Body"],
+    "PenisToFeet":     ["Rapport_Body"],
+    "PenisToFoot":     ["Rapport_Body"],
+    "FootToPenis":     ["Rapport_Body"],
+    "Masturbation":    ["Rapport_Body"],
+
+    "DP":              ["Rapport_DP", "Rapport_Body"]
+  }
+}

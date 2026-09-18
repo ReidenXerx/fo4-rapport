@@ -1,0 +1,143 @@
+<meta title="Rapport_overlayData.xml" version="1.0" dataSet="overlay"/>
+
+<!--
+	Rapport's own overlay sets.
+
+	Two things make these different from the ones that ship with CumOverlays, and
+	both are deliberate.
+
+	NO duration. AAF removes an overlayGroup when its duration runs out, and that
+	timer is an in-session one: it does not survive a save, a reload, or the game
+	closing mid-count, and an overlay stranded that way stays on the actor for
+	good. Leaving duration off means AAF applies and never removes, and Rapport
+	owns the removal -- in GAME hours, written into the save, so it survives all
+	three. The schema says duration is optional (common.xsd, overlayGroupType);
+	the shipped cum_overlaysData.xml says the same in its own comments.
+
+	Higher quantity. One overlay reads as a smudge. These pick several at once
+	from a wider pool, which is what "a lot" looks like.
+
+	The templates themselves are CumOverlays'. Rapport ships no textures and
+	redistributes nothing: it drives the assets that mod already installed, which
+	is also why Rapport stops that mod's own quests rather than removing it.
+	Without CumOverlays installed these sets resolve to nothing and the rest of
+	the framework is unaffected.
+-->
+<defaults loadPriority="10"/>
+
+<overlaySet id="Rapport_Vaginal">
+	<condition isFemale="true">
+		<overlayGroup quantity="3">
+			<overlay template="Belly_1" alpha="100" isFemale="true"/>
+			<overlay template="Belly_2" alpha="100" isFemale="true"/>
+			<overlay template="Belly_3" alpha="100" isFemale="true"/>
+			<overlay template="Belly_4" alpha="100" isFemale="true"/>
+			<overlay template="Belly_5" alpha="100" isFemale="true"/>
+			<overlay template="Vaginal_1" alpha="100" isFemale="true"/>
+			<overlay template="Vaginal_2" alpha="100" isFemale="true"/>
+		</overlayGroup>
+	</condition>
+	<condition isFemale="false">
+		<overlayGroup quantity="2">
+			<overlay template="M_Belly_1" alpha="100" isFemale="false"/>
+			<overlay template="M_Chest_1" alpha="100" isFemale="false"/>
+		</overlayGroup>
+	</condition>
+</overlaySet>
+
+<overlaySet id="Rapport_Anal">
+	<condition isFemale="true">
+		<overlayGroup quantity="3">
+			<overlay template="Anal_1" alpha="100" isFemale="true"/>
+			<overlay template="Butt_1" alpha="100" isFemale="true"/>
+			<overlay template="Butt_2" alpha="100" isFemale="true"/>
+			<overlay template="Butt_3" alpha="100" isFemale="true"/>
+			<overlay template="Butt_4" alpha="100" isFemale="true"/>
+			<overlay template="Kidneys_1" alpha="100" isFemale="true"/>
+			<overlay template="Kidneys_2" alpha="100" isFemale="true"/>
+		</overlayGroup>
+	</condition>
+	<condition isFemale="false">
+		<overlayGroup quantity="2">
+			<overlay template="M_Anal_1" alpha="100" isFemale="false"/>
+			<overlay template="M_Butt_1" alpha="100" isFemale="false"/>
+			<overlay template="M_Kidneys_1" alpha="100" isFemale="false"/>
+			<overlay template="M_Kidneys_2" alpha="100" isFemale="false"/>
+		</overlayGroup>
+	</condition>
+</overlaySet>
+
+<overlaySet id="Rapport_Oral">
+	<condition isFemale="true">
+		<overlayGroup quantity="3">
+			<overlay template="Breast_1" alpha="100" isFemale="true"/>
+			<overlay template="Breast_2" alpha="100" isFemale="true"/>
+			<overlay template="Breast_3" alpha="100" isFemale="true"/>
+			<overlay template="Breast_4" alpha="100" isFemale="true"/>
+			<overlay template="Breast_5" alpha="100" isFemale="true"/>
+			<overlay template="Body_1" alpha="100" isFemale="true"/>
+		</overlayGroup>
+	</condition>
+	<condition isFemale="false">
+		<overlayGroup quantity="2">
+			<overlay template="M_Chest_1" alpha="100" isFemale="false"/>
+			<overlay template="M_Chest_2" alpha="100" isFemale="false"/>
+			<overlay template="M_Chest_3" alpha="100" isFemale="false"/>
+			<overlay template="M_Chest_4" alpha="100" isFemale="false"/>
+			<overlay template="M_Chest_5" alpha="100" isFemale="false"/>
+			<overlay template="M_Chest_6" alpha="100" isFemale="false"/>
+		</overlayGroup>
+	</condition>
+</overlaySet>
+
+<overlaySet id="Rapport_Back">
+	<condition isFemale="true">
+		<overlayGroup quantity="2">
+			<overlay template="Back_1" alpha="100" isFemale="true"/>
+			<overlay template="Butt_1" alpha="100" isFemale="true"/>
+			<overlay template="Butt_2" alpha="100" isFemale="true"/>
+			<overlay template="Kidneys_1" alpha="100" isFemale="true"/>
+			<overlay template="Kidneys_2" alpha="100" isFemale="true"/>
+		</overlayGroup>
+	</condition>
+	<condition isFemale="false">
+		<overlayGroup quantity="2">
+			<overlay template="M_Butt_1" alpha="100" isFemale="false"/>
+			<overlay template="M_Kidneys_1" alpha="100" isFemale="false"/>
+			<overlay template="M_Kidneys_2" alpha="100" isFemale="false"/>
+		</overlayGroup>
+	</condition>
+</overlaySet>
+
+<overlaySet id="Rapport_Body">
+	<condition isFemale="true">
+		<overlayGroup quantity="3">
+			<overlay template="Body_1" alpha="100" isFemale="true"/>
+			<overlay template="Breast_1" alpha="100" isFemale="true"/>
+			<overlay template="Breast_2" alpha="100" isFemale="true"/>
+			<overlay template="Breast_3" alpha="100" isFemale="true"/>
+			<overlay template="Belly_1" alpha="100" isFemale="true"/>
+			<overlay template="Belly_2" alpha="100" isFemale="true"/>
+			<overlay template="Belly_3" alpha="100" isFemale="true"/>
+		</overlayGroup>
+	</condition>
+	<condition isFemale="false">
+		<overlayGroup quantity="2">
+			<overlay template="M_Belly_1" alpha="100" isFemale="false"/>
+			<overlay template="M_Chest_1" alpha="100" isFemale="false"/>
+			<overlay template="M_Chest_2" alpha="100" isFemale="false"/>
+			<overlay template="M_Chest_3" alpha="100" isFemale="false"/>
+		</overlayGroup>
+	</condition>
+</overlaySet>
+
+<overlaySet id="Rapport_DP">
+	<condition isFemale="true">
+		<overlayGroup quantity="3">
+			<overlay template="DP_1" alpha="100" isFemale="true"/>
+			<overlay template="DP_2" alpha="100" isFemale="true"/>
+			<overlay template="DP_3" alpha="100" isFemale="true"/>
+			<overlay template="DP_4" alpha="100" isFemale="true"/>
+		</overlayGroup>
+	</condition>
+</overlaySet>

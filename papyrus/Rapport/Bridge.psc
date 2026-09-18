@@ -15,6 +15,7 @@ Struct Request
   Int id
   Actor first
   Actor second
+  Int sceneID      ; AAF's own handle for the scene, learned from OnSceneInit
 EndStruct
 
 AAF:AAF_API _api
@@ -83,6 +84,7 @@ Function Connect()
 	_ready = true
 
 	Self.ApplyDebugProfile()
+	Self.ApplyTakeover()
 
 	; Both of these must happen on every load, not only the first: the timer may
 	; not have survived, and the plugin has no memory of the last session.
@@ -125,6 +127,8 @@ Event OnTimer(Int aiTimerID)
 		If request != 0
 			Self.BeginRequest(request, Rapport:Core.TakenFirstID(), Rapport:Core.TakenSecondID(), Rapport:Core.TakenDuration())
 		EndIf
+
+		Self.DrainOverlayOrders()
 	EndIf
 
 	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
@@ -154,10 +158,12 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 	; without cleaning up leaves that flag on an NPC permanently. One NPC picked
 	; by three failed runs became unusable for the rest of the save.
 	If Self.IsOccupied(akFirst)
+		Rapport:Core.NoteActorBusy(akFirst.GetFormID())
 		Rapport:Core.RequestFailed(aiRequest, "the first actor is already busy in AAF")
 		Return
 	EndIf
 	If Self.IsOccupied(akSecond)
+		Rapport:Core.NoteActorBusy(akSecond.GetFormID())
 		Rapport:Core.RequestFailed(aiRequest, "the second actor is already busy in AAF")
 		Return
 	EndIf
@@ -166,6 +172,7 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 	entry.id = aiRequest
 	entry.first = akFirst
 	entry.second = akSecond
+	entry.sceneID = 0
 	_inFlight.Add(entry, 1)
 
 	Actor[] actors = new Actor[2]
@@ -217,12 +224,30 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnSceneInit", akArgs)
 	Int index = Self.FindRequestByActors(akArgs)
 	If index >= 0
+		; args[3] is AAF's scene id. Remembering it is what lets the end of this
+		; scene be recognised as the end of THIS request rather than of whichever
+		; one happened to be in flight.
+		If akArgs.Length > 3
+			Request entry = _inFlight[index]
+			entry.sceneID = akArgs[3] as Int
+			_inFlight[index] = entry
+		EndIf
 		Rapport:Core.SceneStarted(_inFlight[index].id)
 	EndIf
 EndEvent
 
 Event AAF:AAF_API.OnAnimationStart(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnAnimationStart", akArgs)
+
+	; args[3] is the animation tag list, and it is the only thing that says what
+	; this scene actually WAS. A scene plays several animations, so these are
+	; accumulated on the plugin side and read once, when the scene ends.
+	If akArgs != None && akArgs.Length > 3
+		Int index = Self.FindRequestByActors(akArgs)
+		If index >= 0
+			Rapport:Core.NoteSceneTags(akArgs[3] as String)
+		EndIf
+	EndIf
 EndEvent
 
 Event AAF:AAF_API.OnAnimationStop(AAF:AAF_API akSender, Var[] akArgs)
@@ -323,6 +348,82 @@ Function ApplyDebugProfile()
 	Rapport:Core.Trace("debug hub: applied " + applied + " of " + count + " setting(s)")
 EndFunction
 
+; Carries out what the plugin decided about overlays. Apply and remove both go
+; through AAF rather than LooksMenu directly: AAF owns the set definitions, and
+; it is the half that knows which overlays a set resolved to for this actor.
+;
+; Neither call reports anything back. AAF_API.ApplyOverlaySet sends an event to
+; its own quest and returns immediately, so there is no success to check -- which
+; is why the log says "asked" and not "applied".
+Function DrainOverlayOrders()
+	If _api == None
+		Return
+	EndIf
+
+	; Bounded per poll on purpose. A reload can queue one order per standing
+	; overlay at once, and the point of this framework is not to be the mod that
+	; puts forty Papyrus calls in one frame.
+	Int budget = 8
+	Int kind = Rapport:Core.TakeOverlayOrder()
+	While kind != 0 && budget > 0
+		Int formID = Rapport:Core.OrderActorID()
+		String setID = Rapport:Core.OrderSetID()
+		Actor target = Game.GetForm(formID) as Actor
+
+		If target == None
+			Rapport:Core.Trace("aftermath: " + formID + " no longer resolves - " + setID + " was not touched")
+		ElseIf kind == 1
+			_api.ApplyOverlaySet(target, setID)
+			Rapport:Core.Trace("aftermath: asked AAF for " + setID + " on " + formID)
+		ElseIf kind == 2
+			_api.RemoveOverlaySet(target, setID)
+			Rapport:Core.Trace("aftermath: asked AAF to remove " + setID + " from " + formID)
+		EndIf
+
+		budget -= 1
+		kind = Rapport:Core.TakeOverlayOrder()
+	EndWhile
+EndFunction
+
+; Amendment A-11: Rapport configures the mods it works alongside, automatically
+; but never secretly. Every quest below is checked before it is touched, named in
+; the log with the reason, and started again when Rapport stops owning the
+; feature. Nothing is deleted and no file of theirs is modified.
+Function ApplyTakeover()
+	Int count = Rapport:Core.TakeoverCount()
+	If count <= 0
+		Return
+	EndIf
+
+	Bool shouldStop = Rapport:Core.TakeoverShouldStop()
+	Int i = 0
+	While i < count
+		Int formID = Rapport:Core.TakeoverFormID(i)
+		Quest target = Game.GetForm(formID) as Quest
+		String name = Rapport:Core.TakeoverName(i)
+
+		If target == None
+			Rapport:Core.Trace("takeover: " + name + " (" + formID + ") did not resolve - left alone")
+		ElseIf shouldStop
+			If target.IsRunning()
+				target.Stop()
+				Rapport:Core.Trace("takeover: STOPPED " + name + " - " + Rapport:Core.TakeoverReason(i))
+			Else
+				Rapport:Core.Trace("takeover: " + name + " was already stopped - left alone")
+			EndIf
+		Else
+			If target.IsRunning()
+				Rapport:Core.Trace("takeover: " + name + " is running again - nothing to restore")
+			Else
+				target.Start()
+				Rapport:Core.Trace("takeover: STARTED " + name + " again - Rapport no longer owns that feature")
+			EndIf
+		EndIf
+
+		i += 1
+	EndWhile
+EndFunction
+
 Int Function FindRequest(Int aiRequest)
 	Int i = 0
 	While i < _inFlight.Length
@@ -335,9 +436,26 @@ Int Function FindRequest(Int aiRequest)
 EndFunction
 
 Int Function FindRequestByActors(Var[] akArgs)
-	; AAF identifies a scene by its actors, and the argument layout is not yet
-	; known from anything but a trace. While MaxConcurrentScenes is 1 there is at
-	; most one request to match, so position is enough and is honest about it.
+	; Prefer AAF's own scene id: every event of one scene carries it, so a match on
+	; it is exact. Its position differs between events -- [3] on the init events,
+	; [5] on the animation ones -- so any argument that equals a scene id we are
+	; tracking counts, which survives a layout we have not seen yet.
+	Int i = 0
+	While i < _inFlight.Length
+		If _inFlight[i].sceneID != 0
+			Int a = 0
+			While a < akArgs.Length
+				If akArgs[a] as Int == _inFlight[i].sceneID
+					Return i
+				EndIf
+				a += 1
+			EndWhile
+		EndIf
+		i += 1
+	EndWhile
+
+	; Before OnSceneInit has told us the id there is nothing to match on, and while
+	; MaxConcurrentScenes is 1 there is at most one candidate.
 	If _inFlight.Length == 1
 		Return 0
 	EndIf

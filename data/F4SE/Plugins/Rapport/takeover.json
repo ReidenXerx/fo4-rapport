@@ -1,0 +1,34 @@
+{
+  "comment": [
+    "Mods Rapport takes over from.",
+    "",
+    "Rapport does some of what other mods already do, and two mods doing the same",
+    "job to the same actor do not add up -- they fight. The clearest case is",
+    "overlays: CumOverlays applies its sets on AAF's own 300-second timer, and that",
+    "timer removes TEMPLATES. Rapport's sets draw from the same templates, so",
+    "CumOverlays' countdown would strip an overlay Rapport had just applied, and the",
+    "user would see cum vanish five minutes into a twelve-hour window with nothing",
+    "in any log to explain it.",
+    "",
+    "So Rapport stops those quests while it owns the feature. Automatic, but never",
+    "secret: it is checked before it is acted on, every change is named in",
+    "Rapport.log, and turning the feature off starts them again. Nothing is deleted",
+    "and no file is touched -- the mod stays installed and its assets are exactly",
+    "what Rapport drives.",
+    "",
+    "A quest that is already stopped is left alone, and a plugin that is not",
+    "installed is not an error: it simply means there is nothing to take over."
+  ],
+
+  "entries": [
+    {
+      "reason": "Rapport owns persistent aftermath; CumOverlays' own timer would remove it early",
+      "plugin": "CumOverlays.esp",
+      "quests": [
+        { "formID": "0x000802", "name": "CumOverlay_Main" },
+        { "formID": "0x000803", "name": "CumOverlay_Starter" }
+      ],
+      "restore": "start"
+    }
+  ]
+}

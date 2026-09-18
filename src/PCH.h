@@ -10,11 +10,15 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cstring>
+#include <deque>
 #include <cstdint>
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <limits>
 #include <mutex>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <string_view>

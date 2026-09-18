@@ -48,6 +48,7 @@ namespace RP
 		_rejectedRaces.clear();
 		_candidates.clear();
 		_observerPositions.clear();
+		_loadedIDs.clear();
 		_cursor = 0;
 		_counters = {};
 		_slices = 0;
@@ -101,6 +102,7 @@ namespace RP
 				// a scene even when they could never take part in one. Privacy is
 				// about who can see, not about who is eligible.
 				_observerPositions.push_back(actor->GetPosition());
+				_loadedIDs.push_back(actor->GetFormID());
 
 				if (actor->IsInCombat()) {
 					++_counters.inCombat;

@@ -89,6 +89,10 @@ namespace RP
 					maxConcurrentScenes = Clamp<std::uint32_t>(std::stoul(value), 1, 4);
 				} else if (key == "SceneSeconds") {
 					sceneSeconds = Clamp(std::stof(value), 5.0f, 600.0f);
+				} else if (key == "CooldownHours") {
+					cooldownHours = Clamp(std::stof(value), 0.0f, 720.0f);
+				} else if (key == "BusyBackoffSeconds") {
+					busyBackoffSeconds = Clamp(std::stof(value), 0.0f, 3600.0f);
 				} else if (key == "PollSeconds") {
 					pollSeconds = Clamp(std::stof(value), 1.0f, 30.0f);
 				} else if (key == "DryRun") {

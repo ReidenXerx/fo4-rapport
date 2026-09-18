@@ -2,6 +2,9 @@
 
 #include "Config.h"
 #include "DebugHub.h"
+#include "Aftermath.h"
+#include "Ledger.h"
+#include "Takeover.h"
 
 namespace
 {
@@ -47,6 +50,77 @@ namespace
 	void Papyrus_NoteEvent(std::monostate, RE::BSFixedString a_name)
 	{
 		RP::PapyrusLink::GetSingleton().NoteEvent(a_name.c_str());
+	}
+
+	void Papyrus_NoteActorBusy(std::monostate, std::int32_t a_formID)
+	{
+		RP::PapyrusLink::GetSingleton().NoteActorBusy(static_cast<std::uint32_t>(a_formID));
+	}
+
+	// ---- aftermath -----------------------------------------------------------
+	// AAF's tags say what an animation WAS, and only the bridge can hear them. The
+	// plugin decides what that leaves behind, so the tags have to come over.
+
+	void Papyrus_NoteSceneTags(std::monostate, RE::BSFixedString a_tags)
+	{
+		RP::Aftermath::GetSingleton().NoteTags(a_tags.c_str());
+	}
+
+	// The second doorbell. Same shape as the first and for the same reason: the
+	// plugin cannot call AAF, so it leaves an instruction and the bridge collects
+	// it on the poll it is already making.
+	std::int32_t Papyrus_TakeOverlayOrder(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().TakeOverlayOrder();
+	}
+
+	std::int32_t Papyrus_OrderActorID(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().OrderActorID();
+	}
+
+	RE::BSFixedString Papyrus_OrderSetID(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().OrderSetID().c_str();
+	}
+
+	// ---- takeover ------------------------------------------------------------
+
+	std::int32_t Papyrus_TakeoverCount(std::monostate)
+	{
+		return static_cast<std::int32_t>(RP::Takeover::GetSingleton().Items().size());
+	}
+
+	[[nodiscard]] const RP::Takeover::Item* TakeoverItem(std::int32_t a_index)
+	{
+		const auto& items = RP::Takeover::GetSingleton().Items();
+		if (a_index < 0 || static_cast<std::size_t>(a_index) >= items.size()) {
+			return nullptr;
+		}
+		return &items[static_cast<std::size_t>(a_index)];
+	}
+
+	std::int32_t Papyrus_TakeoverFormID(std::monostate, std::int32_t a_index)
+	{
+		const auto item = TakeoverItem(a_index);
+		return item ? static_cast<std::int32_t>(item->formID) : 0;
+	}
+
+	RE::BSFixedString Papyrus_TakeoverName(std::monostate, std::int32_t a_index)
+	{
+		const auto item = TakeoverItem(a_index);
+		return item ? item->name.c_str() : "";
+	}
+
+	RE::BSFixedString Papyrus_TakeoverReason(std::monostate, std::int32_t a_index)
+	{
+		const auto item = TakeoverItem(a_index);
+		return item ? item->reason.c_str() : "";
+	}
+
+	bool Papyrus_TakeoverShouldStop(std::monostate)
+	{
+		return RP::Takeover::GetSingleton().ShouldTakeOver();
 	}
 
 	// ---- the debug hub's table, read by the bridge on connect ----------------
@@ -138,6 +212,16 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "PollSeconds"sv, Papyrus_PollSeconds, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NeedsHandshake"sv, Papyrus_NeedsHandshake, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteEvent"sv, Papyrus_NoteEvent, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteActorBusy"sv, Papyrus_NoteActorBusy, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "TakeOverlayOrder"sv, Papyrus_TakeOverlayOrder, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "OrderActorID"sv, Papyrus_OrderActorID, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "OrderSetID"sv, Papyrus_OrderSetID, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "TakeoverCount"sv, Papyrus_TakeoverCount, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "TakeoverFormID"sv, Papyrus_TakeoverFormID, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "TakeoverName"sv, Papyrus_TakeoverName, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "TakeoverReason"sv, Papyrus_TakeoverReason, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "TakeoverShouldStop"sv, Papyrus_TakeoverShouldStop, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugCount"sv, Papyrus_DebugCount, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugTarget"sv, Papyrus_DebugTarget, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugMod"sv, Papyrus_DebugMod, std::nullopt, false);
@@ -149,7 +233,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 18 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 28 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -192,6 +276,8 @@ namespace RP
 			};
 		}
 
+		_inFlightFirst = static_cast<std::int32_t>(a_first->GetFormID());
+		_inFlightSecond = static_cast<std::int32_t>(a_second->GetFormID());
 		_requestedAt = std::chrono::steady_clock::now();
 		_queued.fetch_add(1);
 
@@ -239,6 +325,11 @@ namespace RP
 			std::scoped_lock lock{ _counter };
 			_pending = Pending{};
 		}
+		// Deliberately no ledger entry. The watchdog firing means we do not know
+		// what happened, and a guess written into a save outlives the session that
+		// made it.
+		_inFlightFirst = 0;
+		_inFlightSecond = 0;
 		_sceneInFlight.store(false);
 	}
 
@@ -263,6 +354,53 @@ namespace RP
 		_events.fetch_add(1);
 		_lastEventAt = std::chrono::steady_clock::now();
 		(void)a_name;
+	}
+
+	std::int32_t PapyrusLink::TakeOverlayOrder()
+	{
+		const auto order = Aftermath::GetSingleton().TakeOrder();
+		if (!order) {
+			_orderActor = 0;
+			_orderSet.clear();
+			return 0;
+		}
+
+		_orderActor = static_cast<std::int32_t>(order->formID);
+		_orderSet = order->setID;
+		return static_cast<std::int32_t>(order->kind);
+	}
+
+	void PapyrusLink::NoteActorBusy(std::uint32_t a_formID)
+	{
+		const auto seconds = Config::GetSingleton().busyBackoffSeconds;
+		if (seconds <= 0.0f) {
+			return;
+		}
+
+		const auto until = std::chrono::steady_clock::now() +
+		                   std::chrono::seconds{ static_cast<std::int64_t>(seconds) };
+		{
+			std::scoped_lock lock{ _busyLock };
+			_busyUntil[a_formID] = until;
+		}
+		logger::info("{:08X} is flagged busy in AAF - passing over them for {:.0f}s", a_formID, seconds);
+	}
+
+	bool PapyrusLink::IsActorBusy(std::uint32_t a_formID)
+	{
+		std::scoped_lock lock{ _busyLock };
+		const auto entry = _busyUntil.find(a_formID);
+		if (entry == _busyUntil.end()) {
+			return false;
+		}
+		// The bench is cleared lazily: an actor is only ever asked about when the
+		// scheduler is already looking at them, so there is nothing to sweep.
+		if (std::chrono::steady_clock::now() >= entry->second) {
+			_busyUntil.erase(entry);
+			return false;
+		}
+		_busySkips.fetch_add(1);
+		return true;
 	}
 
 	void PapyrusLink::LogHealth() const
@@ -292,12 +430,37 @@ namespace RP
 			_bridgeReady.load() ? "ready" : "NOT READY",
 			queued, _collected.load(), _started.load(), _ended.load(), _failed.load(),
 			_sceneInFlight.load() ? "a scene is in flight" : "idle");
+
+		logger::info(
+			"health: the save remembers {} actor(s) and {} standing overlay(s)",
+			Ledger::GetSingleton().Size(), Aftermath::GetSingleton().Size());
+
+		if (const auto skips = _busySkips.load(); skips > 0) {
+			std::scoped_lock lock{ _busyLock };
+			logger::info(
+				"health: {} candidate(s) passed over for AAF's busy flag, {} actor(s) still on the bench",
+				skips, _busyUntil.size());
+		}
 	}
 
 	void PapyrusLink::OnSceneEnded(std::int32_t a_request)
 	{
 		_ended.fetch_add(1);
 		logger::info("request {}: scene ended", a_request);
+
+		// A scene that ENDED is the only thing worth remembering. One that failed
+		// says nothing about these two beyond "not now", and writing it as history
+		// would put a cooldown on people who never had a scene.
+		if (_inFlightFirst != 0 && _inFlightSecond != 0) {
+			Ledger::GetSingleton().RecordScene(
+				static_cast<std::uint32_t>(_inFlightFirst),
+				static_cast<std::uint32_t>(_inFlightSecond));
+			Aftermath::GetSingleton().OnSceneEnded(
+				static_cast<std::uint32_t>(_inFlightFirst),
+				static_cast<std::uint32_t>(_inFlightSecond));
+		}
+		_inFlightFirst = 0;
+		_inFlightSecond = 0;
 		_sceneInFlight.store(false);
 	}
 
@@ -305,6 +468,13 @@ namespace RP
 	{
 		_failed.fetch_add(1);
 		logger::warn("request {}: {}", a_request, a_why);
+
+		Ledger::GetSingleton().RecordRefusal(
+			static_cast<std::uint32_t>(_inFlightFirst),
+			static_cast<std::uint32_t>(_inFlightSecond));
+
+		_inFlightFirst = 0;
+		_inFlightSecond = 0;
 		_sceneInFlight.store(false);
 	}
 }

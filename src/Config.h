@@ -15,6 +15,20 @@ namespace RP
 		std::uint32_t maxConcurrentScenes{ 1 };
 		float         sceneSeconds{ 30.0f };
 
+		// How long an actor AAF refused as busy is left out of the running. AAF's
+		// busy flag outlives our request -- it is cleared by the scene ending, and
+		// a scene we never started never ends -- so without this the scheduler
+		// offers the same unusable person on every tick. One run burned four
+		// consecutive ticks on Johnny Friendly that way.
+		float         busyBackoffSeconds{ 300.0f };
+
+		// How long after a scene an actor is left out of the running, in GAME
+		// hours. This is the stand-in's policy, not the framework's: the ledger
+		// records when a scene happened and takes no view on what is too soon.
+		// Chemistry will own this number, and this one goes away with the
+		// stand-in that reads it.
+		float         cooldownHours{ 24.0f };
+
 		// How often the Papyrus bridge asks whether there is a scene to start.
 		// Almost every ask returns nothing, so this is a doorbell, not a scan.
 		float         pollSeconds{ 3.0f };

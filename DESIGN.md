@@ -388,3 +388,30 @@ survive the session in which it was changed. Without the co-save, a takeover can
 before the game closes — which is the same failure as A-10's stopped quest, multiplied by every rule.
 
 So takeover lands immediately after the co-save, alongside aftermath, and not before.
+
+## A-12 — the save is a ledger of facts, not of policy (2026-09-18)
+
+The co-save records **what happened**: when an actor last finished a scene, who with, how many
+times, when a request involving them was refused, and one `need` float carried on an addon's behalf
+without the framework interpreting it. It records no cooldown, no threshold and no verdict.
+
+"Too soon", "bored of this partner", "wants company" are policy and belong to Chemistry (D6). The
+framework guarantees the facts survive a save; deciding what they mean is somebody else's job.
+
+The one cooldown that exists — `CooldownHours`, 24 by default — belongs to the stand-in behaviour in
+`Scheduler::FinishPass`, not to the framework, and it goes away with the stand-in.
+
+Only a scene that ENDED is written. A failed request says nothing about two people beyond "not now",
+and a watchdog firing means we do not know what happened at all — a guess written into a save
+outlives the session that made it.
+
+## A-13 — aftermath persists in game hours, and takes CumOverlays' job (2026-09-18)
+
+Implements A-10. Rapport ships its own `overlaySetData` with **no `duration`**, so AAF applies and
+never removes, and Rapport owns removal from the co-save in GAME hours (12 by default). See
+`docs/aftermath.md` for why AAF's own timer cannot do this and why CumOverlays' two quests have to
+be stopped rather than merely coexisted with.
+
+Rapport ships **no textures**. It drives CumOverlays' 57 LooksMenu templates, which is a
+redistribution question answered the only defensible way. If that mod is absent the sets resolve to
+nothing, the log says so, and nothing else is affected.
