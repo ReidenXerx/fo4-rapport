@@ -2,6 +2,7 @@
 
 #include "PapyrusLink.h"
 #include "Aftermath.h"
+#include "Config.h"
 #include "TreeIndex.h"
 
 namespace
@@ -402,6 +403,15 @@ namespace RP
 			_running->id, stage.options[_option], stage.id, _option + 1, stage.options.size());
 		a_out.push_back(
 			Order{ Order::Kind::kChangePosition, _first, stage.options[_option], stage.exclude });
+
+		// And ask AAF what it thinks it has for that same tag. Apples to apples:
+		// the answer arrives on OnAnimationQueryResult and is logged raw, so a
+		// refusal can finally be read as either "AAF cannot see this content" or
+		// "AAF can see it and our ChangePosition is wrong".
+		if (Config::GetSingleton().diagnoseStageTags) {
+			a_out.push_back(
+				Order{ Order::Kind::kQueryAnimations, _first, stage.options[_option], stage.exclude });
+		}
 	}
 
 	void Scenarios::OnRefused(std::string_view a_why)

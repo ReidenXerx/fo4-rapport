@@ -80,6 +80,12 @@ namespace RP
 
 		// True by default on purpose: a fresh install watches and reports, and
 		// starts nothing until someone turns it on deliberately.
+		// Ask AAF what it matches for each tag a stage tries, alongside trying it.
+		// Doubles the AAF traffic during a scene, so it is a diagnosis rather than
+		// a feature -- but while ChangePosition refuses everything, it is the only
+		// thing that can tell our call apart from AAF's view of the actors.
+		bool          diagnoseStageTags{ true };
+
 		bool          dryRun{ true };
 		bool          verbose{ false };
 

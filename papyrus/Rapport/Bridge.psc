@@ -622,6 +622,9 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	ElseIf aiKind == 14
 		Self.ResumeElsewhereFor(aiFormID)
 		Return
+	ElseIf aiKind == 15
+		Self.QueryAnimationsFor(aiFormID, asSetID, asExtra)
+		Return
 	ElseIf aiKind == 12
 		; A NAMED position, which is how a tree gets chosen. AAF has no tree
 		; function -- the word does not appear in its Papyrus at all, because trees
@@ -912,6 +915,42 @@ Int Function FindRequestByActor(Int aiFormID)
 		i += 1
 	EndWhile
 	Return -1
+EndFunction
+
+; Ask AAF what it would match for these two, with the tag a stage is trying.
+;
+; ChangePosition has been refused 26 times out of 26 for tags whose content
+; exists -- five selectable female+male kissing positions, 273 female+male
+; positions in all. Counting AAF's own XML says one thing and AAF says another,
+; and it is AAF's answer that decides. This asks it directly.
+;
+; The reply arrives on OnAnimationQueryResult, which is already registered and
+; already logs its arguments raw -- AAF passes that event straight through from
+; its DLL, so the layout is not readable anywhere in its source and has to be
+; learned from the game.
+Function QueryAnimationsFor(Int aiFirstID, String asIncludeTags, String asExcludeTags)
+	If _api == None
+		Return
+	EndIf
+
+	Int index = Self.FindRequestByActor(aiFirstID)
+	If index < 0
+		Return
+	EndIf
+
+	Actor akFirst = _inFlight[index].first
+	Actor akSecond = _inFlight[index].second
+	If akFirst == None || akSecond == None
+		Return
+	EndIf
+
+	Actor[] actors = new Actor[2]
+	actors[0] = akFirst
+	actors[1] = akSecond
+
+	; Five arguments, all of them. The decompiled base sources carry no defaults.
+	_api.FindMatchingAnimations(actors, "Rapport:" + asIncludeTags, asIncludeTags, asExcludeTags, "")
+	Rapport:Core.Trace("query: asked AAF what it matches for [" + asIncludeTags + "] on this pair - the answer comes back as OnAnimationQueryResult")
 EndFunction
 
 ; Every morph id in the engine's facial table, as AAF wants them: one string of

@@ -90,7 +90,18 @@ namespace RP
 			// part of a currently running scene" -- measured, the old scene ended
 			// one second after the refusal. AAF's own OnSceneEnd is the signal that
 			// the actors are free, so the restart waits for it.
-			kResumeElsewhere = 14
+			kResumeElsewhere = 14,
+
+			// Ask AAF what it would match for these two, with the same tag we are
+			// about to request. setID is that tag.
+			//
+			// This exists because ChangePosition has been refused 26 times out of
+			// 26 -- every stage, every scene, on furniture and off it, inside trees
+			// and outside -- for tags whose content demonstrably exists: five
+			// selectable female+male kissing positions, 273 female+male positions
+			// in all. Counting the XML ourselves says one thing and AAF says
+			// another, and only AAF's answer decides anything.
+			kQueryAnimations = 15
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };
