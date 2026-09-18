@@ -283,9 +283,36 @@ namespace RP
 			_second = a_second;
 			_stage = scenario->stages.size();   // EnterStage moves it to the first playable one
 
+			// The stages are a proportion of the scene, not a number of seconds.
+			//
+			// AAF stages the scene now, and the chosen tree runs for as long as its
+			// author made it -- 120s for the good ones. A scenario that declares 285
+			// seconds of stages against a 120-second tree never reaches its last two:
+			// the tree hits its Climax branch and exits, OnSceneEnded fires, and the
+			// climax FACE is scheduled for a moment the scene never gets to.
+			//
+			// That is the same mistake the redesign was for, one layer up. The
+			// clock used to cut off AAF's climax; left alone it would cut off ours.
+			// So the declared seconds are read as weights and scaled onto what is
+			// actually going to play. Unknown tree length falls back to 1.0, which
+			// is the old behaviour and the honest answer when nothing is known.
+			_stageScale = 1.0f;
+			if (_chosenSeconds > 0.0f) {
+				const auto declared = scenario->PlayableSeconds();
+				if (declared > 0.0f) {
+					_stageScale = _chosenSeconds / declared;
+				}
+			}
+
 			logger::info(
-				"scenario \"{}\": {:08X} and {:08X}, {:.0f}s over {} stage(s)",
-				scenario->id, a_first, a_second, scenario->PlayableSeconds(), scenario->stages.size());
+				"scenario \"{}\": {:08X} and {:08X}, {} stage(s) over {:.0f}s{}",
+				scenario->id, a_first, a_second, scenario->stages.size(),
+				scenario->PlayableSeconds() * _stageScale,
+				_stageScale == 1.0f
+					? " (the tree's length is unknown, so the stages keep their own)"
+					: std::format(" - the chosen tree is authored for {:.0f}s, so the stages are "
+								  "scaled to {:.2f} of their declared length",
+						  _chosenSeconds, _stageScale));
 
 			EnterStage(0, outgoing);
 		}
@@ -605,7 +632,7 @@ namespace RP
 			const auto elapsed = std::chrono::duration<float>{
 				std::chrono::steady_clock::now() - _stageStartedAt
 			}.count();
-			if (elapsed < _running->stages[_stage].seconds) {
+			if (elapsed < _running->stages[_stage].seconds * _stageScale) {
 				return;
 			}
 

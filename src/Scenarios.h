@@ -189,6 +189,11 @@ namespace RP
 		// asking again for a couch that is not there asks for the same failure.
 		bool        _avoidFurniture{ false };
 
+		// The declared stage seconds are WEIGHTS, and this scales them onto the
+		// length the chosen tree is actually authored for. 1.0 when that length is
+		// unknown, which is the old behaviour and the honest answer.
+		float       _stageScale{ 1.0f };
+
 		std::string _chosenPosition;
 		float       _chosenSeconds{ 0.0f };
 		std::uint32_t   _first{ 0 };
