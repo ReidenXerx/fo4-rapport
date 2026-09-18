@@ -19,6 +19,21 @@ namespace RP
 	class Aftermath
 	{
 	public:
+		// Where the cum comes from. Two mods do this job and they share nothing:
+		// CumOverlays paints a flat texture through LooksMenu, Commonwealth
+		// Moisturizer equips a BodySlide-conformed mesh and swaps headparts. The
+		// mesh looks far better and is the only one of the two that has a face at
+		// all, so it wins when both are present -- but a framework supports what
+		// is installed rather than requiring one particular mod.
+		enum class Backend
+		{
+			kNone,
+			kOverlay,
+			kMoisturizer
+		};
+
+		[[nodiscard]] Backend Which() const noexcept { return _backend; }
+		[[nodiscard]] static std::string_view Name(Backend a_backend) noexcept;
 		// One overlay set standing on one actor until a given game hour.
 		struct Mark
 		{
@@ -55,6 +70,13 @@ namespace RP
 		// call into AAF that cannot be seen to have worked or failed.
 		void Tick(const std::vector<std::uint32_t>& a_here);
 
+		// An apply the bridge could not carry out -- the actor turned out not to
+		// be loaded after all. The mark is put back into "not asked for yet" so
+		// the next tick offers it again. Without this an order is consumed
+		// whether or not anything happened, and the mark sits there believing it
+		// has been dealt with.
+		void Defer(std::uint32_t a_formID);
+
 		// ---- the save --------------------------------------------------------
 		[[nodiscard]] std::vector<Mark> Marks() const;
 		void Restore(std::vector<Mark> a_marks);
@@ -74,6 +96,12 @@ namespace RP
 		// lists them, so the same scene always produces the same sets.
 		[[nodiscard]] std::vector<std::string> SetsFor(std::string_view a_tags) const;
 
+		// Which of Moisturizer's three places the chosen sets correspond to, as
+		// some subset of "FOR". Empty means the sets say nothing it understands.
+		[[nodiscard]] std::string RegionsFor(const std::vector<std::string>& a_sets) const;
+
+		void ChooseBackend(const std::string& a_wanted);
+
 		void Apply(std::uint32_t a_formID, const std::string& a_setID, float a_expiresAt);
 
 		mutable std::mutex _lock;
@@ -85,6 +113,13 @@ namespace RP
 		// tag, lowercased -> the sets it calls for. A vector rather than a map so
 		// the file's order survives into what gets applied.
 		std::vector<std::pair<std::string, std::vector<std::string>>> _rules;
+
+		// Set id -> the Moisturizer regions it corresponds to, any of "FOR". One
+		// mapping drives both backends: the tags pick sets, and the sets carry
+		// their own translation rather than the file listing every tag twice.
+		std::vector<std::pair<std::string, std::string>> _regions;
+
+		Backend _backend{ Backend::kNone };
 
 		std::string        _sceneTags;   // accumulated across one scene
 		std::vector<Mark>  _marks;

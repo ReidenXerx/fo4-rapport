@@ -28,7 +28,17 @@
         { "formID": "0x000803", "name": "CumOverlay_Starter" }
       ],
       "restore": "start",
-      "whileFeature": "aftermath"
+      "whileFeature": "aftermath-overlay"
+    },
+
+    {
+      "reason": "Rapport drives Commonwealth Moisturizer through its own modder API, so its AAF listener must not also be applying cum on its own schedule. Only the listener is stopped -- CMkz_SemenLib is the library Rapport calls and has to keep running",
+      "plugin": "ComMoisturizer.esp",
+      "quests": [
+        { "formID": "0x0008DB", "name": "CMkz_EventHandler" }
+      ],
+      "restore": "start",
+      "whileFeature": "aftermath-moisturizer"
     },
 
     {

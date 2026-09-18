@@ -93,6 +93,53 @@ namespace
 		return RP::PapyrusLink::GetSingleton().OrderSetID().c_str();
 	}
 
+	// ---- the optional Commonwealth Moisturizer plugin ------------------------
+	// Its own doorbell, drained by its own script. Rapport's bridge must never
+	// name a Moisturizer type: it would carry an unresolvable reference on every
+	// install that does not have the mod.
+
+	std::int32_t Papyrus_TakeMoisturizerOrder(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().TakeMoisturizerOrder();
+	}
+
+	std::int32_t Papyrus_MoisturizerActorID(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().MoisturizerActorID();
+	}
+
+	RE::BSFixedString Papyrus_MoisturizerRegions(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().MoisturizerRegions().c_str();
+	}
+
+	// Three booleans rather than a string to pick apart: Papyrus has no string
+	// search without F4SE's StringUtil, and the plugin already knows the answer.
+	bool Papyrus_MoisturizerFront(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().MoisturizerHas('F');
+	}
+
+	bool Papyrus_MoisturizerOral(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().MoisturizerHas('O');
+	}
+
+	bool Papyrus_MoisturizerRear(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().MoisturizerHas('R');
+	}
+
+	void Papyrus_DeferOrder(std::monostate, std::int32_t a_formID)
+	{
+		RP::Aftermath::GetSingleton().Defer(static_cast<std::uint32_t>(a_formID));
+	}
+
+	bool Papyrus_MoisturizerWanted(std::monostate)
+	{
+		return RP::Aftermath::GetSingleton().Which() == RP::Aftermath::Backend::kMoisturizer;
+	}
+
 	// ---- takeover ------------------------------------------------------------
 
 	std::int32_t Papyrus_TakeoverCount(std::monostate)
@@ -228,6 +275,14 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverlayOrder"sv, Papyrus_TakeOverlayOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderActorID"sv, Papyrus_OrderActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderSetID"sv, Papyrus_OrderSetID, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "TakeMoisturizerOrder"sv, Papyrus_TakeMoisturizerOrder, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "MoisturizerActorID"sv, Papyrus_MoisturizerActorID, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "MoisturizerRegions"sv, Papyrus_MoisturizerRegions, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DeferOrder"sv, Papyrus_DeferOrder, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "MoisturizerFront"sv, Papyrus_MoisturizerFront, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "MoisturizerOral"sv, Papyrus_MoisturizerOral, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "MoisturizerRear"sv, Papyrus_MoisturizerRear, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "MoisturizerWanted"sv, Papyrus_MoisturizerWanted, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeoverCount"sv, Papyrus_TakeoverCount, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeoverFormID"sv, Papyrus_TakeoverFormID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeoverName"sv, Papyrus_TakeoverName, std::nullopt, false);
@@ -244,7 +299,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 29 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 37 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -380,8 +435,34 @@ namespace RP
 
 	void PapyrusLink::QueueOrder(Order a_order)
 	{
+		const auto forMoisturizer = a_order.kind == Order::Kind::kApplyMoisturizer ||
+		                            a_order.kind == Order::Kind::kClearMoisturizer;
 		std::scoped_lock lock{ _orderLock };
-		_orders.push_back(std::move(a_order));
+		if (forMoisturizer) {
+			_cmkzOrders.push_back(std::move(a_order));
+		} else {
+			_orders.push_back(std::move(a_order));
+		}
+	}
+
+	std::int32_t PapyrusLink::TakeMoisturizerOrder()
+	{
+		std::scoped_lock lock{ _orderLock };
+		if (_cmkzOrders.empty()) {
+			_cmkzActor = 0;
+			_cmkzRegions.clear();
+			return 0;
+		}
+
+		const auto order = _cmkzOrders.front();
+		_cmkzOrders.pop_front();
+
+		_cmkzActor = static_cast<std::int32_t>(order.formID);
+		// "CMkz:FOR" -> "FOR". The prefix is only there so a mark can be told apart
+		// from an overlay set id after a round trip through the save.
+		const auto colon = order.setID.find(':');
+		_cmkzRegions = colon == std::string::npos ? order.setID : order.setID.substr(colon + 1);
+		return static_cast<std::int32_t>(order.kind);
 	}
 
 	std::size_t PapyrusLink::PendingOrders() const

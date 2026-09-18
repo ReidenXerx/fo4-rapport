@@ -66,6 +66,15 @@ namespace RP
 		void         QueueOrder(Order a_order);
 		std::int32_t TakeOverlayOrder();
 		[[nodiscard]] std::size_t PendingOrders() const;
+
+		// The optional Moisturizer plugin's half of the same arrangement.
+		std::int32_t TakeMoisturizerOrder();
+		[[nodiscard]] std::int32_t       MoisturizerActorID() const noexcept { return _cmkzActor; }
+		[[nodiscard]] const std::string& MoisturizerRegions() const noexcept { return _cmkzRegions; }
+		[[nodiscard]] bool MoisturizerHas(char a_letter) const noexcept
+		{
+			return _cmkzRegions.find(a_letter) != std::string::npos;
+		}
 		[[nodiscard]] std::int32_t       OrderActorID() const noexcept { return _orderActor; }
 		[[nodiscard]] const std::string& OrderSetID() const noexcept { return _orderSet; }
 
@@ -115,10 +124,17 @@ namespace RP
 		std::int32_t _inFlightSecond{ 0 };
 		float        _inFlightDuration{ 0.0f };
 
+		// Two queues, because two scripts drain them. Rapport's own bridge must
+		// never name a Commonwealth Moisturizer type -- it would then carry an
+		// unresolvable reference on every install without that mod -- so those
+		// orders wait in their own queue for the optional plugin's script.
 		mutable std::mutex _orderLock;
 		std::deque<Order>  _orders;
+		std::deque<Order>  _cmkzOrders;
 		std::int32_t       _orderActor{ 0 };
 		std::string        _orderSet;
+		std::int32_t       _cmkzActor{ 0 };
+		std::string        _cmkzRegions;
 
 		std::atomic_bool          _bridgeReady{ false };
 		std::atomic_bool          _sceneInFlight{ false };

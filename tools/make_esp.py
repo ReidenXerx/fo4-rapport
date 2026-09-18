@@ -1,4 +1,4 @@
-"""Generate Rapport.esp: one quest with the bridge script attached, nothing else.
+"""Generate a Rapport plugin: one quest with one script attached, nothing else.
 
 The Creation Kit is the usual way to make this, and it cannot be driven headlessly.
 The plugin needed here is small enough to write directly, and its shape is copied
@@ -7,7 +7,12 @@ carries a VMAD with four scripts, and parsing it end to end shows that a QUST VM
 with no fragments has no trailing fragment section -- 2288 of 2288 bytes consumed.
 So ours is version 6, object format 2, one script, zero properties.
 
-    python tools/make_esp.py <output.esp>
+    python tools/make_esp.py <output.esp> [script name] [quest editor id]
+
+Defaults to the bridge. The second plugin it writes is Rapport_Moisturizer.esp,
+which exists so that no script naming a Commonwealth Moisturizer type ever loads
+on an install that does not have that mod -- an unresolvable reference inside
+Rapport:Bridge would put the whole framework at risk to gain one integration.
 
 Verify what came out with tools/read_esp.py.
 """
@@ -57,10 +62,10 @@ def group(label, records_blob):
             + records_blob)
 
 
-def build():
+def build(script_name, quest_edid):
     # ---- the quest ----------------------------------------------------------
     vmad = struct.pack('<hhH', 6, 2, 1)        # version, object format, script count
-    vmad += wstring(SCRIPT_NAME)
+    vmad += wstring(script_name)
     vmad += struct.pack('<B', 0)               # status: local
     vmad += struct.pack('<H', 0)               # no properties
 
@@ -69,7 +74,7 @@ def build():
     # record beats inventing twelve bytes of flags.
     dnam = bytes.fromhex('11 00 64 67 00 00 00 00 00 00 00 00'.replace(' ', ''))
 
-    quest = field('EDID', zstring(QUEST_EDID))
+    quest = field('EDID', zstring(quest_edid))
     quest += field('VMAD', vmad)
     quest += field('DNAM', dnam)
     quest += field('NEXT', b'')                # alias section marker, empty
@@ -92,12 +97,15 @@ def main():
     if len(sys.argv) < 2:
         print(__doc__)
         return 1
-    blob = build()
+    script_name = sys.argv[2] if len(sys.argv) > 2 else SCRIPT_NAME
+    quest_edid = sys.argv[3] if len(sys.argv) > 3 else QUEST_EDID
+
+    blob = build(script_name, quest_edid)
     with open(sys.argv[1], 'wb') as fh:
         fh.write(blob)
     print('wrote {} ({} bytes)'.format(sys.argv[1], len(blob)))
-    print('  quest  {} formID {:08X}'.format(QUEST_EDID, QUEST_FORMID))
-    print('  script {}'.format(SCRIPT_NAME))
+    print('  quest  {} formID {:08X}'.format(quest_edid, QUEST_FORMID))
+    print('  script {}'.format(script_name))
     print('  master {}'.format(MASTER))
     return 0
 

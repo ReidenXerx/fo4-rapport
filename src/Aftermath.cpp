@@ -44,6 +44,18 @@ namespace RP
 		return singleton;
 	}
 
+	std::string_view Aftermath::Name(Backend a_backend) noexcept
+	{
+		switch (a_backend) {
+		case Backend::kOverlay:
+			return "CumOverlays (overlay textures)"sv;
+		case Backend::kMoisturizer:
+			return "Commonwealth Moisturizer (worn meshes)"sv;
+		default:
+			return "none"sv;
+		}
+	}
+
 	std::filesystem::path Aftermath::ConfigPath()
 	{
 		return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport" / "aftermath.json";
@@ -53,6 +65,7 @@ namespace RP
 	{
 		std::scoped_lock lock{ _lock };
 		_rules.clear();
+		_regions.clear();
 
 		const auto  path = ConfigPath();
 		std::ifstream file{ path };
@@ -74,6 +87,14 @@ namespace RP
 		_enabled = document.value("enabled", true);
 		_hours = document.value("hours", 12.0f);
 		_requireClimax = document.value("requireClimax", false);
+
+		if (const auto regions = document.find("regions"); regions != document.end() && regions->is_object()) {
+			for (const auto& [setID, letters] : regions->items()) {
+				if (letters.is_string()) {
+					_regions.emplace_back(setID, letters.get<std::string>());
+				}
+			}
+		}
 
 		if (const auto tags = document.find("tags"); tags != document.end() && tags->is_object()) {
 			for (const auto& [tag, sets] : tags->items()) {
@@ -102,9 +123,68 @@ namespace RP
 			return;
 		}
 
+		ChooseBackend(document.value("backend", std::string{ "auto" }));
+
 		logger::info(
 			"aftermath: {} tag rule(s), {:.0f} game hours{}",
 			_rules.size(), _hours, _requireClimax ? ", climax required" : "");
+	}
+
+	void Aftermath::ChooseBackend(const std::string& a_wanted)
+	{
+		const auto handler = RE::TESDataHandler::GetSingleton();
+		const auto installed = [&](std::string_view a_plugin) {
+			return handler && handler->LookupModByName(a_plugin) != nullptr;
+		};
+
+		const auto hasMoisturizer = installed("ComMoisturizer.esp"sv);
+		const auto hasOverlays = installed("CumOverlays.esp"sv);
+
+		if (a_wanted == "overlay") {
+			_backend = hasOverlays ? Backend::kOverlay : Backend::kNone;
+		} else if (a_wanted == "moisturizer") {
+			_backend = hasMoisturizer ? Backend::kMoisturizer : Backend::kNone;
+		} else {
+			// Moisturizer first when both are there: it is geometry rather than a
+			// flat texture, and it is the only one of the two that does faces.
+			_backend = hasMoisturizer ? Backend::kMoisturizer
+			         : hasOverlays    ? Backend::kOverlay
+			                          : Backend::kNone;
+		}
+
+		if (_backend == Backend::kNone) {
+			_enabled = false;
+			logger::warn(
+				"aftermath: neither ComMoisturizer.esp nor CumOverlays.esp is installed{} - "
+				"scenes will leave nothing behind, because there is no art to leave",
+				a_wanted == "auto" ? "" : " (and the one you asked for is the missing one)");
+			return;
+		}
+
+		logger::info("aftermath: using {}", Name(_backend));
+		if (hasMoisturizer && hasOverlays && _backend == Backend::kMoisturizer) {
+			logger::info(
+				"aftermath: CumOverlays is also installed and is left alone - Rapport drives one "
+				"of them, never both, or two sets of art end up on the same body");
+		}
+	}
+
+	[[nodiscard]] std::string Aftermath::RegionsFor(const std::vector<std::string>& a_sets) const
+	{
+		std::string regions;
+		for (const auto& set : a_sets) {
+			for (const auto& [id, letters] : _regions) {
+				if (id != set) {
+					continue;
+				}
+				for (const char letter : letters) {
+					if (regions.find(letter) == std::string::npos) {
+						regions.push_back(letter);
+					}
+				}
+			}
+		}
+		return regions;
 	}
 
 	void Aftermath::NoteTags(std::string_view a_tags)
@@ -177,6 +257,26 @@ namespace RP
 		}
 		const auto expires = now + _hours;
 
+		if (_backend == Backend::kMoisturizer) {
+			// One mark per actor, not one per set: Moisturizer puts everything on
+			// in a single call and takes it all off in a single call, so a mark
+			// per set would queue one removal too many and the extra would strip
+			// what a later scene had just applied.
+			const auto regions = RegionsFor(sets);
+			if (regions.empty()) {
+				logger::info(
+					"aftermath: the sets for this scene name no place Moisturizer knows (tags: {})",
+					tags);
+				return;
+			}
+			Apply(a_first, "CMkz:" + regions, expires);
+			Apply(a_second, "CMkz:" + regions, expires);
+			logger::info(
+				"aftermath: {:08X} and {:08X} keep Moisturizer [{}] until hour {:.1f} (now {:.1f})",
+				a_first, a_second, regions, expires, now);
+			return;
+		}
+
 		std::string named;
 		for (const auto& set : sets) {
 			if (!named.empty()) {
@@ -198,7 +298,25 @@ namespace RP
 		// second copy. Two marks for one set would queue two removals, and the
 		// second would strip an overlay a later scene had just re-applied.
 		for (auto& mark : _marks) {
-			if (mark.formID == a_formID && mark.setID == a_setID) {
+			if (mark.formID != a_formID) {
+				continue;
+			}
+
+			// On the mesh backend an actor has exactly one mark, because the mod
+			// has exactly one state per actor. A second scene REPLACES the regions
+			// rather than adding a mark, and the union is what gets applied.
+			if (_backend == Backend::kMoisturizer && mark.setID.starts_with("CMkz:")) {
+				for (const char letter : a_setID) {
+					if (letter != ':' && mark.setID.find(letter) == std::string::npos) {
+						mark.setID.push_back(letter);
+					}
+				}
+				mark.expiresAt = (std::max)(mark.expiresAt, a_expiresAt);
+				mark.asked = false;
+				return;
+			}
+
+			if (mark.setID == a_setID) {
 				mark.expiresAt = (std::max)(mark.expiresAt, a_expiresAt);
 				mark.asked = false;   // ask again: a fresh scene should look fresh
 				return;
@@ -206,6 +324,16 @@ namespace RP
 		}
 
 		_marks.push_back(Mark{ a_formID, a_expiresAt, a_setID, false });
+	}
+
+	void Aftermath::Defer(std::uint32_t a_formID)
+	{
+		std::scoped_lock lock{ _lock };
+		for (auto& mark : _marks) {
+			if (mark.formID == a_formID) {
+				mark.asked = false;
+			}
+		}
 	}
 
 	void Aftermath::Tick(const std::vector<std::uint32_t>& a_here)
@@ -227,7 +355,9 @@ namespace RP
 				// someone who wandered off is the failure this whole feature exists
 				// to prevent, and AAF takes the call either way.
 				PapyrusLink::GetSingleton().QueueOrder(
-					Order{ Order::Kind::kRemoveOverlay, mark->formID, mark->setID });
+					Order{ mark->setID.starts_with("CMkz:") ? Order::Kind::kClearMoisturizer
+					                                        : Order::Kind::kRemoveOverlay,
+					       mark->formID, mark->setID });
 				mark = _marks.erase(mark);
 				++expired;
 				continue;
@@ -240,7 +370,9 @@ namespace RP
 			if (!mark->asked) {
 				if (std::ranges::find(a_here, mark->formID) != a_here.end()) {
 					PapyrusLink::GetSingleton().QueueOrder(
-						Order{ Order::Kind::kApplyOverlay, mark->formID, mark->setID });
+						Order{ mark->setID.starts_with("CMkz:") ? Order::Kind::kApplyMoisturizer
+						                                        : Order::Kind::kApplyOverlay,
+						       mark->formID, mark->setID });
 					mark->asked = true;
 					++asked;
 				} else {
@@ -291,7 +423,10 @@ namespace RP
 
 		auto& link = PapyrusLink::GetSingleton();
 		for (const auto& mark : _marks) {
-			link.QueueOrder(Order{ Order::Kind::kRemoveOverlay, mark.formID, mark.setID });
+			link.QueueOrder(
+				Order{ mark.setID.starts_with("CMkz:") ? Order::Kind::kClearMoisturizer
+				                                       : Order::Kind::kRemoveOverlay,
+				       mark.formID, mark.setID });
 		}
 		logger::warn("aftermath: removing all {} standing overlay(s) - {}", _marks.size(), a_why);
 		_marks.clear();

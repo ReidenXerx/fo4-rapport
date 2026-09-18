@@ -388,6 +388,7 @@ Function DrainOverlayOrders()
 		Actor target = Game.GetForm(formID) as Actor
 
 		If target == None
+			Rapport:Core.DeferOrder(formID)
 			Rapport:Core.Trace("order: " + formID + " no longer resolves - " + setID + " was not carried out")
 		ElseIf kind == 1
 			_api.ApplyOverlaySet(target, setID)

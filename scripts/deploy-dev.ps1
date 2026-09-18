@@ -58,6 +58,13 @@ if (Test-Path $aafOverlay) {
 }
 
 $esp = Join-Path $root 'build\esp\Rapport.esp'
+
+# The optional Moisturizer plugin. It is a separate esp for one reason: the
+# script inside it names Commonwealth Moisturizer types, and a script that names
+# a type nobody has installed is a reference the VM cannot resolve. Keeping it
+# out of Rapport.esp means Rapport itself never carries that risk.
+$espMoist = Join-Path $root 'build\esp\Rapport_Moisturizer.esp'
+if (Test-Path $espMoist) { Copy-Item $espMoist $Staging -Force }
 if (Test-Path $esp) {
     Copy-Item $esp $Staging -Force
 } else {

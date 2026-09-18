@@ -20,6 +20,35 @@
 
   "enabled": true,
 
+  "comment_backend": [
+    "Which mod's art Rapport drives. Two do this job and they share nothing:",
+    "CumOverlays paints a flat LooksMenu texture on the body, Commonwealth",
+    "Moisturizer equips a BodySlide-conformed mesh and swaps morphing headparts",
+    "for the face. The mesh has actual volume and is the only one of the two that",
+    "does faces at all, so \"auto\" prefers it when both are installed.",
+    "",
+    "Rapport drives ONE of them and stops that one's own AAF listener. The other",
+    "is left completely alone -- two sets of art on one body fight, and silencing",
+    "a mod Rapport is not driving would be a change with no reason behind it.",
+    "",
+    "auto | moisturizer | overlay"
+  ],
+  "backend": "auto",
+
+  "comment_regions": [
+    "Moisturizer's API takes three places rather than named sets: front, oral,",
+    "rear. This says which of them each set corresponds to, so the tag mapping",
+    "below drives both backends instead of being written out twice."
+  ],
+  "regions": {
+    "Rapport_Vaginal": "F",
+    "Rapport_Body":    "F",
+    "Rapport_Oral":    "O",
+    "Rapport_Anal":    "R",
+    "Rapport_Back":    "R",
+    "Rapport_DP":      "FR"
+  },
+
   "comment_hours": [
     "How long it stays visible, in GAME hours. 12 is most of a day: long enough to",
     "still be there after the walk home, short enough not to be permanent. Real",

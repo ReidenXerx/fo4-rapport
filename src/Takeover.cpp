@@ -73,8 +73,18 @@ namespace RP
 			const auto feature = entry.value("whileFeature", std::string{});
 
 			// An entry owned by a feature is only in force while that feature is.
-			const auto active = feature.empty() ||
-			                    (feature == "aftermath" && Aftermath::GetSingleton().Enabled());
+			// The two aftermath backends are mutually exclusive: whichever one
+			// Rapport is driving gets its listener stopped, and the other is left
+			// completely alone rather than silenced for no reason.
+			const auto& aftermath = Aftermath::GetSingleton();
+			const auto  active =
+				feature.empty()                         ? true :
+				feature == "aftermath"                  ? aftermath.Enabled() :
+				feature == "aftermath-overlay"          ? aftermath.Enabled() &&
+				                                          aftermath.Which() == Aftermath::Backend::kOverlay :
+				feature == "aftermath-moisturizer"      ? aftermath.Enabled() &&
+				                                          aftermath.Which() == Aftermath::Backend::kMoisturizer :
+				                                          true;
 			const auto quests = entry.find("quests");
 			if (plugin.empty() || quests == entry.end() || !quests->is_array()) {
 				continue;

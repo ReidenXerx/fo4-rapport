@@ -465,3 +465,39 @@ different map entirely. A face overlay is an art job, not a code job. One candid
 Commonwealth Moisturizer on LoversLab, described as body AND facial cum applied after AAF scenes; if
 it ships a head-slot template Rapport drives it exactly as it drives CumOverlays, and if its sets are
 timed it becomes a fourth takeover entry.
+
+## A-18 - aftermath has two backends, and Rapport drives exactly one (2026-09-18)
+
+Owner poll 2026-09-18: **keep both, prefer Moisturizer**; **Rapport drives it** rather than ceding
+aftermath back.
+
+CumOverlays paints a flat LooksMenu texture on the body and has no face at all. Commonwealth
+Moisturizer equips a BodySlide-conformed MESH on an armour slot and swaps morphing headparts for the
+face - actual volume, and the only thing on the machine that does faces. `"backend": "auto"` prefers
+it; `overlay` and `moisturizer` force one. Neither is required: with neither installed the feature
+turns itself off and says so.
+
+Rapport drives ONE backend and stops that one's own AAF listener. The other is left completely
+alone: two sets of art on one body fight, and silencing a mod Rapport is not driving would be a
+change with nothing behind it.
+
+Its removal timer is set to its own documented "no timer" value of 0, and removal becomes Rapport's,
+from the co-save, in game hours. Its default was 5 REAL minutes, which no save survives - the same
+gap that made this a framework feature in the first place.
+
+## A-19 - anything naming another mod's script types lives in an optional plugin (2026-09-18)
+
+`Rapport:Moisturizer` is in `Rapport_Moisturizer.esp`, never in `Rapport.esp`.
+
+Calling Moisturizer's API means naming `CMkz:CMkz_LibScript`. A script that names a type nobody has
+installed carries a reference the VM cannot resolve, and putting that inside `Rapport:Bridge` - the
+one script the whole framework depends on - would risk every install without that mod to gain one
+integration. So every CMkz reference lives in one script, in one optional plugin, with its own order
+queue and its own timer.
+
+This is the rule for every future integration, not a one-off. Settings are different: a
+`GlobalVariable` is a vanilla type, so reading another mod's globals needs no optional plugin.
+
+**Corollary:** an order taken off a queue is gone whether or not anything happened, so an order that
+could not be carried out is handed back (`DeferOrder`) rather than dropped. A worn mesh cannot be
+applied to an actor who is not loaded, which makes that a real case rather than a hypothetical one.

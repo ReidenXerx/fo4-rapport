@@ -29,7 +29,20 @@ namespace RP
 			// nothing on this machine demonstrates what releases a lock. This kind
 			// applies the cleared set AND asks AAF to drop its morph blocks, which
 			// costs one extra call and removes the guess.
-			kClearExpression = 5
+			kClearExpression = 5,
+
+			// Commonwealth Moisturizer. Its cum is worn geometry, not a texture --
+			// a BodySlide-conformed mesh on an armour slot plus morphing headparts
+			// for the face -- so it is driven through its own modder API rather
+			// than through AAF's overlay calls. setID carries the regions: any of
+			// F (front), O (oral), R (rear).
+			//
+			// These two go to a SEPARATE queue, drained by a SEPARATE script in an
+			// optional plugin. Nothing in Rapport's own scripts may name a
+			// Moisturizer type, or Rapport would carry an unresolvable reference
+			// on every install that does not have it.
+			kApplyMoisturizer = 6,
+			kClearMoisturizer = 7
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

@@ -69,6 +69,36 @@ Int Function TakeOverlayOrder() Global Native
 Int Function OrderActorID() Global Native
 String Function OrderSetID() Global Native
 
+; An order the bridge collected but could not carry out -- an actor who turned
+; out not to be loaded. Puts the mark back to "not asked for yet" so the next
+; tick offers it again, because a collected order is gone whether or not anything
+; actually happened.
+Function DeferOrder(Int aiFormID) Global Native
+
+; ---- the optional Commonwealth Moisturizer plugin -------------------------
+; Its own doorbell, drained by Rapport:Moisturizer in Rapport_Moisturizer.esp.
+; It is a separate script in a separate plugin for one reason: naming a
+; Moisturizer type inside Rapport:Bridge would leave an unresolvable reference in
+; the bridge on every install that does not have that mod.
+;
+; 0 nothing, 6 apply, 7 clear. The regions are some subset of "FOR" -- front,
+; oral, rear -- which is exactly the shape its own API takes.
+Int Function TakeMoisturizerOrder() Global Native
+Int Function MoisturizerActorID() Global Native
+
+; The regions as three answers rather than one string. Papyrus cannot search a
+; string without F4SE's StringUtil, and the plugin already knows which are set.
+Bool Function MoisturizerFront() Global Native
+Bool Function MoisturizerOral() Global Native
+Bool Function MoisturizerRear() Global Native
+
+; The same thing as text, for the log only.
+String Function MoisturizerRegions() Global Native
+
+; True when Rapport has chosen Moisturizer as its aftermath backend. False means
+; stand down entirely -- either CumOverlays is driving or the feature is off.
+Bool Function MoisturizerWanted() Global Native
+
 ; ---- takeover ------------------------------------------------------------
 ; Quests belonging to OTHER mods that Rapport stops while it owns a feature they
 ; also do. The plugin resolves them against the load order; stopping a quest is
