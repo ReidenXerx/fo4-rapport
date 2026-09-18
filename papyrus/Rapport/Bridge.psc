@@ -59,15 +59,26 @@ Function Connect()
 		Return
 	EndIf
 
-	; AAF_API re-broadcasts every event MainQuestScript sends, so these register
-	; on the API object rather than on the quest behind it.
-	RegisterForCustomEvent(_api, "OnAAFReady")
-	RegisterForCustomEvent(_api, "OnWalkInit")
-	RegisterForCustomEvent(_api, "OnSceneInit")
-	RegisterForCustomEvent(_api, "OnSceneEnd")
-	RegisterForCustomEvent(_api, "OnAnimationStart")
-	RegisterForCustomEvent(_api, "OnAnimationStop")
-	RegisterForCustomEvent(_api, "OnAnimationQueryResult")
+	; AAF_API re-broadcasts every event MainQuestScript sends, so these register on
+	; the API object rather than on the quest behind it.
+	;
+	; The names are MANGLED on purpose, and this is the whole reason no AAF event
+	; ever reached this script. Papyrus mangles a custom event name at COMPILE time
+	; to "<declaring script, lowercased>_<Event>", and AAF's own pex therefore sends
+	; "aaf:aaf_api_OnSceneInit". Sex 'Em Up writes the plain name in its source and
+	; its pex still contains the mangled one, because it compiled against AAF's real
+	; sources. Ours are decompiled, with the CustomEvent declarations put back by
+	; hand -- enough for the handlers below to compile, not enough for the compiler
+	; to mangle these. Proven by compiling both forms and reading the string table:
+	; the plain name stays plain, and an explicit mangled name passes through. So we
+	; write what AAF actually sends.
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAAFReady")
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnWalkInit")
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnSceneInit")
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnSceneEnd")
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAnimationStart")
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAnimationStop")
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAnimationQueryResult")
 
 	_ready = true
 

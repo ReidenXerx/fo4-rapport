@@ -79,6 +79,29 @@ colon intact, then the event. `tools/restore_custom_events.py` reads those and w
 declarations back. It restored 16 on `AAF_API` and 17 on `AAF_MainQuestScript`, and it is
 idempotent, so re-running after a fresh decompile is safe.
 
+## The third thing it costs you: custom event names are mangled at COMPILE time
+
+This one is invisible, and it silently breaks every custom event you try to receive.
+
+Papyrus rewrites a custom event name at compile time to `<declaring script, lowercased>_<Event>`.
+AAF's shipped `AAF_API.pex` therefore contains the literal `aaf:aaf_api_OnSceneInit`, and the VM
+matches registrations against senders **by that string**.
+
+Compiled against decompiled sources with hand-restored `CustomEvent` declarations, the mangling does
+not happen. Proven by compiling both forms and reading the string table back:
+
+```papyrus
+RegisterForCustomEvent(api, "OnSceneInit")             ; emits "OnSceneInit"            -- never matches
+RegisterForCustomEvent(api, "aaf:aaf_api_OnSceneInit") ; emits "aaf:aaf_api_OnSceneInit" -- matches
+```
+
+The restored declarations are enough for `Event AAF:AAF_API.OnSceneInit(...)` to compile, so
+everything *looks* right: the script builds, registers, and receives nothing. Ever. There is no
+error, because `RegisterForCustomEvent` returns void.
+
+**So register with the name the sender actually sends**, taken from its own string table rather than
+from its source. `tools/pexnames.py` and the string-table reader will show it.
+
 ## Compiling a namespaced script
 
 `Rapport:Bridge` lives at `papyrus/Rapport/Bridge.psc`, and compiling it *by path* fails with
