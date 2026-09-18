@@ -511,6 +511,13 @@ namespace RP
 		_sceneInFlight.store(false);
 	}
 
+	void PapyrusLink::RequireHandshake()
+	{
+		if (_bridgeReady.exchange(false)) {
+			logger::info("a save was loaded - the bridge will introduce itself again");
+		}
+	}
+
 	void PapyrusLink::OnBridgeReady(bool a_aafPresent)
 	{
 		_bridgeReady.store(a_aafPresent);

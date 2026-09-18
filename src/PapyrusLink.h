@@ -43,6 +43,16 @@ namespace RP
 		// session, so it owns the answer to "have we introduced ourselves yet?".
 		// The script cannot answer it: its variables persist in the save.
 		[[nodiscard]] bool NeedsHandshake() const noexcept { return !_bridgeReady.load(); }
+
+		// A game LOAD is a new lifetime for the Papyrus half even though the plugin
+		// keeps running, so the bridge must introduce itself again. Its arrays come
+		// back from the save -- sometimes as None, when a struct has changed shape
+		// since that save was written -- and only Connect() re-creates them.
+		//
+		// Before this, the plugin stayed "ready" across a load, Connect never
+		// re-ran, and _inFlight was None: "Cannot add elements to a None array",
+		// silently, with the request simply never starting.
+		void RequireHandshake();
 		[[nodiscard]] std::int32_t TakenFirstID() const noexcept { return _takenFirst; }
 		[[nodiscard]] std::int32_t TakenSecondID() const noexcept { return _takenSecond; }
 		[[nodiscard]] float        TakenDuration() const noexcept { return _takenDuration; }

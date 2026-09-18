@@ -117,3 +117,29 @@ argument.**
 The clock moved to where the watchdog's already was. `SceneToStop()` returns the request whose scene
 has run its length, timed from `OnSceneStarted` rather than from the request — AAF walks the pair
 together first, and that walk took 12.5 seconds of a 30-second scene.
+
+## A save LOAD is a new lifetime for Papyrus but not for the plugin
+
+The plugin keeps running across a load. The Papyrus script does not: its variables come back from
+the save, and **a struct that has changed shape since that save was written comes back as `None`
+rather than as an empty array**.
+
+Measured 2026-09-18. `Struct Request` gained a `duration` field. On a second load in one session:
+
+```
+error: Cannot add elements to a None array
+stack: Rapport:Bridge.BeginRequest()
+       Rapport:Bridge.OnTimer()
+```
+
+`_inFlight` was `None`, `Add` failed, `BeginRequest` aborted halfway, and the request simply never
+happened -- no failure reported, because the abort was *inside* the function that would have
+reported it.
+
+The reason nothing re-created the array is the asymmetry itself: `Connect()` creates it, and
+`Connect()` only runs when the PLUGIN says a handshake is needed. The plugin had not restarted, so
+it still believed the bridge was ready and never asked for one.
+
+**So a load now forces a new handshake** (`RequireHandshake()` on `kPostLoadGame`), and the array is
+checked at the point of use anyway. Two defences, because this is the third distinct bug caused by
+the same asymmetry and the first two also looked like something else.

@@ -180,6 +180,16 @@ Event OnTimer(Int aiTimerID)
 EndEvent
 
 Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDuration)
+	; Never assume the array exists. It lives in the save, and a save written
+	; before this struct changed shape comes back as None rather than as an empty
+	; array -- at which point Add fails, the function aborts halfway, and the
+	; request simply never happens. Belt as well as braces: Connect() re-creates
+	; it on every load now, but the cost of checking here is one comparison.
+	If _inFlight == None
+		Rapport:Core.Trace("bridge: the in-flight array came back None from the save - re-creating it")
+		_inFlight = new Request[0]
+	EndIf
+
 	Actor akFirst = Game.GetForm(aiFirstID) as Actor
 	Actor akSecond = Game.GetForm(aiSecondID) as Actor
 
@@ -246,7 +256,12 @@ EndFunction
 ; block forever without costing anything but this one stack.
 Function DoStartScene(Int aiRequest)
 	Int index = Self.FindRequest(aiRequest)
-	If index < 0 || _api == None
+	If index < 0
+		Rapport:Core.RequestFailed(aiRequest, "the request vanished before AAF was asked - nothing was started")
+		Return
+	EndIf
+	If _api == None
+		Rapport:Core.RequestFailed(aiRequest, "AAF went away before the scene could start")
 		Return
 	EndIf
 

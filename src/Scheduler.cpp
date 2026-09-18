@@ -34,6 +34,7 @@ namespace RP
 		}
 		_inSession.store(true);
 		_panicked = false;
+		PapyrusLink::GetSingleton().RequireHandshake();
 		logger::info("session ready — warming up for {}s before the first tick", config.warmupSeconds);
 	}
 
