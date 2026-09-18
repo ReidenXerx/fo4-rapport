@@ -125,13 +125,19 @@ namespace RP
 		};
 		std::unordered_map<std::string, Tree> trees;
 
-		struct Pending
+		// Every declaration of a position id, merged. `retired` is sticky so a
+		// later -- or earlier -- override that hides or nulls it wins regardless of
+		// the order the files are read in. `order` keeps the catalogue stable
+		// across runs rather than leaving it to the hash map.
+		struct Decl
 		{
-			std::string                     positionID;
 			std::string                     treeID;
 			std::unordered_set<std::string> tags;
+			bool                            retired{ false };
+			bool                            seen{ false };
 		};
-		std::vector<Pending> pending;
+		std::unordered_map<std::string, Decl> declared;
+		std::vector<std::string>              order;
 
 		std::uint32_t files = 0;
 		for (const auto& entry : std::filesystem::directory_iterator{ folder, ec }) {
@@ -174,11 +180,44 @@ namespace RP
 				const auto body = text.substr(at, close == std::string::npos ? std::string::npos
 				                                                             : close - at);
 
-				Tree tree;
-				for (auto b = body.find("<branch"); b != std::string::npos;
-				     b = body.find("<branch", b + 1)) {
+				// Branches NEST. Only one root-to-leaf path is ever played, so the
+				// length and the stage count are the longest PATH, not the totals.
+				//
+				// Summing every branch over-stated nine of the eighty-five trees
+				// here, worst 225s against an actual 120s path -- and since the
+				// budget term is a 20-point swing on a 10-point band, those trees
+				// were not demoted for a length they never run, they were erased.
+				// They are the six-stage orgasm trees the budget was written for.
+				Tree                tree;
+				std::vector<float>  running;   // cumulative time down the current path
+				bool                hasExit = false;
+
+				for (std::size_t b = body.find("<branch"); b != std::string::npos;) {
+					const auto nextOpen = body.find("<branch", b + 1);
+					const auto nextClose = body.find("</branch>", b + 1);
+
 					const auto branch = Element(body, b);
-					++tree.stages;
+					const auto selfClosing = !branch.empty() && branch.back() == '/';
+
+					float seconds = 0.0f;
+					if (const auto attr = Attr(branch, "time"); !attr.empty()) {
+						try {
+							seconds = std::stof(attr);
+						} catch (const std::exception&) {
+							// Unreadable time contributes nothing rather than
+							// poisoning the whole tree's length.
+						}
+					}
+
+					const auto total = (running.empty() ? 0.0f : running.back()) + seconds;
+					running.push_back(total);
+
+					tree.stages = std::max(tree.stages, static_cast<std::uint32_t>(running.size()));
+					tree.seconds = std::max(tree.seconds, total);
+
+					if (Lower(Attr(branch, "isExit")) == "true") {
+						hasExit = true;
+					}
 
 					const auto branchID = Lower(Attr(branch, "id"));
 					if (branchID.find("climax") != std::string::npos) {
@@ -189,61 +228,109 @@ namespace RP
 						tree.ending = std::max(tree.ending, Ending::kFinishOnly);
 					}
 
-					if (const auto seconds = Attr(branch, "time"); !seconds.empty()) {
-						try {
-							tree.seconds += std::stof(seconds);
-						} catch (const std::exception&) {
-							// A branch with an unreadable time contributes nothing
-							// rather than poisoning the whole tree's length.
+					if (selfClosing) {
+						running.pop_back();
+					}
+
+					// Walk the document in order, popping a level for every close
+					// that lands before the next open.
+					b = nextOpen;
+					for (auto c = nextClose; c != std::string::npos && (b == std::string::npos || c < b);
+					     c = body.find("</branch>", c + 1)) {
+						if (!running.empty()) {
+							running.pop_back();
 						}
 					}
 				}
+
+				// A tree with no exit branch does not end itself, whatever its
+				// branches are called.
+				//
+				// Two trees here have exactly one ending-shaped branch and it is
+				// named "Stage 4 (No orgasm)" -- so a substring test read them as
+				// REACHING an orgasm on the strength of the branch that says there
+				// is not one, and they were the entire result set for some tags
+				// under requireEnding. Every one of the 81 real exit branches in
+				// this install is marked isExit, so the marker is the fact and the
+				// name is only the grade.
+				if (!hasExit) {
+					tree.ending = Ending::kNone;
+				}
+
 				trees.insert_or_assign(std::move(id), tree);
 			}
 
 			// ---- positions that enter one -----------------------------------
+			//
+			// AAF merges position declarations BY ID across files, and a pack can
+			// retire another pack's position by re-declaring it. UAP does exactly
+			// that: a second declaration with animation="Null", under a <defaults>
+			// that hides the whole file, and crucially WITHOUT positionTree.
+			//
+			// Reading each declaration independently therefore kept the base pack's
+			// live one and never saw the retirement -- eleven of eighty-five
+			// entries here were positions AAF is guaranteed to refuse, and for some
+			// tags they were the entire result set.
+			//
+			// So declarations are collected per id and retirement is STICKY: any
+			// declaration that hides or nulls an id retires it, whatever order the
+			// files happen to be read in. That fails in the safe direction -- drop
+			// a position rather than hand AAF one it will not play -- and does not
+			// depend on filesystem enumeration order, which is what decided it
+			// before and only gave the right answer here by luck of collation.
 			for (auto at = text.find("<position"); at != std::string::npos;
 			     at = text.find("<position", at + 1)) {
 				const auto element = Element(text, at);
-
-				auto treeID = Attr(element, "positionTree");
-				if (treeID.empty()) {
-					continue;
-				}
-
-				// Hidden, or stubbed out with a null animation, means AAF will not
-				// select it -- which is exactly how UAP retires the standalone
-				// climax positions. Either way it is not an entry point.
-				const auto hiddenAttr = Attr(element, "isHidden");
-				const bool hidden = hiddenAttr.empty() ? hiddenByDefault
-				                                       : Lower(hiddenAttr) == "true";
-				if (hidden || Lower(Attr(element, "animation")) == "null") {
-					continue;
-				}
 
 				auto id = Attr(element, "id");
 				if (id.empty()) {
 					continue;
 				}
 
-				pending.push_back(Pending{ std::move(id), std::move(treeID),
-					SplitTags(Attr(element, "tags")) });
+				auto& decl = declared[id];
+
+				const auto hiddenAttr = Attr(element, "isHidden");
+				const bool hidden = hiddenAttr.empty() ? hiddenByDefault
+				                                       : Lower(hiddenAttr) == "true";
+				if (hidden || Lower(Attr(element, "animation")) == "null") {
+					decl.retired = true;
+					continue;
+				}
+
+				if (auto treeID = Attr(element, "positionTree"); !treeID.empty()) {
+					decl.treeID = std::move(treeID);
+					decl.tags = SplitTags(Attr(element, "tags"));
+					if (!decl.seen) {
+						decl.seen = true;
+						order.push_back(id);
+					}
+				}
 			}
 		}
 
 		// ---- join -----------------------------------------------------------
 		std::uint32_t orphaned = 0;
-		for (auto& item : pending) {
-			const auto found = trees.find(item.treeID);
+		std::uint32_t retired = 0;
+		for (const auto& id : order) {
+			auto& decl = declared[id];
+
+			// Retired by an override somewhere. Not an orphan and not a fault --
+			// a pack deliberately taking another pack's position out of play.
+			if (decl.retired) {
+				++retired;
+				continue;
+			}
+
+			const auto found = trees.find(decl.treeID);
 			if (found == trees.end()) {
 				++orphaned;
 				continue;
 			}
 
 			Entry made;
-			made.positionID = std::move(item.positionID);
-			made.treeID = std::move(item.treeID);
-			made.tags = std::move(item.tags);
+			made.positionID = id;
+			made.treeID = std::move(decl.treeID);
+			made.tags = std::move(decl.tags);
 			made.ending = found->second.ending;
 			made.seconds = found->second.seconds;
 			made.stages = found->second.stages;
@@ -252,6 +339,13 @@ namespace RP
 				++_withEnding;
 			}
 			_entries.push_back(std::move(made));
+		}
+
+		if (retired > 0) {
+			logger::info(
+				"trees: {} position(s) were retired by an override and are not in the catalogue - "
+				"AAF would refuse them",
+				retired);
 		}
 
 		logger::info(
@@ -378,7 +472,11 @@ namespace RP
 		// us back to one tree.
 		std::erase_if(candidates, [&](const auto& item) { return item.second < bestScore - 10.0f; });
 
-		static std::mt19937 rng{ std::random_device{}() };
+		// thread_local, not static. Every path here goes through Scenarios' lock,
+		// but NamedLock gives up after a second and lets the caller proceed
+		// UNLOCKED -- and Papyrus reaches this on two distinct stacks -- so a
+		// shared mt19937 is a genuine data race in a game process.
+		thread_local std::mt19937 rng{ std::random_device{}() };
 		std::uniform_int_distribution<std::size_t> pick{ 0, candidates.size() - 1 };
 		const auto* chosen = candidates[pick(rng)].first;
 
