@@ -80,6 +80,12 @@ Function NoteAAFStatus(Int aiStatus, Bool abHUDReady) Global Native
 ; that a no is a no for the session, and so the log says which of the two it was.
 Function NoteAAFRevivalChoice(Bool abYes) Global Native
 
+; True while the pair is being moved somewhere else. A move ends the SCENE, not
+; the REQUEST, so the bridge keeps its entry rather than dropping it -- dropping
+; it left the resume with nothing to resume, and the pair stranded off the
+; furniture with no scene at all.
+Bool Function RelocatingScene() Global Native
+
 ; Said once, after StopScene has been asked for, so the poll does not ask again
 ; every three seconds while AAF winds the scene down.
 Function NoteStopAsked() Global Native

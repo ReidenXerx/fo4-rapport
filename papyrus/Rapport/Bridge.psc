@@ -1030,6 +1030,22 @@ EndFunction
 Function Release(Int aiIndex, String asWhy)
 	Request entry = _inFlight[aiIndex]
 
+	; A scene that ended because the pair is MOVING is not a request that is over.
+	; Only the scene underneath it ended, and the plugin is about to ask for
+	; another one for this same request -- so the entry stays, with its scene id
+	; cleared so the next OnSceneInit binds the new scene to it.
+	;
+	; Removing it here is what stranded them the first time this ran: the resume
+	; arrived three seconds later and found no request in flight for that actor.
+	If asWhy == "" && Rapport:Core.RelocatingScene()
+		Request moving = _inFlight[aiIndex]
+		moving.sceneID = 0
+		_inFlight[aiIndex] = moving
+		Rapport:Core.Trace("relocate: the old scene has ended and request " + entry.id + " keeps its place - waiting for the new one")
+		Rapport:Core.SceneEnded(entry.id)
+		Return
+	EndIf
+
 	_inFlight.Remove(aiIndex, 1)
 
 	If asWhy == ""

@@ -164,6 +164,14 @@ namespace
 		RP::AAFHealth::GetSingleton().NoteChoice(a_yes);
 	}
 
+	// True while the pair is being moved. The bridge asks before it drops a
+	// request whose scene has ended, because a move ends the SCENE and not the
+	// REQUEST -- and dropping it left the resume with nothing to resume.
+	bool Papyrus_RelocatingScene(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().Relocating();
+	}
+
 	void Papyrus_NoteStopAsked(std::monostate)
 	{
 		RP::PapyrusLink::GetSingleton().NoteStopAsked();
@@ -386,6 +394,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteStopAsked"sv, Papyrus_NoteStopAsked, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteAAFStatus"sv, Papyrus_NoteAAFStatus, std::nullopt, false);
 		a_vm->BindNativeMethod(
+			kCoreScript, "RelocatingScene"sv, Papyrus_RelocatingScene, std::nullopt, false);
+		a_vm->BindNativeMethod(
 			kCoreScript, "NoteAAFRevivalChoice"sv, Papyrus_NoteAAFRevivalChoice, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverlayOrder"sv, Papyrus_TakeOverlayOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderActorID"sv, Papyrus_OrderActorID, std::nullopt, false);
@@ -416,7 +426,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 46 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 47 native functions on {}", kCoreScript);
 		return true;
 	}
 
