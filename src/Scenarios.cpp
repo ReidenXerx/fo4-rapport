@@ -1,6 +1,8 @@
 #include "Scenarios.h"
 
 #include "PapyrusLink.h"
+#include "Aftermath.h"
+#include "TreeIndex.h"
 
 namespace
 {
@@ -59,6 +61,7 @@ namespace RP
 		_scenarios.clear();
 
 		IndexInstalledTags();
+		TreeIndex::GetSingleton().Load();
 
 		const auto    path = ConfigPath();
 		std::ifstream file{ path };
@@ -103,11 +106,13 @@ namespace RP
 				stage.exclude = raw.value("exclude", std::string{});
 				stage.face = raw.value("face", std::string{});
 				stage.handover = raw.value("handover", false);
+				stage.tree = raw.value("tree", false);
+				stage.requireEnding = raw.value("requireEnding", true);
 
 				// A handover stage asks AAF for nothing, so it needs no tags. Every
 				// other stage does: without them there is nothing to request and the
 				// stage would silently do nothing at all.
-				if (stage.id.empty() || (stage.include.empty() && !stage.handover)) {
+				if (stage.id.empty() || (stage.include.empty() && !stage.handover && !stage.tree)) {
 					logger::warn(
 						"scenarios: a stage of \"{}\" has no id or no include tags - skipped",
 						scenario.id);
@@ -218,7 +223,7 @@ namespace RP
 			for (auto& stage : scenario.stages) {
 				// A handover stage requests nothing, so there is nothing it could
 				// fail to find. It is always playable.
-				stage.playable = stage.handover || AnyContentFor(stage.include);
+				stage.playable = stage.handover || stage.tree || AnyContentFor(stage.include);
 				if (!stage.playable) {
 					logger::warn(
 						"scenarios: \"{}\" stage \"{}\" will be skipped - nothing installed carries "
@@ -314,7 +319,39 @@ namespace RP
 		_option = 0;
 		_stageStartedAt = std::chrono::steady_clock::now();
 
-		if (stage.handover) {
+		if (stage.tree) {
+			// The whole point of the catalogue: pick the ending, do not hope for it.
+			const auto& index = TreeIndex::GetSingleton();
+			const auto composition = Aftermath::GetSingleton().CompositionOf(_first, _second);
+			const auto* chosen = index.Choose(
+				stage.include, stage.exclude, composition, stage.requireEnding, stage.seconds);
+
+			if (chosen) {
+				logger::info(
+					"scenario \"{}\": stage \"{}\" for {:.0f}s - chose \"{}\", a {}-stage tree "
+					"ending in a {}{}",
+					_running->id, stage.id, stage.seconds, chosen->positionID, chosen->stages,
+					TreeIndex::Describe(chosen->ending),
+					chosen->LengthKnown()
+						? std::format(" and authored for {:.0f}s", chosen->seconds)
+						: " of unrecorded length");
+
+				a_out.push_back(
+					Order{ Order::Kind::kChangeToPosition, _first, chosen->positionID, {} });
+			} else {
+				// Said out loud rather than silently behaving like a handover: "no
+				// tree qualified" and "this stage never wanted one" look identical
+				// from the outside, and only one of them is a content problem.
+				logger::warn(
+					"scenario \"{}\": stage \"{}\" wanted a {} tree ending in a climax matching "
+					"[{}]{} and this install has none of the {} indexed. Letting the scene play "
+					"on instead",
+					_running->id, stage.id,
+					composition.empty() ? "any-pair" : composition, stage.include,
+					stage.exclude.empty() ? "" : std::format(" avoiding [{}]", stage.exclude),
+					index.Size());
+			}
+		} else if (stage.handover) {
 			logger::info(
 				"scenario \"{}\": stage \"{}\" for {:.0f}s - handing the ending to AAF. No position "
 				"change is asked for, so a position that declares a tree walks it to its own climax",
@@ -368,6 +405,14 @@ namespace RP
 			// A handover stage asked for nothing, so a refusal cannot be about it.
 			// Something else in the scene was refused; advancing the option counter
 			// here would skip the handover and end the story early.
+			if (_running->stages[_stage].tree) {
+				logger::warn(
+					"scenario \"{}\": AAF refused the tree chosen for stage \"{}\" ({}) - letting "
+					"the scene play on rather than starting over",
+					_running->id, _running->stages[_stage].id, a_why);
+				return;
+			}
+
 			if (_running->stages[_stage].handover) {
 				logger::info(
 					"scenario \"{}\": AAF refused something during the handover stage \"{}\" ({}) - "

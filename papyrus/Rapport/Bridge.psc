@@ -609,6 +609,19 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		ps.excludeTags = asExtra
 		_api.ChangePosition(target, ps)
 		Rapport:Core.Trace("stage: asked AAF for [" + asSetID + "] on " + aiFormID)
+	ElseIf aiKind == 12
+		; A NAMED position, which is how a tree gets chosen. AAF has no tree
+		; function -- the word does not appear in its Papyrus at all, because trees
+		; run in the SWF -- but a position may declare one, so naming the position
+		; starts the tree and AAF walks its authored stages to a climax on its own.
+		;
+		; No tags here on purpose: they would narrow the very position we just
+		; picked deliberately, and the plugin chose it against this install's own
+		; catalogue rather than against a guess.
+		AAF:AAF_API:PositionSettings tps = _api.GetPositionSettings()
+		tps.position = asSetID
+		_api.ChangePosition(target, tps)
+		Rapport:Core.Trace("stage: asked AAF for the position \"" + asSetID + "\" on " + aiFormID + " - its tree takes it from here")
 	ElseIf aiKind == 5
 		; Both halves. The zeroed set puts every morph back to nothing; the block
 		; removal is what lets go of them, because every expression Rapport

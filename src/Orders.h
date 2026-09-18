@@ -65,7 +65,14 @@ namespace RP
 			// to itself when the version changes. GAME_DATA is carried across by
 			// hand, exactly as AAF carries it, because a quest stop resets the
 			// script and that string is the identity its stored data is keyed to.
-			kRestartAAFQuest = 11
+			kRestartAAFQuest = 11,
+
+			// Move the scene to a NAMED position rather than to whatever fits a set
+			// of tags. setID is the position id. This is how a tree gets chosen:
+			// AAF has no tree API, but a position may declare one, so naming the
+			// position is naming the tree -- and it is the only way to reach a
+			// climax, every standalone one being hidden by design.
+			kChangeToPosition = 12
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

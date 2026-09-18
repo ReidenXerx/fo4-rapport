@@ -68,6 +68,17 @@ namespace RP
 		// unknown.
 		void NoteSex(std::uint32_t a_formID, std::int32_t a_sex);
 
+		// 0 male, 1 female, -1 not reported. Read by the tree chooser, because an
+		// animation carries who it is FOR and picking a gay position for a mixed
+		// pair is the kind of wrong that AAF simply refuses and a player simply
+		// sees.
+		[[nodiscard]] std::int32_t SexOf(std::uint32_t a_formID) const;
+
+		// AAF's composition tag for a pair -- "f_m", "m_m", "f_f" -- or empty when
+		// either sex is unknown. Females come first by AAF's own convention; there
+		// is no "m_f" tag anywhere in the installed packs.
+		[[nodiscard]] std::string CompositionOf(std::uint32_t a_first, std::uint32_t a_second) const;
+
 		// The order AAF actually placed them in, from OnAnimationStart. Slot 0 is
 		// the receiving role in 559 of 562 two-actor animations that name both
 		// genders, which is the only thing that separates a same-sex pair.

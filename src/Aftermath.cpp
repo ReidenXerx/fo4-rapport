@@ -239,6 +239,32 @@ namespace RP
 		_sex[a_formID] = a_sex;
 	}
 
+	std::int32_t Aftermath::SexOf(std::uint32_t a_formID) const
+	{
+		NamedLock lock{ _lock, "aftermath" };
+		const auto found = _sex.find(a_formID);
+		return found == _sex.end() ? -1 : found->second;
+	}
+
+	std::string Aftermath::CompositionOf(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		const auto first = SexOf(a_first);
+		const auto second = SexOf(a_second);
+		if (first < 0 || second < 0) {
+			return {};   // unknown is not a constraint, it is an absence of one
+		}
+
+		const auto females = (first == 1 ? 1 : 0) + (second == 1 ? 1 : 0);
+		switch (females) {
+		case 2:
+			return "f_f";
+		case 1:
+			return "f_m";
+		default:
+			return "m_m";
+		}
+	}
+
 	void Aftermath::NoteSlots(std::uint32_t a_slot0, std::uint32_t a_slot1)
 	{
 		NamedLock lock{ _lock, "aftermath" };

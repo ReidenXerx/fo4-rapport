@@ -56,6 +56,21 @@ namespace RP
 			// aftermath, which are its own, and AAF finishes the story it started.
 			// Costs nothing when the position has no tree: it simply keeps playing.
 			bool        handover{ false };
+
+			// Choose a TREE for this stage instead of taking whatever the tags
+			// return, then hand over to it. The stage's include/exclude describe the
+			// KIND of ending wanted; Rapport resolves that against the trees this
+			// install actually has, so the scenario stays pack-agnostic while the
+			// ending stops being luck.
+			//
+			// Degrades to a plain handover when nothing qualifies or the index is
+			// empty: the scene carries on rather than being cut short.
+			bool        tree{ false };
+
+			// Only trees that reach a climax or an orgasm are eligible. On one real
+			// install 9 of 40 entry positions lead to a tree that simply stops, and
+			// an addon that asked for an ending must not be handed one of those.
+			bool        requireEnding{ true };
 		};
 
 		struct Scenario

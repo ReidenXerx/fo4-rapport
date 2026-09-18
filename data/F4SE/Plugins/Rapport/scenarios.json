@@ -30,6 +30,20 @@
     "include  tags AAF may choose from for this stage. Any one of them.",
     "exclude  tags AAF must avoid -- furniture it cannot use, acts that do not",
     "         belong in this moment.",
+    "tree     true means this stage CHOOSES a position tree and hands the ending",
+    "         to it. include/exclude then describe the KIND of ending wanted, and",
+    "         Rapport resolves that against the trees this install actually has --",
+    "         so the scenario stays pack-agnostic while the ending stops being",
+    "         luck. It names the tree's entry position directly, which is the only",
+    "         way to reach a climax: every standalone climax position is hidden by",
+    "         UAP on purpose, because the tree is the intended route. seconds is",
+    "         the time budget; a tree authored to fit is preferred over one that",
+    "         would be cut off. Degrades to a plain handover when nothing",
+    "         qualifies, and says so.",
+    "requireEnding  default true. Only trees reaching a climax or an orgasm are",
+    "         eligible. On one real install 9 of 40 entry positions lead to a tree",
+    "         that simply stops, and a scenario relying on an ending must not be",
+    "         handed one of those.",
     "handover true means this stage asks AAF for NOTHING and lets whatever is",
     "         already playing carry on. AAF's packs ship position trees -- 85 here,",
     "         22 ending in an explicit Climax branch -- and a position that declares",
@@ -98,9 +112,12 @@
         },
         {
           "id": "finish",
-          "comment": "Long on purpose: a BP70 tree runs six authored stages before its Climax branch.",
-          "seconds": 90,
-          "handover": true,
+          "comment": "Chooses a tree and hands over. 120s because the good ones run six authored stages.",
+          "seconds": 120,
+          "tree": true,
+          "requireEnding": true,
+          "include": "PenisToVagina,Missionary,Cowgirl,Doggy,Spooning",
+          "exclude": "",
           "face": "Rapport_Climax"
         }
       ]
@@ -126,8 +143,11 @@
         },
         {
           "id": "finish",
-          "seconds": 75,
-          "handover": true,
+          "seconds": 120,
+          "tree": true,
+          "requireEnding": true,
+          "include": "Missionary,Spooning,PenisToVagina,Loving,Cowgirl",
+          "exclude": "Rough,Aggressive",
           "face": "Rapport_Climax"
         }
       ]

@@ -39,6 +39,8 @@ set(SOURCES
 	"src/AAFHealth.cpp"
 	"src/Scenarios.h"
 	"src/Scenarios.cpp"
+	"src/TreeIndex.h"
+	"src/TreeIndex.cpp"
 	"src/Takeover.h"
 	"src/Takeover.cpp"
 	"src/PapyrusLink.h"
