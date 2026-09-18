@@ -84,6 +84,19 @@ namespace RP
 		// Doubles the AAF traffic during a scene, so it is a diagnosis rather than
 		// a feature -- but while ChangePosition refuses everything, it is the only
 		// thing that can tell our call apart from AAF's view of the actors.
+		// Drive facial expressions at all.
+		//
+		// Every set Rapport ships locks its morphs -- jaw open at 100, brows and
+		// cheeks at 100 -- and so does every one of the 131 sets the installed
+		// packs ship. The engine's own facial idle writes those same morphs for
+		// blinking, breathing and talking, and two writers on a locked morph
+		// contend continuously even though Rapport applies a set only ten times in
+		// a scene. Reported in game as the chin and eyes flickering.
+		//
+		// Turn it off to find out whether the flicker is ours: with faces off, a
+		// glitch that remains is somebody else's.
+		bool          driveFaces{ true };
+
 		bool          diagnoseStageTags{ true };
 
 		bool          dryRun{ true };

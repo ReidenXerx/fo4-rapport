@@ -708,6 +708,21 @@ namespace RP
 
 	void PapyrusLink::QueueOrder(Order a_order)
 	{
+		// One gate for every face, wherever it came from -- the scenario's stages,
+		// the expression schedule, or the clearing at the end. Gating at the source
+		// would mean gating in three places and forgetting one.
+		if (!Config::GetSingleton().driveFaces &&
+			(a_order.kind == Order::Kind::kApplyExpression ||
+				a_order.kind == Order::Kind::kClearExpression)) {
+			static std::once_flag said;
+			std::call_once(said, [] {
+				logger::info(
+					"faces: DriveFaces is off - Rapport applies no expressions this session, so "
+					"anything still flickering is not ours");
+			});
+			return;
+		}
+
 		const auto forMoisturizer = a_order.kind == Order::Kind::kApplyMoisturizer ||
 		                            a_order.kind == Order::Kind::kClearMoisturizer;
 		NamedLock lock{ _orderLock, "order queue" };

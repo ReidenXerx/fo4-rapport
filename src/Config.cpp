@@ -111,6 +111,8 @@ namespace RP
 					pollSeconds = Clamp(std::stof(value), 1.0f, 30.0f);
 				} else if (key == "DryRun") {
 					dryRun = !(value == "0" || value == "false" || value == "False");
+				} else if (key == "DriveFaces") {
+					driveFaces = !(value == "0" || value == "false" || value == "False");
 				} else if (key == "DiagnoseStageTags") {
 					diagnoseStageTags = (value == "1" || value == "true" || value == "True");
 				} else if (key == "Verbose") {
