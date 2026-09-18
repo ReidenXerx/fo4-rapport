@@ -179,6 +179,14 @@ namespace
 		RP::PapyrusLink::GetSingleton().NoteStopAsked();
 	}
 
+	// How many orders are still queued. The bridge logs it when its per-poll
+	// budget runs out, so a backlog is something the log SAYS rather than
+	// something a reader infers from orders arriving late.
+	std::int32_t Papyrus_PendingOrders(std::monostate)
+	{
+		return static_cast<std::int32_t>(RP::PapyrusLink::GetSingleton().PendingOrders());
+	}
+
 	std::int32_t Papyrus_TakeOverlayOrder(std::monostate)
 	{
 		try {
@@ -399,6 +407,7 @@ namespace RP
 		a_vm->BindNativeMethod(
 			kCoreScript, "NoteAAFRevivalChoice"sv, Papyrus_NoteAAFRevivalChoice, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverlayOrder"sv, Papyrus_TakeOverlayOrder, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "PendingOrders"sv, Papyrus_PendingOrders, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderActorID"sv, Papyrus_OrderActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderSetID"sv, Papyrus_OrderSetID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderExtra"sv, Papyrus_OrderExtra, std::nullopt, false);
@@ -427,7 +436,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 47 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 48 native functions on {}", kCoreScript);
 		return true;
 	}
 

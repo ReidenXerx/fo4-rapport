@@ -125,6 +125,11 @@ Function Pump() Global Native
 ; Collected on the same poll as the scene doorbell, for the same reason: the
 ; plugin cannot call AAF, and Papyrus is the only side that can.
 Int Function TakeOverlayOrder() Global Native
+
+; How many orders are still waiting. The bridge logs this when its per-poll
+; budget of eight runs out, so a backlog is something the log SAYS rather than
+; something a reader has to infer from orders arriving late.
+Int Function PendingOrders() Global Native
 Int Function OrderActorID() Global Native
 String Function OrderSetID() Global Native
 

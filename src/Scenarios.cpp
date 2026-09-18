@@ -475,17 +475,37 @@ namespace RP
 			return {};
 		}
 
-		// The LAST stage describes the ending this scenario wants, and the ending
-		// is what the whole tree is chosen for: the pack author staged everything
-		// before it to arrive there.
+		// The stage that ASKED for a tree describes the ending, and a scenario that
+		// asks for none gets none.
+		//
+		// This used to take the last stage with any include tags at all, which is a
+		// different question with a different answer. "quickie" is one stage --
+		// somewhere public, no time, no undressing, and no `tree` -- and its tags
+		// made it the last non-empty include, so it was handed a six-stage climax
+		// tree and ran for four minutes. Its thirty seconds were decorative,
+		// because nothing stops a scene on the scenario's clock any more.
+		//
+		// Inferring a requirement from a field being non-empty is how a scenario
+		// gets the opposite of what it asked for while the log reads like success.
 		const Stage* ending = nullptr;
 		for (auto it = scenario->stages.rbegin(); it != scenario->stages.rend(); ++it) {
-			if (!it->include.empty()) {
+			if (it->tree) {
 				ending = &*it;
 				break;
 			}
 		}
 		if (!ending) {
+			logger::info(
+				"scenario \"{}\": no stage asks for a tree, so the scene starts unconstrained - "
+				"AAF picks, and it is free to be short",
+				scenario->id);
+			return {};
+		}
+		if (ending->include.empty()) {
+			logger::warn(
+				"scenario \"{}\": stage \"{}\" asks for a tree but names no tags to choose one by - "
+				"starting unconstrained rather than picking arbitrarily",
+				scenario->id, ending->id);
 			return {};
 		}
 
@@ -498,10 +518,19 @@ namespace RP
 			return {};
 		}
 
+		// The budget is the WHOLE scene, not the ending stage's share of it.
+		//
+		// The tree starts walking the moment the scene starts and has every second
+		// of it. Passing the finish stage's 120s instead of athome's 285 understated
+		// the budget 2.4x, so a 150s tree scored -12 as "will be cut off" where it
+		// should have scored +8 -- a 20-point swing against exactly the long,
+		// well-authored trees this whole feature exists to reach, and wider than the
+		// 10-point band, so they were erased rather than merely demoted.
+		const auto  budget = scenario->PlayableSeconds();
 		const auto  composition = Aftermath::GetSingleton().CompositionOf(a_first, a_second);
 		const auto* chosen = index.Choose(
 			ending->include, ending->exclude, composition, ending->requireEnding,
-			_avoidFurniture, ending->seconds);
+			_avoidFurniture, budget);
 
 		// Nothing without furniture fits either, so take the furniture one back --
 		// a scene that might not start beats no scene at all, and the refusal that
@@ -513,7 +542,7 @@ namespace RP
 				scenario->id);
 			chosen = index.Choose(
 				ending->include, ending->exclude, composition, ending->requireEnding, false,
-				ending->seconds);
+				budget);
 		}
 
 		if (!chosen) {

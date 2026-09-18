@@ -280,14 +280,27 @@ Function DoStartScene(Int aiRequest)
 		Rapport:Core.RequestFailed(aiRequest, "the request vanished before AAF was asked - nothing was started")
 		Return
 	EndIf
+	; EVERY failure below here must Release, not just Return.
+	;
+	; BeginRequest already added this request to _inFlight, and Release is the only
+	; thing that ever removes one -- reachable from OnSceneEnd alone, for a scene
+	; AAF actually ends. A request abandoned here therefore stays in the array
+	; forever, and one stranded entry is not a leak of one scene: FindRequestByActors
+	; matches on AAF's scene id, every stranded entry has none, and its
+	; single-candidate fallback stops working the moment the array holds two. From
+	; then on EVERY later scene is unmatchable -- never started, never stopped,
+	; never recorded, both actors left flagged busy -- and each one strands its own
+	; entry, so it compounds. Only Connect() re-creating the array recovers it,
+	; which means a game load.
 	If _api == None
-		Rapport:Core.RequestFailed(aiRequest, "AAF went away before the scene could start")
+		Self.Release(index, "AAF went away before the scene could start")
 		Return
 	EndIf
 
 	Actor akFirst = _inFlight[index].first
 	Actor akSecond = _inFlight[index].second
 	If akFirst == None || akSecond == None
+		Self.Release(index, "an actor went away before the scene could start")
 		Return
 	EndIf
 
@@ -329,9 +342,16 @@ Function DoStartScene(Int aiRequest)
 	; on. Failing here costs one tick; the scheduler simply offers the pair again.
 	Int status = _api.GetAAFStatus()
 	If status < 2
-		Rapport:Core.RequestFailed(aiRequest, "AAF is not ready (status " + status + ") - it has not announced itself since the last load")
-		Self.ReleaseActor(akFirst)
-		Self.ReleaseActor(akSecond)
+		; Release, not a bare Return: this is the failure that actually happens --
+		; the watchdog's whole reason for existing -- so it is the one most likely
+		; to strand an entry and blind every later scene.
+		;
+		; Release's failure branch reports RequestFailed and clears both actors'
+		; busy flags itself, which is what the two hand-rolled ReleaseActor calls
+		; used to do here. One of them was also an AAF call on this stack, and a
+		; stack that calls AAF often does not come back -- so the second actor was
+		; stranded whenever the first wedged.
+		Self.Release(index, "AAF is not ready (status " + status + ") - it has not announced itself since the last load")
 		Return
 	EndIf
 
@@ -574,9 +594,28 @@ Function DrainOverlayOrders()
 	; puts forty Papyrus calls in one frame.
 	; Each order is handed to its own stack. The loop itself does no AAF work, so
 	; it cannot be the thing that stops the poll.
+	;
+	; THE BUDGET IS TESTED BEFORE THE POP, and that is the whole shape of this
+	; loop. TakeOverlayOrder DESTROYS the order it returns -- it pops the front of
+	; the native deque -- so popping at the bottom of the body and then failing the
+	; budget test threw one order away on every over-budget poll, silently, with no
+	; log line and no way to get it back.
+	;
+	; Every kind that travels this queue is issued once and forgotten in the same
+	; breath: Aftermath erases the mark as it queues the removal, Expressions
+	; clears the wearing list as it queues the clear. So a dropped order is not a
+	; delayed order, it is permanent damage -- an overlay nothing will ever take
+	; off, a face that can no longer talk, an NPC carrying AAF_ActorBusy for the
+	; rest of the save, or the one question about restarting AAF that is never
+	; asked. And more than eight at once is the DESIGNED case, not an edge: a
+	; reload queues one per standing mark.
 	Int budget = 8
-	Int kind = Rapport:Core.TakeOverlayOrder()
-	While kind != 0 && budget > 0
+	While budget > 0
+		Int kind = Rapport:Core.TakeOverlayOrder()
+		If kind == 0
+			Return
+		EndIf
+
 		Var[] args = new Var[4]
 		args[0] = kind as Var
 		args[1] = Rapport:Core.OrderActorID() as Var
@@ -585,8 +624,13 @@ Function DrainOverlayOrders()
 		Self.CallFunctionNoWait("DoOrder", args)
 
 		budget -= 1
-		kind = Rapport:Core.TakeOverlayOrder()
 	EndWhile
+
+	; Whatever is left waits for the next poll rather than being eaten by this one.
+	Int waiting = Rapport:Core.PendingOrders()
+	If waiting > 0
+		Rapport:Core.Trace("orders: " + waiting + " still queued after this poll's budget of 8 - they wait, they are not dropped")
+	EndIf
 EndFunction
 
 ; Own stack. One order, and nothing it can block matters to anybody else.
