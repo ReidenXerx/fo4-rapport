@@ -99,6 +99,7 @@ namespace RP
 				stage.id = raw.value("id", std::string{});
 				stage.seconds = raw.value("seconds", 30.0f);
 				stage.include = raw.value("include", std::string{});
+				stage.options = Split(stage.include);
 				stage.exclude = raw.value("exclude", std::string{});
 				stage.face = raw.value("face", std::string{});
 				if (stage.id.empty() || stage.include.empty()) {
@@ -303,17 +304,17 @@ namespace RP
 
 		const auto& stage = _running->stages[index];
 		_stage = index;
+		_option = 0;
 		_stageStartedAt = std::chrono::steady_clock::now();
 
 		logger::info(
-			"scenario \"{}\": stage \"{}\" for {:.0f}s [{}]{}",
+			"scenario \"{}\": stage \"{}\" for {:.0f}s, any of [{}]{}",
 			_running->id, stage.id, stage.seconds, stage.include,
 			stage.exclude.empty() ? "" : std::format(" avoiding [{}]", stage.exclude));
 
-		// One order moves the scene; AAF chooses which animation fits the tags.
-		a_out.push_back(Order{ Order::Kind::kChangePosition, _first, stage.include, stage.exclude });
+		SendCurrentOption(a_out);
 
-		// And the face belongs to the stage, not to a percentage of the clock.
+		// The face belongs to the stage, not to a percentage of the clock.
 		if (!stage.face.empty()) {
 			for (const auto formID : { _first, _second }) {
 				if (formID != 0) {
@@ -321,6 +322,51 @@ namespace RP
 				}
 			}
 		}
+	}
+
+	// ONE tag, not the whole list. AAF's includeTags is an AND.
+	void Scenarios::SendCurrentOption(std::vector<Order>& a_out)
+	{
+		if (!_running || _stage >= _running->stages.size()) {
+			return;
+		}
+		const auto& stage = _running->stages[_stage];
+		if (_option >= stage.options.size()) {
+			return;
+		}
+
+		logger::info(
+			"scenario \"{}\": trying \"{}\" for stage \"{}\" ({} of {})",
+			_running->id, stage.options[_option], stage.id, _option + 1, stage.options.size());
+		a_out.push_back(
+			Order{ Order::Kind::kChangePosition, _first, stage.options[_option], stage.exclude });
+	}
+
+	void Scenarios::OnRefused(std::string_view a_why)
+	{
+		std::vector<Order> outgoing;
+		{
+			NamedLock lock{ _lock, "scenarios" };
+			if (!_running || _stage >= _running->stages.size()) {
+				return;
+			}
+
+			const auto& stage = _running->stages[_stage];
+			++_option;
+
+			if (_option < stage.options.size()) {
+				logger::info(
+					"scenario \"{}\": AAF refused \"{}\" for stage \"{}\" - trying the next one ({})",
+					_running->id, stage.options[_option - 1], stage.id, a_why);
+				SendCurrentOption(outgoing);
+			} else {
+				logger::warn(
+					"scenario \"{}\": nothing in stage \"{}\" works for this pair here - moving on ({})",
+					_running->id, stage.id, a_why);
+				EnterStage(_stage + 1, outgoing);
+			}
+		}
+		PapyrusLink::GetSingleton().QueueOrders(outgoing);
 	}
 
 	void Scenarios::Pump()

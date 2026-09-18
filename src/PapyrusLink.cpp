@@ -84,6 +84,15 @@ namespace
 			static_cast<std::uint32_t>(a_slot0), static_cast<std::uint32_t>(a_slot1));
 	}
 
+	// AAF refused what was asked for. It reports this down OnSceneInit with four
+	// arguments instead of eleven, which is why a real scene init is told apart by
+	// its length -- treating a refusal as a start restarted the scenario, which
+	// asked for the same impossible thing again.
+	void Papyrus_SceneRefused(std::monostate, RE::BSFixedString a_why)
+	{
+		RP::Scenarios::GetSingleton().OnRefused(a_why.c_str());
+	}
+
 	void Papyrus_NoteSceneTags(std::monostate, RE::BSFixedString a_tags)
 	{
 		// BOTH. One decides what a scene leaves behind, the other decides what the
@@ -352,6 +361,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NeedsHandshake"sv, Papyrus_NeedsHandshake, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteEvent"sv, Papyrus_NoteEvent, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorBusy"sv, Papyrus_NoteActorBusy, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SceneRefused"sv, Papyrus_SceneRefused, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorSex"sv, Papyrus_NoteActorSex, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneSlots"sv, Papyrus_NoteSceneSlots, std::nullopt, false);
@@ -387,7 +397,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 43 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 44 native functions on {}", kCoreScript);
 		return true;
 	}
 

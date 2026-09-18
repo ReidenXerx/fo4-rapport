@@ -224,3 +224,30 @@ AAF carries on leaves two NPCs animating with nobody watching them.
 
 **Time the stop from `OnSceneInit`, not from the request.** AAF walks the pair to each other first,
 and that walk is not the scene: request to scene start measured 12.5 seconds in an open market.
+
+## includeTags is an AND, and failures come back down OnSceneInit
+
+Two things learned the hard way on the first staged scene, within ninety seconds of each other.
+
+**`includeTags` means "an animation carrying ALL of these", not "any of these".** Asking for five
+alternatives gets you nothing, because nothing is all five at once:
+
+```
+[034] Failed to start 'FM' scene because there are no 'FEMALE HUMAN + MALE HUMAN' animations.
+      Filters: includeTags (KISSING,MOUTHTOMOUTH,HANDJOB,HANDTOVAGINA,HANDTOPENIS)
+```
+
+So a set of alternatives has to be offered ONE AT A TIME. Rapport keeps a stage's list as options
+and sends a single tag, moving to the next when AAF refuses.
+
+**AAF reports refusals through `OnSceneInit` itself.** A real scene init carries **11** arguments; a
+refusal carries **4** — an error level in `[0]` and the message in `[1]`. There is no separate error
+event, and nothing about the event name says which one you have.
+
+Treating a refusal as a start is a tight loop: the scenario restarts, asks for the same impossible
+thing, is refused again. It ran about eight times a second and every pass logged `scene started`.
+**Check the argument count before believing an event.**
+
+The refusal is also better evidence than any up-front check. A tag index knows a tag exists
+somewhere; it cannot know whether an animation exists for *this pair, in this furniture, here*. AAF
+answering "no" is the only thing that does.

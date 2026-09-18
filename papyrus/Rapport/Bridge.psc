@@ -323,6 +323,21 @@ EndEvent
 
 Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnSceneInit", akArgs)
+
+	; AAF reports FAILURES down this same event. A real scene init carries 11
+	; arguments; a failure carries 4, with an error level in [0] and the message
+	; in [1] -- "Failed to start 'FM' scene because there are no ... animations".
+	;
+	; Treating that as a scene start restarted the scenario, which asked for the
+	; same impossible thing again, which failed again. A tight loop, and the log
+	; said "scene started" every time round it.
+	If akArgs == None || akArgs.Length < 11
+		If akArgs != None && akArgs.Length > 1
+			Rapport:Core.Trace("aaf REFUSED the scene: " + akArgs[1])
+			Rapport:Core.SceneRefused(akArgs[1] as String)
+		EndIf
+		Return
+	EndIf
 	Int index = Self.FindRequestByActors(akArgs)
 	If index >= 0
 		; args[3] is AAF's scene id. Remembering it is what lets the end of this

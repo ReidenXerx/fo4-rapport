@@ -28,7 +28,11 @@ namespace RP
 		{
 			std::string id;
 			float       seconds{ 30.0f };
-			std::string include;   // tags AAF may choose from
+			// ALTERNATIVES, tried one at a time. AAF's includeTags is an AND: it
+			// wants one animation carrying every tag given, so sending five means
+			// asking for something that is all five at once, which nothing is.
+			std::vector<std::string> options;
+			std::string include;   // the authored list, for the log
 			std::string exclude;   // tags it must avoid
 			std::string face;      // the expression set for this moment
 			bool        playable{ true };   // false when nothing installed matches
@@ -98,12 +102,23 @@ namespace RP
 		void MarkPlayableStages();
 
 		void EnterStage(std::size_t a_index, std::vector<Order>& a_out);
+		void SendCurrentOption(std::vector<Order>& a_out);
+
+	public:
+		// AAF refused what the current stage asked for. Try this stage's next
+		// alternative; when they run out, move on. Its refusal is better evidence
+		// than the tag index, which knows a tag exists somewhere but not whether
+		// an animation exists for THIS pair.
+		void OnRefused(std::string_view a_why);
+
+	private:
 
 		mutable std::timed_mutex _lock;
 
 		// ---- the scene in progress -------------------------------------------
 		const Scenario* _running{ nullptr };
 		std::size_t     _stage{ 0 };
+		std::size_t     _option{ 0 };
 		std::uint32_t   _first{ 0 };
 		std::uint32_t   _second{ 0 };
 		std::chrono::steady_clock::time_point _stageStartedAt{};

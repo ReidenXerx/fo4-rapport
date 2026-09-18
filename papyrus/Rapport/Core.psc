@@ -62,6 +62,10 @@ Function NoteStopAsked() Global Native
 ; The tags AAF put on an animation, as one string. Only the bridge hears them,
 ; and the plugin is what decides what a scene leaves behind, so they come over
 ; raw and are parsed on the other side.
+; AAF refused what a stage asked for. It reports this down OnSceneInit with four
+; arguments instead of eleven; the scenario tries its next alternative.
+Function SceneRefused(String asWhy) Global Native
+
 Function NoteSceneTags(String asTags) Global Native
 
 ; An actor's sex: 0 male, 1 female, anything else unknown. Reported from Papyrus
