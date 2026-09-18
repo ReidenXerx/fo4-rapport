@@ -315,3 +315,33 @@ needed a second slice. `IsChild()` is confirmed to reach the engine's implementa
 "Autonomy" is deliberately not in any of these: AAF Autonomy Enhanced is what this replaces, and the
 two should not be confused on a mod list. The earlier `AutonomyFramework.ini` and
 `AutonomyFramework/*.json` paths in the Config section above are superseded by the Rapport names.
+
+## A-10 (2026-09-18) — Aftermath, and taking over CumOverlays
+
+Rapport owns **persistent aftermath**: overlays, body morphs and facial expressions that outlive the
+scene that caused them. Both addons want it, so it is framework work rather than Chemistry's.
+
+The division of labour with AAF is narrow and worth stating, because most of it already exists:
+
+| | |
+| --- | --- |
+| AAF | `ApplyOverlaySet` / `RemoveOverlaySet`, `ApplyMorphSet`, `ApplyMFGSet`. An `overlayGroup` carries its own `duration` and `quantity`, so a timed, randomised overlay is pure XML. |
+| Rapport | Which set, from what happened in the scene. And **persistence**: `{actor, setID, expiresAt}` in game time, in the co-save, removed on a tick — because AAF's timer does not survive a save, a reload, or the game closing mid-count, and an overlay stranded that way stays on the actor forever. |
+
+Assets stay a third-party dependency, exactly like an animation pack. CumOverlays v1.4 supplies 57
+LooksMenu templates and their textures; none covers the face, so anything aimed there needs a pack
+that provides it.
+
+**Rapport stops CumOverlays while its own aftermath is running**, rather than asking the player to
+delete files. Two quests in `CumOverlays.esp` — `CumOverlay_Main` (`0x000802`) and
+`CumOverlay_Starter` (`0x000803`) — and stopping them unfills the player alias, so nothing of that
+mod runs. It is what the mod does to itself on a rollback, and it is reversible.
+
+That creates one obligation, which is the price of the decision: **a stopped quest stays stopped.**
+Rapport must start both again the moment its aftermath feature is switched off, and the uninstall
+instructions must say to switch it off before removing Rapport. A player who removes Rapport with
+the feature on has silently lost their cum overlays with no way to guess why.
+
+Rejected: warning only, and opt-in-by-default. Both leave doubled overlays as the normal experience
+until someone finds a switch, and the owner would rather carry the uninstall obligation than ship
+that.
