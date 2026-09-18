@@ -485,10 +485,11 @@ Function DrainOverlayOrders()
 	Int budget = 8
 	Int kind = Rapport:Core.TakeOverlayOrder()
 	While kind != 0 && budget > 0
-		Var[] args = new Var[3]
+		Var[] args = new Var[4]
 		args[0] = kind as Var
 		args[1] = Rapport:Core.OrderActorID() as Var
 		args[2] = Rapport:Core.OrderSetID() as Var
+		args[3] = Rapport:Core.OrderExtra() as Var
 		Self.CallFunctionNoWait("DoOrder", args)
 
 		budget -= 1
@@ -497,7 +498,7 @@ Function DrainOverlayOrders()
 EndFunction
 
 ; Own stack. One order, and nothing it can block matters to anybody else.
-Function DoOrder(Int aiKind, Int aiFormID, String asSetID)
+Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	If _api == None
 		Return
 	EndIf
@@ -521,6 +522,16 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID)
 	ElseIf aiKind == 4
 		Self.ReleaseActor(target)
 		Rapport:Core.Trace("released the AAF busy keywords from " + aiFormID)
+	ElseIf aiKind == 8
+		; The next stage of a scenario. The stage names the KIND of moment it
+		; wants and AAF chooses an animation that fits -- which is why a scenario
+		; written once works with whatever packs somebody has, instead of only
+		; with the pack it was written against.
+		AAF:AAF_API:PositionSettings ps = _api.GetPositionSettings()
+		ps.includeTags = asSetID
+		ps.excludeTags = asExtra
+		_api.ChangePosition(target, ps)
+		Rapport:Core.Trace("stage: asked AAF for [" + asSetID + "] on " + aiFormID)
 	ElseIf aiKind == 5
 		; Both halves. The zeroed set puts every morph back to nothing; the block
 		; removal is what lets go of them, because every expression Rapport

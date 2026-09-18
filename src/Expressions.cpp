@@ -120,6 +120,7 @@ namespace RP
 		_duration = (std::max)(a_durationSeconds, 1.0f);
 		_startedAt = std::chrono::steady_clock::now();
 		_running = true;
+		_stoodDown = false;
 		_dazing = false;
 		_nextStep = 0;
 		_tags.clear();
@@ -177,7 +178,7 @@ namespace RP
 				CollectClear(outgoing, "a save was made while a scene was running");
 			}
 
-			if (_running) {
+			if (_running && !_stoodDown) {
 				const auto elapsed =
 					std::chrono::duration<float>{ now - _startedAt }.count();
 				const auto fraction = elapsed / _duration;
@@ -236,6 +237,13 @@ namespace RP
 		}
 		logger::info("expressions: clearing {} face(s) - {}", _wearing.size(), a_why);
 		_wearing.clear();
+	}
+
+	void Expressions::StandDown()
+	{
+		NamedLock lock{ _lock, "expressions" };
+		_stoodDown = true;
+		logger::info("expressions: a scenario is driving the faces this scene - schedule stood down");
 	}
 
 	void Expressions::OnSceneEnded()

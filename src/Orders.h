@@ -31,6 +31,11 @@ namespace RP
 			// costs one extra call and removes the guess.
 			kClearExpression = 5,
 
+			// Move a running scene to the next stage of a scenario. setID carries
+			// the tags AAF may choose from, extra the ones it must avoid. It picks
+			// the animation; the scenario only names the KIND of moment it wants.
+			kChangePosition = 8,
+
 			// Commonwealth Moisturizer. Its cum is worn geometry, not a texture --
 			// a BodySlide-conformed mesh on an armour slot plus morphing headparts
 			// for the face -- so it is driven through its own modder API rather
@@ -48,5 +53,9 @@ namespace RP
 		Kind          kind{ Kind::kApplyOverlay };
 		std::uint32_t formID{ 0 };
 		std::string   setID;
+
+		// A second string, used only by kChangePosition, which needs both the tags
+		// AAF may choose from and the tags it must avoid.
+		std::string   extra;
 	};
 }

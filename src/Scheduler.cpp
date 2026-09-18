@@ -4,6 +4,7 @@
 #include "Config.h"
 #include "Expressions.h"
 #include "Ledger.h"
+#include "Scenarios.h"
 #include "PapyrusLink.h"
 #include "Pairing.h"
 
@@ -249,7 +250,18 @@ namespace RP
 				} else if (!link.Ready()) {
 					logger::info("   holding: the bridge is not ready");
 				} else {
-					link.RequestScene(ranked.front().first, ranked.front().second, settings.sceneSeconds);
+					// The scenario named here is the STAND-IN'S choice, not the framework's.
+					// Rapport executes a story an addon asks for; this branch is only
+					// pretending to be Chemistry until Chemistry exists, and it says so
+					// a few lines above.
+					const auto& scenario = settings.standInScenario;
+					const auto  seconds =
+						scenario.empty()
+							? settings.sceneSeconds
+							: (std::max)(settings.sceneSeconds,
+							             Scenarios::GetSingleton().SecondsFor(scenario));
+
+					link.RequestScene(ranked.front().first, ranked.front().second, seconds, scenario);
 				}
 			}
 		}

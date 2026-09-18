@@ -5,6 +5,7 @@
 #include "Aftermath.h"
 #include "Expressions.h"
 #include "Ledger.h"
+#include "Scenarios.h"
 #include "Takeover.h"
 
 namespace
@@ -116,6 +117,7 @@ namespace
 		}
 
 		try {
+			RP::Scenarios::GetSingleton().Pump();
 			RP::Expressions::GetSingleton().Pump();
 			if (watching) {
 				logger::info("pump: returned normally");
@@ -160,6 +162,12 @@ namespace
 	RE::BSFixedString Papyrus_OrderSetID(std::monostate)
 	{
 		return RP::PapyrusLink::GetSingleton().OrderSetID().c_str();
+	}
+
+	// Only kChangePosition uses this: the tags AAF must AVOID for this stage.
+	RE::BSFixedString Papyrus_OrderExtra(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().OrderExtra().c_str();
 	}
 
 	// ---- the optional Commonwealth Moisturizer plugin ------------------------
@@ -353,6 +361,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverlayOrder"sv, Papyrus_TakeOverlayOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderActorID"sv, Papyrus_OrderActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderSetID"sv, Papyrus_OrderSetID, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "OrderExtra"sv, Papyrus_OrderExtra, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeMoisturizerOrder"sv, Papyrus_TakeMoisturizerOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerActorID"sv, Papyrus_MoisturizerActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerRegions"sv, Papyrus_MoisturizerRegions, std::nullopt, false);
@@ -378,7 +387,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 42 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 43 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -397,7 +406,8 @@ namespace RP
 		}
 	}
 
-	bool PapyrusLink::RequestScene(RE::Actor* a_first, RE::Actor* a_second, float a_duration)
+	bool PapyrusLink::RequestScene(
+		RE::Actor* a_first, RE::Actor* a_second, float a_duration, std::string_view a_scenario)
 	{
 		if (!a_first || !a_second) {
 			return false;
@@ -424,6 +434,7 @@ namespace RP
 		_inFlightFirst = static_cast<std::int32_t>(a_first->GetFormID());
 		_inFlightSecond = static_cast<std::int32_t>(a_second->GetFormID());
 		_inFlightDuration = a_duration;
+		_inFlightScenario.assign(a_scenario);
 		_inFlightRequest = request;
 		_sceneRunning = false;
 		_stopAsked = false;
@@ -527,10 +538,31 @@ namespace RP
 		_sceneRunning = true;
 		_stopAsked = false;
 
-		Expressions::GetSingleton().OnSceneStarted(
-			static_cast<std::uint32_t>(_inFlightFirst),
-			static_cast<std::uint32_t>(_inFlightSecond),
-			_inFlightDuration);
+		// A scenario, if the caller named one, drives the stages AND the faces --
+		// which is why the expression layer is told to stand down for this scene
+		// rather than running its own percentage schedule on top.
+		const auto staged =
+			!_inFlightScenario.empty() &&
+			Scenarios::GetSingleton().Begin(
+				_inFlightScenario,
+				static_cast<std::uint32_t>(_inFlightFirst),
+				static_cast<std::uint32_t>(_inFlightSecond));
+
+		if (!staged) {
+			Expressions::GetSingleton().OnSceneStarted(
+				static_cast<std::uint32_t>(_inFlightFirst),
+				static_cast<std::uint32_t>(_inFlightSecond),
+				_inFlightDuration);
+		} else {
+			// The scenario owns the face, but the expression layer still owns
+			// TAKING IT OFF -- the wearing list, the co-save and the clearing are
+			// all its, and a stage-driven face must still come off at the end.
+			Expressions::GetSingleton().OnSceneStarted(
+				static_cast<std::uint32_t>(_inFlightFirst),
+				static_cast<std::uint32_t>(_inFlightSecond),
+				_inFlightDuration);
+			Expressions::GetSingleton().StandDown();
+		}
 	}
 
 	void PapyrusLink::NoteEvent(std::string_view a_name)
@@ -572,6 +604,13 @@ namespace RP
 		return static_cast<std::int32_t>(order.kind);
 	}
 
+	void PapyrusLink::QueueOrders(const std::vector<Order>& a_orders)
+	{
+		for (const auto& order : a_orders) {
+			QueueOrder(order);
+		}
+	}
+
 	std::size_t PapyrusLink::PendingOrders() const
 	{
 		NamedLock lock{ _orderLock, "order queue" };
@@ -584,6 +623,7 @@ namespace RP
 		if (_orders.empty()) {
 			_orderActor = 0;
 			_orderSet.clear();
+			_orderExtra.clear();
 			return 0;
 		}
 
@@ -592,6 +632,7 @@ namespace RP
 
 		_orderActor = static_cast<std::int32_t>(order.formID);
 		_orderSet = order.setID;
+		_orderExtra = order.extra;
 		return static_cast<std::int32_t>(order.kind);
 	}
 
@@ -751,6 +792,7 @@ namespace RP
 				static_cast<std::uint32_t>(_inFlightSecond));
 		}
 		Expressions::GetSingleton().OnSceneEnded();
+		Scenarios::GetSingleton().End();
 		_inFlightFirst = 0;
 		_inFlightSecond = 0;
 		_inFlightRequest = 0;

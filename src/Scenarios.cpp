@@ -1,5 +1,7 @@
 #include "Scenarios.h"
 
+#include "PapyrusLink.h"
+
 namespace
 {
 	[[nodiscard]] std::string Lower(std::string_view a_text)
@@ -227,5 +229,130 @@ namespace RP
 			}
 		}
 		return nullptr;
+	}
+
+	// ---- running one --------------------------------------------------------
+
+	float Scenarios::SecondsFor(std::string_view a_id) const
+	{
+		const auto scenario = Find(a_id);
+		return scenario ? scenario->PlayableSeconds() : 0.0f;
+	}
+
+	bool Scenarios::Running() const
+	{
+		NamedLock lock{ _lock, "scenarios" };
+		return _running != nullptr;
+	}
+
+	bool Scenarios::Begin(std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second)
+	{
+		std::vector<Order> outgoing;
+		{
+			NamedLock lock{ _lock, "scenarios" };
+
+			const auto scenario = Find(a_id);
+			if (!scenario) {
+				logger::warn("scenarios: nothing named \"{}\" - the scene runs as a single animation", a_id);
+				return false;
+			}
+			if (scenario->PlayableSeconds() <= 0.0f) {
+				logger::warn(
+					"scenarios: \"{}\" has no stage the installed packs can fill - the scene runs as "
+					"a single animation",
+					a_id);
+				return false;
+			}
+
+			_running = scenario;
+			_first = a_first;
+			_second = a_second;
+			_stage = scenario->stages.size();   // EnterStage moves it to the first playable one
+
+			logger::info(
+				"scenario \"{}\": {:08X} and {:08X}, {:.0f}s over {} stage(s)",
+				scenario->id, a_first, a_second, scenario->PlayableSeconds(), scenario->stages.size());
+
+			EnterStage(0, outgoing);
+		}
+		PapyrusLink::GetSingleton().QueueOrders(outgoing);
+		return true;
+	}
+
+	// Enters the first PLAYABLE stage at or after a_index. A stage nothing can
+	// fill costs nothing and is stepped over here rather than being started and
+	// then found empty.
+	void Scenarios::EnterStage(std::size_t a_index, std::vector<Order>& a_out)
+	{
+		if (!_running) {
+			return;
+		}
+
+		auto index = a_index;
+		while (index < _running->stages.size() && !_running->stages[index].playable) {
+			logger::info("scenario \"{}\": skipping \"{}\" - nothing installed fills it",
+				_running->id, _running->stages[index].id);
+			++index;
+		}
+
+		if (index >= _running->stages.size()) {
+			logger::info("scenario \"{}\": no stages left - the scene plays out its last one", _running->id);
+			_stage = _running->stages.size();
+			return;
+		}
+
+		const auto& stage = _running->stages[index];
+		_stage = index;
+		_stageStartedAt = std::chrono::steady_clock::now();
+
+		logger::info(
+			"scenario \"{}\": stage \"{}\" for {:.0f}s [{}]{}",
+			_running->id, stage.id, stage.seconds, stage.include,
+			stage.exclude.empty() ? "" : std::format(" avoiding [{}]", stage.exclude));
+
+		// One order moves the scene; AAF chooses which animation fits the tags.
+		a_out.push_back(Order{ Order::Kind::kChangePosition, _first, stage.include, stage.exclude });
+
+		// And the face belongs to the stage, not to a percentage of the clock.
+		if (!stage.face.empty()) {
+			for (const auto formID : { _first, _second }) {
+				if (formID != 0) {
+					a_out.push_back(Order{ Order::Kind::kApplyExpression, formID, stage.face, {} });
+				}
+			}
+		}
+	}
+
+	void Scenarios::Pump()
+	{
+		std::vector<Order> outgoing;
+		{
+			NamedLock lock{ _lock, "scenarios" };
+			if (!_running || _stage >= _running->stages.size()) {
+				return;
+			}
+
+			const auto elapsed = std::chrono::duration<float>{
+				std::chrono::steady_clock::now() - _stageStartedAt
+			}.count();
+			if (elapsed < _running->stages[_stage].seconds) {
+				return;
+			}
+
+			EnterStage(_stage + 1, outgoing);
+		}
+		PapyrusLink::GetSingleton().QueueOrders(outgoing);
+	}
+
+	void Scenarios::End()
+	{
+		NamedLock lock{ _lock, "scenarios" };
+		if (_running) {
+			logger::info("scenario \"{}\": over", _running->id);
+		}
+		_running = nullptr;
+		_stage = 0;
+		_first = 0;
+		_second = 0;
 	}
 }

@@ -91,6 +91,8 @@ namespace RP
 					sceneSeconds = Clamp(std::stof(value), 5.0f, 600.0f);
 				} else if (key == "PruneHours") {
 					pruneHours = Clamp(std::stof(value), 0.0f, 100000.0f);
+				} else if (key == "StandInScenario") {
+					standInScenario = value;
 				} else if (key == "PanicClear") {
 					panicClear = value != "0";
 				} else if (key == "CooldownHours") {

@@ -41,6 +41,12 @@ namespace RP
 
 		void OnSceneEnded();
 
+		// A scenario is driving the faces for this scene, so the percentage
+		// schedule must not also run. Everything else stays: the wearing list, the
+		// clearing and the co-save record are still this layer's, because a face
+		// put on by a stage still has to come off at the end.
+		void StandDown();
+
 		// Called on every poll. Queues the next expression when its moment has
 		// come, and the clearing one when the afterglow is over.
 		void Pump();
@@ -93,6 +99,7 @@ namespace RP
 		std::chrono::steady_clock::time_point _startedAt{};
 		std::chrono::steady_clock::time_point _endedAt{};
 		bool          _running{ false };
+		bool          _stoodDown{ false };
 		bool          _dazing{ false };
 		bool          _clearPending{ false };   // a save was made mid-scene
 		std::size_t   _nextStep{ 0 };

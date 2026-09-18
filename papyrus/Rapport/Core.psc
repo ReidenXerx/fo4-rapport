@@ -82,11 +82,16 @@ Function Pump() Global Native
 ;   1  apply an overlay set      2  remove an overlay set
 ;   3  apply a facial expression 4  take AAF's busy keywords off this actor
 ;   5  clear a facial expression -- the zeroed set AND the block removal
+;   8  move a running scene to the next stage of a scenario
 ; Collected on the same poll as the scene doorbell, for the same reason: the
 ; plugin cannot call AAF, and Papyrus is the only side that can.
 Int Function TakeOverlayOrder() Global Native
 Int Function OrderActorID() Global Native
 String Function OrderSetID() Global Native
+
+; Only order kind 8 uses this: the tags AAF must AVOID for this stage. The
+; include tags come through OrderSetID.
+String Function OrderExtra() Global Native
 
 ; An order the bridge collected but could not carry out -- an actor who turned
 ; out not to be loaded. Puts the mark back to "not asked for yet" so the next

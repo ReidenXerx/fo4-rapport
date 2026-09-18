@@ -41,6 +41,13 @@ namespace RP
 		// remove.
 		bool          panicClear{ false };
 
+		// The scenario the STAND-IN names. Rapport does not choose a scenario --
+		// an addon does (A-24) -- and the scheduler's act-on-it branch is only
+		// standing in for Chemistry until Chemistry exists. This setting, and the
+		// stand-in that reads it, both go away with it. Empty runs a scene as a
+		// single animation, as before.
+		std::string   standInScenario{ "athome" };
+
 		// How often the Papyrus bridge asks whether there is a scene to start.
 		// Almost every ask returns nothing, so this is a doorbell, not a scan.
 		float         pollSeconds{ 3.0f };

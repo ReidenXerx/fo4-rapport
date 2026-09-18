@@ -30,7 +30,11 @@ namespace RP
 
 		// Leaves a request for the bridge to collect. False when one is already
 		// outstanding or the bridge is not listening.
-		bool RequestScene(RE::Actor* a_first, RE::Actor* a_second, float a_duration);
+		// a_scenario is the addon's choice of story, or empty for a single
+		// animation. Rapport does not pick one: the framework executes a scenario,
+		// it does not decide that there should be one.
+		bool RequestScene(
+			RE::Actor* a_first, RE::Actor* a_second, float a_duration, std::string_view a_scenario);
 
 		// ---- called from Papyrus ----
 		std::int32_t TakeRequest();
@@ -92,6 +96,7 @@ namespace RP
 		// like the scene one so the two follow-up calls cannot see a different
 		// order from the one handed out.
 		void         QueueOrder(Order a_order);
+		void         QueueOrders(const std::vector<Order>& a_orders);
 		std::int32_t TakeOverlayOrder();
 		[[nodiscard]] std::size_t PendingOrders() const;
 
@@ -105,6 +110,7 @@ namespace RP
 		}
 		[[nodiscard]] std::int32_t       OrderActorID() const noexcept { return _orderActor; }
 		[[nodiscard]] const std::string& OrderSetID() const noexcept { return _orderSet; }
+		[[nodiscard]] const std::string& OrderExtra() const noexcept { return _orderExtra; }
 
 		// One line that says what has and has not happened. Logged periodically and
 		// on anything notable.
@@ -151,6 +157,7 @@ namespace RP
 		std::int32_t _inFlightFirst{ 0 };
 		std::int32_t _inFlightSecond{ 0 };
 		float        _inFlightDuration{ 0.0f };
+		std::string  _inFlightScenario;
 		std::int32_t _inFlightRequest{ 0 };
 		std::chrono::steady_clock::time_point _sceneStartedAt{};
 		bool         _sceneRunning{ false };
@@ -165,6 +172,7 @@ namespace RP
 		std::deque<Order>  _cmkzOrders;
 		std::int32_t       _orderActor{ 0 };
 		std::string        _orderSet;
+		std::string        _orderExtra;
 		std::int32_t       _cmkzActor{ 0 };
 		std::string        _cmkzRegions;
 

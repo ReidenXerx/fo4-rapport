@@ -1,5 +1,8 @@
 #pragma once
 
+#include "NamedLock.h"
+#include "Orders.h"
+
 namespace RP
 {
 	// Sex as a story rather than an action.
@@ -55,6 +58,24 @@ namespace RP
 		void Load();
 
 		[[nodiscard]] const Scenario* Find(std::string_view a_id) const;
+
+		// ---- running one ------------------------------------------------------
+		// Begins at the first playable stage. Returns false when the scenario is
+		// unknown or has nothing playable at all, which leaves the scene to behave
+		// as an ordinary single-animation one.
+		bool Begin(std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second);
+
+		// Advances when the current stage has run its seconds. Called on the same
+		// poll as everything else.
+		void Pump();
+
+		void End();
+
+		[[nodiscard]] bool Running() const;
+
+		// The length the scene should be asked to run for: the sum of the stages
+		// that can actually be played.
+		[[nodiscard]] float SecondsFor(std::string_view a_id) const;
 		[[nodiscard]] std::size_t Count() const noexcept { return _scenarios.size(); }
 
 		// ---- the tag index ---------------------------------------------------
@@ -75,6 +96,17 @@ namespace RP
 	private:
 		void IndexInstalledTags();
 		void MarkPlayableStages();
+
+		void EnterStage(std::size_t a_index, std::vector<Order>& a_out);
+
+		mutable std::timed_mutex _lock;
+
+		// ---- the scene in progress -------------------------------------------
+		const Scenario* _running{ nullptr };
+		std::size_t     _stage{ 0 };
+		std::uint32_t   _first{ 0 };
+		std::uint32_t   _second{ 0 };
+		std::chrono::steady_clock::time_point _stageStartedAt{};
 
 		std::vector<Scenario>                      _scenarios;
 		std::unordered_set<std::string>            _tags;   // lowercased
