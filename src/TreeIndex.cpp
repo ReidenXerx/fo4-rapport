@@ -319,6 +319,22 @@ namespace RP
 			// turn outranks one that will be cut off before it finishes.
 			float score = matched * 10.0f;
 			score += static_cast<float>(entry.ending) * 5.0f;
+
+			// Strongly prefer a tree that needs no furniture.
+			//
+			// This position is where the scene STARTS now, not somewhere it moves
+			// to later, so a tree that wants a couch is asking for a couch to exist
+			// wherever these two happen to be standing. Thirteen of the 31 eligible
+			// female+male trees here need one -- couch, double bed, single bed,
+			// bench, desk -- and naming one that is not there risks the scene not
+			// starting at all, which is worse than a plainer ending.
+			//
+			// A preference and not a filter: AAF finds the furniture often enough
+			// indoors, and excluding half the catalogue to avoid a maybe would cost
+			// more variety than it buys.
+			if (entry.tags.contains("nofurn")) {
+				score += 15.0f;
+			}
 			if (entry.LengthKnown()) {
 				score += entry.seconds <= a_budgetSeconds ? 8.0f : -12.0f;
 			}
