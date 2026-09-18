@@ -23,12 +23,15 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 
-foreach ($name in 'Vortex', 'Fallout4') {
-    $proc = Get-Process -Name $name -ErrorAction SilentlyContinue
-    if ($proc) {
-        throw "$name is running (PID $($proc.Id -join ', ')). Close it before deploying."
-    }
+# The game is a hard stop: it holds the DLL open, so the copy would silently do
+# nothing. Vortex is only a warning -- it is the normal working state, and a new
+# file needs its Deploy button anyway.
+$game = Get-Process -Name 'Fallout4' -ErrorAction SilentlyContinue
+if ($game) {
+    throw "Fallout4 is running (PID $($game.Id -join ', ')). Close it before deploying."
 }
+
+$vortex = Get-Process -Name 'Vortex' -ErrorAction SilentlyContinue
 
 $dll = Join-Path $root "build\$Config\AutonomyFramework.dll"
 if (-not (Test-Path $dll)) {
@@ -52,5 +55,8 @@ foreach ($path in (Join-Path $plugins 'AutonomyFramework.dll'),
     } else {
         Write-Host "  MISSING: $path"
     }
+}
+if ($vortex) {
+    Write-Host "Vortex is open. Existing files updated in place through their hardlinks; press Deploy if you added a new one."
 }
 Write-Host "Deployed. Launch through F4SE; the log is Documents\My Games\Fallout4\F4SE\AutonomyFramework.log"
