@@ -16,11 +16,15 @@ Agreed 2026-09-18. Order is by dependency, not by appetite: each item needs the 
 | 2 aftermath | `Aftermath` — overlays that outlive the scene, expiring in game hours from the save. See `docs/aftermath.md` and A-13. |
 | 3 takeover | `Takeover` — CumOverlays' two quests stopped while Rapport owns aftermath, started again when it does not. See A-11. |
 
+| 1b expressions | `Expressions` — nine of Rapport's own facial sets, driven as fractions of a scene. No textures, no dependency. See A-14. |
+| 1c safeguards | `SCNE` / `FACE` records, stale-array release, NaN expiry, pruning, `PanicClear`. See `docs/safeguards.md` and A-15. |
+| 3b takeover | Three mods now: CumOverlays, Sex 'Em Up, Autonomy Enhanced. Each owned by a feature. See A-16. |
+
 ## Now
 
-**Watching items 1–3 behave in a real game.** Built and deployed, not yet proven: the ledger has
-never been read back out of a save, no overlay has been applied by Rapport, and no quest of another
-mod has been stopped by it. Each one logs enough to be decisive on a single run.
+**Watching all of it behave in a real game.** Built and deployed, none of it proven: the ledger has
+never been read back out of a save, no overlay or expression has been applied by Rapport, and no
+quest of another mod has been stopped by it. Each logs enough to be decisive on a single run.
 
 ## Pulled forward
 
@@ -39,13 +43,14 @@ and nothing but memory would have turned it off again.
 
 ## Next
 
-1. **Aftermath, the parts tags cannot answer** — roles (who gave and who received; AAF knows, we do
-   not ask yet), morphs, and expressions. The stony face the owner saw is here: `ApplyMFGSet` with
-   SAM installed. Cheap now that the plumbing exists.
+1. **Roles** — who gave and who received. Tags say WHAT an animation was, never to whom, so both
+   actors currently get the same overlay sets and the same face. AAF knows: `GetActorData` and the
+   position's own role list. This is the last thing standing between aftermath and being right
+   rather than merely working.
 
-2. **Takeover, the rest of it** — Autonomy Enhanced and Sex 'Em Up switched off the same way
-   CumOverlays already is, and any AAF setting we depend on. The mechanism is built and proven on
-   two quests; this is a list, not a feature.
+2. **Body morphs** — `ApplyMorphSet`, the third of AAF's three appearance levers and the only one
+   Rapport does not touch. Unlike overlays it needs no textures; unlike expressions it is not
+   instant, so it wants its own persistence.
 
 3. **The Attraction stat** — persistent, written through AAF so its own UI shows it and other mods
    can read it. See A-3.

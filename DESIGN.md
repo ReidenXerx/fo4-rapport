@@ -415,3 +415,53 @@ be stopped rather than merely coexisted with.
 Rapport ships **no textures**. It drives CumOverlays' 57 LooksMenu templates, which is a
 redistribution question answered the only defensible way. If that mod is absent the sets resolve to
 nothing, the log says so, and nothing else is affected.
+
+## A-14 - Rapport drives faces, and owes nobody for them (2026-09-18)
+
+The stony face is not a bug. There are ten `mfgSet` references across the entire AAF install and the
+pack that plays most often here has one of them (`Sleep_EyesClosed`); the animations never ask for
+an expression, so AAF has nothing to apply. Every animation pack shares that gap, which makes it a
+framework's job.
+
+This layer costs nothing and depends on nobody. A morph id is an index into the engine's own 50-entry
+facial table, so there are no textures to ship and no mod whose assets we are borrowing - the
+opposite of the overlays, and the reason it works on a vanilla install.
+
+Expressions are placed as FRACTIONS of a scene so the progression fits whatever length a scene runs.
+A scene whose animations carry no act tag is kissing and holds one face rather than building to a
+climax it will never have.
+
+## A-15 - nothing Rapport applies may be something only Rapport can remove (2026-09-18)
+
+Every piece of state this mod puts on an NPC outlives what put it there: AAF's busy keyword is
+cleared only by a scene ending, an overlay persists by design, a locked expression holds against the
+face's own animation. So each is written into the save (`SCNE`, `FACE`, `OVRL`), cleaned on load, and
+removable in one switch (`PanicClear`) that is run BEFORE uninstalling rather than after.
+
+The sweep is deliberately narrow: Rapport releases actors it had hold of and no others. AAF exposes
+no way to ask whether a scene is running - `GetAAFStatus` is a readiness flag, not a count - so
+clearing a flag another mod set would be a guess that could break their scene. See `docs/safeguards.md`.
+
+## A-16 - the takeover covers three mods, each owned by a feature (2026-09-18)
+
+CumOverlays (owned by aftermath), Sex 'Em Up and Autonomy Enhanced (owned by Rapport itself, per D2).
+Each entry names the feature that owns it, so switching aftermath off restarts CumOverlays without
+restarting the other two.
+
+Stopping a quest rather than uninstalling the mod is the safer act on a live playthrough: the plugin
+stays in the load order, every form it owns still resolves, and no script instance in the save is
+left pointing at nothing.
+
+Autonomy Enhanced is declared although it is currently disabled in Vortex. An entry for a plugin
+that is not installed costs nothing, logs plainly, and arms itself if it is ever enabled.
+
+## A-17 - no face overlay exists to drive (2026-09-18)
+
+Measured, not assumed: 959 LooksMenu overlay templates across the 14 installed overlay mods. 925 on
+slot 3 (body), 34 on slot 4 (hands), NONE on the head. `tools/overlayslots.py` re-runs the check.
+
+CumOverlays' textures cannot be reused for it - they are painted against body UV and the head is a
+different map entirely. A face overlay is an art job, not a code job. One candidate exists,
+Commonwealth Moisturizer on LoversLab, described as body AND facial cum applied after AAF scenes; if
+it ships a head-slot template Rapport drives it exactly as it drives CumOverlays, and if its sets are
+timed it becomes a fourth takeover entry.
