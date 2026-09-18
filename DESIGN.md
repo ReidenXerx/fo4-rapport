@@ -345,3 +345,46 @@ the feature on has silently lost their cum overlays with no way to guess why.
 Rejected: warning only, and opt-in-by-default. Both leave doubled overlays as the normal experience
 until someone finds a switch, and the owner would rather carry the uninstall obligation than ship
 that.
+
+## A-11 (2026-09-18) — Takeover: Rapport manages the mods it depends on
+
+A generalisation of the debug hub, from diagnostic settings to operational ones. Rapport configures
+the mods it works alongside so the player does not have to know they needed configuring.
+
+A-10 was the first instance — stopping CumOverlays while our aftermath runs — and there are more:
+Autonomy Enhanced and Sex 'Em Up are replaced outright (A-2), and AAF has settings we depend on.
+
+### The principle
+
+**Automatic, but never secret.** The player should not have to configure it, and must still be able
+to see it. A mod that silently changes another mod's settings is indistinguishable, from the
+outside, from a mod that breaks it.
+
+So every rule:
+
+- **Detects before acting.** Nothing is touched unless it is actually installed.
+- **Records the previous value** before changing it, so restoring is exact rather than a guess at
+  what the default used to be.
+- **Is listed in the UI**, with the reason, and can be switched off individually.
+- **Names every change in the log**, the way the debug hub already does.
+
+### The four mechanisms
+
+| | How | Side |
+| --- | --- | --- |
+| Stop a quest | `Quest.Stop()` / `Start()` | Papyrus |
+| Set a global | `TESGlobal::value` | Native — no round trip |
+| Set an MCM setting | `MCM.SetModSetting*` by mod name | Papyrus |
+| Write an ini | file, with a backup | Native, next launch |
+
+The global route is worth knowing: a mod's MCM page often writes GlobalVariables rather than MCM
+settings — Autonomy Enhanced's does (`"sourceType": "GlobalValue"`) — and those are directly
+writable from the plugin.
+
+### Why this waits for the co-save
+
+Restoring a setting exactly means knowing what it was before Rapport touched it, and that has to
+survive the session in which it was changed. Without the co-save, a takeover can only be undone
+before the game closes — which is the same failure as A-10's stopped quest, multiplied by every rule.
+
+So takeover lands immediately after the co-save, alongside aftermath, and not before.

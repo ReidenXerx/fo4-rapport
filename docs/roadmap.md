@@ -39,21 +39,29 @@ and nothing but memory would have turned it off again.
 2. **Aftermath** — overlays, morphs and expressions that outlive the scene, persisted in game time
    so they survive a reload and are never stranded. First thing a player actually notices. See A-10.
 
-3. **The Attraction stat** — persistent, written through AAF so its own UI shows it and other mods
+3. **Takeover** — Rapport configures the mods it works alongside so the player never has to:
+   stopping CumOverlays while our aftermath runs, disabling Autonomy Enhanced and Sex 'Em Up, and
+   any AAF setting we depend on. Automatic, but never secret: detected before acting, previous
+   values recorded, listed in the UI with reasons, every change named in the log. See A-11.
+
+   It sits here rather than earlier because restoring a setting exactly means remembering what it
+   was, and that has to outlive the session — so it needs the co-save above it.
+
+4. **The Attraction stat** — persistent, written through AAF so its own UI shows it and other mods
    can read it. See A-3.
 
-4. **The addon API** — Papyrus functions and an F4SE message API. The moment it exists, the autonomy
+5. **The addon API** — Papyrus functions and an F4SE message API. The moment it exists, the autonomy
    policy leaves Rapport's scheduler for Chemistry, where it belongs.
 
-5. **M3 hardening** — `FindMatchingAnimations` as a pre-check so a pair with no content is never
+6. **M3 hardening** — `FindMatchingAnimations` as a pre-check so a pair with no content is never
    chosen, interruption handling, travel and privacy.
 
-6. **More framework** — the owner has a queue of ideas here, and this is the right place for them.
+7. **More framework** — the owner has a queue of ideas here, and this is the right place for them.
    The debug hub was the first of them and has already been pulled forward. Remaining:
    general sex mechanics that every future mod reuses. Rapport is the ecosystem's shared layer, so
    anything two mods would both want belongs here rather than in an addon.
 
-7. **Player Proposals** — the Sex 'Em Up replacement, in its own repository.
+8. **Player Proposals** — the Sex 'Em Up replacement, in its own repository.
 
    Known risk, flagged early: it needs **dialogue records**, and dialogue is a far heavier ESP
    structure than the single quest record `tools/make_esp.py` writes by hand. This is the one place
