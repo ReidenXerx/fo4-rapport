@@ -55,6 +55,7 @@ namespace RP
 		_attempts = 0;
 		_asked = false;
 		_gaveUp = false;
+		_questStartDeclined = false;
 		_heldForMenu = false;
 		_unhealthySince.reset();
 		_lastAttemptAt.reset();
@@ -69,9 +70,10 @@ namespace RP
 			return;
 		}
 
-		// They said no, so they meant no. Not for this outage, not every poll for
-		// the rest of the session.
-		_gaveUp = true;
+		// They said no, so they meant no -- about the QUEST, which is the only
+		// thing they were asked. The gentle restart is a different question and
+		// stays available.
+		_questStartDeclined = true;
 		logger::info(
 			"aaf watchdog: the player chose to leave AAF's quest alone - no scene will start, "
 			"and this will not be asked again this session");
@@ -182,7 +184,7 @@ namespace RP
 		// reason it is stopped may be that AAF is on its way out of this save --
 		// which nothing here can see and the player can. So they decide, once.
 		if (_status == kQuestStopped) {
-			if (_asked) {
+			if (_asked || _questStartDeclined) {
 				return std::nullopt;
 			}
 			_asked = true;
@@ -210,7 +212,13 @@ namespace RP
 		// The last attempt is AAF's own harder reboot rather than a fourth polite
 		// request. Six gentle restarts across two loads changed nothing, so
 		// repeating it a seventh time is not a plan.
-		if (_attempts >= config.aafReviveAttempts) {
+		// The hard restart is never the FIRST thing tried. With
+		// AAFReviveAttempts = 1 it used to be the only one -- so a cautious player
+		// limiting how much Rapport does to another mod got the most invasive act
+		// available as the opening response to a fifteen-second outage, under a
+		// message claiming the gentle restart had not taken when it had never been
+		// attempted.
+		if (config.aafReviveAttempts > 1 && _attempts >= config.aafReviveAttempts) {
 			logger::warn(
 				"aaf watchdog: AAF has been at status {} for {:.0f}s and the gentle restart has "
 				"not taken - stopping and starting its main quest, which is what AAF does to "

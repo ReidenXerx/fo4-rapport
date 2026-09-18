@@ -94,6 +94,15 @@ namespace RP
 		bool          _heldForMenu{ false };   // said once, not every poll
 		bool          _gaveUp{ false };
 
+		// The player said "leave AAF's quest alone". That is an answer about ONE
+		// question -- whether to start a stopped quest -- and nothing else.
+		//
+		// It used to write _gaveUp, which is checked ahead of BOTH cures, so a "no"
+		// to the quest question silently disabled the ordinary status-1 restart the
+		// player was never asked about, for the rest of the session, with no log
+		// line saying why the watchdog had gone quiet.
+		bool          _questStartDeclined{ false };
+
 		std::optional<std::chrono::steady_clock::time_point> _unhealthySince;
 		std::optional<std::chrono::steady_clock::time_point> _lastAttemptAt;
 	};
