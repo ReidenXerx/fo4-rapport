@@ -63,6 +63,36 @@ script that relied on it, and `tools/pexnames.py` plus the readers in `tools/` c
 Getting the Creation Kit's actual `Data/Scripts/Source/Base` removes this entire class of problem.
 It is worth swapping to if the package ever turns up.
 
+## The other thing it costs you: CustomEvent declarations
+
+Champollion does not recover `CustomEvent` declarations either, and a script that sends a custom
+event must declare it. Registering for one of AAF's events against a decompiled `AAF_API.psc`
+therefore fails with:
+
+```
+aaf:aaf_api.onsceneend does not exist because aaf:aaf_api cannot generate onsceneend events
+```
+
+The names are still recoverable from the decompiled source, because every send carries the event
+name as a literal: `SendCustomEvent("aaf:aaf_api_OnSceneEnd", akArgs)` — the script name lowercased,
+colon intact, then the event. `tools/restore_custom_events.py` reads those and writes the missing
+declarations back. It restored 16 on `AAF_API` and 17 on `AAF_MainQuestScript`, and it is
+idempotent, so re-running after a fresh decompile is safe.
+
+## Compiling a namespaced script
+
+`Rapport:Bridge` lives at `papyrus/Rapport/Bridge.psc`, and compiling it *by path* fails with
+"filename does not match script name": the namespace comes from the import paths, not the file. Use
+batch mode over the directory, or name the script:
+
+```
+PapyrusCompiler.exe <papyrus dir> -all -f="Institute_Papyrus_Flags.flg" -i="<base>;<papyrus dir>" -o="<out>"
+PapyrusCompiler.exe "Rapport:Core"  -f="Institute_Papyrus_Flags.flg" -i="<base>;<papyrus dir>" -o="<out>"
+```
+
+Also note `Native` is a reserved word: a script cannot be called `Rapport:Native`, which is why the
+native declarations live in `Rapport:Core`.
+
 ## Compiling
 
 ```

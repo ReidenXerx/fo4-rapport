@@ -49,22 +49,16 @@ if ($scripts.Count -eq 0) {
 
 Write-Host "Compiling $($scripts.Count) script(s) against $Base"
 
-$failed = 0
-foreach ($script in $scripts) {
-    $output = & $Compiler $script.FullName -f="Institute_Papyrus_Flags.flg" -i="$Base;$sources" -o="$out" 2>&1
-    if ($LASTEXITCODE -ne 0 -or ($output -match 'compilation failed')) {
-        $failed++
-        Write-Host "FAILED: $($script.Name)"
-        $output | Where-Object { $_ -match 'error|failed|not specified' } | ForEach-Object {
-            Write-Host "    $_"
-        }
-    } elseif (-not $Quiet) {
-        Write-Host "  ok: $($script.Name)"
-    }
-}
+# Batch mode, not file by file. A namespaced script (Rapport:Bridge) compiled by
+# path fails with "filename does not match script name": the namespace has to come
+# from the import paths, which -all does and a single file path cannot.
+$output = & $Compiler $sources -all -f="Institute_Papyrus_Flags.flg" -i="$Base;$sources" -o="$out" 2>&1
 
-# Report what actually exists, not what the loop believes it wrote.
+# Print everything the compiler said. An earlier version filtered this to lines
+# matching "error", which hid the only message that explained a failure.
+$output | ForEach-Object { Write-Host "  $_" }
+
 $built = Get-ChildItem -Recurse -Filter *.pex $out -ErrorAction SilentlyContinue
 Write-Host ""
-Write-Host "$($built.Count) .pex in $out, $failed failed"
-if ($failed -gt 0) { exit 1 }
+Write-Host "$($built.Count) .pex in $out"
+if ($output -match 'compilation failed' -or $output -match '0 succeeded') { exit 1 }
