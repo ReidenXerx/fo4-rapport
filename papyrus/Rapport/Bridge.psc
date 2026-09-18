@@ -221,12 +221,42 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 	entry.duration = afDuration
 	_inFlight.Add(entry, 1)
 
+	; The AAF call goes on its OWN stack and this one returns immediately.
+	;
+	; A stack does not come back from StartScene. Measured three times, and the
+	; schedule-the-timer-first attempt is what proved the stack is stuck rather
+	; than merely failing: an errored stack would have let the already-scheduled
+	; timer fire, and it did not. Papyrus will not start a second OnTimer while
+	; the first is still running, so one stuck poll is every poll after it.
+	;
+	; OnSceneInit kept arriving throughout all three runs, so different handlers
+	; DO run at the same time. It is re-entering the SAME handler that queues.
+	; Putting the call in its own function is therefore enough.
+	Var[] args = new Var[1]
+	args[0] = aiRequest as Var
+	Self.CallFunctionNoWait("DoStartScene", args)
+EndFunction
+
+; Runs on its own stack, courtesy of CallFunctionNoWait. Everything here may
+; block forever without costing anything but this one stack.
+Function DoStartScene(Int aiRequest)
+	Int index = Self.FindRequest(aiRequest)
+	If index < 0 || _api == None
+		Return
+	EndIf
+
+	Actor akFirst = _inFlight[index].first
+	Actor akSecond = _inFlight[index].second
+	If akFirst == None || akSecond == None
+		Return
+	EndIf
+
 	Actor[] actors = new Actor[2]
 	actors[0] = akFirst
 	actors[1] = akSecond
 
 	AAF:AAF_API:SceneSettings settings = _api.GetSceneSettings()
-	settings.duration = afDuration
+	settings.duration = _inFlight[index].duration
 	settings.usePackages = true          ; AAF walks them there; we do not fight its packages
 	settings.skipWalk = false
 	settings.isNPCControlled = true
@@ -235,24 +265,31 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 
 	Rapport:Core.Trace("bridge: request " + aiRequest + " starting for " + akFirst.GetFormID() + " and " + akSecond.GetFormID() + ", aaf status " + _api.GetAAFStatus())
 	_api.StartScene(actors, settings)
-
-	; No timer here. This statement used to be StartTimer with a second id, and it
-	; took the poll with it: seventeen polls, then this line, then silence. The
-	; plugin's watchdog covers a scene that never begins, and it always did.
+	Rapport:Core.Trace("bridge: StartScene returned for request " + aiRequest)
 EndFunction
 
 ; Ends a scene AAF is running. -1 is AAF's own "all of it" -- the value its
 ; MainQuestScript uses when an actor walks out of range. One actor is enough;
 ; the scene is one thing, not one per participant.
 Function StopSceneFor(Request akEntry)
-	If _api == None
+	Var[] args = new Var[1]
+	args[0] = akEntry.id as Var
+	Self.CallFunctionNoWait("DoStopScene", args)
+EndFunction
+
+; Own stack, same reason as DoStartScene.
+Function DoStopScene(Int aiRequest)
+	Int index = Self.FindRequest(aiRequest)
+	If index < 0 || _api == None
 		Return
 	EndIf
-	If akEntry.first != None
-		_api.StopScene(akEntry.first, -1)
-	ElseIf akEntry.second != None
-		_api.StopScene(akEntry.second, -1)
+
+	If _inFlight[index].first != None
+		_api.StopScene(_inFlight[index].first, -1)
+	ElseIf _inFlight[index].second != None
+		_api.StopScene(_inFlight[index].second, -1)
 	EndIf
+	Rapport:Core.Trace("bridge: StopScene returned for request " + aiRequest)
 EndFunction
 
 Function CancelRequest(Int aiRequest)
@@ -425,43 +462,58 @@ Function DrainOverlayOrders()
 	; Bounded per poll on purpose. A reload can queue one order per standing
 	; overlay at once, and the point of this framework is not to be the mod that
 	; puts forty Papyrus calls in one frame.
+	; Each order is handed to its own stack. The loop itself does no AAF work, so
+	; it cannot be the thing that stops the poll.
 	Int budget = 8
 	Int kind = Rapport:Core.TakeOverlayOrder()
 	While kind != 0 && budget > 0
-		Int formID = Rapport:Core.OrderActorID()
-		String setID = Rapport:Core.OrderSetID()
-		Actor target = Game.GetForm(formID) as Actor
-
-		If target == None
-			Rapport:Core.DeferOrder(formID)
-			Rapport:Core.Trace("order: " + formID + " no longer resolves - " + setID + " was not carried out")
-		ElseIf kind == 1
-			_api.ApplyOverlaySet(target, setID)
-			Rapport:Core.Trace("aftermath: asked AAF for " + setID + " on " + formID)
-		ElseIf kind == 2
-			_api.RemoveOverlaySet(target, setID)
-			Rapport:Core.Trace("aftermath: asked AAF to remove " + setID + " from " + formID)
-		ElseIf kind == 3
-			_api.ApplyMFGSet(target, setID)
-			Rapport:Core.Trace("face: asked AAF for " + setID + " on " + formID)
-		ElseIf kind == 4
-			Self.ReleaseActor(target)
-			Rapport:Core.Trace("released the AAF busy keywords from " + formID)
-		ElseIf kind == 5
-			; Both halves. The zeroed set puts every morph back to nothing; the
-			; block removal is what lets go of them, because every expression
-			; Rapport applies is locked and a morph left locked at zero is a face
-			; that can no longer talk. No installed pack ships lock="false", so
-			; nothing here demonstrates that applying zeros alone releases it --
-			; and a frozen face is exactly the failure this is meant to prevent.
-			_api.ApplyMFGSet(target, setID)
-			_api.RemoveMFGBlock(target, Self.AllMorphIDs())
-			Rapport:Core.Trace("face: cleared " + setID + " from " + formID)
-		EndIf
+		Var[] args = new Var[3]
+		args[0] = kind as Var
+		args[1] = Rapport:Core.OrderActorID() as Var
+		args[2] = Rapport:Core.OrderSetID() as Var
+		Self.CallFunctionNoWait("DoOrder", args)
 
 		budget -= 1
 		kind = Rapport:Core.TakeOverlayOrder()
 	EndWhile
+EndFunction
+
+; Own stack. One order, and nothing it can block matters to anybody else.
+Function DoOrder(Int aiKind, Int aiFormID, String asSetID)
+	If _api == None
+		Return
+	EndIf
+
+	Actor target = Game.GetForm(aiFormID) as Actor
+	If target == None
+		Rapport:Core.DeferOrder(aiFormID)
+		Rapport:Core.Trace("order: " + aiFormID + " no longer resolves - " + asSetID + " was not carried out")
+		Return
+	EndIf
+
+	If aiKind == 1
+		_api.ApplyOverlaySet(target, asSetID)
+		Rapport:Core.Trace("aftermath: asked AAF for " + asSetID + " on " + aiFormID)
+	ElseIf aiKind == 2
+		_api.RemoveOverlaySet(target, asSetID)
+		Rapport:Core.Trace("aftermath: asked AAF to remove " + asSetID + " from " + aiFormID)
+	ElseIf aiKind == 3
+		_api.ApplyMFGSet(target, asSetID)
+		Rapport:Core.Trace("face: asked AAF for " + asSetID + " on " + aiFormID)
+	ElseIf aiKind == 4
+		Self.ReleaseActor(target)
+		Rapport:Core.Trace("released the AAF busy keywords from " + aiFormID)
+	ElseIf aiKind == 5
+		; Both halves. The zeroed set puts every morph back to nothing; the block
+		; removal is what lets go of them, because every expression Rapport
+		; applies is locked and a morph left locked at zero is a face that can no
+		; longer talk. No installed pack ships lock="false", so nothing here
+		; demonstrates that applying zeros alone releases it -- and a frozen face
+		; is exactly the failure this is meant to prevent.
+		_api.ApplyMFGSet(target, asSetID)
+		_api.RemoveMFGBlock(target, Self.AllMorphIDs())
+		Rapport:Core.Trace("face: cleared " + asSetID + " from " + aiFormID)
+	EndIf
 EndFunction
 
 ; Every morph id in the engine's facial table, as AAF wants them: one string of

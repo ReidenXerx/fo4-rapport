@@ -67,8 +67,22 @@ Run 3 is the one that settles it. The same function, `BeginRequest`, on two cons
 the call that returned before reaching AAF left the poll alive, and the call that reached AAF killed
 it. Not the function, not the timers, not the expression layer that was blamed for two runs.
 
-**So the next poll is scheduled BEFORE any AAF work**, never after it. A stack that does not return
-then costs one poll instead of every poll that would have followed.
+**Scheduling the next poll first does NOT fix it** -- and that attempt is what pinned the mechanism
+down. If the stuck stack had merely ERRORED, the already-scheduled timer would have fired. It did
+not. So the stack is alive and stuck, and **Papyrus will not start a second `OnTimer` while the
+first is still running**: one stuck poll is every poll after it. `OnSceneInit` kept arriving
+throughout all three runs, so different handlers DO run concurrently; it is re-entering the SAME
+handler that queues.
+
+**The fix is `CallFunctionNoWait`.** Every AAF call goes onto its own stack and `OnTimer` returns
+immediately. A stack that never comes back is then a different function from the poll, and costs one
+stack rather than the framework.
+
+One correction worth keeping, because the first diagnosis was half wrong: it is **not** `ui.Invoke`
+as such. `ChangeSetting` is also a `sendEvent`, and the debug hub applies two of them inside
+`Connect()` without hanging. `StartScene` does more -- `makeActorData` is
+`ll_fourplay.AAF_MakeActorData`, a native call into **another F4SE plugin**. Which of the two stalls
+is still unproven; the design does not depend on knowing.
 
 A consequence to design around rather than discover: one poll gets through **at most one** AAF call.
 A drain loop with a budget of eight is a budget of one.

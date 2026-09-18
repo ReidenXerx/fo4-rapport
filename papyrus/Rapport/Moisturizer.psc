@@ -119,37 +119,48 @@ Function DrainOrders()
 	Int budget = 4
 	Int kind = Rapport:Core.TakeMoisturizerOrder()
 	While kind != 0 && budget > 0
-		Int formID = Rapport:Core.MoisturizerActorID()
-		String regions = Rapport:Core.MoisturizerRegions()
-		Actor target = Game.GetForm(formID) as Actor
-
-		If target == None
-			Rapport:Core.Trace("moisturizer: " + formID + " no longer resolves - nothing was applied")
-		ElseIf kind == 6
-			; Its API takes three places rather than named sets. Rapport's tag
-			; mapping has already turned the animation's tags into these letters.
-			Bool front = Rapport:Core.MoisturizerFront()
-			Bool oral = Rapport:Core.MoisturizerOral()
-			Bool rear = Rapport:Core.MoisturizerRear()
-
-			; It refuses an actor whose 3D is not loaded, and says so only in its
-			; own log. Rapport waits for the owner to be nearby before asking, so
-			; this should be rare -- but taking the order off the queue is not the
-			; same as carrying it out, so a miss is handed back rather than
-			; quietly dropped.
-			If target.Is3DLoaded()
-				_lib.ApplyRandCumAtLocations(target, front, oral, rear, 0)
-				Rapport:Core.Trace("moisturizer: applied [" + regions + "] to " + formID)
-			Else
-				Rapport:Core.DeferOrder(formID)
-				Rapport:Core.Trace("moisturizer: " + formID + " is not loaded - [" + regions + "] deferred to the next tick")
-			EndIf
-		ElseIf kind == 7
-			_lib.ClearAllCumFromActor(target)
-			Rapport:Core.Trace("moisturizer: cleared everything from " + formID)
-		EndIf
+		Var[] args = new Var[5]
+		args[0] = kind as Var
+		args[1] = Rapport:Core.MoisturizerActorID() as Var
+		args[2] = Rapport:Core.MoisturizerFront() as Var
+		args[3] = Rapport:Core.MoisturizerOral() as Var
+		args[4] = Rapport:Core.MoisturizerRear() as Var
+		Self.CallFunctionNoWait("DoMoisturizerOrder", args)
 
 		budget -= 1
 		kind = Rapport:Core.TakeMoisturizerOrder()
 	EndWhile
+EndFunction
+
+; Own stack: equipping armour and swapping headparts is a great deal of engine
+; work, and the bridge learned the hard way what a stack that does not return
+; costs when it is the one the poll is running on.
+Function DoMoisturizerOrder(Int aiKind, Int aiFormID, Bool abFront, Bool abOral, Bool abRear)
+	If _lib == None
+		Return
+	EndIf
+
+	Actor target = Game.GetForm(aiFormID) as Actor
+	If target == None
+		Rapport:Core.DeferOrder(aiFormID)
+		Rapport:Core.Trace("moisturizer: " + aiFormID + " no longer resolves - nothing was applied")
+		Return
+	EndIf
+
+	If aiKind == 6
+		; It refuses an actor whose 3D is not loaded, and says so only in its own
+		; log. Rapport waits for the owner to be nearby before asking, so this
+		; should be rare -- but taking the order off the queue is not the same as
+		; carrying it out, so a miss is handed back rather than quietly dropped.
+		If target.Is3DLoaded()
+			_lib.ApplyRandCumAtLocations(target, abFront, abOral, abRear, 0)
+			Rapport:Core.Trace("moisturizer: applied front=" + abFront + " oral=" + abOral + " rear=" + abRear + " to " + aiFormID)
+		Else
+			Rapport:Core.DeferOrder(aiFormID)
+			Rapport:Core.Trace("moisturizer: " + aiFormID + " is not loaded - deferred to the next tick")
+		EndIf
+	ElseIf aiKind == 7
+		_lib.ClearAllCumFromActor(target)
+		Rapport:Core.Trace("moisturizer: cleared everything from " + aiFormID)
+	EndIf
 EndFunction
