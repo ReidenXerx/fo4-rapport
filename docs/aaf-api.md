@@ -43,6 +43,41 @@ Registered with `RegisterForCustomEvent(AAF_API, "<name>")`, handled as
 Sex 'Em Up registers only five of these and never listens for `OnSceneEnd`, which is why it needs a
 timer to decide a scene finished. We use the event.
 
+## Event arguments, read off a real scene
+
+AAF passes these straight through from its DLL, so they appear nowhere in its source. Captured
+2026-09-18 from a scene Rapport started (John and Cathy, Diamond City).
+
+`OnWalkInit` and `OnSceneInit` carry eleven:
+
+| | |
+| --- | --- |
+| `[0]` | error code — 0 on success |
+| `[1]` | actor array, as `[[Script <Ref (formid)>], ...]` |
+| `[2]` | position, `None` when AAF chose it |
+| `[3]` | **scene id** — the handle that ties every event of one scene together |
+| `[4]` | location `[x, y, z, angle]` — all `-1.#IND` during the walk, real once the scene starts |
+| `[5]` | **meta** — the string given to `SceneSettings.meta`, handed back verbatim |
+| `[6]` | duration in seconds |
+| `[7]` | bool |
+
+`OnAnimationStart` carries fourteen, and the useful ones move:
+
+| | |
+| --- | --- |
+| `[2]` | **animation name**, e.g. `(CHAK) Couch Cuddle B1` |
+| `[3]` | **tag array**, e.g. `["LOVING", "SEUKissing", "", "NONSEX", "Couch", "KISSING", "NULLTOSELF", "AVILAS", "FOREPLAY"]` |
+| `[4]` | meta |
+| `[5]` | scene id |
+
+Three consequences worth stating, because each replaces a guess:
+
+- **Match on the scene id**, not on "there is only one request in flight". That hack was honest while
+  `MaxConcurrentScenes` was 1 and wrong the moment it is not.
+- **`meta` comes back verbatim**, so a scene of ours is identifiable as ours without tracking actors.
+- **The tags say what kind of scene it was.** `NONSEX` and `FOREPLAY` mean a cuddle, and aftermath
+  should produce nothing; that judgement needs no inference about what the animation implied.
+
 ## The 40 public functions
 
 | Group | Functions |

@@ -370,7 +370,7 @@ Function TraceArgs(String asEvent, Var[] akArgs)
 
 	String line = "aaf: " + asEvent + " args[" + akArgs.Length + "]"
 	Int i = 0
-	While i < akArgs.Length && i < 8
+	While i < akArgs.Length && i < 16
 		line = line + " [" + i + "]=" + akArgs[i]
 		i += 1
 	EndWhile
