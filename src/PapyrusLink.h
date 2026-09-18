@@ -1,5 +1,6 @@
 #pragma once
 
+#include "NamedLock.h"
 #include "Orders.h"
 
 namespace RP
@@ -135,7 +136,7 @@ namespace RP
 			float        duration{ 0.0f };
 		};
 
-		mutable std::mutex _counter;
+		mutable std::timed_mutex _counter;
 		Pending            _pending{};
 
 		// Latched by TakeRequest so the three follow-up calls cannot see a torn
@@ -159,7 +160,7 @@ namespace RP
 		// never name a Commonwealth Moisturizer type -- it would then carry an
 		// unresolvable reference on every install without that mod -- so those
 		// orders wait in their own queue for the optional plugin's script.
-		mutable std::mutex _orderLock;
+		mutable std::timed_mutex _orderLock;
 		std::deque<Order>  _orders;
 		std::deque<Order>  _cmkzOrders;
 		std::int32_t       _orderActor{ 0 };
@@ -184,7 +185,7 @@ namespace RP
 		bool          _stallReported{ false };
 
 		// Written from the VM thread, read from the scheduler's main-thread slice.
-		mutable std::mutex _busyLock;
+		mutable std::timed_mutex _busyLock;
 		mutable std::unordered_map<std::uint32_t, std::chrono::steady_clock::time_point> _busyUntil;
 		std::chrono::steady_clock::time_point _lastEventAt{};
 	};

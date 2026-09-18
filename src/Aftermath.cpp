@@ -63,7 +63,7 @@ namespace RP
 
 	void Aftermath::Load()
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 		_rules.clear();
 		_regions.clear();
 
@@ -234,7 +234,7 @@ namespace RP
 
 	void Aftermath::NoteTags(std::string_view a_tags)
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 		if (!_sceneTags.empty()) {
 			_sceneTags.push_back(',');
 		}
@@ -273,7 +273,7 @@ namespace RP
 
 	void Aftermath::OnSceneEnded(std::uint32_t a_first, std::uint32_t a_second)
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 
 		const auto tags = std::exchange(_sceneTags, {});
 		if (!_enabled) {
@@ -373,7 +373,7 @@ namespace RP
 
 	void Aftermath::Defer(std::uint32_t a_formID)
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 		for (auto& mark : _marks) {
 			if (mark.formID == a_formID) {
 				mark.asked = false;
@@ -388,7 +388,7 @@ namespace RP
 			return;
 		}
 
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 
 		std::uint32_t expired = 0;
 		std::uint32_t asked = 0;
@@ -437,13 +437,13 @@ namespace RP
 
 	std::vector<Aftermath::Mark> Aftermath::Marks() const
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 		return _marks;
 	}
 
 	void Aftermath::Restore(std::vector<Mark> a_marks)
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 		_marks = std::move(a_marks);
 		// Nothing is asked for here. The next tick does it, by which time the game
 		// is actually running and the bridge is listening.
@@ -454,14 +454,14 @@ namespace RP
 
 	void Aftermath::Clear()
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 		_marks.clear();
 		_sceneTags.clear();
 	}
 
 	void Aftermath::RemoveEverything(std::string_view a_why)
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 		if (_marks.empty()) {
 			return;
 		}
@@ -479,7 +479,7 @@ namespace RP
 
 	std::size_t Aftermath::Size() const
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "aftermath" };
 		return _marks.size();
 	}
 }

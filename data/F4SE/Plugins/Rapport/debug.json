@@ -18,7 +18,7 @@
     "exact cost this mod exists to avoid adding to."
   ],
 
-  "active": "off",
+  "active": "debug",
 
   "profiles": {
     "off": {

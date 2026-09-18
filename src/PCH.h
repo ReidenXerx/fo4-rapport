@@ -19,6 +19,7 @@
 #include <fstream>
 #include <limits>
 #include <mutex>
+#include <shared_mutex>
 #include <optional>
 #include <ranges>
 #include <string>

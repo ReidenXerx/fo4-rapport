@@ -1,5 +1,6 @@
 #pragma once
 
+#include "NamedLock.h"
 #include "Orders.h"
 
 namespace RP
@@ -75,7 +76,7 @@ namespace RP
 		// inside exactly that call.
 		void Collect(std::string_view a_setID, std::vector<Order>& a_out);
 
-		mutable std::mutex _lock;
+		mutable std::timed_mutex _lock;
 
 		bool        _enabled{ true };
 		float       _dazedSeconds{ 20.0f };

@@ -69,7 +69,7 @@ namespace RP
 	void Ledger::RecordScene(std::uint32_t a_first, std::uint32_t a_second)
 	{
 		const auto now = GameHours();
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "ledger" };
 
 		auto& first = _records[a_first];
 		first.lastSceneAt = now;
@@ -89,7 +89,7 @@ namespace RP
 	void Ledger::RecordRefusal(std::uint32_t a_first, std::uint32_t a_second)
 	{
 		const auto now = GameHours();
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "ledger" };
 
 		for (const auto formID : { a_first, a_second }) {
 			if (formID == 0) {
@@ -103,13 +103,13 @@ namespace RP
 
 	void Ledger::SetNeed(std::uint32_t a_formID, float a_need)
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "ledger" };
 		_records[a_formID].need = a_need;
 	}
 
 	ActorRecord Ledger::Get(std::uint32_t a_formID) const
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "ledger" };
 		const auto entry = _records.find(a_formID);
 		return entry == _records.end() ? ActorRecord{} : entry->second;
 	}
@@ -135,13 +135,13 @@ namespace RP
 
 	std::size_t Ledger::Size() const
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "ledger" };
 		return _records.size();
 	}
 
 	void Ledger::Clear()
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "ledger" };
 		_records.clear();
 	}
 
@@ -170,7 +170,7 @@ namespace RP
 
 	void Ledger::Save(const F4SE::SerializationInterface* a_intfc) const
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "ledger" };
 
 		Prune();
 
@@ -345,7 +345,7 @@ namespace RP
 				continue;
 			}
 
-			std::scoped_lock lock{ _lock };
+			NamedLock lock{ _lock, "ledger" };
 			std::uint32_t dropped = 0;
 			std::uint32_t read = 0;
 

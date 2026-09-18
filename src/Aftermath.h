@@ -1,5 +1,6 @@
 #pragma once
 
+#include "NamedLock.h"
 #include "Orders.h"
 
 namespace RP
@@ -109,7 +110,7 @@ namespace RP
 
 		void Apply(std::uint32_t a_formID, const std::string& a_setID, float a_expiresAt);
 
-		mutable std::mutex _lock;
+		mutable std::timed_mutex _lock;
 
 		bool  _enabled{ true };
 		float _hours{ 12.0f };

@@ -27,6 +27,7 @@ set(SOURCES
 	"src/Pairing.cpp"
 	"src/DebugHub.h"
 	"src/DebugHub.cpp"
+	"src/NamedLock.h"
 	"src/Orders.h"
 	"src/Aftermath.h"
 	"src/Aftermath.cpp"

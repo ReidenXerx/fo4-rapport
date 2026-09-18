@@ -374,7 +374,7 @@ namespace RP
 
 		const auto request = _nextRequest.fetch_add(1);
 		{
-			std::scoped_lock lock{ _counter };
+			NamedLock lock{ _counter, "request counter" };
 			_pending = Pending{
 				request,
 				static_cast<std::int32_t>(a_first->GetFormID()),
@@ -401,7 +401,7 @@ namespace RP
 
 	std::int32_t PapyrusLink::TakeRequest()
 	{
-		std::scoped_lock lock{ _counter };
+		NamedLock lock{ _counter, "request counter" };
 		if (_pending.request == 0) {
 			return 0;
 		}
@@ -433,7 +433,7 @@ namespace RP
 			"watchdog: nothing has been heard about the running scene for {}s - releasing",
 			limit.count());
 		{
-			std::scoped_lock lock{ _counter };
+			NamedLock lock{ _counter, "request counter" };
 			_pending = Pending{};
 		}
 		// Deliberately no ledger entry. The watchdog firing means we do not know
@@ -506,7 +506,7 @@ namespace RP
 	{
 		const auto forMoisturizer = a_order.kind == Order::Kind::kApplyMoisturizer ||
 		                            a_order.kind == Order::Kind::kClearMoisturizer;
-		std::scoped_lock lock{ _orderLock };
+		NamedLock lock{ _orderLock, "order queue" };
 		if (forMoisturizer) {
 			_cmkzOrders.push_back(std::move(a_order));
 		} else {
@@ -516,7 +516,7 @@ namespace RP
 
 	std::int32_t PapyrusLink::TakeMoisturizerOrder()
 	{
-		std::scoped_lock lock{ _orderLock };
+		NamedLock lock{ _orderLock, "order queue" };
 		if (_cmkzOrders.empty()) {
 			_cmkzActor = 0;
 			_cmkzRegions.clear();
@@ -536,13 +536,13 @@ namespace RP
 
 	std::size_t PapyrusLink::PendingOrders() const
 	{
-		std::scoped_lock lock{ _orderLock };
+		NamedLock lock{ _orderLock, "order queue" };
 		return _orders.size();
 	}
 
 	std::int32_t PapyrusLink::TakeOverlayOrder()
 	{
-		std::scoped_lock lock{ _orderLock };
+		NamedLock lock{ _orderLock, "order queue" };
 		if (_orders.empty()) {
 			_orderActor = 0;
 			_orderSet.clear();
@@ -593,7 +593,7 @@ namespace RP
 		const auto until = std::chrono::steady_clock::now() +
 		                   std::chrono::seconds{ static_cast<std::int64_t>(seconds) };
 		{
-			std::scoped_lock lock{ _busyLock };
+			NamedLock lock{ _busyLock, "busy bench" };
 			_busyUntil[a_formID] = until;
 		}
 		logger::info("{:08X} is flagged busy in AAF - passing over them for {:.0f}s", a_formID, seconds);
@@ -601,7 +601,7 @@ namespace RP
 
 	bool PapyrusLink::IsActorBusy(std::uint32_t a_formID)
 	{
-		std::scoped_lock lock{ _busyLock };
+		NamedLock lock{ _busyLock, "busy bench" };
 		const auto entry = _busyUntil.find(a_formID);
 		if (entry == _busyUntil.end()) {
 			return false;
@@ -689,7 +689,7 @@ namespace RP
 		}
 
 		if (const auto skips = _busySkips.load(); skips > 0) {
-			std::scoped_lock lock{ _busyLock };
+			NamedLock lock{ _busyLock, "busy bench" };
 			logger::info(
 				"health: {} candidate(s) passed over for AAF's busy flag, {} actor(s) still on the bench",
 				skips, _busyUntil.size());

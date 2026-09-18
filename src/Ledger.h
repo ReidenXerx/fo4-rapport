@@ -1,5 +1,7 @@
 #pragma once
 
+#include "NamedLock.h"
+
 namespace RP
 {
 	// What has happened to each actor, kept in the save game.
@@ -113,7 +115,7 @@ namespace RP
 			std::uint32_t                       a_version,
 			std::uint32_t                       a_length);
 
-		mutable std::mutex                                         _lock;
+		mutable std::timed_mutex                                   _lock;
 		mutable std::unordered_map<std::uint32_t, ActorRecord>     _records;
 	};
 }

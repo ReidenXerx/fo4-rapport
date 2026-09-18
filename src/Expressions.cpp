@@ -44,7 +44,7 @@ namespace RP
 
 	void Expressions::Load()
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "expressions" };
 		_steps.clear();
 
 		const auto    path = ConfigPath();
@@ -110,7 +110,7 @@ namespace RP
 
 	void Expressions::OnSceneStarted(std::uint32_t a_first, std::uint32_t a_second, float a_durationSeconds)
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "expressions" };
 		if (!_enabled) {
 			return;
 		}
@@ -130,7 +130,7 @@ namespace RP
 
 	void Expressions::NoteTags(std::string_view a_tags)
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "expressions" };
 		if (!_tags.empty()) {
 			_tags.push_back(',');
 		}
@@ -163,7 +163,7 @@ namespace RP
 		std::vector<Order> outgoing;
 
 		{
-			std::scoped_lock lock{ _lock };
+			NamedLock lock{ _lock, "expressions" };
 			if (!_enabled) {
 				return;
 			}
@@ -242,7 +242,7 @@ namespace RP
 	{
 		std::vector<Order> outgoing;
 		{
-			std::scoped_lock lock{ _lock };
+			NamedLock lock{ _lock, "expressions" };
 			if (!_enabled || !_running) {
 				return;
 			}
@@ -260,7 +260,7 @@ namespace RP
 	{
 		std::vector<Order> outgoing;
 		{
-			std::scoped_lock lock{ _lock };
+			NamedLock lock{ _lock, "expressions" };
 			CollectClear(outgoing, a_why);
 		}
 		Send(outgoing);
@@ -268,13 +268,13 @@ namespace RP
 
 	std::vector<std::uint32_t> Expressions::Wearing() const
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "expressions" };
 		return _wearing;
 	}
 
 	void Expressions::RestoreWearing(std::vector<std::uint32_t> a_wearing)
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "expressions" };
 		_wearing = std::move(a_wearing);
 		_clearPending = !_wearing.empty();
 		// Deliberately not queued here: the bridge is not listening yet. The first
@@ -289,7 +289,7 @@ namespace RP
 
 	void Expressions::Reset()
 	{
-		std::scoped_lock lock{ _lock };
+		NamedLock lock{ _lock, "expressions" };
 		_running = false;
 		_dazing = false;
 		_clearPending = false;
