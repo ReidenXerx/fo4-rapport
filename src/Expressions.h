@@ -48,6 +48,9 @@ namespace RP
 		// Form ids currently wearing a Rapport expression. Small, and only
 		// non-empty during and just after a scene -- which is exactly when a save
 		// is most likely to strand one.
+		void CollectClear(std::vector<Order>& a_out, std::string_view a_why);
+		static void Send(const std::vector<Order>& a_orders);
+
 		[[nodiscard]] std::vector<std::uint32_t> Wearing() const;
 		void RestoreWearing(std::vector<std::uint32_t> a_wearing);
 
@@ -66,7 +69,11 @@ namespace RP
 			std::string set;
 		};
 
-		void Queue(std::string_view a_setID);
+		// Records who should wear a_setID and appends the orders to a_out. It does
+		// NOT send them: sending reaches into PapyrusLink, and nothing here may
+		// call another subsystem while holding this one's lock. The poll died
+		// inside exactly that call.
+		void Collect(std::string_view a_setID, std::vector<Order>& a_out);
 
 		mutable std::mutex _lock;
 

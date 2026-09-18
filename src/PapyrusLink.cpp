@@ -20,7 +20,12 @@ namespace
 
 	std::int32_t Papyrus_TakeRequest(std::monostate)
 	{
-		return RP::PapyrusLink::GetSingleton().TakeRequest();
+		try {
+			return RP::PapyrusLink::GetSingleton().TakeRequest();
+		} catch (const std::exception& e) {
+			logger::critical("TakeRequest threw: {}", e.what());
+			return 0;
+		}
 	}
 
 	std::int32_t Papyrus_TakenFirstID(std::monostate)
@@ -76,15 +81,30 @@ namespace
 	// Called at the top of every poll. Everything that has to happen on a clock
 	// finer than the scheduler's twenty seconds lives behind this: the expression
 	// progression through a scene, and the clearing afterwards.
+	// Guarded, and it is not defensive decoration. A C++ exception crossing back
+	// into the VM kills the Papyrus stack that made the call, and leaves a log
+	// indistinguishable from a native that simply never returned -- which is the
+	// pair of states three runs have now been spent telling apart.
 	void Papyrus_Pump(std::monostate)
 	{
 		RP::PapyrusLink::GetSingleton().NotePump();
-		RP::Expressions::GetSingleton().Pump();
+		try {
+			RP::Expressions::GetSingleton().Pump();
+		} catch (const std::exception& e) {
+			logger::critical("Pump threw: {} - the bridge's poll would have died here silently", e.what());
+		} catch (...) {
+			logger::critical("Pump threw something that is not a std::exception - the poll would have died here silently");
+		}
 	}
 
 	std::int32_t Papyrus_SceneToStop(std::monostate)
 	{
-		return RP::PapyrusLink::GetSingleton().SceneToStop();
+		try {
+			return RP::PapyrusLink::GetSingleton().SceneToStop();
+		} catch (const std::exception& e) {
+			logger::critical("SceneToStop threw: {}", e.what());
+			return 0;
+		}
 	}
 
 	void Papyrus_NoteStopAsked(std::monostate)
@@ -94,7 +114,12 @@ namespace
 
 	std::int32_t Papyrus_TakeOverlayOrder(std::monostate)
 	{
-		return RP::PapyrusLink::GetSingleton().TakeOverlayOrder();
+		try {
+			return RP::PapyrusLink::GetSingleton().TakeOverlayOrder();
+		} catch (const std::exception& e) {
+			logger::critical("TakeOverlayOrder threw: {}", e.what());
+			return 0;
+		}
 	}
 
 	std::int32_t Papyrus_OrderActorID(std::monostate)

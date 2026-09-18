@@ -140,14 +140,13 @@ namespace RP
 		}
 	}
 
-	void Expressions::Queue(std::string_view a_setID)
+	void Expressions::Collect(std::string_view a_setID, std::vector<Order>& a_out)
 	{
-		auto& link = PapyrusLink::GetSingleton();
 		for (const auto formID : { _first, _second }) {
 			if (formID == 0) {
 				continue;
 			}
-			link.QueueOrder(Order{ Order::Kind::kApplyExpression, formID, std::string{ a_setID } });
+			a_out.push_back(Order{ Order::Kind::kApplyExpression, formID, std::string{ a_setID } });
 
 			if (std::ranges::find(_wearing, formID) == _wearing.end()) {
 				_wearing.push_back(formID);
@@ -157,85 +156,114 @@ namespace RP
 
 	void Expressions::Pump()
 	{
-		std::scoped_lock lock{ _lock };
-		if (!_enabled) {
-			return;
-		}
+		// Everything decided under the lock; nothing SENT under it. Calling into
+		// PapyrusLink while holding this mutex is where the poll stopped, and the
+		// rule that prevents it is simply: never call another subsystem while
+		// holding your own lock.
+		std::vector<Order> outgoing;
 
-		const auto now = std::chrono::steady_clock::now();
-
-		// Before anything else: a face left on somebody by a session that is over.
-		// This is the whole reason the wearing list is in the save.
-		if (_clearPending) {
-			_clearPending = false;
-			ClearEveryone("a save was made while a scene was running");
-		}
-
-		if (_running) {
-			const auto elapsed =
-				std::chrono::duration<float>{ now - _startedAt }.count();
-			const auto fraction = elapsed / _duration;
-
-			// A scene with no act tag at all is kissing or foreplay, and gets one
-			// face for its whole length rather than a build to a climax it is
-			// never going to have. Waiting for the first step's moment before
-			// deciding gives the animation time to tell us what it is.
-			if (!_sawSexTag && !_tags.empty()) {
-				if (_nextStep == 0 && fraction >= _steps.front().at) {
-					Queue(_kissSet);
-					_nextStep = _steps.size();   // nothing further; hold this face
-					logger::info("expressions: no act tag in this scene - holding {}", _kissSet);
-				}
+		{
+			std::scoped_lock lock{ _lock };
+			if (!_enabled) {
 				return;
 			}
 
-			while (_nextStep < _steps.size() && fraction >= _steps[_nextStep].at) {
-				Queue(_steps[_nextStep].set);
-				logger::info(
-					"expressions: {:.0f}% through - {}",
-					fraction * 100.0f, _steps[_nextStep].set);
-				++_nextStep;
+			const auto now = std::chrono::steady_clock::now();
+
+			// Before anything else: a face left on somebody by a session that is
+			// over. This is the whole reason the wearing list is in the save.
+			if (_clearPending) {
+				_clearPending = false;
+				CollectClear(outgoing, "a save was made while a scene was running");
 			}
-			return;
+
+			if (_running) {
+				const auto elapsed =
+					std::chrono::duration<float>{ now - _startedAt }.count();
+				const auto fraction = elapsed / _duration;
+
+				// A scene with no act tag at all is kissing or foreplay, and gets
+				// one face for its whole length rather than a build to a climax it
+				// is never going to have. Waiting for the first step's moment
+				// before deciding gives the animation time to say what it is.
+				if (!_sawSexTag && !_tags.empty()) {
+					if (_nextStep == 0 && fraction >= _steps.front().at) {
+						logger::info("expressions: no act tag in this scene - holding {}", _kissSet);
+						Collect(_kissSet, outgoing);
+						_nextStep = _steps.size();   // nothing further; hold this face
+					}
+				} else {
+					while (_nextStep < _steps.size() && fraction >= _steps[_nextStep].at) {
+						// Logged BEFORE it is queued. If this ever stops working
+						// again, the log says which side of the queue it died on
+						// rather than leaving it to be reasoned about.
+						logger::info(
+							"expressions: {:.0f}% through - {}",
+							fraction * 100.0f, _steps[_nextStep].set);
+						Collect(_steps[_nextStep].set, outgoing);
+						++_nextStep;
+					}
+				}
+			} else if (_dazing) {
+				if (std::chrono::duration<float>{ now - _endedAt }.count() >= _dazedSeconds) {
+					_dazing = false;
+					// Clear EVERYONE on the list, not just this scene's two. If an
+					// earlier scene ended badly its actors are still on it, and
+					// this is the only thing that ever takes a face off.
+					CollectClear(outgoing, "the afterglow is over");
+				}
+			}
 		}
 
-		if (_dazing) {
-			if (std::chrono::duration<float>{ now - _endedAt }.count() >= _dazedSeconds) {
-				_dazing = false;
-				// Clear EVERYONE on the list, not just this scene's two. If an
-				// earlier scene ended badly its actors are still on it, and this
-				// is the only thing that ever takes a face off.
-				ClearEveryone("the afterglow is over");
-			}
-		}
+		Send(outgoing);
 	}
 
-	void Expressions::OnSceneEnded()
+	void Expressions::Send(const std::vector<Order>& a_orders)
 	{
-		std::scoped_lock lock{ _lock };
-		if (!_enabled || !_running) {
-			return;
+		auto& link = PapyrusLink::GetSingleton();
+		for (const auto& order : a_orders) {
+			link.QueueOrder(order);
 		}
-
-		_running = false;
-		_endedAt = std::chrono::steady_clock::now();
-		_dazing = true;
-		Queue(_afterSet);
-		logger::info("expressions: scene over - {} for {:.0f}s, then clearing", _afterSet, _dazedSeconds);
 	}
 
-	void Expressions::ClearEveryone(std::string_view a_why)
+	void Expressions::CollectClear(std::vector<Order>& a_out, std::string_view a_why)
 	{
 		if (_wearing.empty()) {
 			return;
 		}
-
-		auto& link = PapyrusLink::GetSingleton();
 		for (const auto formID : _wearing) {
-			link.QueueOrder(Order{ Order::Kind::kClearExpression, formID, _clearSet });
+			a_out.push_back(Order{ Order::Kind::kClearExpression, formID, _clearSet });
 		}
 		logger::info("expressions: clearing {} face(s) - {}", _wearing.size(), a_why);
 		_wearing.clear();
+	}
+
+	void Expressions::OnSceneEnded()
+	{
+		std::vector<Order> outgoing;
+		{
+			std::scoped_lock lock{ _lock };
+			if (!_enabled || !_running) {
+				return;
+			}
+
+			_running = false;
+			_endedAt = std::chrono::steady_clock::now();
+			_dazing = true;
+			logger::info("expressions: scene over - {} for {:.0f}s, then clearing", _afterSet, _dazedSeconds);
+			Collect(_afterSet, outgoing);
+		}
+		Send(outgoing);
+	}
+
+	void Expressions::ClearEveryone(std::string_view a_why)
+	{
+		std::vector<Order> outgoing;
+		{
+			std::scoped_lock lock{ _lock };
+			CollectClear(outgoing, a_why);
+		}
+		Send(outgoing);
 	}
 
 	std::vector<std::uint32_t> Expressions::Wearing() const
