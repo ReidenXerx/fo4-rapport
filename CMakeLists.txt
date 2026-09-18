@@ -35,6 +35,8 @@ set(SOURCES
 	"src/Expressions.cpp"
 	"src/Ledger.h"
 	"src/Ledger.cpp"
+	"src/Scenarios.h"
+	"src/Scenarios.cpp"
 	"src/Takeover.h"
 	"src/Takeover.cpp"
 	"src/PapyrusLink.h"

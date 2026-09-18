@@ -1,0 +1,128 @@
+{
+  "comment": [
+    "Sex is a story, not an action.",
+    "",
+    "A quickie in an alley is one stage and it is over. Sex at home has a prelude,",
+    "a middle and a finish, and each of those is a ROLE that many different",
+    "animations can fill -- a prelude might be a handjob, a blowjob or cunnilingus,",
+    "and which one happens should depend on what the packs can supply, not on the",
+    "scenario naming a specific animation.",
+    "",
+    "That is why a stage carries TAGS rather than a position id. AAF's",
+    "ChangePosition takes includeTags/excludeTags and picks the animation itself,",
+    "so a scenario written here works with whatever packs are installed instead of",
+    "only with the pack it was written against.",
+    "",
+    "AAF has its own staging system -- positionTreeData -- and it is not this. A",
+    "tree chains specific positions from ONE pack and is authored by that pack; ten",
+    "tree files exist across this whole install. A scenario is narrative and",
+    "pack-agnostic. Both can coexist: a stage may name a tree if a pack has a good",
+    "one for that moment.",
+    "",
+    "WHO CHOOSES: not Rapport. The framework executes a scenario an addon names.",
+    "Rapport's own scheduler names one only because it is standing in for Chemistry",
+    "until Chemistry exists, and that stand-in is marked as such in the code."
+  ],
+
+  "comment_stages": [
+    "seconds  how long this stage runs. The plugin holds the clock, the same one",
+    "         that stops a scene, because AAF does not enforce durations.",
+    "include  tags AAF may choose from for this stage. Any one of them.",
+    "exclude  tags AAF must avoid -- furniture it cannot use, acts that do not",
+    "         belong in this moment.",
+    "face     the Rapport expression set for this stage. Expressions follow the",
+    "         STORY now, not a percentage of the clock: a percentage cannot know",
+    "         that 40% of this scene is still foreplay.",
+    "",
+    "A stage whose tags match nothing installed is SKIPPED, not substituted and not",
+    "fatal. A story missing its prelude is still a story. Rapport indexes every",
+    "tag the installed packs use at startup, so the skip is decided before the",
+    "scene begins rather than showing up as a stall."
+  ],
+
+  "scenarios": [
+    {
+      "id": "quickie",
+      "comment": "Somewhere public, no time, no undressing. One stage and done.",
+      "stages": [
+        {
+          "id": "act",
+          "seconds": 30,
+          "include": "Handjob,Blowjob,PenisToMouth,PenisToVagina,FromBehind",
+          "exclude": "Bed,DoubleBed,SingleBed,Couch",
+          "face": "Rapport_Pleasure_2"
+        }
+      ]
+    },
+
+    {
+      "id": "athome",
+      "comment": "Privacy and furniture. The long version, with a proper build.",
+      "stages": [
+        {
+          "id": "prelude",
+          "seconds": 35,
+          "include": "Kissing,MouthToMouth,Handjob,HandToVagina,HandToPenis",
+          "exclude": "",
+          "face": "Rapport_Anticipation"
+        },
+        {
+          "id": "oral",
+          "seconds": 40,
+          "include": "Blowjob,PenisToMouth,Cunnilingus,MouthToVagina,69",
+          "exclude": "",
+          "face": "Rapport_Oral"
+        },
+        {
+          "id": "main",
+          "seconds": 60,
+          "include": "PenisToVagina,PenisToAnus,Missionary,Cowgirl,Doggy,Spooning",
+          "exclude": "",
+          "face": "Rapport_Pleasure_2"
+        },
+        {
+          "id": "build",
+          "seconds": 30,
+          "include": "PenisToVagina,PenisToAnus,Stim9,Love9",
+          "exclude": "",
+          "face": "Rapport_Pleasure_3"
+        },
+        {
+          "id": "finish",
+          "seconds": 20,
+          "include": "Climax,ClimaxM",
+          "exclude": "",
+          "face": "Rapport_Climax"
+        }
+      ]
+    },
+
+    {
+      "id": "tender",
+      "comment": "Slow and affectionate. Same length as athome, different shape.",
+      "stages": [
+        {
+          "id": "prelude",
+          "seconds": 50,
+          "include": "Kissing,MouthToMouth,Hugging,Cuddle,Loving",
+          "exclude": "Rough,Aggressive",
+          "face": "Rapport_Kiss"
+        },
+        {
+          "id": "main",
+          "seconds": 70,
+          "include": "Missionary,Spooning,PenisToVagina,Loving",
+          "exclude": "Rough,Aggressive,Dom9",
+          "face": "Rapport_Pleasure_1"
+        },
+        {
+          "id": "finish",
+          "seconds": 25,
+          "include": "Climax,ClimaxM",
+          "exclude": "Rough,Aggressive",
+          "face": "Rapport_Climax"
+        }
+      ]
+    }
+  ]
+}

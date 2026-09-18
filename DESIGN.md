@@ -592,3 +592,40 @@ no body part -- and `MouthToMouth`, `MouthToFoot`, `MouthToArmpit` involve no or
 the log from a scene that was only kissing: both come out as "nothing to leave behind". The script
 is the only thing that separates them, which is the same instrument-not-argument rule as everywhere
 else in this project.
+
+## A-24 - scenarios: sex is a story, and the framework only executes it (2026-09-18)
+
+Owner: *"Sex its not random actions its a story... fast sex in the random place? Usually it could be
+handjob, blowjob or staying pose when man fuck from behind, and only 1 stage. Home sex? Much more
+diverse poses and more stages with preludes."*
+
+A **scenario** is a named pipeline of **stages**; a stage is a narrative ROLE with a duration and a
+set of acceptable tags, never a specific animation. `Data/F4SE/Plugins/Rapport/scenarios.json`.
+
+**Why tags and not positions.** AAF's `ChangePosition` takes `includeTags` / `excludeTags` and picks
+the animation itself, so a scenario written once works with whatever packs a player has. Naming
+positions would tie every scenario to the pack it was written against.
+
+**Not AAF's position trees.** `positionTreeData` is AAF's own staging system and it is a different
+thing: a tree chains specific positions from ONE pack, is authored by that pack, and there are ten
+across this entire install. A scenario is narrative and pack-agnostic. A stage may still name a tree
+where a pack has a good one.
+
+Four decisions, owner's:
+
+1. **Only an addon chooses a scenario.** Rapport executes; it does not select. Consequence, stated
+   plainly: Rapport alone runs no scenarios. Its scheduler names one only while it stands in for
+   Chemistry, and that stand-in is marked as such in the code.
+2. **Seconds per stage**, from the definition, on the plugin's clock -- the same clock that stops a
+   scene, because AAF does not enforce durations either.
+3. **A stage nothing can fill is SKIPPED**, not substituted and not fatal. A story missing its
+   prelude is still a story.
+4. **Expressions follow stages, not percentages.** A percentage cannot know that 40% of this scene
+   is still foreplay. Each stage names its own face.
+
+**Content is checked locally, not asked of AAF.** Rapport indexes every tag in `Data/AAF/*.xml` at
+startup -- the same flat `tags="..."` data `tools/tagaudit.py` reads -- so a skip is decided before
+the scene starts. The alternative, `FindMatchingAnimations`, is asynchronous and its argument layout
+has never been observed in this project; a stage stalling on an answer is worse than one quietly
+dropped. **An empty index means the scan failed, not that content is absent**, so every stage is
+attempted in that case rather than every stage skipped.

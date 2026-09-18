@@ -3,6 +3,7 @@
 #include "Aftermath.h"
 #include "Expressions.h"
 #include "Ledger.h"
+#include "Scenarios.h"
 #include "Takeover.h"
 #include "PapyrusLink.h"
 #include "Scheduler.h"
@@ -44,6 +45,7 @@ namespace
 			RP::DebugHub::GetSingleton().Load();
 			RP::Aftermath::GetSingleton().Load();
 			RP::Expressions::GetSingleton().Load();
+			RP::Scenarios::GetSingleton().Load();
 			RP::Takeover::GetSingleton().Load();
 			RP::PapyrusLink::GetSingleton().OnDataReady();
 			RP::Scheduler::GetSingleton().Start();
