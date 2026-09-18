@@ -104,6 +104,17 @@ something the game reads.
 So one build against one preset currently fits every NPC in the game, and Build Morphs is worth
 ticking for what it costs (nothing) rather than for what it changes today.
 
+## What a player actually sees
+
+Confirmed in game 2026-09-18: the facial cum is morphing head geometry and it reads clearly at
+conversation distance. It is also, in practice, **most of what anyone sees** — AAF strips clothing
+for a scene and the NPC re-equips afterwards, so body cum on a clothed settler is under their
+outfit. Nothing is wrong with it; it is simply covered.
+
+That has a design consequence worth stating: the face is the region doing the visible work, which
+makes getting ROLES right more valuable than it looks. Putting the oral region on the wrong partner
+is currently the most visible thing Rapport can get wrong.
+
 ## Known limits
 
 - **`Is3DLoaded` is mandatory.** Unlike an overlay, a worn mesh cannot be applied to somebody who is

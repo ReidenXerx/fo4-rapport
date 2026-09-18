@@ -39,6 +39,11 @@ frozen face.
 and non-empty exactly during a scene, which is when a save is most likely to strand one. On load
 they are all cleared.
 
+**Confirmed working 2026-09-18.** An NPC photographed after a scene has a normal, neutral face and
+has gone back to what she was doing. `RemoveMFGBlock` does release a `lock="true"` morph, so the
+frozen face this was built against does not happen. The belt-and-braces stays: it costs one call,
+and nothing installed could have answered the question in advance.
+
 Clearing is its own order kind rather than "apply the zeroed set", because **the zeroed set may not
 be enough**. Every `mfgSet` in every installed pack sets `lock="true"` and not one ships
 `lock="false"`, so nothing on this machine demonstrates what releases a lock. The clear therefore
