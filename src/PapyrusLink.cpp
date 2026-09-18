@@ -636,7 +636,27 @@ namespace RP
 	{
 		_started.fetch_add(1);
 
+		// The same guard its two siblings got, and for the same reason. AAF's
+		// events can arrive long after this framework has released a request --
+		// measured at 94 seconds for a scene end -- and OnSceneInit travels the
+		// same path, so a stale start would restart the LIVE scene's clock,
+		// extending its deadlock window by a whole budget, and run Begin() a second
+		// time for a pair that is already mid-story. With nothing in flight it
+		// would hand Expressions form id 0 and let it drive.
+		if (a_request != _inFlightRequest) {
+			logger::warn(
+				"request {}: a scene started for it, but {} - leaving the running scene alone",
+				a_request,
+				_inFlightRequest == 0
+					? "this framework had already released it"
+					: std::format("request {} is the one in flight", _inFlightRequest));
+			return;
+		}
+
 		logger::info("request {}: scene started", a_request);
+
+		// Below the guard, not above it. A stale start clearing this would let the
+		// next scene ask for furniture the room has already refused once.
 		Scenarios::GetSingleton().NoteSceneStarted();
 
 		// The clock starts HERE, not when the request was made: AAF walks the pair
@@ -949,8 +969,6 @@ namespace RP
 		_failed.fetch_add(1);
 		logger::warn("request {}: {}", a_request, a_why);
 
-		Scenarios::GetSingleton().NoteSceneRefused();
-
 		// Same rule as a late ending, for the same reason: a request that failed
 		// before it ever started is not the one whose scene is running, and tearing
 		// that scene's state down here would hand the next request a pair it never
@@ -962,6 +980,18 @@ namespace RP
 				a_request, _inFlightRequest);
 			return;
 		}
+
+		// BELOW the guard. This narrows the tree catalogue to no-furniture trees,
+		// and it must only do that on evidence from the scene it is about: a stale
+		// request failing for "the actor is already busy" says nothing whatsoever
+		// about the room, and used to ban furniture for every scene after it.
+		Scenarios::GetSingleton().NoteSceneRefused();
+
+		// The scenario teardown that the watchdog path already got, and this one
+		// did not. Latent while every live failure fires before the scene starts,
+		// but the moment one fails after, the scenario keeps pumping its clock
+		// against a dead scene.
+		Scenarios::GetSingleton().End();
 
 		Ledger::GetSingleton().RecordRefusal(
 			static_cast<std::uint32_t>(_inFlightFirst),

@@ -415,51 +415,40 @@ namespace RP
 		}
 	}
 
+	// A refusal can no longer be about one of our stages, so this no longer moves
+	// the story. It only records that the tree we picked was turned down.
+	//
+	// The bridge registers for AAF's API events on the API SINGLETON, so every
+	// refusal in the game arrives here -- including other mods' -- and the refusal
+	// branch carries no request id to filter on. While a stage still asked AAF for
+	// positions, this walked the option list and then called EnterStage(_stage+1),
+	// so six refusals from a DIFFERENT mod's failed scene silently advanced our
+	// story a whole stage and lost that stage's face. A stage now asks for nothing
+	// at all, which means by construction no refusal is ever about one.
 	void Scenarios::OnRefused(std::string_view a_why)
 	{
-		std::vector<Order> outgoing;
-		{
-			NamedLock lock{ _lock, "scenarios" };
-			if (!_running || _stage >= _running->stages.size()) {
-				return;
-			}
+		NamedLock lock{ _lock, "scenarios" };
 
-			// A handover stage asked for nothing, so a refusal cannot be about it.
-			// Something else in the scene was refused; advancing the option counter
-			// here would skip the handover and end the story early.
-			if (_running->stages[_stage].tree) {
-				logger::warn(
-					"scenario \"{}\": AAF refused the tree chosen for stage \"{}\" ({}) - letting "
-					"the scene play on rather than starting over",
-					_running->id, _running->stages[_stage].id, a_why);
-				return;
-			}
-
-			if (_running->stages[_stage].handover) {
-				logger::info(
-					"scenario \"{}\": AAF refused something during the handover stage \"{}\" ({}) - "
-					"ignoring it, this stage asked for nothing",
-					_running->id, _running->stages[_stage].id, a_why);
-				return;
-			}
-
-			const auto& stage = _running->stages[_stage];
-			++_option;
-
-			if (_option < stage.options.size()) {
-				logger::info(
-					"scenario \"{}\": AAF refused \"{}\" for stage \"{}\" - trying the next one ({})",
-					_running->id, stage.options[_option - 1], stage.id, a_why);
-				SendCurrentOption(outgoing);
-			} else {
-				logger::warn(
-					"scenario \"{}\": nothing in stage \"{}\" works for this pair here - moving on "
-					"({})",
-					_running->id, stage.id, a_why);
-				EnterStage(_stage + 1, outgoing);
-			}
+		// The one refusal that IS ours to act on: between choosing a tree and the
+		// scene starting, a refusal is very likely AAF turning down the position we
+		// named. Recording it lets the furniture fallback fire; it changes no
+		// stage, and the worst a foreign refusal in that window can do is make the
+		// next choice avoid furniture once.
+		if (!_running && !_chosenPosition.empty()) {
+			logger::info(
+				"scenarios: a scene was refused while \"{}\" was waiting to start ({})",
+				_chosenPosition, a_why);
+			return;
 		}
-		PapyrusLink::GetSingleton().QueueOrders(outgoing);
+
+		if (_running) {
+			logger::info(
+				"scenario \"{}\": AAF refused something during stage \"{}\" ({}) - ignored, because "
+				"a stage asks AAF for nothing and no refusal can be about one",
+				_running->id,
+				_stage < _running->stages.size() ? _running->stages[_stage].id : "(past the end)",
+				a_why);
+		}
 	}
 
 	std::string Scenarios::ChooseSceneStart(
@@ -633,7 +622,18 @@ namespace RP
 		}
 		_running = nullptr;
 		_stage = 0;
+		_option = 0;
 		_first = 0;
 		_second = 0;
+
+		// The chosen tree dies with the scene. Leaving it behind meant a later,
+		// unrelated failure asked "did the position we chose need furniture?" and
+		// got the answer for the PREVIOUS scene -- banning furniture on the
+		// evidence of a scene that had started perfectly.
+		//
+		// _avoidFurniture deliberately survives: it is cross-scene by design, and
+		// NoteSceneStarted clears it.
+		_chosenPosition.clear();
+		_chosenSeconds = 0.0f;
 	}
 }
