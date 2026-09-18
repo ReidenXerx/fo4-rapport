@@ -164,23 +164,14 @@ namespace
 		RP::AAFHealth::GetSingleton().NoteChoice(a_yes);
 	}
 
-	// True while the pair is being moved. The bridge asks before it drops a
-	// request whose scene has ended, because a move ends the SCENE and not the
-	// REQUEST -- and dropping it left the resume with nothing to resume.
 	// The position this scene should START on, chosen from the tree catalogue for
 	// the scenario the request named. Empty means "start unconstrained".
 	//
-	// Asked at the one moment that can act on it. StartScene honours a position;
-	// ChangePosition does not honour anything.
+	// Asked at the one moment that can act on it: StartScene honours a position,
+	// and ChangePosition honours nothing.
 	RE::BSFixedString Papyrus_ScenePosition(std::monostate)
 	{
-		auto& link = RP::PapyrusLink::GetSingleton();
-		return link.ChooseScenePosition().c_str();
-	}
-
-	bool Papyrus_RelocatingScene(std::monostate)
-	{
-		return RP::PapyrusLink::GetSingleton().Relocating();
+		return RP::PapyrusLink::GetSingleton().ChooseScenePosition().c_str();
 	}
 
 	void Papyrus_NoteStopAsked(std::monostate)
@@ -208,7 +199,7 @@ namespace
 		return RP::PapyrusLink::GetSingleton().OrderSetID().c_str();
 	}
 
-	// Only kChangePosition uses this: the tags AAF must AVOID for this stage.
+	// Only the animation query uses this now: the tags to exclude.
 	RE::BSFixedString Papyrus_OrderExtra(std::monostate)
 	{
 		return RP::PapyrusLink::GetSingleton().OrderExtra().c_str();
@@ -404,8 +395,6 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneToStop"sv, Papyrus_SceneToStop, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteStopAsked"sv, Papyrus_NoteStopAsked, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteAAFStatus"sv, Papyrus_NoteAAFStatus, std::nullopt, false);
-		a_vm->BindNativeMethod(
-			kCoreScript, "RelocatingScene"sv, Papyrus_RelocatingScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ScenePosition"sv, Papyrus_ScenePosition, std::nullopt, false);
 		a_vm->BindNativeMethod(
 			kCoreScript, "NoteAAFRevivalChoice"sv, Papyrus_NoteAAFRevivalChoice, std::nullopt, false);
@@ -438,7 +427,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
 
-		logger::info("papyrus: bound 48 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 47 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -634,36 +623,12 @@ namespace RP
 			static_cast<std::uint32_t>(_inFlightSecond));
 	}
 
-	void PapyrusLink::BeginRelocation()
-	{
-		_relocating.store(true);
-	}
-
-	void PapyrusLink::CancelRelocation()
-	{
-		if (_relocating.exchange(false)) {
-			logger::warn(
-				"the move never happened - treating scene ends as endings again, because a flag "
-				"left set here would silently stop every scene being recorded");
-		}
-	}
-
 	void PapyrusLink::OnSceneStarted(std::int32_t a_request)
 	{
 		_started.fetch_add(1);
 
-		if (_relocating.exchange(false)) {
-			logger::info(
-				"request {}: scene restarted somewhere else - the story carries on from the stage "
-				"that could not be filled",
-				a_request);
-			_sceneRunning = true;
-			_stopAsked = false;
-			Scenarios::GetSingleton().OnRelocated();
-			return;
-		}
-
 		logger::info("request {}: scene started", a_request);
+		Scenarios::GetSingleton().NoteSceneStarted();
 
 		// The clock starts HERE, not when the request was made: AAF walks the pair
 		// to each other first, and that walk is not the scene. Measured at 12.5
@@ -931,25 +896,6 @@ namespace RP
 		_ended.fetch_add(1);
 		logger::info("request {}: scene ended", a_request);
 
-		// A relocation ends the old scene on purpose. Nothing about it is a
-		// finish: no ledger entry, no aftermath, no cooldown, and the pair stays in
-		// flight because the story is still running -- somewhere else.
-		if (_relocating.load()) {
-			logger::info(
-				"request {}: its old scene ended because the pair is moving, not because anything "
-				"finished - nothing recorded. Starting the new one now that AAF has let the actors "
-				"go",
-				a_request);
-
-			// NOW, not when the move was asked for. The actors are only free once
-			// AAF says the old scene is over, and starting before that is refused
-			// outright.
-			_sceneRunning = false;
-			QueueOrder(Order{ Order::Kind::kResumeElsewhere,
-				static_cast<std::uint32_t>(_inFlightFirst), {}, {} });
-			return;
-		}
-
 		// Only for the scene we still believe is running.
 		//
 		// AAF's OnSceneEnd can arrive long after this framework has given up on a
@@ -993,6 +939,8 @@ namespace RP
 	{
 		_failed.fetch_add(1);
 		logger::warn("request {}: {}", a_request, a_why);
+
+		Scenarios::GetSingleton().NoteSceneRefused();
 
 		// Same rule as a late ending, for the same reason: a request that failed
 		// before it ever started is not the one whose scene is running, and tearing

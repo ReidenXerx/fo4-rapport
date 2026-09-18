@@ -628,45 +628,9 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	ElseIf aiKind == 4
 		Self.ReleaseActor(target)
 		Rapport:Core.Trace("released the AAF busy keywords from " + aiFormID)
-	ElseIf aiKind == 8
-		; The next stage of a scenario. The stage names the KIND of moment it
-		; wants and AAF chooses an animation that fits -- which is why a scenario
-		; written once works with whatever packs somebody has, instead of only
-		; with the pack it was written against.
-		AAF:AAF_API:PositionSettings ps = _api.GetPositionSettings()
-		ps.includeTags = asSetID
-
-		; Only when this stage HAS exclusions. GetPositionSettings presets
-		; excludeTags to "default_excludetags", which is the player's own AAF
-		; exclusion list, and writing an empty string over it threw their settings
-		; away on every stage that did not happen to name any of its own.
-		If asExtra != ""
-			ps.excludeTags = asExtra
-		EndIf
-		_api.ChangePosition(target, ps)
-		Rapport:Core.Trace("stage: asked AAF for [" + asSetID + "] on " + aiFormID)
-	ElseIf aiKind == 13
-		Self.RelocateFor(aiFormID)
-		Return
-	ElseIf aiKind == 14
-		Self.ResumeElsewhereFor(aiFormID)
-		Return
 	ElseIf aiKind == 15
 		Self.QueryAnimationsFor(aiFormID, asSetID, asExtra)
 		Return
-	ElseIf aiKind == 12
-		; A NAMED position, which is how a tree gets chosen. AAF has no tree
-		; function -- the word does not appear in its Papyrus at all, because trees
-		; run in the SWF -- but a position may declare one, so naming the position
-		; starts the tree and AAF walks its authored stages to a climax on its own.
-		;
-		; No tags here on purpose: they would narrow the very position we just
-		; picked deliberately, and the plugin chose it against this install's own
-		; catalogue rather than against a guess.
-		AAF:AAF_API:PositionSettings tps = _api.GetPositionSettings()
-		tps.position = asSetID
-		_api.ChangePosition(target, tps)
-		Rapport:Core.Trace("stage: asked AAF for the position \"" + asSetID + "\" on " + aiFormID + " - its tree takes it from here")
 	ElseIf aiKind == 5
 		; Both halves. The zeroed set puts every morph back to nothing; the block
 		; removal is what lets go of them, because every expression Rapport
@@ -840,92 +804,6 @@ Function AskStartAAF()
 	Else
 		Rapport:Core.NoteAAFRevivalChoice(false)
 	EndIf
-EndFunction
-
-; The pair gets up and carries on somewhere else.
-;
-; AAF's ChangePosition cannot leave the furniture a scene began on --
-; PositionSettings carries no field for it, and asking for a NoFurn position
-; while on a desk is simply refused. So moving means ending this scene and
-; starting another, which is also exactly what it looks like in game.
-;
-; The request keeps its id and its place in _inFlight; only the scene underneath
-; it changes. sceneID goes back to 0 so the next OnSceneInit binds the new scene
-; to the same request, and the plugin has already been told this ending is a move
-; so nothing is written to the ledger and no cum is applied halfway through.
-Function RelocateFor(Int aiFirstID)
-	If _api == None
-		Return
-	EndIf
-
-	Int index = Self.FindRequestByActor(aiFirstID)
-	If index < 0
-		Rapport:Core.Trace("relocate: no request is in flight for " + aiFirstID + " - nothing to move")
-		Return
-	EndIf
-
-	Actor akFirst = _inFlight[index].first
-	Actor akSecond = _inFlight[index].second
-	If akFirst == None || akSecond == None
-		Return
-	EndIf
-
-	; STOP ONLY. The new scene cannot begin here.
-	;
-	; StopScene is asynchronous, and starting the next one in the same breath
-	; earns "[088] Failed to join actor to scene because that actor is already
-	; part of a currently running scene" -- measured, and the old scene then ended
-	; one second after the refusal. So this ends the scene and nothing more; the
-	; plugin hears AAF's own OnSceneEnd, which is the signal that the actors are
-	; free again, and sends kResumeElsewhere back.
-	Rapport:Core.Trace("relocate: stopping the scene so " + aiFirstID + " and their partner can carry on away from the furniture")
-
-	Request entry = _inFlight[index]
-	entry.sceneID = 0
-	_inFlight[index] = entry
-
-	_api.StopScene(akFirst, -1)
-EndFunction
-
-; The old scene has ended and the actors are free, so they start again somewhere
-; without furniture -- same request, same pair, new scene underneath.
-Function ResumeElsewhereFor(Int aiFirstID)
-	If _api == None
-		Return
-	EndIf
-
-	Int index = Self.FindRequestByActor(aiFirstID)
-	If index < 0
-		Rapport:Core.Trace("relocate: no request is in flight for " + aiFirstID + " any more - not resuming")
-		Return
-	EndIf
-
-	Actor akFirst = _inFlight[index].first
-	Actor akSecond = _inFlight[index].second
-	If akFirst == None || akSecond == None
-		Return
-	EndIf
-
-	; Belt and braces: AAF said the scene ended, and its busy keywords should be
-	; gone with it. If either is still flagged the new scene would be refused for
-	; the same reason the first attempt was.
-	Self.ReleaseActor(akFirst)
-	Self.ReleaseActor(akSecond)
-
-	Actor[] actors = new Actor[2]
-	actors[0] = akFirst
-	actors[1] = akSecond
-
-	AAF:AAF_API:SceneSettings settings = _api.GetSceneSettings()
-	settings.duration = _inFlight[index].duration
-	settings.usePackages = true
-	settings.skipWalk = false
-	settings.isNPCControlled = true
-	settings.preventFurniture = true     ; the whole point of the move
-	settings.meta = "Rapport,autonomy"
-
-	_api.StartScene(actors, settings)
-	Rapport:Core.Trace("relocate: asked AAF for a new scene without furniture for request " + _inFlight[index].id)
 EndFunction
 
 ; The in-flight request one actor belongs to, by form id, or -1.
@@ -1102,22 +980,6 @@ EndFunction
 
 Function Release(Int aiIndex, String asWhy)
 	Request entry = _inFlight[aiIndex]
-
-	; A scene that ended because the pair is MOVING is not a request that is over.
-	; Only the scene underneath it ended, and the plugin is about to ask for
-	; another one for this same request -- so the entry stays, with its scene id
-	; cleared so the next OnSceneInit binds the new scene to it.
-	;
-	; Removing it here is what stranded them the first time this ran: the resume
-	; arrived three seconds later and found no request in flight for that actor.
-	If asWhy == "" && Rapport:Core.RelocatingScene()
-		Request moving = _inFlight[aiIndex]
-		moving.sceneID = 0
-		_inFlight[aiIndex] = moving
-		Rapport:Core.Trace("relocate: the old scene has ended and request " + entry.id + " keeps its place - waiting for the new one")
-		Rapport:Core.SceneEnded(entry.id)
-		Return
-	EndIf
 
 	_inFlight.Remove(aiIndex, 1)
 

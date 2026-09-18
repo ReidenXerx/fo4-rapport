@@ -146,21 +146,10 @@ namespace RP
 		void RestoreInFlightPair(std::uint32_t a_first, std::uint32_t a_second);
 
 		void OnBridgeReady(bool a_aafPresent);
-		// The scene is being restarted elsewhere for the SAME request. Its ending
-		// is a move, not a finish: no ledger entry, no aftermath, no cooldown, and
-		// the pair stays in flight throughout.
-		// Asked by the bridge immediately before StartScene, once the actors' sexes
-		// have been reported -- the catalogue filters by the pair's composition, so
-		// it cannot be asked any earlier.
+		// Asked by the bridge immediately before StartScene, once both actors'
+		// sexes have been reported -- the tree catalogue filters by the pair's
+		// composition, so it cannot be asked any earlier.
 		[[nodiscard]] std::string ChooseScenePosition();
-
-		void BeginRelocation();
-
-		// The move never arrived. Without this the flag stays set for the rest of
-		// the session and EVERY scene end after it is read as a move -- so nothing
-		// is ever written to the ledger and nobody ever gets a cooldown again.
-		void CancelRelocation();
-		[[nodiscard]] bool Relocating() const noexcept { return _relocating.load(); }
 
 		void OnSceneStarted(std::int32_t a_request);
 		void OnSceneEnded(std::int32_t a_request);
@@ -211,7 +200,6 @@ namespace RP
 
 		std::atomic_bool          _bridgeReady{ false };
 		std::atomic_bool          _sceneInFlight{ false };
-		std::atomic_bool          _relocating{ false };
 		std::atomic<std::int32_t> _nextRequest{ 1 };
 		std::chrono::steady_clock::time_point _requestedAt{};
 

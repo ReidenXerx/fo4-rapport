@@ -123,6 +123,13 @@ namespace RP
 		// How long the chosen tree is authored to run, or 0 when none was chosen.
 		[[nodiscard]] float ChosenSeconds() const;
 
+		// A scene would not start. If its tree needed furniture, the next one will
+		// not ask for any.
+		void NoteSceneRefused();
+
+		// One started, so the room is clearly fine.
+		void NoteSceneStarted();
+
 		// Advances when the current stage has run its seconds. Called on the same
 		// poll as everything else.
 		void Pump();
@@ -165,9 +172,6 @@ namespace RP
 		// an animation exists for THIS pair.
 		void OnRefused(std::string_view a_why);
 
-		// The scene has restarted somewhere else. The stage that could not be
-		// filled where they were gets another go, from its first option.
-		void OnRelocated();
 
 	private:
 
@@ -178,19 +182,13 @@ namespace RP
 		std::size_t     _stage{ 0 };
 		std::size_t     _option{ 0 };
 
-		// One move per scene, not per stage. AAF re-walks the pair on every
-		// restart -- 12.5 seconds across a market, measured -- and a story that
-		// relocates at every stage is two people wandering, not a story.
-		bool            _movedThisScene{ false };
-
-		// While this is set the pair is being walked somewhere else and the stage
-		// clock is STOPPED. Without it Pump keeps counting through the walk -- 12.5
-		// seconds across a market, measured -- and advances past the very stage the
-		// move was made for.
-		bool            _awaitingMove{ false };
-		std::chrono::steady_clock::time_point _moveRequestedAt{};
 
 		// The tree this scene was started on, and what it is authored to run for.
+		// Set when a scene we chose a furniture tree for failed to start, cleared
+		// the moment one starts. The next choice then takes NoFurn only, because
+		// asking again for a couch that is not there asks for the same failure.
+		bool        _avoidFurniture{ false };
+
 		std::string _chosenPosition;
 		float       _chosenSeconds{ 0.0f };
 		std::uint32_t   _first{ 0 };

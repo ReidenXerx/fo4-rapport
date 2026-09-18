@@ -31,11 +31,6 @@ namespace RP
 			// costs one extra call and removes the guess.
 			kClearExpression = 5,
 
-			// Move a running scene to the next stage of a scenario. setID carries
-			// the tags AAF may choose from, extra the ones it must avoid. It picks
-			// the animation; the scenario only names the KIND of moment it wants.
-			kChangePosition = 8,
-
 			// Commonwealth Moisturizer. Its cum is worn geometry, not a texture --
 			// a BodySlide-conformed mesh on an armour slot plus morphing headparts
 			// for the face -- so it is driven through its own modder API rather
@@ -67,30 +62,14 @@ namespace RP
 			// script and that string is the identity its stored data is keyed to.
 			kRestartAAFQuest = 11,
 
-			// Move the scene to a NAMED position rather than to whatever fits a set
-			// of tags. setID is the position id. This is how a tree gets chosen:
-			// AAF has no tree API, but a position may declare one, so naming the
-			// position is naming the tree -- and it is the only way to reach a
-			// climax, every standalone one being hidden by design.
-			kChangeToPosition = 12,
-
-			// Stop the scene and start it again with furniture refused, so the pair
-			// carries on somewhere else. AAF's ChangePosition cannot leave the
-			// furniture a scene began on -- PositionSettings has no field for it,
-			// and asking for a NoFurn position on a desk is simply refused -- so
-			// moving means a new scene, which is also what it looks like: they get
-			// up and walk.
-			kRelocate = 13,
-
-			// The old scene has now actually ended, so the new one can begin.
-			//
-			// These are two orders and not one because StopScene is ASYNCHRONOUS.
-			// Calling it and starting the next scene in the same breath earns
-			// "[088] Failed to join actor to scene because that actor is already
-			// part of a currently running scene" -- measured, the old scene ended
-			// one second after the refusal. AAF's own OnSceneEnd is the signal that
-			// the actors are free, so the restart waits for it.
-			kResumeElsewhere = 14,
+			// Nothing between 12 and 14 any more. kChangePosition,
+			// kChangeToPosition, kRelocate and kResumeElsewhere all existed to move
+			// a scene AAF had already started, and AAF does not allow that:
+			// ChangePosition was refused 26 times out of 26 with tags, and refused
+			// again handed a position id and no filters at all. Relocation -- stop,
+			// then start again -- did work and is in the history if a mid-scene
+			// change is ever wanted, but nothing triggers it now that a stage asks
+			// for nothing.
 
 			// Ask AAF what it would match for these two, with the same tag we are
 			// about to request. setID is that tag.
@@ -108,8 +87,7 @@ namespace RP
 		std::uint32_t formID{ 0 };
 		std::string   setID;
 
-		// A second string, used only by kChangePosition, which needs both the tags
-		// AAF may choose from and the tags it must avoid.
+		// A second string. Only the query uses it now: the tags to exclude.
 		std::string   extra;
 	};
 }

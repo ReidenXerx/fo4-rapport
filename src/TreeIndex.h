@@ -69,12 +69,22 @@ namespace RP
 		// that does not carry it is not eligible at all. An empty string means the
 		// sexes were never reported, and then it is not filtered on: a missing fact
 		// must not silently narrow the catalogue to nothing.
+		// a_noFurnitureOnly drops every tree that needs a couch, a bed, a desk or
+		// anything else that has to exist nearby. Normally furniture is only a
+		// preference -- AAF does find it indoors -- but after a scene has actually
+		// failed to start, asking for it again is asking for the same failure.
 		[[nodiscard]] const Entry* Choose(
 			std::string_view a_include,
 			std::string_view a_exclude,
 			std::string_view a_composition,
 			bool             a_requireEnding,
+			bool             a_noFurnitureOnly,
 			float            a_budgetSeconds) const;
+
+		// Does this entry need furniture that has to be there already?
+		[[nodiscard]] static bool NeedsFurniture(const Entry& a_entry);
+
+		[[nodiscard]] const Entry* Find(std::string_view a_positionID) const;
 
 		[[nodiscard]] std::size_t Size() const noexcept { return _entries.size(); }
 		[[nodiscard]] std::size_t WithEnding() const noexcept { return _withEnding; }

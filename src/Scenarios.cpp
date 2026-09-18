@@ -39,15 +39,6 @@ namespace
 	}
 }
 
-namespace
-{
-	// How long the pair is given to be walked somewhere else. AAF's walk was
-	// measured at 12.5 seconds across an open market, and a restart adds its own
-	// delay, so this is generous on purpose: giving up early would skip the stage
-	// the move exists to make possible.
-	constexpr float kMoveGraceSeconds = 45.0f;
-}
-
 namespace RP
 {
 	Scenarios& Scenarios::GetSingleton() noexcept
@@ -288,8 +279,6 @@ namespace RP
 			}
 
 			_running = scenario;
-			_movedThisScene = false;
-			_awaitingMove = false;
 			_first = a_first;
 			_second = a_second;
 			_stage = scenario->stages.size();   // EnterStage moves it to the first playable one
@@ -336,7 +325,8 @@ namespace RP
 			const auto& index = TreeIndex::GetSingleton();
 			const auto composition = Aftermath::GetSingleton().CompositionOf(_first, _second);
 			const auto* chosen = index.Choose(
-				stage.include, stage.exclude, composition, stage.requireEnding, stage.seconds);
+				stage.include, stage.exclude, composition, stage.requireEnding, false,
+				stage.seconds);
 
 			if (chosen) {
 				// Named for the log only. The scene was already STARTED on a tree
@@ -461,49 +451,13 @@ namespace RP
 					"scenario \"{}\": AAF refused \"{}\" for stage \"{}\" - trying the next one ({})",
 					_running->id, stage.options[_option - 1], stage.id, a_why);
 				SendCurrentOption(outgoing);
-			} else if (!_movedThisScene) {
-				// Where they ARE is the problem, not the stage. AAF's ChangePosition
-				// cannot leave the furniture a scene started on, so a desk with one
-				// missionary animation on it refuses everything a prelude asks for.
-				// Rather than skip the stage, the pair gets up and carries on
-				// somewhere without furniture -- which is where the variety is.
-				_movedThisScene = true;
-				_awaitingMove = true;
-				_moveRequestedAt = std::chrono::steady_clock::now();
-				logger::info(
-					"scenario \"{}\": nothing in stage \"{}\" works WHERE THEY ARE ({}) - moving "
-					"them somewhere without furniture and trying this stage again",
-					_running->id, stage.id, a_why);
-				PapyrusLink::GetSingleton().BeginRelocation();
-				outgoing.push_back(Order{ Order::Kind::kRelocate, _first, {}, {} });
 			} else {
 				logger::warn(
-					"scenario \"{}\": nothing in stage \"{}\" works for this pair here, and they "
-					"have already moved once this scene - skipping it ({})",
+					"scenario \"{}\": nothing in stage \"{}\" works for this pair here - moving on "
+					"({})",
 					_running->id, stage.id, a_why);
 				EnterStage(_stage + 1, outgoing);
 			}
-		}
-		PapyrusLink::GetSingleton().QueueOrders(outgoing);
-	}
-
-	// The scene came back somewhere else. Re-run the stage that could not be
-	// filled, from its first option: the old refusals were about the old place.
-	void Scenarios::OnRelocated()
-	{
-		std::vector<Order> outgoing;
-		{
-			NamedLock lock{ _lock, "scenarios" };
-			if (!_running || _stage >= _running->stages.size()) {
-				return;
-			}
-			logger::info(
-				"scenario \"{}\": they have moved - trying stage \"{}\" again from the top",
-				_running->id, _running->stages[_stage].id);
-			_awaitingMove = false;
-			_option = 0;
-			_stageStartedAt = std::chrono::steady_clock::now();
-			SendCurrentOption(outgoing);
 		}
 		PapyrusLink::GetSingleton().QueueOrders(outgoing);
 	}
@@ -546,7 +500,21 @@ namespace RP
 
 		const auto  composition = Aftermath::GetSingleton().CompositionOf(a_first, a_second);
 		const auto* chosen = index.Choose(
-			ending->include, ending->exclude, composition, ending->requireEnding, ending->seconds);
+			ending->include, ending->exclude, composition, ending->requireEnding,
+			_avoidFurniture, ending->seconds);
+
+		// Nothing without furniture fits either, so take the furniture one back --
+		// a scene that might not start beats no scene at all, and the refusal that
+		// set this flag may have been about something else entirely.
+		if (!chosen && _avoidFurniture) {
+			logger::info(
+				"scenario \"{}\": nothing without furniture fits, so trying one that wants it "
+				"after all",
+				scenario->id);
+			chosen = index.Choose(
+				ending->include, ending->exclude, composition, ending->requireEnding, false,
+				ending->seconds);
+		}
 
 		if (!chosen) {
 			// Said out loud, because a scene without a guaranteed ending is exactly
@@ -574,6 +542,33 @@ namespace RP
 		return _chosenPosition;
 	}
 
+	void Scenarios::NoteSceneRefused()
+	{
+		NamedLock lock{ _lock, "scenarios" };
+		if (_chosenPosition.empty() || _avoidFurniture) {
+			return;
+		}
+
+		// Only when the tree we picked actually wanted a room feature. A refusal
+		// for any other reason says nothing about the furniture and should not
+		// narrow the catalogue.
+		const auto& index = TreeIndex::GetSingleton();
+		if (const auto* entry = index.Find(_chosenPosition);
+			entry && TreeIndex::NeedsFurniture(*entry)) {
+			_avoidFurniture = true;
+			logger::warn(
+				"scenarios: the scene would not start on \"{}\", which needs furniture that has to "
+				"be there already - the next one will ask for none",
+				_chosenPosition);
+		}
+	}
+
+	void Scenarios::NoteSceneStarted()
+	{
+		NamedLock lock{ _lock, "scenarios" };
+		_avoidFurniture = false;
+	}
+
 	float Scenarios::ChosenSeconds() const
 	{
 		NamedLock lock{ _lock, "scenarios" };
@@ -586,29 +581,6 @@ namespace RP
 		{
 			NamedLock lock{ _lock, "scenarios" };
 			if (!_running || _stage >= _running->stages.size()) {
-				return;
-			}
-
-			// Stopped while they walk. The stage this move was made for has not had
-			// its chance yet, and counting through the walk would step over it.
-			if (_awaitingMove) {
-				const auto waiting = std::chrono::duration<float>{
-					std::chrono::steady_clock::now() - _moveRequestedAt
-				}.count();
-				if (waiting < kMoveGraceSeconds) {
-					return;
-				}
-
-				// It never came back. Give the flag up rather than stalling the
-				// story here forever, and give up the plugin's one too -- left set,
-				// it reads every later scene end as a move and nothing is recorded.
-				logger::warn(
-					"scenario \"{}\": the move was asked for {:.0f}s ago and no scene has started "
-					"- carrying on without it",
-					_running->id, waiting);
-				_awaitingMove = false;
-				PapyrusLink::GetSingleton().CancelRelocation();
-				EnterStage(_stage + 1, outgoing);
 				return;
 			}
 
@@ -629,10 +601,6 @@ namespace RP
 		NamedLock lock{ _lock, "scenarios" };
 		if (_running) {
 			logger::info("scenario \"{}\": over", _running->id);
-		}
-		if (_awaitingMove) {
-			_awaitingMove = false;
-			PapyrusLink::GetSingleton().CancelRelocation();
 		}
 		_running = nullptr;
 		_stage = 0;

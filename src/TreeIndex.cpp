@@ -272,11 +272,32 @@ namespace RP
 		}
 	}
 
+	const TreeIndex::Entry* TreeIndex::Find(std::string_view a_positionID) const
+	{
+		const auto found = std::ranges::find(_entries, a_positionID, &Entry::positionID);
+		return found == _entries.end() ? nullptr : &*found;
+	}
+
+	bool TreeIndex::NeedsFurniture(const Entry& a_entry)
+	{
+		if (a_entry.tags.contains("nofurn")) {
+			return false;
+		}
+		// Named rather than inferred: a tag that is not one of these is not a claim
+		// about the room. Measured here, 13 of the 31 eligible female+male trees
+		// with a real ending want one of them.
+		static constexpr std::array kFurniture{ "desk", "couch", "doublebed", "singlebed",
+			"bed", "chair", "counter", "bench", "table", "wall" };
+		return std::ranges::any_of(
+			kFurniture, [&](const auto* tag) { return a_entry.tags.contains(tag); });
+	}
+
 	const TreeIndex::Entry* TreeIndex::Choose(
 		std::string_view a_include,
 		std::string_view a_exclude,
 		std::string_view a_composition,
 		bool             a_requireEnding,
+		bool             a_noFurnitureOnly,
 		float            a_budgetSeconds) const
 	{
 		const auto include = SplitList(a_include);
@@ -299,6 +320,9 @@ namespace RP
 			// the straight one because both are six-stage climax trees tagged
 			// missionary and loving.
 			if (!composition.empty() && !entry.tags.contains(composition)) {
+				continue;
+			}
+			if (a_noFurnitureOnly && NeedsFurniture(entry)) {
 				continue;
 			}
 			if (std::ranges::any_of(exclude, [&](const auto& tag) { return entry.tags.contains(tag); })) {
