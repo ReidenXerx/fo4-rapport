@@ -651,10 +651,13 @@ namespace RP
 		_stepsSeen = 0;
 
 		logger::info(
-			"scenario \"{}\": starting on \"{}\" - a {}-stage tree ending in a {}{}. AAF stages it "
+			"scenario \"{}\": starting on \"{}\" - a {}-stage tree ending in a {}{}{}. AAF stages it "
 			"from here; Rapport keeps the faces and the aftermath",
 			picked.scenario->id, chosen->positionID, chosen->stages,
 			TreeIndex::Describe(chosen->ending),
+			chosen->climaxTagged
+				? ""
+				: " that NO position in it is tagged for, so expect no climax face",
 			chosen->LengthKnown() ? std::format(" and authored for {:.0f}s", chosen->seconds)
 			                      : " of unrecorded length");
 		return _chosenPosition;

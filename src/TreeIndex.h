@@ -51,6 +51,20 @@ namespace RP
 			// Empty when the tree names no terminal position. Selection then falls
 			// back to the entry tags, because that is the only thing there is.
 			std::unordered_set<std::string> endingTags;
+
+			// Does any position this tree can reach actually carry a climax tag?
+			//
+			// `ending` is graded from a BRANCH NAME, and measured here that is a
+			// promise 27 times out of 61: "rxl_bp70_impregnate_mish_Tree" has
+			// branches called Orgasm and Finish, and every position it can reach
+			// carries the same eleven tags with no climax among them. Observed in
+			// game -- that tree ran a full scene and never emitted a climax tag, so
+			// no climax face could fire and the aftermath had nothing to key on.
+			//
+			// 34 of 74 entries have a climax-tagged position somewhere; only 32 have
+			// one at the exit, so this asks ANYWHERE. AAF chooses its own branch and
+			// a climax reached mid-tree still counts.
+			bool climaxTagged{ false };
 			Ending                          ending{ Ending::kNone };
 
 			// Sum of the branches' authored time. ZERO MEANS UNKNOWN, not instant:

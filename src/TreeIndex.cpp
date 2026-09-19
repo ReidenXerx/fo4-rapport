@@ -128,6 +128,10 @@ namespace RP
 			// branch always names one -- this is not a best-effort field.
 			std::string endPositionID;
 			Ending      endGrade{ Ending::kNone };  // which exit won, when several
+
+			// Every position any branch names. Needed to tell a tree that really
+			// reaches a tagged climax from one that only calls a branch "Orgasm".
+			std::vector<std::string> reachable;
 		};
 		std::unordered_map<std::string, Tree> trees;
 
@@ -220,6 +224,10 @@ namespace RP
 
 					tree.stages = std::max(tree.stages, static_cast<std::uint32_t>(running.size()));
 					tree.seconds = std::max(tree.seconds, total);
+
+					if (auto onID = Attr(branch, "positionID"); !onID.empty()) {
+						tree.reachable.push_back(std::move(onID));
+					}
 
 					const auto branchID = Lower(Attr(branch, "id"));
 
@@ -365,6 +373,15 @@ namespace RP
 					made.endingTags = endDecl->second.tags;
 				}
 			}
+
+			made.climaxTagged = std::ranges::any_of(
+				found->second.reachable, [&](const std::string& pos) {
+					const auto it = declared.find(pos);
+					return it != declared.end() &&
+					       std::ranges::any_of(it->second.tags, [](const std::string& tag) {
+						       return tag.starts_with("climax");
+					       });
+				});
 			made.seconds = found->second.seconds;
 			made.stages = found->second.stages;
 
@@ -497,6 +514,18 @@ namespace RP
 			if (entry.tags.contains("nofurn")) {
 				score += 15.0f;
 			}
+			// A tree whose content is actually MARKED as reaching a climax, over one
+			// that only names a branch for it. Owner's call: prefer, do not exclude.
+			//
+			// 25 against a 10-point variety band means that at equal tag match a
+			// tagged tree erases an untagged one outright -- said plainly because
+			// that is close to exclusion in practice. The 27 untagged ones stay
+			// reachable where composition, furniture or budget rules the tagged out,
+			// which is what keeps two women and thin pack sets playable.
+			if (entry.climaxTagged) {
+				score += 25.0f;
+			}
+
 			if (entry.LengthKnown()) {
 				score += entry.seconds <= a_budgetSeconds ? 8.0f : -12.0f;
 			}
