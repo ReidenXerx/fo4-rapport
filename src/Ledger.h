@@ -135,6 +135,9 @@ namespace RP
 		static void F4SEAPI OnLoad(const F4SE::SerializationInterface* a_intfc);
 		static void F4SEAPI OnRevert(const F4SE::SerializationInterface* a_intfc);
 
+		template <class Map, class AgeOf>
+		void Cap(Map& a_map, std::size_t a_limit, std::string_view a_what, AgeOf a_ageOf) const;
+
 		void LoadPairs(
 			const F4SE::SerializationInterface* a_intfc, std::uint32_t a_version, std::uint32_t a_length);
 

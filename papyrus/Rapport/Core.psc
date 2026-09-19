@@ -283,6 +283,17 @@ Int Function RefusalCount(Int aiFormID) Global Native
 ; YOUR number, per actor, kept in Rapport's co-save on your behalf so you do not
 ; have to build a second one for a single float. Rapport never reads it and has
 ; no opinion about what it means -- arousal, attraction, mood, a counter.
+;
+; USE IT SPARINGLY, and this is a save-health warning rather than style advice.
+; SetNeed CREATES a record for that actor. A record with no scene and no refusal
+; has no timestamp to age against, so it can only be pruned by being EMPTY --
+; which means a non-zero need on an actor nothing else ever happens to persists
+; for the rest of the playthrough.
+;
+; So: write it for actors that matter, not for every candidate you look at, and
+; SetNeed(id, 0.0) when you are done with one. Zero is the value that lets the
+; record be collected. There is a hard ceiling behind this as a backstop, but it
+; drops the oldest records to hold the line, which means losing real history.
 Float Function GetNeed(Int aiFormID) Global Native
 Function SetNeed(Int aiFormID, Float afNeed) Global Native
 

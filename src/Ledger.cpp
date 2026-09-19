@@ -28,6 +28,11 @@ namespace
 	// A corrupt length could otherwise ask for an enormous allocation before the
 	// arithmetic below catches it. The real world is a few hundred.
 	constexpr std::uint32_t kMaxEntries = 100000;
+
+	// Runtime ceilings, enforced whatever PruneHours says. Far above any real save:
+	// 2000 actor records is 56 KB and 4000 pairs is 64 KB.
+	constexpr std::size_t kMaxActorRecords = 2000;
+	constexpr std::size_t kMaxPairRecords = 4000;
 }
 
 namespace RP
@@ -203,6 +208,7 @@ namespace RP
 
 		NamedLock lock{ _lock, "ledger" };
 		_pairs.clear();
+		std::uint32_t dropped = 0;
 		for (std::uint32_t i = 0; i < count; ++i) {
 			PairEntry entry{};
 			if (a_intfc->ReadRecordData(entry) != sizeof(entry)) {
@@ -212,10 +218,27 @@ namespace RP
 			if (entry.first == 0 || entry.second == 0) {
 				continue;
 			}
-			_pairs[PairKey(entry.first, entry.second)] =
-				PairRecord{ entry.lastSceneAt, entry.scenes };
+
+			// BOTH ids through ResolveFormID, like every other record here, and this
+			// is not only about uninstalled mods.
+			//
+			// A form id carries its plugin's load-order index. Move a plugin and the
+			// raw number points at a DIFFERENT actor -- so a pair table read without
+			// resolving would hand back a history belonging to two people who never
+			// met, and the repeat-pairing bonus would fire on the strength of it.
+			// Wrong history is worse than none, so an unresolvable pair is dropped
+			// rather than guessed at.
+			const auto first = a_intfc->ResolveFormID(entry.first);
+			const auto second = a_intfc->ResolveFormID(entry.second);
+			if (!first || !second) {
+				++dropped;
+				continue;
+			}
+			_pairs[PairKey(*first, *second)] = PairRecord{ entry.lastSceneAt, entry.scenes };
 		}
-		logger::info("ledger: read {} pair(s) from the save", _pairs.size());
+		logger::info(
+			"ledger: read {} pair(s) from the save, {} dropped because a plugin is gone",
+			_pairs.size(), dropped);
 	}
 
 	// ---- the save game ------------------------------------------------------
@@ -376,6 +399,20 @@ namespace RP
 			if (wearing.contains(formID)) {
 				return false;
 			}
+
+			// A record holding NOTHING goes whatever its age, and this is the only
+			// path here that was unbounded.
+			//
+			// SetNeed does _records[formID], so it creates a record -- and a record
+			// created that way has no scene and no refusal, which made `last`
+			// negative and the age test below false. It could never be dropped. An
+			// addon that tracked need for every candidate it looked at would mint an
+			// immortal record per actor it had ever seen, and pruning was powerless
+			// against exactly the case most likely to happen.
+			if (!record.EverHadAScene() && record.lastRefusedAt < 0.0f && record.need == 0.0f) {
+				return true;
+			}
+
 			const auto last = (std::max)(record.lastSceneAt, record.lastRefusedAt);
 			return last >= 0.0f && (now - last) > hours;
 		});
@@ -402,6 +439,52 @@ namespace RP
 			logger::info(
 				"ledger: dropped {} pair(s) that have not met for {:.0f} game hours", dropped, hours);
 		}
+
+		// And a ceiling, which is a different guarantee from the clock above.
+		//
+		// PruneHours can be set to 0, and 0 means never prune. A player who does
+		// that, or an addon that writes need for everybody, has no upper bound at
+		// all -- so these caps hold whatever the config says, and drop the oldest
+		// first. kMaxEntries guards the LOAD against a corrupt count; nothing
+		// guarded runtime growth.
+		//
+		// The numbers are deliberately far above any real save: 4000 pairs is 64 KB
+		// and 2000 actors is 56 KB, and reaching either means something is wrong
+		// rather than that somebody played a long game.
+		Cap(_records, kMaxActorRecords, "actor", [](const ActorRecord& a_record) {
+			return (std::max)(a_record.lastSceneAt, a_record.lastRefusedAt);
+		});
+		Cap(_pairs, kMaxPairRecords, "pair", [](const PairRecord& a_record) {
+			return a_record.lastSceneAt;
+		});
+	}
+
+	// Drops the oldest until the map fits. Templated over the two record types
+	// because the only thing that differs is how a record reports its own age.
+	template <class Map, class AgeOf>
+	void Ledger::Cap(Map& a_map, std::size_t a_limit, std::string_view a_what, AgeOf a_ageOf) const
+	{
+		if (a_map.size() <= a_limit) {
+			return;
+		}
+
+		std::vector<std::pair<float, typename Map::key_type>> byAge;
+		byAge.reserve(a_map.size());
+		for (const auto& [key, record] : a_map) {
+			byAge.emplace_back(a_ageOf(record), key);
+		}
+		// Oldest first. A never-touched record sorts to the very front, which is
+		// correct: it is the least worth keeping.
+		std::ranges::sort(byAge, {}, &std::pair<float, typename Map::key_type>::first);
+
+		const auto excess = a_map.size() - a_limit;
+		for (std::size_t i = 0; i < excess; ++i) {
+			a_map.erase(byAge[i].second);
+		}
+		logger::warn(
+			"ledger: the {} table was over its ceiling of {} - dropped the {} oldest. Something is "
+			"writing a great many of these, or PruneHours is 0",
+			a_what, a_limit, excess);
 	}
 
 	void Ledger::Load(const F4SE::SerializationInterface* a_intfc)
