@@ -101,6 +101,8 @@ namespace RP
 					cooldownHours = Clamp(std::stof(value), 0.0f, 720.0f);
 				} else if (key == "BusyBackoffSeconds") {
 					busyBackoffSeconds = Clamp(std::stof(value), 0.0f, 3600.0f);
+				} else if (key == "StaleFlagGraceSeconds") {
+					staleFlagGraceSeconds = Clamp(std::stof(value), 0.0f, 3600.0f);
 				} else if (key == "AAFReviveGraceSeconds") {
 					aafReviveGraceSeconds = Clamp(std::stof(value), 0.0f, 600.0f);
 				} else if (key == "AAFReviveRetrySeconds") {

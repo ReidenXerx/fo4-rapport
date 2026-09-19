@@ -35,6 +35,15 @@ namespace RP
 		// consecutive ticks on Johnny Friendly that way.
 		float         busyBackoffSeconds{ 300.0f };
 
+		// How long the bridge must have been listening to AAF's scene events before
+		// it is willing to call a busy flag STALE and take it off.
+		//
+		// A scene that started before we connected has an OnSceneInit we never saw,
+		// so its actors look exactly like stale ones. This window is what separates
+		// the two. 0 disables the release entirely and restores the old behaviour:
+		// never touch a flag we did not set.
+		float         staleFlagGraceSeconds{ 120.0f };
+
 		// How long after a scene an actor is left out of the running, in GAME
 		// hours. This is the stand-in's policy, not the framework's: the ledger
 		// records when a scene happened and takes no view on what is too soon.

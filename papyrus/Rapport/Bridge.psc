@@ -109,6 +109,12 @@ Function Connect()
 	RegisterForCustomEvent(_api, "aaf:aaf_api_OnStageEvent")
 	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAnimationQueryResult")
 
+	; From here we hear every scene AAF starts, so from here a busy flag with no
+	; scene behind it can be told apart from one whose scene began before we were
+	; listening. Connect runs more than once per load; restarting the clock each
+	; time is correct, and it clears whatever we thought was running.
+	Rapport:Core.NoteBridgeConnected()
+
 	_ready = true
 
 	Self.ApplyDebugProfile()
@@ -430,6 +436,19 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 		EndIf
 		Return
 	EndIf
+	; EVERY scene, not only ours. We track the SCENE, not its actors: args[1] holds
+	; the actors but it is an array of arrays, and Papyrus cannot cast a Var to a
+	; Var[] -- "cannot cast a var to a var[], types are incompatible". The only way
+	; to read it is the implicit string rendering TraceArgs relies on, and scraping
+	; a debug rendering for form ids is not evidence worth building on.
+	;
+	; The id alone is enough for a CONSERVATIVE rule: a busy flag is only ever
+	; called stale when NO scene is running anywhere. If some other mod has a scene
+	; up we simply decline to judge, which is the safe direction to be wrong in.
+	If akArgs[3] is Int
+		Rapport:Core.NoteSceneLive(akArgs[3] as Int)
+	EndIf
+
 	Int index = Self.FindRequestByActors(akArgs)
 	If index >= 0
 		; args[3] is AAF's scene id. Remembering it is what lets the end of this
@@ -486,6 +505,18 @@ EndEvent
 
 Event AAF:AAF_API.OnSceneEnd(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnSceneEnd", akArgs)
+
+	; Whoever's scene it was, its actors are free now. The id's position differs
+	; between events, so every Int is offered -- the plugin ignores 0 and anything
+	; that matches no scene it is tracking, exactly as FindRequestByActors does.
+	Int e = 0
+	While e < akArgs.Length
+		If akArgs[e] is Int
+			Rapport:Core.NoteSceneEnded(akArgs[e] as Int)
+		EndIf
+		e += 1
+	EndWhile
+
 	Int index = Self.FindRequestByActors(akArgs)
 	If index >= 0
 		Self.Release(index, "")

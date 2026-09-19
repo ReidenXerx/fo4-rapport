@@ -113,6 +113,24 @@ namespace RP
 		// scheduler passes somebody over and wrong when we are only asking who to
 		// blame for a failure that already happened.
 		[[nodiscard]] bool PeekActorBusy(std::uint32_t a_formID);
+
+		// WHO IS GENUINELY IN AN AAF SCENE, anybody's scene and not only ours.
+		//
+		// AAF's OnSceneInit and OnSceneEnd are broadcast for every scene on the
+		// system; the bridge has always received them and only ever looked for its
+		// own. Keeping the rest is what makes "is a scene really running for this
+		// actor" answerable without GetActorData -- an API call no mod other than
+		// AAF itself has ever made, whose result arrives as a separate event, and
+		// which would need a whole doorbell round trip to ask.
+		void NoteSceneLive(std::int32_t a_sceneID);
+		void NoteSceneEnded(std::int32_t a_sceneID);
+		[[nodiscard]] bool AnySceneLive();
+
+		// When the bridge last connected. An actor can be mid-scene in a scene that
+		// started before we were listening, and we would never have seen its init --
+		// so nothing is called stale until we have been listening long enough for
+		// that to be impossible.
+		void NoteBridgeConnected();
 		[[nodiscard]] bool IsActorBusy(std::uint32_t a_formID);
 
 		// The second doorbell, shared by overlays and expressions. Latched exactly
@@ -235,6 +253,12 @@ namespace RP
 		// Written from the VM thread, read from the scheduler's main-thread slice.
 		mutable std::timed_mutex _busyLock;
 		mutable std::unordered_map<std::uint32_t, std::chrono::steady_clock::time_point> _busyUntil;
+
+		// Scene ids AAF currently has running, anybody's. Not the actors: args[1]
+		// holds those but Papyrus cannot unbox a Var into a Var[].
+		mutable std::unordered_set<std::int32_t> _liveScenes;
+		mutable std::timed_mutex _sceneLock;
+		std::chrono::steady_clock::time_point _bridgeConnectedAt{};
 		std::chrono::steady_clock::time_point _lastEventAt{};
 	};
 }

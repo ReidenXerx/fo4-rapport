@@ -48,6 +48,16 @@ String Function DebugValue(Int aiIndex) Global Native
 ; than offering the same unusable pair on every tick.
 Function NoteActorBusy(Int aiFormID) Global Native
 
+; Whether AAF has ANY scene running right now -- anybody's, not only ours.
+; Reported from OnSceneInit/OnSceneEnd, which are broadcast for every scene on
+; the system. A busy flag is only called stale when nothing at all is running.
+Function NoteSceneLive(Int aiSceneID) Global Native
+Function NoteSceneEnded(Int aiSceneID) Global Native
+
+; Starts the clock on how long we have been listening. Nothing is called stale
+; until a scene that began before we connected could no longer be running.
+Function NoteBridgeConnected() Global Native
+
 ; The request whose scene has run for as long as we asked, or 0. AAF does not
 ; enforce the duration it is given, so somebody has to -- and it is the plugin,
 ; because the bridge has exactly ONE timer that is known to work. Every attempt

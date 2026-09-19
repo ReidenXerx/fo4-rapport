@@ -66,6 +66,21 @@ namespace
 		RP::PapyrusLink::GetSingleton().NoteActorBusy(static_cast<std::uint32_t>(a_formID));
 	}
 
+	void Papyrus_NoteSceneLive(std::monostate, std::int32_t a_sceneID)
+	{
+		RP::PapyrusLink::GetSingleton().NoteSceneLive(a_sceneID);
+	}
+
+	void Papyrus_NoteSceneEnded(std::monostate, std::int32_t a_sceneID)
+	{
+		RP::PapyrusLink::GetSingleton().NoteSceneEnded(a_sceneID);
+	}
+
+	void Papyrus_NoteBridgeConnected(std::monostate)
+	{
+		RP::PapyrusLink::GetSingleton().NoteBridgeConnected();
+	}
+
 	// ---- aftermath -----------------------------------------------------------
 	// AAF's tags say what an animation WAS, and only the bridge can hear them. The
 	// plugin decides what that leaves behind, so the tags have to come over.
@@ -649,6 +664,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NeedsHandshake"sv, Papyrus_NeedsHandshake, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteEvent"sv, Papyrus_NoteEvent, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorBusy"sv, Papyrus_NoteActorBusy, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteSceneLive"sv, Papyrus_NoteSceneLive, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteSceneEnded"sv, Papyrus_NoteSceneEnded, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteBridgeConnected"sv, Papyrus_NoteBridgeConnected, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneRefused"sv, Papyrus_SceneRefused, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteScenePosition"sv, Papyrus_NoteScenePosition, std::nullopt, false);
@@ -1143,6 +1161,90 @@ namespace RP
 			_busyUntil[a_formID] = until;
 		}
 		logger::info("{:08X} is flagged busy in AAF - passing over them for {:.0f}s", a_formID, seconds);
+
+		// IS THAT FLAG REAL, OR IS IT A CORPSE?
+		//
+		// AAF_ActorBusy is a keyword AAF stamps and only AAF clears. The engine
+		// knows nothing about it -- it is not an AI package, not IsInScene, not
+		// dialogue -- so when a scene dies before it finishes, NOTHING will ever
+		// take it off. It goes into the save, and that actor is refused by every
+		// AAF mod from then on, forever. The bridge found this the hard way: "one
+		// NPC picked by three failed runs became unusable for the rest of the
+		// save."
+		//
+		// We can answer it because OnSceneInit and OnSceneEnd are broadcast for
+		// EVERY scene, not just ours: if nobody is running a scene with this actor
+		// in it, the keyword is a corpse and we take it off. Rapport has always
+		// refused to touch a flag it did not set, which is the correct instinct
+		// and left the actor broken forever; the release is now conditioned on
+		// evidence rather than on ownership.
+		const auto grace = Config::GetSingleton().staleFlagGraceSeconds;
+		const auto listening = std::chrono::duration<float>{
+			std::chrono::steady_clock::now() - _bridgeConnectedAt
+		}.count();
+
+		// Conservative: ANY scene running anywhere and we decline to judge. We
+		// cannot tell whose actors they are (see NoteSceneLive), so the only safe
+		// reading of a live scene is "this flag might be real".
+		if (AnySceneLive()) {
+			logger::info(
+				"{:08X} is flagged busy and a scene IS running somewhere - not judging it",
+				a_formID);
+			return;
+		}
+		if (grace <= 0.0f) {
+			return;
+		}
+		// A scene that began before we were listening has an init we never saw, so
+		// its actors would look stale. Nothing is called stale until that window
+		// has passed.
+		if (listening < grace) {
+			logger::info(
+				"{:08X} is flagged busy with no scene running, but the bridge has only been "
+				"listening {:.0f}s of {:.0f}s - not calling it stale yet",
+				a_formID, listening, grace);
+			return;
+		}
+
+		logger::warn(
+			"{:08X} carries AAF's busy flag but NO scene is running anywhere - it is stale "
+			"and "
+			"nothing else will ever remove it. Releasing.",
+			a_formID);
+		QueueOrder(Order{ Order::Kind::kRelease, a_formID, {}, {} });
+	}
+
+	void PapyrusLink::NoteBridgeConnected()
+	{
+		NamedLock lock{ _sceneLock, "live scenes" };
+		_bridgeConnectedAt = std::chrono::steady_clock::now();
+		// A reconnect means the bridge restarted; whatever we thought was running
+		// is from before that and cannot be trusted.
+		_liveScenes.clear();
+	}
+
+	void PapyrusLink::NoteSceneLive(std::int32_t a_sceneID)
+	{
+		if (a_sceneID == 0) {
+			return;
+		}
+		NamedLock lock{ _sceneLock, "live scenes" };
+		_liveScenes.insert(a_sceneID);
+	}
+
+	void PapyrusLink::NoteSceneEnded(std::int32_t a_sceneID)
+	{
+		if (a_sceneID == 0) {
+			return;
+		}
+		NamedLock lock{ _sceneLock, "live scenes" };
+		_liveScenes.erase(a_sceneID);
+	}
+
+	bool PapyrusLink::AnySceneLive()
+	{
+		NamedLock lock{ _sceneLock, "live scenes" };
+		return !_liveScenes.empty();
 	}
 
 	bool PapyrusLink::PeekActorBusy(std::uint32_t a_formID)
