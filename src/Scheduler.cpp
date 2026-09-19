@@ -164,6 +164,7 @@ namespace RP
 			candidates.reserve(_scan.Candidates().size());
 			const auto& ledger = Ledger::GetSingleton();
 			const auto  cooldown = Config::GetSingleton().cooldownHours;
+			const bool  addonOwns = Candidates::GetSingleton().StoodDown();
 
 			std::uint32_t benched = 0;
 			std::uint32_t resting = 0;
@@ -181,7 +182,13 @@ namespace RP
 				}
 				// Stand-in policy, reading the framework's facts. The ledger says
 				// when; this line is the only thing that decides "too soon".
-				if (cooldown > 0.0f && ledger.HoursSinceScene(actor->GetFormID()) < cooldown) {
+				//
+				// It yields to an addon along with the decision it belongs to, and it
+				// HAS to: this filter runs before ranking, so leaving it on would mean
+				// an addon never even sees a resting pair and could not apply a rule of
+				// its own. "Too soon" is policy, and the Ledger's own comment says so.
+				if (!addonOwns && cooldown > 0.0f &&
+					ledger.HoursSinceScene(actor->GetFormID()) < cooldown) {
 					++resting;
 					continue;
 				}

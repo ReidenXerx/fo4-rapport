@@ -10,7 +10,12 @@
     "  the crowd penalty is zero up to observerTolerance and then climbs steeply.",
     "  In this world nobody is shy about it; nobody performs for ten people either.",
     "",
-    "Privacy is never a veto, only a price. Hostility is the only hard gate."
+    "Privacy is never a veto, only a price. Hostility is the only hard gate.",
+    "",
+    "playerNear is 0 by OWNER'S DECISION: the player is not a factor at all. The",
+    "signal is still measured and still published to addons, so one that wants to",
+    "care can -- this only stops the framework's own ranking from caring. Set it",
+    "back to 0.5 to make a pair think twice while being watched by the player."
   ],
 
   "maxPairDistance": 1536.0,
@@ -25,7 +30,7 @@
   "interior": 0.3,
   "night": 0.25,
   "perObserver": 0.2,
-  "playerNear": 0.5,
+  "playerNear": 0.0,
 
   "minimumScore": 0.9
 }

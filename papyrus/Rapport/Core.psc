@@ -248,6 +248,35 @@ Bool Function CandidateInterior(Int aiIndex) Global Native
 Bool Function CandidateNight(Int aiIndex) Global Native
 Bool Function CandidateSharedFaction(Int aiIndex) Global Native
 
+; ---- the addon door, part three: WHAT HAPPENED BEFORE --------------------
+;
+; Rapport keeps these in the SAVE, per actor, so a player with three characters
+; has three sets of them. It records the facts and decides nothing with them:
+; "too soon", "bored of this partner" and "wants company" are yours.
+;
+; All take a FORM ID, the same one CandidateFirst/Second gave you.
+
+; Game hours since this actor's last scene. A very large number (1e9) when they
+; have never had one, so a cooldown test needs no special case and "longest
+; since" sorts correctly.
+Float Function HoursSinceScene(Int aiFormID) Global Native
+
+; Who it was with, and how many they have had. lastPartner is the MOST RECENT
+; partner only -- it is not a history, so "have these two ever" is only knowable
+; while neither has been with anyone else since.
+Int Function LastPartner(Int aiFormID) Global Native
+Int Function SceneCount(Int aiFormID) Global Native
+
+; Requests involving this actor that AAF turned down. Useful for backing off an
+; actor the engine keeps refusing rather than asking forever.
+Int Function RefusalCount(Int aiFormID) Global Native
+
+; YOUR number, per actor, kept in Rapport's co-save on your behalf so you do not
+; have to build a second one for a single float. Rapport never reads it and has
+; no opinion about what it means -- arousal, attraction, mood, a counter.
+Float Function GetNeed(Int aiFormID) Global Native
+Function SetNeed(Int aiFormID, Float afNeed) Global Native
+
 ; Say this ONCE, at startup, and Rapport stops starting scenes on its own.
 ;
 ; Rapport ships a stand-in decision so the framework can be tested without an
@@ -256,8 +285,13 @@ Bool Function CandidateSharedFaction(Int aiIndex) Global Native
 ; because whether Rapport should decide depends on what is INSTALLED, and an ini
 ; that has to be edited to match is an ini that will be wrong.
 ;
-; It only stops the deciding. Scoring, publishing, the faces, the aftermath and
-; the scene lifecycle all carry on.
+; It stops the deciding AND the 24-hour cooldown filter, which is stand-in policy
+; too -- that filter runs before ranking, so leaving it on would mean you never
+; see a resting pair and could not apply a rule of your own. Scoring, publishing,
+; the faces, the aftermath and the scene lifecycle all carry on.
+;
+; So once you call this, enforcing a cooldown is YOUR job. HoursSinceScene is the
+; fact; what counts as too soon is the policy.
 Function TakeOverDecisions(String asWho) Global Native
 
 ; ---- the addon door, part two: ASK FOR IT --------------------------------

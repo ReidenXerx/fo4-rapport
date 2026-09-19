@@ -449,6 +449,54 @@ namespace
 		return offer && offer->signals.sharedFaction;
 	}
 
+	// ---- the addon door: WHAT HAPPENED BEFORE --------------------------------
+	//
+	// The Ledger's own comment states this split: it records FACTS and nothing
+	// else, and "too soon", "bored of this partner" and "wants company" are policy
+	// that belongs to an addon. These publish the facts so an addon can decide.
+	//
+	// Game hours throughout, from the Calendar's GameDaysPassed.
+
+	float Papyrus_HoursSinceScene(std::monostate, std::int32_t a_formID)
+	{
+		// Infinity for someone who has never had one, so "longest since" sorts
+		// correctly. Papyrus has no infinity literal to compare against, so it
+		// arrives as a very large number instead: any sane cooldown test passes.
+		const auto hours =
+			RP::Ledger::GetSingleton().HoursSinceScene(static_cast<std::uint32_t>(a_formID));
+		return std::isfinite(hours) ? hours : 1.0e9f;
+	}
+
+	std::int32_t Papyrus_LastPartner(std::monostate, std::int32_t a_formID)
+	{
+		return static_cast<std::int32_t>(
+			RP::Ledger::GetSingleton().Get(static_cast<std::uint32_t>(a_formID)).lastPartner);
+	}
+
+	std::int32_t Papyrus_SceneCount(std::monostate, std::int32_t a_formID)
+	{
+		return static_cast<std::int32_t>(
+			RP::Ledger::GetSingleton().Get(static_cast<std::uint32_t>(a_formID)).scenes);
+	}
+
+	std::int32_t Papyrus_RefusalCount(std::monostate, std::int32_t a_formID)
+	{
+		return static_cast<std::int32_t>(
+			RP::Ledger::GetSingleton().Get(static_cast<std::uint32_t>(a_formID)).refusals);
+	}
+
+	// An addon's own number per actor, kept in the save on its behalf so it does
+	// not have to build a second co-save for one float. Rapport never reads it.
+	float Papyrus_GetNeed(std::monostate, std::int32_t a_formID)
+	{
+		return RP::Ledger::GetSingleton().Get(static_cast<std::uint32_t>(a_formID)).need;
+	}
+
+	void Papyrus_SetNeed(std::monostate, std::int32_t a_formID, float a_need)
+	{
+		RP::Ledger::GetSingleton().SetNeed(static_cast<std::uint32_t>(a_formID), a_need);
+	}
+
 	void Papyrus_TakeOverDecisions(std::monostate, RE::BSFixedString a_who)
 	{
 		RP::Candidates::GetSingleton().StandDown(a_who.empty() ? "" : a_who.c_str());
@@ -585,6 +633,12 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "CandidateInterior"sv, Papyrus_CandidateInterior, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CandidateNight"sv, Papyrus_CandidateNight, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CandidateSharedFaction"sv, Papyrus_CandidateSharedFaction, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "HoursSinceScene"sv, Papyrus_HoursSinceScene, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "LastPartner"sv, Papyrus_LastPartner, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SceneCount"sv, Papyrus_SceneCount, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "RefusalCount"sv, Papyrus_RefusalCount, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "GetNeed"sv, Papyrus_GetNeed, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SetNeed"sv, Papyrus_SetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverDecisions"sv, Papyrus_TakeOverDecisions, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
