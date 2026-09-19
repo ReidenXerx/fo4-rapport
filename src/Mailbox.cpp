@@ -54,6 +54,30 @@ namespace
 	}
 }
 
+namespace
+{
+	// TWO KINDS OF GOING, because they are genuinely different operations.
+	//
+	// Crossing a cell costs a load and nothing can avoid that. Moving WITHIN the
+	// cell you are already in should cost nothing -- and it was costing a load
+	// anyway, because MoveTo was being used for both. Two teleports inside
+	// Diamond City in quick succession put the owner on a loading screen for
+	// minutes, for a move of a few hundred units inside one cell.
+	//
+	// Same cell: SetPosition, right here on the main thread. Instant, no poll, no
+	// load. Different cell: the doorbell and Papyrus MoveTo, which is the only
+	// thing that handles a cell change, and one load is the honest price.
+	[[nodiscard]] bool SameCellAsPlayer(RE::Actor* a_actor, RE::PlayerCharacter* a_player)
+	{
+		if (!a_actor || !a_player) {
+			return false;
+		}
+		auto* a = a_actor->GetParentCell();
+		auto* b = a_player->GetParentCell();
+		return a != nullptr && a == b;
+	}
+}
+
 namespace RP
 {
 	void Mailbox::Start()
@@ -214,13 +238,45 @@ namespace RP
 			if (!ok) {
 				return std::format("ERR {} <formid>   (hex by default, or d:<decimal>)", verb);
 			}
-			// Queued, not done here. Papyrus owns MoveTo -- it is the only one of
-			// the two languages that handles a cell change -- so this goes through
-			// the same doorbell as everything else and costs one poll.
+			auto* form = RE::TESForm::GetFormByID(formID);
+			auto* actor = form ? form->As<RE::Actor>() : nullptr;
+			auto* player = RE::PlayerCharacter::GetSingleton();
+
+			// SAME CELL: do it here and now, no load, no poll. Stand a little short
+			// of them rather than inside them -- landing in somebody is the one
+			// position from which they cannot be seen.
+			if (verb == "goto" && actor && player && SameCellAsPlayer(actor, player)) {
+				const auto here = player->GetPosition();
+				const auto there = actor->GetPosition();
+				auto       bx = here.x - there.x;
+				auto       by = here.y - there.y;
+				const auto len = std::sqrt(bx * bx + by * by);
+				constexpr float kStandOff = 160.0f;
+				if (len < 1.0f) {
+					bx = 0.0f;
+					by = -1.0f;
+				} else {
+					bx /= len;
+					by /= len;
+				}
+				const RE::NiPoint3 dest{ there.x + bx * kStandOff, there.y + by * kStandOff, there.z };
+				player->SetPosition(dest, true);
+
+				constexpr float kRad3 = 57.2957795f;
+				const auto      yaw3 = std::atan2(-bx, -by) * kRad3;
+				link.QueueOrder(Order{ Order::Kind::kLookAt, formID, "0.00",
+					std::format("{:.2f}", yaw3) });
+				return std::format(
+					"OK same cell - moved locally to {:.0f} units off {:08X} and facing them, no load",
+					kStandOff, formID);
+			}
+
+			// DIFFERENT CELL (or no actor to compare): the doorbell, because
+			// Papyrus MoveTo is the only thing here that handles a cell change.
 			link.QueueOrder(Order{
 				verb == "goto" ? Order::Kind::kMovePlayerTo : Order::Kind::kMoveHere,
 				formID, "", "" });
-			return std::format("OK queued - {} {:08X}; it lands on the next poll",
+			return std::format("OK queued - {} {:08X} across a cell, so expect one load",
 				verb == "goto" ? "moving the player to" : "bringing", formID);
 		}
 
@@ -398,10 +454,20 @@ namespace RP
 			constexpr float kRad = 57.2957795f;
 			const auto      yaw = std::atan2(-ox, -oy) * kRad;
 
+			if (SameCellAsPlayer(actor, player)) {
+				const RE::NiPoint3 dest{ there.x + ox, there.y + oy, here.z };
+				player->SetPosition(dest, true);
+				link.QueueOrder(Order{ Order::Kind::kLookAt, formID, "0.00", std::format("{:.2f}", yaw) });
+				return std::format(
+					"OK same cell - stood {:.0f} units off {:08X} locally and facing them (yaw {:.1f}), no load",
+					distance, formID, yaw);
+			}
+
 			link.QueueOrder(Order{ Order::Kind::kMovePlayerTo, formID,
 				std::format("{:.1f}", ox), std::format("{:.1f}", oy) });
 			link.QueueOrder(Order{ Order::Kind::kLookAt, formID, "0.00", std::format("{:.2f}", yaw) });
-			return std::format("OK queued - standing {:.0f} units off {:08X} and facing them (yaw {:.1f})",
+			return std::format(
+				"OK queued - standing {:.0f} units off {:08X} across a cell, so expect one load (yaw {:.1f})",
 				distance, formID, yaw);
 		}
 
