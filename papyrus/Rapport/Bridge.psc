@@ -723,6 +723,29 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		Return
 	EndIf
 
+	; AN ACTOR WHOSE 3D IS GONE IS NOT SOMEONE TO CALL AAF ABOUT.
+	;
+	; Resolving is not the same as being here: fast travel leaves the form
+	; perfectly resolvable and the actor unloaded. A scene was running in Diamond
+	; City, the player fast travelled to Goodneighbor mid-drain, and the bridge
+	; STOPPED POLLING -- no expression, no overlay, no scene ending, nothing timed
+	; at all, until a save was reloaded. A Papyrus stack does not come back from
+	; an AAF call, and asking AAF about somebody who is not there is the way to
+	; find that out.
+	;
+	; Deferring is right for an aftermath mark -- Tick re-asks once the owner is
+	; nearby. For an expression or a heat overlay there is no mark to defer, and
+	; DeferOrder is a harmless no-op for an actor it does not know: those are
+	; recovered instead by _wearing, which is written into the save, so the next
+	; load clears anything stranded here. Moisturizer's own handler below has
+	; guarded itself this way since it was written; this is the same check, moved
+	; to where it covers every kind.
+	If !target.Is3DLoaded()
+		Rapport:Core.DeferOrder(aiFormID)
+		Rapport:Core.Trace("order: " + aiFormID + " is not loaded - " + asSetID + " deferred rather than asked of AAF")
+		Return
+	EndIf
+
 	If aiKind == 1
 		_api.ApplyOverlaySet(target, asSetID)
 		Rapport:Core.Trace("aftermath: asked AAF for " + asSetID + " on " + aiFormID)

@@ -707,14 +707,27 @@ namespace RP
 		}
 		for (const auto formID : _wearing) {
 			a_out.push_back(Order{ Order::Kind::kClearExpression, formID, _clearSet });
-			// EVERY level, not just the one we think is on. After a save and a
-			// reload _heatApplied is empty while the overlay is still on the
-			// actor, and an overlay nothing removes is on them for good -- the
-			// exact failure the sets were written without a duration to avoid.
-			// Removing a set that was never applied costs an order and does
-			// nothing.
-			for (int level = 1; level <= kHeatLevels; ++level) {
-				a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, HeatSetFor(level) });
+			// The one that is ON when we know which, and only sweep all levels
+			// when we do not.
+			//
+			// "Removing a set that was never applied costs an order and does
+			// nothing" was wrong about the cost. Every AAF call costs a POLL --
+			// the bridge drains one order per tick, because a Papyrus stack does
+			// not return from an AAF call -- so sweeping three levels for two
+			// actors is six polls of exposure instead of two. The player fast
+			// travelled inside that window, the actors unloaded mid-drain, and
+			// the bridge stopped polling entirely. Three times the calls is three
+			// times the chance of being caught mid-flight.
+			//
+			// The sweep still earns its place in the case it was written for:
+			// after a LOAD, _heatApplied is empty while an overlay may still be
+			// on the actor, and an overlay nothing removes is on them for good.
+			if (!_heatApplied.empty()) {
+				a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, _heatApplied });
+			} else {
+				for (int level = 1; level <= kHeatLevels; ++level) {
+					a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, HeatSetFor(level) });
+				}
 			}
 		}
 		_heatApplied.clear();
