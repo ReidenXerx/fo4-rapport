@@ -58,6 +58,11 @@ Function NoteSceneEnded(Int aiSceneID) Global Native
 ; until a scene that began before we connected could no longer be running.
 Function NoteBridgeConnected() Global Native
 
+; Should an applied expression also BLOCK everything else from moving the face?
+; Rapport.ini, BlockAnimationFaces. The engine's facial idle writes the same
+; morphs to blink, breathe and talk, and two writers on one morph is a flicker.
+Bool Function BlockFaces() Global Native
+
 ; The request whose scene has run for as long as we asked, or 0. AAF does not
 ; enforce the duration it is given, so somebody has to -- and it is the plugin,
 ; because the bridge has exactly ONE timer that is known to work. Every attempt

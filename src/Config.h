@@ -44,6 +44,25 @@ namespace RP
 		// never touch a flag we did not set.
 		float         staleFlagGraceSeconds{ 120.0f };
 
+		// Freeze the face against EVERYTHING else while an expression is on.
+		//
+		// AAF's AddMFGBlock is the one lever never pulled. The fight is not with
+		// the animation pack -- across the whole install there are ten mfgSet
+		// references and the pack playing here has one -- it is with the ENGINE's
+		// own facial idle, which writes the same morphs to blink, breathe and
+		// talk. Two writers on one morph is the flicker.
+		//
+		// UNPROVEN, and the evidence cuts both ways: RemoveMFGBlock is known to
+		// release a lock="true" morph (docs/FEATURES.md), which says block and
+		// lock are the same mechanism -- and lock demonstrably did NOT win the
+		// jaw. So this may do nothing. It is a switch rather than a decision.
+		//
+		// The cost if it DOES work: a blocked face cannot blink or talk for the
+		// length of the scene. During sex that is arguably correct; it would be
+		// wrong anywhere else, which is why the block goes on with the expression
+		// and comes off with it.
+		bool          blockAnimationFaces{ true };
+
 		// How long after a scene an actor is left out of the running, in GAME
 		// hours. This is the stand-in's policy, not the framework's: the ledger
 		// records when a scene happened and takes no view on what is too soon.

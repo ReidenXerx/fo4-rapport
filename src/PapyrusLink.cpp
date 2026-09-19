@@ -81,6 +81,11 @@ namespace
 		RP::PapyrusLink::GetSingleton().NoteBridgeConnected();
 	}
 
+	bool Papyrus_BlockFaces(std::monostate)
+	{
+		return RP::Config::GetSingleton().blockAnimationFaces;
+	}
+
 	// ---- aftermath -----------------------------------------------------------
 	// AAF's tags say what an animation WAS, and only the bridge can hear them. The
 	// plugin decides what that leaves behind, so the tags have to come over.
@@ -667,6 +672,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneLive"sv, Papyrus_NoteSceneLive, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneEnded"sv, Papyrus_NoteSceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteBridgeConnected"sv, Papyrus_NoteBridgeConnected, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "BlockFaces"sv, Papyrus_BlockFaces, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneRefused"sv, Papyrus_SceneRefused, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteScenePosition"sv, Papyrus_NoteScenePosition, std::nullopt, false);

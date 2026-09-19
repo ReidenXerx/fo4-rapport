@@ -731,6 +731,17 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		Rapport:Core.Trace("aftermath: asked AAF to remove " + asSetID + " from " + aiFormID)
 	ElseIf aiKind == 3
 		_api.ApplyMFGSet(target, asSetID)
+		; And hold it there, if asked to. AddMFGBlock is the half of this API
+		; Rapport has never called -- we only ever REMOVED blocks, on clear. What
+		; contends with us is the engine's own facial idle (blink, breathe, talk)
+		; writing the same morphs, not the animation pack: the whole install has
+		; ten mfgSet references and the pack playing here has one.
+		;
+		; Two AAF calls on one stack, which kind 5 below has always done. The
+		; block comes off in the same place its lock does.
+		If Rapport:Core.BlockFaces()
+			_api.AddMFGBlock(target, Self.AllMorphIDs())
+		EndIf
 		Rapport:Core.Trace("face: asked AAF for " + asSetID + " on " + aiFormID)
 	ElseIf aiKind == 4
 		Self.ReleaseActor(target)
