@@ -80,7 +80,7 @@
 
 <!-- Before anything happens: lips just parted, brows lifted, eyes a little heavy. -->
 <mfgSet id="Rapport_Anticipation">
-	<setting morphID="2" intensity="20" lock="true"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="40" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="40" lock="true"/>  <!-- Right Middle Brow Up -->
 	<setting morphID="8" intensity="25" lock="true"/>  <!-- Left Lip Corner Out -->
@@ -91,7 +91,7 @@
 
 <!-- Early. A soft smile and half-closed eyes; nothing exaggerated. -->
 <mfgSet id="Rapport_Pleasure_1">
-	<setting morphID="2" intensity="30" lock="true"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="30"/>  <!-- Jaw Open -->
 	<setting morphID="17" intensity="50" lock="true"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="50" lock="true"/>  <!-- Right Smile -->
 	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
@@ -104,7 +104,7 @@
 
 <!-- Building. Mouth further open, cheeks lifting, eyes nearly shut. -->
 <mfgSet id="Rapport_Pleasure_2">
-	<setting morphID="2" intensity="60" lock="true"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="60"/>  <!-- Jaw Open -->
 	<setting morphID="24" intensity="40" lock="true"/>  <!-- Lower Lip Roll Out -->
 	<setting morphID="14" intensity="80" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="80" lock="true"/>  <!-- Right Middle Brow Up -->
@@ -120,7 +120,7 @@
 
 <!-- Near the peak. Brows high and drawn in, eyes shut, mouth open. -->
 <mfgSet id="Rapport_Pleasure_3">
-	<setting morphID="2" intensity="85" lock="true"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="85"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="40" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="4" intensity="90" lock="true"/>  <!-- Left Cheek Up -->
 	<setting morphID="27" intensity="90" lock="true"/>  <!-- Right Cheek Up -->
@@ -136,7 +136,7 @@
 
 <!-- The moment. Jaw wide, teeth showing, eyes screwed shut. -->
 <mfgSet id="Rapport_Climax">
-	<setting morphID="2" intensity="100" lock="true"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="100"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="60" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="60" lock="true"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="100" lock="true"/>  <!-- Left Cheek Up -->
@@ -153,7 +153,7 @@
 
 <!-- Mouth working around something: funnelled lips, jaw forward and open. Built on the same morphs Atomic Lust's own Blowjob set uses. -->
 <mfgSet id="Rapport_Oral">
-	<setting morphID="2" intensity="100" lock="true"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="100"/>  <!-- Jaw Open -->
 	<setting morphID="1" intensity="60" lock="true"/>  <!-- Jaw Forward -->
 	<setting morphID="22" intensity="60" lock="true"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60" lock="true"/>  <!-- Upper Lip Funnel -->
@@ -169,7 +169,7 @@
 <!-- Lips pursed, eyes closed. Used for the foreplay tags, which otherwise get an expression that belongs to a different act entirely. -->
 <mfgSet id="Rapport_Kiss">
 	<setting morphID="25" intensity="70" lock="true"/>  <!-- Pucker -->
-	<setting morphID="2" intensity="15" lock="true"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="18" intensity="80" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="80" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="20" lock="true"/>  <!-- Left Smile -->
@@ -178,7 +178,7 @@
 
 <!-- Afterwards, briefly. Eyes heavy, a half smile, jaw slack. -->
 <mfgSet id="Rapport_Dazed">
-	<setting morphID="2" intensity="25" lock="true"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
 	<setting morphID="18" intensity="45" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="45" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="35" lock="true"/>  <!-- Left Smile -->

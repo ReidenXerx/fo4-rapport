@@ -147,8 +147,25 @@ def main():
         out.write("<!-- %s -->\n" % note)
         out.write('<mfgSet id="%s">\n' % setID)
         for name, value in settings:
+            # THE JAW IS NEVER LOCKED, whatever the set asks for.
+            #
+            # lock="true" holds a morph against whatever else would move it, and the
+            # jaw is the one thing something else moves constantly: the animation's
+            # own facial data, idle breathing, anything driving a mouth frame by
+            # frame. A locked Jaw Open and a per-frame animation both writing every
+            # frame is a chin that opens and closes several times a second.
+            #
+            # Reported in game during CLIMAX, which is exactly where it is worst. Jaw
+            # Open is locked in every set and the intensity climbs 15, 20, 25, 30, 60,
+            # 85 to 100 at Climax and Oral. At 15 the argument is invisible; at 100 it
+            # is a fully open jaw against a closed one.
+            #
+            # Unlocked, the other system wins the jaw while it is animating and ours
+            # applies when nothing else is. Every other morph stays locked, so the
+            # expression still reads -- brows, eyes, cheeks and lips are not things
+            # the game animates continuously, so they never enter the argument.
             out.write('\t<setting morphID="%d" intensity="%d"%s/>  <!-- %s -->\n'
-                      % (ID[name], value, ' lock="true"' if lock else '', name))
+                      % (ID[name], value, ' lock="true"' if (lock and name != "Jaw Open") else '', name))
         out.write('</mfgSet>\n\n')
 
     out.write('</mfgSetData>\n')
