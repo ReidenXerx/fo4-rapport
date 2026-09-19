@@ -262,24 +262,28 @@ namespace RP
 			return "Rapport_Climax"sv;
 		}
 
-		// Mouth working around something.
+		// Mouth working around something, and the TARGET is what decides it.
 		//
-		// MouthToMouth must not reach here -- it is kissing, and an open-jawed
-		// blowjob face on a kiss is this same mistake pointed the other way. It is
-		// excluded explicitly rather than by leaving "mouthto" out, because
-		// "mouthto" is exactly how MouthToVagina and MouthToPenis are spelled.
-		const auto kissOnly = std::ranges::all_of(tags, [](const std::string& tag) {
-			return tag.find("mouthto") == std::string::npos ||
-			       tag.find("mouthtomouth") != std::string::npos;
-		});
-		// "tongueto", "rimjob" and "licking" are here because the install has them
-		// and nothing else would catch them: BP70 spells a rimjob
-		// "RimJob,TongueToAnus" with no mouth tag anywhere, so an exact list built
-		// from the acts you thought of leaves that scene stony-faced.
+		// This used to match any tag containing "mouthto", with a special case to
+		// rescue MouthToMouth from being read as a blowjob. That was the wrong test
+		// twice over: it needed the special case at all, and it still caught
+		// MouthToNipples -- observed putting an open-jawed oral face on a missionary
+		// scene whose tags also said PenisToVagina.
+		//
+		// A census of every mouth tag in the install decides it instead. Genital and
+		// anal targets are oral sex: penistomouth 151, mouthtovagina 44, mouthtoanus
+		// 28, tonguetoanus 4, mouthtopenis 1, anustomouth 1. The rest are foreplay or
+		// flourish and must fall through to whatever else is happening:
+		// mouthtomouth 27, mouthtofoot 8, mouthtonipples 4, mouthtoarmpit 1.
+		//
+		// Listing the targets makes MouthToMouth fall out naturally, so the special
+		// case is gone rather than merely corrected.
+		//
+		// The reverse order is not available: "penistomouth" contains "penisto", so
+		// checking penetration first would turn every blowjob into a pleasure face.
 		if (any({ "blowjob"sv, "cunnilingus"sv, "analingus"sv, "fellatio"sv, "irrumatio"sv,
 				  "oral"sv, "tomouth"sv, "69"sv, "tongueto"sv, "rimjob"sv, "rimming"sv,
-				  "licking"sv }) ||
-			(!kissOnly && any({ "mouthto"sv }))) {
+				  "licking"sv, "mouthtovagina"sv, "mouthtopenis"sv, "mouthtoanus"sv })) {
 			return "Rapport_Oral"sv;
 		}
 
