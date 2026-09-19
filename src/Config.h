@@ -97,7 +97,20 @@ namespace RP
 		// glitch that remains is somebody else's.
 		bool          driveFaces{ true };
 
-		bool          diagnoseStageTags{ true };
+		// Asks AAF, per stage, what it thinks it has for that stage's tags, and
+		// once per stage the same question with no filter as a baseline.
+		//
+		// Off by default now: the question it was added for is ANSWERED. Every
+		// tagged query came back 0 -- including PenisToVagina, which 2320
+		// positions carry -- while the unfiltered one came back non-zero, so the
+		// query works and AAF's tag matching is what does not. ChangePosition,
+		// which those numbers were collected to explain, is gone.
+		//
+		// Kept rather than deleted because it is the only probe that can tell a
+		// CONTENT gap from a matching failure on an install whose packs are not
+		// this one's -- the female/female hole is exactly that shape. It costs one
+		// or two of the eight per-poll orders on every stage, so it is opt-in.
+		bool          diagnoseStageTags{ false };
 
 		bool          dryRun{ true };
 		bool          verbose{ false };

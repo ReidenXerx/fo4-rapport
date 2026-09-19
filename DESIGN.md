@@ -595,6 +595,10 @@ else in this project.
 
 ## A-24 - scenarios: sex is a story, and the framework only executes it (2026-09-18)
 
+> **Partly superseded by A-25 (2026-09-19).** Everything below about *why* a scenario is
+> narrative still holds. Everything about `ChangePosition` doing the staging does not: it was
+> measured and it does not work, at all. Read A-25 with this.
+
 Owner: *"Sex its not random actions its a story... fast sex in the random place? Usually it could be
 handjob, blowjob or staying pose when man fuck from behind, and only 1 stage. Home sex? Much more
 diverse poses and more stages with preludes."*
@@ -652,3 +656,66 @@ the scene starts. The alternative, `FindMatchingAnimations`, is asynchronous and
 has never been observed in this project; a stage stalling on an answer is worse than one quietly
 dropped. **An empty index means the scan failed, not that content is absent**, so every stage is
 attempted in that case rather than every stage skipped.
+
+## A-25 - one tree per scene, chosen at StartScene (2026-09-19)
+
+Supersedes A-24's mechanism. A-24 assumed a stage could move a running scene with
+`ChangePosition` and only the LAST stage needed to hand over to a tree. Measured, a stage cannot
+move a running scene at all.
+
+**`ChangePosition` never works here. 26 refusals out of 26** -- with tag filters, with a named
+position id, and with no filters whatsoever. The last of those is what settles it: a call asking for
+nothing in particular is still refused, so this is not a content problem and no tag list fixes it.
+`FindMatchingAnimations` agrees from the other side, returning 0 for all 17 tags tried including
+`PenisToVagina`, which 2320 installed positions carry, while the same query with no filter comes
+back non-zero.
+
+So staging is **AAF's**, and the one moment Rapport can act on is the one that works: `StartScene`
+honours `settings.position`, and a position may declare `positionTree="..."`. **Naming a position IS
+choosing a tree.** Rapport picks one tree when the scene starts, and AAF walks it to its own ending
+on the pack author's own timings. Owner's decision: *"One tree per scene -- pick at StartScene, let
+AAF stage it. Just be sure that it's proper scenario with proper ending."*
+
+Consequences, each of which changed code:
+
+1. **A stage is now a MOOD, not a request.** It carries a face and a share of the story, and asks
+   AAF for nothing. Stage seconds became WEIGHTS: they are scaled onto the length the chosen tree is
+   actually authored for, so the faces land in proportion to a scene whose real length nobody knew
+   when the scenario was written.
+2. **Nothing imposes a length.** Owner: *"We shouldn't limit length at all it should live as long as
+   author made it."* `MaxSceneSeconds` survives only as a deadlock breaker.
+3. **A refusal no longer advances the story.** The bridge registers on AAF's API singleton, so every
+   refusal in the game arrives -- including other mods' -- and the refusal event carries no request
+   id to filter on. While stages made requests this was tolerable; now it would be a foreign mod
+   driving our scenes.
+4. **The scenario's tags describe the ENDING.** The tree is chosen by matching them against the
+   position the tree ends ON, not the one it starts on. 54 of the 74 tree-bearing positions here
+   carry different tags at the two ends.
+5. **`requireEnding` is a preference, not a wall.** When nothing both matches and is graded,
+   selection takes a matching ungraded tree and says so loudly.
+6. **Relocation was removed.** Moving actors to reach better furniture was built, proven end to end,
+   and deleted with `ChangePosition` -- with the scene no longer restaging, there is nothing to
+   relocate FOR.
+
+**Known content gap, not a defect.** Two women get no tree at all: AAF's packs ship 24 female/female
+positions on this install and not one declares a `positionTree`. They play through the unconstrained
+path -- no position named, AAF chooses, faces and aftermath unchanged -- and `Core.CanRun` reports
+that honestly rather than pretending.
+
+## A-26 - the addon door is a scenario NAME (2026-09-19)
+
+`Rapport:Core.RequestScene(first, second, scenario)` and
+`Rapport:Core.CanRun(scenario, first, second)`. Owner's decision: by name, plus a pre-flight.
+
+A name is the only unit whose meaning survives a different install. Tags, trees and positions all
+differ per machine, so an addon naming those would be choosing from a catalogue it cannot see. A
+name is also the unit an addon already reasons in: *these two are at home and comfortable*.
+
+The scenario owns its own duration. An addon passing seconds would be guessing at content it has
+never read, and that guess would silently become the deadlock breaker's baseline.
+
+`CanRun` runs the **real** selection ladder, not a cheaper lookalike -- one `SelectLocked`, used by
+both -- because a pre-flight that says yes to something the start then refuses is worse than having
+none. It answers worst-to-better (`-1` unknown, `0` nothing fits, `1` unconstrained by design, `2`
+no guaranteed ending, `3` good) so an addon comparing two scenarios takes the larger. **Only `-1` is
+a refusal**; `0` through `3` all play and differ only in how strong a promise Rapport can make.

@@ -253,12 +253,6 @@ namespace RP
 		return scenario ? scenario->PlayableSeconds() : 0.0f;
 	}
 
-	bool Scenarios::Running() const
-	{
-		NamedLock lock{ _lock, "scenarios" };
-		return _running != nullptr;
-	}
-
 	bool Scenarios::Begin(std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second)
 	{
 		std::vector<Order> outgoing;

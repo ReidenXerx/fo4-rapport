@@ -170,12 +170,9 @@ namespace RP
 
 		void End();
 
-		[[nodiscard]] bool Running() const;
-
 		// The length the scene should be asked to run for: the sum of the stages
 		// that can actually be played.
 		[[nodiscard]] float SecondsFor(std::string_view a_id) const;
-		[[nodiscard]] std::size_t Count() const noexcept { return _scenarios.size(); }
 
 		// ---- the tag index ---------------------------------------------------
 		// Every tag the installed animation packs actually use, read straight off
@@ -187,7 +184,6 @@ namespace RP
 		// a stage that stalls waiting for an answer is worse than one that was
 		// quietly dropped.
 		[[nodiscard]] bool AnyContentFor(std::string_view a_includeTags) const;
-		[[nodiscard]] std::size_t KnownTags() const noexcept { return _tags.size(); }
 
 		[[nodiscard]] static std::filesystem::path ConfigPath();
 		[[nodiscard]] static std::filesystem::path AAFDataPath();
