@@ -429,15 +429,13 @@ namespace RP
 			return;
 		}
 
+		// AllPositions, not Entries: an unconstrained scene plays whatever AAF picks,
+		// and most of what it picks never enters a tree. Walking the tree catalogue
+		// reported one position and silently ignored the other thousand.
 		std::vector<std::string> unreadable;
-		for (const auto& entry : index.Entries()) {
-			std::string joined;
-			for (const auto& tag : entry.tags) {
-				joined += tag;
-				joined.push_back(',');
-			}
-			if (FaceForAct(joined, entry.positionID, 2).empty()) {
-				unreadable.push_back(entry.positionID);
+		for (const auto& declared : index.AllPositions()) {
+			if (FaceForAct(declared.tags, declared.positionID, 2).empty()) {
+				unreadable.push_back(declared.positionID);
 			}
 		}
 
@@ -448,10 +446,11 @@ namespace RP
 		}
 
 		logger::info(
-			"expressions: {} position(s) whose act cannot be read from tags OR name. Put them in "
+			"expressions: {} of {} position(s) whose act cannot be read from tags OR name. Put them "
+			"in "
 			"Data/F4SE/Plugins/Rapport/act-overrides.json under \"acts\", as "
 			"\"<position id>\": \"oral|pleasure|kiss|climax|none\":",
-			unreadable.size());
+			unreadable.size(), index.AllPositions().size());
 		for (const auto& id : unreadable) {
 			logger::info("expressions:   \"{}\": \"pleasure\",", id);
 		}

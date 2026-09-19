@@ -107,6 +107,7 @@ namespace RP
 		_entries.clear();
 		_withEnding = 0;
 		_withClimaxTag = 0;
+		_declared.clear();
 
 		const auto      folder = std::filesystem::path{ "Data" } / "AAF";
 		std::error_code ec;
@@ -343,6 +344,21 @@ namespace RP
 				}
 			}
 		}
+
+		// Every position that survived its overrides, tree or not. Kept for anything
+		// that has to reason about what CAN play rather than what enters a tree.
+		for (const auto& [id, decl] : declared) {
+			if (decl.retired || decl.tags.empty()) {
+				continue;
+			}
+			std::string joined;
+			for (const auto& tag : decl.tags) {
+				joined += tag;
+				joined.push_back(',');
+			}
+			_declared.push_back(Declared{ id, std::move(joined) });
+		}
+		std::ranges::sort(_declared, {}, &Declared::positionID);
 
 		// ---- join -----------------------------------------------------------
 		std::uint32_t orphaned = 0;

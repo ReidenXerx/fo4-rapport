@@ -128,10 +128,28 @@ namespace RP
 		// would be reading during startup, before any of this is reachable.
 		[[nodiscard]] const std::vector<Entry>& Entries() const noexcept { return _entries; }
 
+		// EVERY position that can play, not only the ones that enter a tree.
+		//
+		// Entries() is the tree catalogue -- 74 of the 1131 declared positions here.
+		// Anything asking "can I read what this position is" must see all of them,
+		// because an unconstrained scene plays whatever AAF picks and most of what it
+		// picks has no tree. The first version of the act report walked Entries() and
+		// so reported one position while missing the rest of the install.
+		struct Declared
+		{
+			std::string positionID;
+			std::string tags;   // comma-joined, lowercased
+		};
+		[[nodiscard]] const std::vector<Declared>& AllPositions() const noexcept
+		{
+			return _declared;
+		}
+
 		[[nodiscard]] static std::string_view Describe(Ending a_ending);
 
 	private:
-		std::vector<Entry> _entries;
+		std::vector<Entry>    _entries;
+		std::vector<Declared> _declared;
 		std::size_t        _withEnding{ 0 };
 		std::size_t        _withClimaxTag{ 0 };
 	};
