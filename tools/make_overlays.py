@@ -1,6 +1,6 @@
 """Generates Rapport's own overlay textures, materials and LooksMenu templates.
 
-Run it after editing SWEAT or BLUSH; everything under data/Textures/Overlays/Rapport,
+Run it after editing SWEAT; everything under data/Textures/Overlays/Rapport,
 data/Materials/Overlays/Rapport and data/F4SE/Plugins/F4EE/Overlays/Rapport is
 generated, not hand-maintained.
 
@@ -70,9 +70,12 @@ KNOWN LIMITATIONS, STATED RATHER THAN DISCOVERED IN GAME
 --------------------------------------------------------
 - Pillow writes ONE mip level. Distant actors will alias slightly. Acceptable for a
   decal that only exists during a scene; fixable with texconv if it ever matters.
-- The blush is an EXPERIMENT. Zero of the 959 installed templates target the head,
-  so whether F4EE applies a slot-0 overlay at all is untested by anything on this
-  machine. If it silently does nothing, that is the answer, and it cost one launch.
+- There is no blush, and there will not be one via this route. Three slot-0 (head)
+  templates were built, shipped and watched in game: the faces were UNCHANGED across
+  several scenes. F4EE does not apply a head overlay -- which matches the census,
+  where none of the 959 installed templates targets the head either. The experiment
+  cost one launch and is closed. A facial flush needs the CharGen tint layer or worn
+  geometry (the route Commonwealth Moisturizer takes), not an overlay.
 """
 
 import json
@@ -147,10 +150,7 @@ def write_bgem(dest, diffuse, normal):
 # wetting, so the peak alphas stay well under half -- a droplet is a highlight,
 # not a spot of white.
 SWEAT_RGB = (242, 244, 248)      # very slightly cool; warm white reads as grease
-BLUSH_RGB = (206, 84, 82)
-
 SIZE_BODY = 2048
-SIZE_FACE = 1024
 
 # (id, beads, max bead radius px, sheen peak alpha, bead peak alpha, runs)
 #
@@ -165,14 +165,6 @@ SWEAT = [
     ("Rapport_Sweat_2", 5200, 2, 46,  80, 180),
     ("Rapport_Sweat_3", 9000, 2, 68, 105, 620),
 ]
-
-# (id, cheek alpha, nose-bridge alpha, spread multiplier)
-BLUSH = [
-    ("Rapport_Blush_1", 42, 16, 1.00),
-    ("Rapport_Blush_2", 78, 30, 1.08),
-    ("Rapport_Blush_3", 100, 42, 1.10),
-]
-
 
 def sweat_alpha(size, count, max_r, sheen_peak, drop_peak, trails, seed):
     rng = random.Random(seed)
@@ -223,27 +215,6 @@ def sweat_alpha(size, count, max_r, sheen_peak, drop_peak, trails, seed):
     return ImageChops.lighter(sheen, beads)
 
 
-def blush_alpha(size, cheek, bridge, spread):
-    a = Image.new("L", (size, size), 0)
-    pen = ImageDraw.Draw(a)
-
-    def blob(cx, cy, rx, ry, value):
-        pen.ellipse((int((cx - rx) * size), int((cy - ry) * size),
-                     int((cx + rx) * size), int((cy + ry) * size)), fill=value)
-
-    # Measured off the baked face diffuses, not guessed. Cheeks sit between the
-    # eye line (0.30) and the mouth (0.55), outboard of the nose.
-    blob(0.285, 0.445, 0.105 * spread, 0.080 * spread, cheek)
-    blob(0.715, 0.445, 0.105 * spread, 0.080 * spread, cheek)
-    # Across the bridge -- what makes a flush read as heat rather than as makeup.
-    blob(0.500, 0.395, 0.090 * spread, 0.036 * spread, bridge)
-    # Ears go red before anything else does.
-    blob(0.105, 0.380, 0.045, 0.055, int(cheek * 0.8))
-    blob(0.895, 0.380, 0.045, 0.055, int(cheek * 0.8))
-
-    return a.filter(ImageFilter.GaussianBlur(size / 26.0))
-
-
 def save_dds(dest, rgb, alpha):
     im = Image.merge("RGBA", (
         Image.new("L", alpha.size, rgb[0]),
@@ -260,11 +231,6 @@ def save_dds(dest, rgb, alpha):
 # ---------------------------------------------------------------------------
 
 BODY_NORMAL = r"actors\character\basehumanfemale\FemaleBody_n.dds"
-# The head's normal is per-character and baked, so there is no single correct
-# path. The body normal is used as a stand-in: for an alpha decal the normal only
-# perturbs lighting on the painted texels, and the blush is soft enough that it
-# does not read.
-FACE_NORMAL = BODY_NORMAL
 
 
 def main():
@@ -286,21 +252,6 @@ def main():
         templates.append({
             "id": setID, "name": label,
             "slots": [{"slot": 3,
-                       "material": "overlays\\Rapport\\" + setID + ".BGEM"}],
-            "playable": True, "transformable": True, "sort": 0, "gender": 2,
-        })
-
-    for setID, cheek, bridge, spread in BLUSH:
-        alpha = blush_alpha(SIZE_FACE, cheek, bridge, spread)
-        n = save_dds(tex / (setID + ".dds"), BLUSH_RGB, alpha)
-        label = "Rapport - Flush %d" % (BLUSH.index(
-            (setID, cheek, bridge, spread)) + 1)
-        write_bgem(mat / (setID + ".bgem"),
-                   "Overlays\\Rapport\\" + setID + ".dds", FACE_NORMAL)
-        print("  %-18s face  %7d bytes   (EXPERIMENT: slot 0)" % (setID, n))
-        templates.append({
-            "id": setID, "name": label,
-            "slots": [{"slot": 0,
                        "material": "overlays\\Rapport\\" + setID + ".BGEM"}],
             "playable": True, "transformable": True, "sort": 0, "gender": 2,
         })

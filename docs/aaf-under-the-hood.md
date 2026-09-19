@@ -331,9 +331,35 @@ Two things follow that are worth writing down.
 must apply both a body texture and a face texture needs two groups of one, not one group of two.
 `condition` is mandatory (`minOccurs="1"`); `overlayGroup` is unbounded.
 
-**Slot 0 is unproven.** Since not one installed template targets the head, nothing here
-demonstrates that F4EE applies a head overlay at all. Rapport's blush is written as an experiment
-on that question, and the sweat does not depend on the answer.
+**Slot 0 does not work.** Three blush templates on biped slot 0 were built, shipped and watched
+in game across several scenes: the faces were **unchanged**. F4EE does not apply a head overlay.
+The census predicted it -- none of the 959 installed templates targets the head, and that is not a
+coincidence of taste -- but the census could only say "nobody does this", never "it cannot be
+done", so it took one launch to settle. The blush has been removed rather than left dormant.
+
+A facial flush therefore needs one of the two routes that DO reach a face: the CharGen tint layer
+(`Character Assets/FaceDetails/` is vanilla's own use of it, and `bEnableTintExtensions=1`), or
+worn geometry with headpart swaps, which is how Commonwealth Moisturizer does it. Neither is an
+overlay. Sweat was never affected -- it is slot 3 and works.
+
+### Heat climbs and never falls
+
+The face and the body need OPPOSITE rules, and giving them the same one was a bug.
+
+An expression legitimately relaxes: a gentler stage gets a gentler face, and that reads correctly.
+Sweat does not work that way -- it accumulates, and nothing about a calmer minute dries anybody
+off. Heat was first derived from the face and inherited the face's fall, which produced this,
+measured in a `tender` scene:
+
+```
+prelude   intensity 2   Pleasure_2   ->  Heat_2
+main      intensity 1   Pleasure_1   ->  Heat_1     <-- less sweaty, halfway through
+finish    intensity 3   Climax       ->  Heat_3
+```
+
+So `_heatLevel` is a high-water mark for the scene, not the current level: it rises, never falls,
+and `CollectClear` resets it when the afterglow ends. The face keeps its own separate behaviour,
+including its own post-climax ratchet.
 
 ### The BGEM, since one had to be written
 

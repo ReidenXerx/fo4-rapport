@@ -524,11 +524,13 @@ namespace RP
 	{
 		NamedLock lock{ _lock, "expressions" };
 
-		const int   level = HeatLevelFor(a_faceSetID);
-		std::string heat  = HeatSetFor(level);
-		if (level < 0 || heat == _heatApplied) {
+		const int level = HeatLevelFor(a_faceSetID);
+		// A high-water mark: -1 leaves it alone, and anything at or below what is
+		// already on is ignored rather than applied downward.
+		if (level <= _heatLevel) {
 			return;
 		}
+		std::string heat = HeatSetFor(level);
 
 		for (const auto formID : { a_first, a_second }) {
 			if (formID == 0) {
@@ -553,13 +555,14 @@ namespace RP
 			_heatApplied.empty() ? "(none)" : _heatApplied.c_str(),
 			heat.empty() ? "(none)" : heat.c_str());
 		_heatApplied = std::move(heat);
+		_heatLevel = level;
 	}
 
 	void Expressions::Collect(std::string_view a_setID, std::vector<Order>& a_out)
 	{
 		const int   level = HeatLevelFor(a_setID);
 		std::string heat  = HeatSetFor(level);
-		const bool  shift = level >= 0 && heat != _heatApplied;
+		const bool  shift = level > _heatLevel;   // climbs only -- see _heatLevel
 
 		for (const auto formID : { _first, _second }) {
 			if (formID == 0) {
@@ -591,6 +594,7 @@ namespace RP
 				_heatApplied.empty() ? "(none)" : _heatApplied.c_str(),
 				heat.empty() ? "(none)" : heat.c_str());
 			_heatApplied = std::move(heat);
+			_heatLevel = level;
 		}
 	}
 
@@ -684,6 +688,7 @@ namespace RP
 			}
 		}
 		_heatApplied.clear();
+		_heatLevel = 0;
 		logger::info("expressions: clearing {} face(s) - {}", _wearing.size(), a_why);
 		_wearing.clear();
 	}

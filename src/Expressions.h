@@ -216,6 +216,17 @@ namespace RP
 		// off before putting the new one on.
 		std::string _heatApplied;
 
+		// Heat only ever CLIMBS within a scene, so this is the high-water mark and
+		// not simply the current level.
+		//
+		// The face legitimately falls -- an expression eases off when a stage is
+		// gentler, and that reads correctly. Heat inherited that and it was wrong:
+		// measured in game, a `tender` scene went Heat_2 (prelude, intensity 2) ->
+		// Heat_1 (main, intensity 1) -> Heat_3 (finish), so the body got LESS sweaty
+		// halfway through. Sweat accumulates; nothing about a gentler minute dries
+		// anybody off. Reset by CollectClear when the scene's afterglow ends.
+		int _heatLevel{ 0 };
+
 		std::vector<std::uint32_t> _wearing;
 	};
 }

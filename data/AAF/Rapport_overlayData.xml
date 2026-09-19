@@ -166,9 +166,12 @@
 	Expressions::CollectClear, off the same _wearing list that guarantees a face
 	comes off, which is persisted into the save.
 
-	SLOT 0 IS UNPROVEN. Not one of those 959 templates targets the head, so nothing
-	on this machine demonstrates that F4EE applies a head overlay at all. If the
-	blush silently does nothing, that is the finding, and the sweat is unaffected.
+	SLOT 0 DOES NOT WORK -- MEASURED, not assumed. Three blush templates on biped
+	slot 0 were shipped and watched in game across several scenes: the faces were
+	unchanged. F4EE does not apply a head overlay. That is consistent with the
+	census (not one of the 959 installed templates targets the head) and it is why
+	there is no blush here any more. A flush needs the CharGen tint layer or worn
+	geometry, not an overlay. Do not re-add a slot-0 template expecting it to draw.
 -->
 
 <overlaySet id="Rapport_Heat_1">
@@ -176,16 +179,10 @@
 		<overlayGroup quantity="1">
 			<overlay template="Rapport_Sweat_1" alpha="100" isFemale="true"/>
 		</overlayGroup>
-		<overlayGroup quantity="1">
-			<overlay template="Rapport_Blush_1" alpha="100" isFemale="true"/>
-		</overlayGroup>
 	</condition>
 	<condition isFemale="false">
 		<overlayGroup quantity="1">
 			<overlay template="Rapport_Sweat_1" alpha="100" isFemale="false"/>
-		</overlayGroup>
-		<overlayGroup quantity="1">
-			<overlay template="Rapport_Blush_1" alpha="100" isFemale="false"/>
 		</overlayGroup>
 	</condition>
 </overlaySet>
@@ -195,16 +192,10 @@
 		<overlayGroup quantity="1">
 			<overlay template="Rapport_Sweat_2" alpha="100" isFemale="true"/>
 		</overlayGroup>
-		<overlayGroup quantity="1">
-			<overlay template="Rapport_Blush_2" alpha="100" isFemale="true"/>
-		</overlayGroup>
 	</condition>
 	<condition isFemale="false">
 		<overlayGroup quantity="1">
 			<overlay template="Rapport_Sweat_2" alpha="100" isFemale="false"/>
-		</overlayGroup>
-		<overlayGroup quantity="1">
-			<overlay template="Rapport_Blush_2" alpha="100" isFemale="false"/>
 		</overlayGroup>
 	</condition>
 </overlaySet>
@@ -214,16 +205,10 @@
 		<overlayGroup quantity="1">
 			<overlay template="Rapport_Sweat_3" alpha="100" isFemale="true"/>
 		</overlayGroup>
-		<overlayGroup quantity="1">
-			<overlay template="Rapport_Blush_3" alpha="100" isFemale="true"/>
-		</overlayGroup>
 	</condition>
 	<condition isFemale="false">
 		<overlayGroup quantity="1">
 			<overlay template="Rapport_Sweat_3" alpha="100" isFemale="false"/>
-		</overlayGroup>
-		<overlayGroup quantity="1">
-			<overlay template="Rapport_Blush_3" alpha="100" isFemale="false"/>
 		</overlayGroup>
 	</condition>
 </overlaySet>

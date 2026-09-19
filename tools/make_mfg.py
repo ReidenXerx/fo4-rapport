@@ -31,6 +31,36 @@ MORPHS = [
 ]
 ID = {name: i for i, name in enumerate(MORPHS)}
 
+# THE MOUTH IS NEVER LOCKED.
+#
+# lock="true" holds a morph against whatever else would move it, and the engine
+# moves the whole mouth region constantly -- lip sync, breathing, an animation's
+# own facial data. Two writers on the same morph every frame is a face that
+# twitches several times a second.
+#
+# This started as a Jaw-Open-only rule, and that was too narrow: the flicker was
+# reported again, and this time NOT during climax. Climax leans on Jaw Open,
+# which was already unlocked; Rapport_Oral leans on Jaw Forward, both lip
+# funnels, the lip rolls and Pucker -- every one of which was still locked. Same
+# fault, different morph, which is what "unlock the one that bit us" earns you.
+#
+# Brows, eyelids and cheeks stay locked: they are what gives an expression its
+# shape, and nothing here drives them per frame the way the mouth is driven.
+# If a brow ever flickers, it joins this set rather than getting its own rule.
+MOUTH = frozenset(
+    ["Jaw Forward", "Jaw Open", "Left Jaw", "Right Jaw",
+     "Lower Lip Funnel", "Upper Lip Funnel",
+     "Lower Lip Roll In", "Lower Lip Roll Out",
+     "Upper Lip Roll In", "Upper Lip Roll Out",
+     "Pucker", "Sticky Lips", "Tongue To Roof"]
+    + ["%s %s" % (side, part)
+       for side in ("Left", "Right")
+       for part in ("Lip Corner In", "Lip Corner Out",
+                    "Lower Lip Down", "Lower Lip Up",
+                    "Upper Lip Down", "Upper Lip Up",
+                    "Smile", "Frown")])
+assert MOUTH <= set(MORPHS), sorted(MOUTH - set(MORPHS))
+
 
 def pair(left, right, value):
     """Most of this table is mirrored. Writing one side and forgetting the other
@@ -210,7 +240,7 @@ def main():
             out.write("<!-- %s -->\n" % (note + how))
             out.write('<mfgSet id="%s">\n' % name_v)
             for name, value in overlay(settings, extra):
-                # THE JAW IS NEVER LOCKED, whatever the set asks for.
+                # THE MOUTH IS NEVER LOCKED, whatever the set asks for. See MOUTH.
                 #
                 # lock="true" holds a morph against whatever else would move it,
                 # and the jaw is the one thing something else moves constantly:
@@ -223,7 +253,7 @@ def main():
                 # Open was locked in every set and climbs 15, 20, 25, 30, 60, 85
                 # to 100 at Climax and Oral. At 15 the argument is invisible; at
                 # 100 it is a fully open jaw against a closed one.
-                holds = lock and name != "Jaw Open"
+                holds = lock and name not in MOUTH
                 out.write('\t<setting morphID="%d" intensity="%d"%s/>  <!-- %s -->\n'
                           % (ID[name], value,
                              ' lock="true"' if holds else '', name))
