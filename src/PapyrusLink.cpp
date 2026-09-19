@@ -285,6 +285,32 @@ namespace
 		RP::Aftermath::GetSingleton().Defer(static_cast<std::uint32_t>(a_formID));
 	}
 
+	// No arguments on purpose. The order in question is the one the plugin just
+	// handed this poll, and the plugin still has it latched -- so asking the
+	// bridge to pass it back would be asking it to re-describe something we
+	// already know, with a chance of describing it differently.
+	void Papyrus_RequeueOrder(std::monostate)
+	{
+		RP::PapyrusLink::GetSingleton().RequeueStranded();
+	}
+
+	// ---- what the medic asks, and what it is allowed to do -----------------
+	//
+	// The medic is a SEPARATE script on a SEPARATE quest precisely so that it is
+	// still running when the bridge is not, so everything it needs has to be
+	// answerable without touching the bridge. These two are that.
+
+	std::int32_t Papyrus_BridgeSilentTicks(std::monostate)
+	{
+		return static_cast<std::int32_t>(RP::PapyrusLink::GetSingleton().SilentTicks());
+	}
+
+	bool Papyrus_AbandonInFlight(std::monostate, RE::BSFixedString a_why)
+	{
+		return RP::PapyrusLink::GetSingleton().AbandonInFlight(
+			a_why.empty() ? "the medic gave up on it" : a_why.c_str());
+	}
+
 	std::int32_t Papyrus_MoisturizerLayers(std::monostate)
 	{
 		return RP::Aftermath::GetSingleton().Layers();
@@ -694,6 +720,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerActorID"sv, Papyrus_MoisturizerActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerRegions"sv, Papyrus_MoisturizerRegions, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DeferOrder"sv, Papyrus_DeferOrder, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "RequeueOrder"sv, Papyrus_RequeueOrder, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "BridgeSilentTicks"sv, Papyrus_BridgeSilentTicks, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "AbandonInFlight"sv, Papyrus_AbandonInFlight, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerFront"sv, Papyrus_MoisturizerFront, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerOral"sv, Papyrus_MoisturizerOral, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerRear"sv, Papyrus_MoisturizerRear, std::nullopt, false);
@@ -849,18 +878,26 @@ namespace RP
 			return;
 		}
 
-		logger::error(
-			"watchdog: nothing has been heard about the running scene for {}s - releasing",
-			limit.count());
+		AbandonInFlight(std::format(
+			"nothing has been heard about the running scene for {}s", limit.count()));
+	}
+
+	bool PapyrusLink::AbandonInFlight(std::string_view a_why)
+	{
+		if (!_sceneInFlight.load()) {
+			return false;
+		}
+
+		logger::error("giving up on the scene in flight: {} - releasing", a_why);
 		{
 			NamedLock lock{ _counter, "request counter" };
 			_pending = Pending{};
 		}
-		// Deliberately no ledger entry. The watchdog firing means we do not know
-		// what happened, and a guess written into a save outlives the session that
-		// made it. The face and the busy flags are a different matter: those are
-		// state we put on somebody, and not knowing what happened is exactly when
-		// they have to come off.
+		// Deliberately no ledger entry. Giving up means we do not know what
+		// happened, and a guess written into a save outlives the session that made
+		// it. The face and the busy flags are a different matter: those are state
+		// we put on somebody, and not knowing what happened is exactly when they
+		// have to come off.
 		Expressions::GetSingleton().OnSceneEnded();
 
 		// And the scenario. Without this it keeps its stage clock running against a
@@ -874,6 +911,8 @@ namespace RP
 		Release(static_cast<std::uint32_t>(_inFlightSecond));
 		ClearInFlight();
 		_sceneInFlight.store(false);
+		_heals.fetch_add(1);
+		return true;
 	}
 
 	void PapyrusLink::RequireHandshake()
@@ -1101,6 +1140,88 @@ namespace RP
 		return _orders.size();
 	}
 
+	void PapyrusLink::RequeueStranded()
+	{
+		NamedLock lock{ _orderLock, "order queue" };
+
+		// Only what is still true whenever the actor comes back. A removal is: the
+		// sweat is on them and should not be. An application is not: the face was
+		// chosen for a stage of a scene that has since ended, and putting it on
+		// them when they walk back into the cell would be a bug wearing the
+		// costume of a fix.
+		switch (_orderKind) {
+		case Order::Kind::kRemoveOverlay:
+		case Order::Kind::kRelease:
+		case Order::Kind::kClearExpression:
+			break;
+		default:
+			return;
+		}
+
+		const auto formID = static_cast<std::uint32_t>(_orderActor);
+		if (formID == 0) {
+			return;
+		}
+
+		// The same clear asked for twice is the same clear. Without this an actor
+		// who stays away accumulates one entry per scene they were never cleared
+		// from, and the list is the thing that has to stay small.
+		for (const auto& held : _stranded) {
+			if (held.formID == formID && held.kind == _orderKind && held.setID == _orderSet) {
+				return;
+			}
+		}
+
+		// A bound, because an NPC who never comes back never clears. 64 is far
+		// more than a session produces and still small enough to be free; when it
+		// is full the OLDEST goes, since the newest is the one most likely to
+		// still describe what is on the actor.
+		constexpr std::size_t kMaxStranded = 64;
+		if (_stranded.size() >= kMaxStranded) {
+			logger::warn(
+				"stranded: holding {} cleanup order(s) for actors who have not come back - "
+				"dropping the oldest ({:08X} {}). A reload clears everything from _wearing.",
+				_stranded.size(), _stranded.front().formID, _stranded.front().setID);
+			_stranded.erase(_stranded.begin());
+		}
+
+		_stranded.push_back(Order{ _orderKind, formID, _orderSet, _orderExtra });
+	}
+
+	void PapyrusLink::ReissueStranded(const std::vector<std::uint32_t>& a_loaded)
+	{
+		std::vector<Order> ready;
+		{
+			NamedLock lock{ _orderLock, "order queue" };
+			if (_stranded.empty()) {
+				return;
+			}
+
+			for (auto it = _stranded.begin(); it != _stranded.end();) {
+				if (std::find(a_loaded.begin(), a_loaded.end(), it->formID) != a_loaded.end()) {
+					ready.push_back(*it);
+					it = _stranded.erase(it);
+				} else {
+					++it;
+				}
+			}
+		}
+
+		// Queued OUTSIDE the lock. QueueOrder takes the same one, and taking a lock
+		// you already hold is the deadlock this codebase keeps its lock rules for.
+		for (const auto& order : ready) {
+			logger::info("stranded: {:08X} ({}) is back - re-issuing {}",
+				order.formID, static_cast<std::int32_t>(order.formID), order.setID);
+			QueueOrder(order);
+		}
+	}
+
+	std::size_t PapyrusLink::StrandedOrders() const
+	{
+		NamedLock lock{ _orderLock, "order queue" };
+		return _stranded.size();
+	}
+
 	std::int32_t PapyrusLink::TakeOverlayOrder()
 	{
 		NamedLock lock{ _orderLock, "order queue" };
@@ -1117,6 +1238,7 @@ namespace RP
 		_orderActor = static_cast<std::int32_t>(order.formID);
 		_orderSet = order.setID;
 		_orderExtra = order.extra;
+		_orderKind = order.kind;
 		return static_cast<std::int32_t>(order.kind);
 	}
 
@@ -1288,6 +1410,7 @@ namespace RP
 				logger::info("the bridge is answering again after {} poll(s) total", pumps);
 				_stallReported = false;
 			}
+			_silentTicks = 0;
 			return;
 		}
 
@@ -1295,13 +1418,24 @@ namespace RP
 			return;
 		}
 
+		// Two ticks, not one. The VM stops for a save and for a loading screen, and
+		// neither is a fault -- a single silent tick names an ordinary fast travel
+		// as a failure, which is the most expensive kind of wrong a log can be,
+		// because it sends somebody looking for a bug that is not there.
+		constexpr std::uint32_t kSilentTicksBeforeAlarm = 2;
+		if (++_silentTicks < kSilentTicksBeforeAlarm) {
+			return;
+		}
+
 		_stallReported = true;
 		logger::error(
 			"THE BRIDGE HAS STOPPED POLLING. It last answered after {} poll(s) and has not asked "
-			"once in the last tick, so nothing timed can happen from here: no expression, no "
-			"overlay, no scene ending, no request collected. A poll with nothing to do and a poll "
-			"that never happened write the same log, which is why this is said out loud.{}",
-			pumps,
+			"once in {} ticks, so nothing timed is happening: no expression, no overlay, no scene "
+			"ending, no request collected. A poll with nothing to do and a poll that never "
+			"happened write the same log, which is why this is said out loud. If it comes back a "
+			"line will say so -- watch for an \"answering again\" line before treating this as "
+			"the fault.{}",
+			pumps, _silentTicks,
 			_sceneInFlight.load()
 				? " A scene is in flight, and the most likely cause is the AAF call that started it:"
 				  " a Papyrus stack does not return from one."

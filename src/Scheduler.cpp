@@ -244,6 +244,10 @@ namespace RP
 
 			Aftermath::GetSingleton().Tick(_scan.LoadedIDs());
 
+			// Cleanup the bridge refused because its actor was not loaded. Same
+			// list, same tick, same reason: both are "do this once they are back".
+			PapyrusLink::GetSingleton().ReissueStranded(_scan.LoadedIDs());
+
 			// Published every pass, whatever the stand-in does with it. An addon polls
 			// on its own clock and must see what this pass measured, including that
 			// there is nothing worth acting on.

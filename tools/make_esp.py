@@ -22,12 +22,28 @@ import sys
 
 SCRIPT_NAME = 'Rapport:Bridge'
 QUEST_EDID = 'RapportBridgeQuest'
+
+# The medic runs on its OWN quest with its OWN script, and that is the whole
+# point of it rather than an organisational preference.
+#
+# A stuck Papyrus stack blocks every later event ON THAT SCRIPT. The bridge is
+# the script that calls AAF, so the bridge is the script that can get stuck --
+# and a watchdog living inside it would be stuck with it, which is a watchdog
+# that reports nothing exactly when there is something to report. A second
+# script cannot be blocked by the first, and a second QUEST means the medic can
+# stop and start the bridge's quest to get a fresh script instance without
+# resetting itself in the process.
+#
+# It never calls AAF. That is what keeps it the thing that stays alive.
+MEDIC_SCRIPT_NAME = 'Rapport:Medic'
+MEDIC_QUEST_EDID = 'RapportMedicQuest'
 AUTHOR = 'Rapport'
 MASTER = 'Fallout4.esm'
 
 # The first object id a new plugin may use; below 0x800 is reserved.
 QUEST_FORMID = 0x01000800
 MESSAGE_FORMID = 0x01000801
+MEDIC_QUEST_FORMID = 0x01000802
 
 # The only thing Rapport ever has to ask the player. AAF's main quest being
 # stopped is the one failure this framework must not fix on its own: it may mean
@@ -98,8 +114,7 @@ def message_group():
     return group('MESG', record('MESG', MESSAGE_FORMID, mesg))
 
 
-def build(script_name, quest_edid, with_message):
-    # ---- the quest ----------------------------------------------------------
+def quest(script_name, quest_edid, form_id):
     vmad = struct.pack('<hhH', 6, 2, 1)        # version, object format, script count
     vmad += wstring(script_name)
     vmad += struct.pack('<B', 0)               # status: local
@@ -110,22 +125,33 @@ def build(script_name, quest_edid, with_message):
     # record beats inventing twelve bytes of flags.
     dnam = bytes.fromhex('11 00 64 67 00 00 00 00 00 00 00 00'.replace(' ', ''))
 
-    quest = field('EDID', zstring(quest_edid))
-    quest += field('VMAD', vmad)
-    quest += field('DNAM', dnam)
-    quest += field('NEXT', b'')                # alias section marker, empty
+    fields = field('EDID', zstring(quest_edid))
+    fields += field('VMAD', vmad)
+    fields += field('DNAM', dnam)
+    fields += field('NEXT', b'')               # alias section marker, empty
+    return record('QUST', form_id, fields)
 
-    quest_record = record('QUST', QUEST_FORMID, quest)
-    quest_group = group('QUST', quest_record)
+
+def build(script_name, quest_edid, with_message):
+    # ---- the quests ---------------------------------------------------------
+    # The main plugin carries two: the bridge, and the medic that watches it.
+    # The Moisturizer plugin carries one, because it has nothing to watch.
+    quests = quest(script_name, quest_edid, QUEST_FORMID)
+    if with_message:
+        quests += quest(MEDIC_SCRIPT_NAME, MEDIC_QUEST_EDID, MEDIC_QUEST_FORMID)
+    quest_group = group('QUST', quests)
 
     # Only the main plugin. The Moisturizer one exists so that no script naming a
     # Commonwealth Moisturizer type loads without that mod, and it has no reason
     # to carry a question the bridge asks.
     extra = message_group() if with_message else b''
-    next_object = (MESSAGE_FORMID if with_message else QUEST_FORMID) + 1
+    next_object = (MEDIC_QUEST_FORMID if with_message else QUEST_FORMID) + 1
 
     # ---- the header ---------------------------------------------------------
-    hedr = struct.pack('<fiI', 1.0, 1 + (1 if with_message else 0), next_object)
+    # Record count: bridge quest, plus the medic quest and the message when this
+    # is the main plugin. A wrong count here is the kind of thing that loads
+    # fine and then goes wrong somewhere nowhere near it.
+    hedr = struct.pack('<fiI', 1.0, 3 if with_message else 1, next_object)
     header_fields = field('HEDR', hedr)
     header_fields += field('CNAM', zstring(AUTHOR))
     header_fields += field('MAST', zstring(MASTER))
@@ -148,6 +174,9 @@ def main():
     print('wrote {} ({} bytes)'.format(sys.argv[1], len(blob)))
     print('  quest  {} formID {:08X}'.format(quest_edid, QUEST_FORMID))
     print('  script {}'.format(script_name))
+    if script_name == SCRIPT_NAME:
+        print('  medic  {} formID {:08X}'.format(MEDIC_QUEST_EDID, MEDIC_QUEST_FORMID))
+        print('  script {}'.format(MEDIC_SCRIPT_NAME))
     print('  master {}'.format(MASTER))
     if script_name == SCRIPT_NAME:
         print('  message {} formID {:08X} ({} buttons)'.format(

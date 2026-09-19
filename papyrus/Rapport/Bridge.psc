@@ -38,6 +38,19 @@ Event OnQuestInit()
 	Self.Connect()
 EndEvent
 
+; Called by Rapport:Medic, through CallFunctionNoWait, when the plugin has not
+; been polled for a while. It is the cheap half of the cure: if this script is
+; healthy and only its clock went missing, one StartTimer is the entire fix. If
+; the stack is stuck instead, this never runs at all -- which is not a failure,
+; it is how the medic learns that the expensive cure is the one needed.
+;
+; Deliberately does NOT Connect() or touch AAF. Everything in here has to be safe
+; to run at any moment, including in the middle of whatever else is going on.
+Function ReArm()
+	Rapport:Core.Trace("bridge: the medic re-armed the poll")
+	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
+EndFunction
+
 Event OnInit()
 	Self.Connect()
 EndEvent
@@ -742,6 +755,7 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	; to where it covers every kind.
 	If !target.Is3DLoaded()
 		Rapport:Core.DeferOrder(aiFormID)
+		Rapport:Core.RequeueOrder()
 		Rapport:Core.Trace("order: " + aiFormID + " is not loaded - " + asSetID + " deferred rather than asked of AAF")
 		Return
 	EndIf

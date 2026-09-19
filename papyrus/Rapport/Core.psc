@@ -169,6 +169,30 @@ String Function OrderExtra() Global Native
 ; actually happened.
 Function DeferOrder(Int aiFormID) Global Native
 
+; The order the bridge was just handed, which it could not carry out because the
+; actor is not loaded. Takes no arguments: the plugin still has that order
+; latched, so it re-forms it rather than trusting a second description of it.
+;
+; Only CLEANUP is held -- a removal stays correct however long it waits, an
+; application does not. Everything else is dropped, and _wearing clears it on the
+; next load.
+Function RequeueOrder() Global Native
+
+; ---- what Rapport:Medic asks ----------------------------------------------
+; Both exist so the medic never has to touch the bridge to find out how the
+; bridge is doing. Asking the patient whether it is breathing is not a check.
+
+; Consecutive plugin ticks in which the bridge has not polled once. A tick is
+; PollSeconds-independent -- it is the plugin's own 20s scheduler pass -- so 2 is
+; roughly forty seconds of silence. 0 means it polled this tick.
+Int Function BridgeSilentTicks() Global Native
+
+; Give up on the scene in flight: forget the request, end the scenario, take the
+; faces off and hand both actors back to AAF. Returns False when there was
+; nothing in flight, which is how the medic tells a real heal from a re-armed
+; clock -- and therefore whether the player is owed an explanation.
+Bool Function AbandonInFlight(String asWhy) Global Native
+
 ; ---- the optional Commonwealth Moisturizer plugin -------------------------
 ; Its own doorbell, drained by Rapport:Moisturizer in Rapport_Moisturizer.esp.
 ; It is a separate script in a separate plugin for one reason: naming a

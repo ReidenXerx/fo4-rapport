@@ -68,6 +68,14 @@ namespace RP
 		// real ending arrived to find someone else in flight.
 		void CheckWatchdog();
 
+		// Give up on the scene in flight: forget the request, end the scenario,
+		// take the faces off and hand both actors back to AAF. False when there
+		// was nothing in flight, which is how the medic knows whether it actually
+		// healed something or merely re-armed a clock.
+		bool AbandonInFlight(std::string_view a_why);
+		[[nodiscard]] std::uint32_t SilentTicks() const noexcept { return _silentTicks; }
+		[[nodiscard]] std::uint32_t Heals() const noexcept { return _heals.load(); }
+
 		// The request whose scene has run for as long as we asked, or 0. AAF does
 		// not enforce the duration it is given, so somebody has to, and the clock
 		// belongs here: the bridge has exactly ONE timer that is known to work --
@@ -140,6 +148,27 @@ namespace RP
 		void         QueueOrders(const std::vector<Order>& a_orders);
 		std::int32_t TakeOverlayOrder();
 		[[nodiscard]] std::size_t PendingOrders() const;
+
+		// ---- orders for somebody who was not there --------------------------
+		//
+		// The bridge refuses to call AAF about an actor whose 3D is gone, because
+		// that is what wedged it: a Papyrus stack does not return from an AAF
+		// call. But a collected order is GONE once collected, so refusing it used
+		// to mean dropping it -- and an actor who unloaded mid-scene kept their
+		// sweat and their face until the save was reloaded.
+		//
+		// So a refused order comes back here instead. RequeueStranded keeps only
+		// the CLEANUP kinds, which is the whole rule: a removal stays correct
+		// however long it waits, an application does not. Re-applying a face
+		// chosen for a scene that ended ten minutes ago would be worse than
+		// dropping it.
+		//
+		// Nothing about this survives a save, deliberately -- _wearing does, and
+		// a load clears everything from that. This only has to cover the gap
+		// WITHIN a session, which is the gap _wearing cannot see.
+		void RequeueStranded();
+		void ReissueStranded(const std::vector<std::uint32_t>& a_loaded);
+		[[nodiscard]] std::size_t StrandedOrders() const;
 
 		// The optional Moisturizer plugin's half of the same arrangement.
 		std::int32_t TakeMoisturizerOrder();
@@ -227,6 +256,12 @@ namespace RP
 		// orders wait in their own queue for the optional plugin's script.
 		mutable std::timed_mutex _orderLock;
 		std::deque<Order>  _orders;
+
+		// Cleanup orders waiting for their actor to come back, and the kind of the
+		// order last handed out -- the bridge asks to requeue "the one you just
+		// gave me", so the latch has to remember what that was.
+		std::vector<Order> _stranded;
+		Order::Kind        _orderKind{};
 		std::deque<Order>  _cmkzOrders;
 		std::int32_t       _orderActor{ 0 };
 		std::string        _orderSet;
@@ -249,6 +284,16 @@ namespace RP
 		std::atomic<std::uint32_t> _pumps{ 0 };
 		std::uint32_t _pumpsAtLastTick{ 0 };
 		bool          _stallReported{ false };
+
+		// Consecutive ticks with no poll. ONE is not enough to shout about: a save
+		// or a fast travel's loading screen freezes the VM for longer than a tick,
+		// and the bridge comes back on its own. Measured 2026-09-20: a 46-second
+		// gap across a load tripped the alarm and healed ten seconds later.
+		std::uint32_t _silentTicks{ 0 };
+
+		// How many times something was actually given up on rather than merely
+		// re-armed. Logged, and the number a bug report is worth having.
+		std::atomic<std::uint32_t> _heals{ 0 };
 
 		// Written from the VM thread, read from the scheduler's main-thread slice.
 		mutable std::timed_mutex _busyLock;
