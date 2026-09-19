@@ -225,9 +225,15 @@ is worse than having none. It answers worst-to-better, `-1` to `3`, and **only `
 
 ### Facial expressions — VERIFIED IN GAME
 
-**What.** Nine of Rapport's own `mfgSet` definitions (`data/AAF/Rapport_mfgSetData.xml`), applied as
-the story advances. Three style variants per expression, chosen from the actor's form id so an actor
-keeps theirs for the whole playthrough at zero storage cost (`src/Expressions.h`).
+**What.** Rapport's own facial sets in `data/AAF/Rapport_mfgSetData.xml`, applied as the story
+advances: eight expressions — anticipation, three levels of pleasure, oral, kiss, climax, dazed —
+plus the clearing set. Each expression ships in `kStyles` variants (3 today, 25 `mfgSet` definitions
+in total), chosen from the actor's form id so an actor keeps theirs for the whole playthrough at
+zero storage cost and nothing has to be written anywhere (`src/Expressions.h`).
+
+The generator and the code must agree on that count: `Expressions::kStyles` appends a number to a
+set name, and a name nothing defines is a face that silently never appears. `tools/make_mfg.py`
+prints every set it writes so the pair can be checked by eye.
 
 **Why.** The stony face is not a bug in AAF, it is a content gap every pack shares. Across the whole
 install there are **ten `mfgSet` references against 2,240 actions and 1,358 animations** — roughly

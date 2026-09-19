@@ -4,6 +4,8 @@
 /vcpkg_installed/
 /extern/*/build/
 .vs/
+.vscode/
+.idea/
 *.user
 
 # Python bytecode from tools/
@@ -16,3 +18,14 @@ __pycache__/
 /data/Textures/
 /data/Materials/
 /data/F4SE/Plugins/F4EE/
+
+# Logs. The ones in docs/runs/ are EVIDENCE and are committed deliberately;
+# anything else is a file pulled off somebody's machine, and Rapport.log carries
+# the Windows user name in its own file paths.
+*.log
+!/docs/runs/*.log
+
+# Local overrides of the build and deploy paths, so a machine's own layout never
+# has to be committed to make the scripts run.
+/scripts/*.local.ps1
+/scripts/local.*

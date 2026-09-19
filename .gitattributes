@@ -1,0 +1,64 @@
+# Normalise line endings in the repository, check out native on Windows.
+* text=auto
+
+# ---- source ---------------------------------------------------------------
+*.cpp     text diff=cpp
+*.h       text diff=cpp
+*.py      text diff=python
+*.json    text
+*.xml     text
+*.xsd     text
+*.md      text
+*.txt     text
+*.cmake   text
+*.ini     text
+CMakeLists.txt text
+
+# Papyrus. The compiler is happy with either ending; normalise so a diff is a
+# real diff.
+*.psc     text
+*.flg     text
+
+# PowerShell. CRLF deliberately: these are run by Windows PowerShell on the
+# machine that builds the mod, and a stray LF in a here-string has bitten.
+*.ps1     text eol=crlf
+*.psm1    text eol=crlf
+*.bat     text eol=crlf
+*.cmd     text eol=crlf
+
+# Logs captured from a real session are EVIDENCE. They are quoted verbatim in
+# docs/, so they must not be rewritten by a line-ending filter.
+docs/runs/*.log -text
+
+# ---- binaries -------------------------------------------------------------
+# Most of these are generated and ignored, but declare them so that a file that
+# does get committed by hand is never mangled.
+*.pex     binary
+*.esp     binary
+*.esm     binary
+*.esl     binary
+*.ba2     binary
+*.dds     binary
+*.bgem    binary
+*.bgsm    binary
+*.nif     binary
+*.tri     binary
+*.dll     binary
+*.lib     binary
+*.pdb     binary
+*.exe     binary
+*.swf     binary
+*.png     binary
+*.jpg     binary
+
+# ---- what is not part of the mod -----------------------------------------
+# Keep the submodule, the docs site and captured logs out of language stats and
+# out of a release archive.
+extern/**       linguist-vendored
+docs/site/**    linguist-documentation
+docs/runs/**    linguist-documentation
+
+.github/        export-ignore
+.gitattributes  export-ignore
+.gitignore      export-ignore
+CONTRIBUTING.md export-ignore
