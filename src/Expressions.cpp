@@ -180,26 +180,24 @@ namespace RP
 	std::string_view Expressions::FaceForAct(std::string_view a_actTags, int a_intensity)
 	{
 		const auto tags = SplitTags(a_actTags);
-		const auto has = [&](std::string_view name) {
-			return std::ranges::find(tags, name) != tags.end();
+
+		// SUBSTRING, not equality. Pack authors do not agree on tag spelling and
+		// never will: tonight's log carried "SEUKissing" -- one mod prefixing its
+		// own name onto a standard tag -- and exact matching only found the act
+		// because a bare "KISSING" happened to sit beside it. Elsewhere the same
+		// act appears as CLIMAX and CLIMAXM.
+		//
+		// So match loosely and let a near miss land on the generous side. The cost
+		// of the two directions is not symmetric: a slightly-too-expressive face
+		// during sex reads as enthusiasm, and a stony calm one reads as broken.
+		const auto any = [&](std::initializer_list<std::string_view> needles) {
+			return std::ranges::any_of(tags, [&](const std::string& tag) {
+				return std::ranges::any_of(needles, [&](std::string_view n) {
+					return tag.find(n) != std::string::npos;
+				});
+			});
 		};
-
-		// A climax outranks everything, including the stage. This is the moment the
-		// whole scene is for and AAF is the only thing that knows when it arrives.
-		if (std::ranges::any_of(tags, [](const std::string& t) { return t.rfind("climax", 0) == 0; })) {
-			return "Rapport_Climax"sv;
-		}
-
-		// Mouth working around something. MouthToMouth is deliberately NOT here --
-		// it is kissing, and an open-jawed blowjob face on a kiss is the same class
-		// of mistake in the other direction.
-		if (has("blowjob") || has("penistomouth") || has("cunnilingus") ||
-			has("mouthtovagina") || has("69")) {
-			return "Rapport_Oral"sv;
-		}
-
-		if (has("penistovagina") || has("penistoanus") || has("handjob") ||
-			has("handtovagina") || has("handtopenis") || has("fingering")) {
+		const auto pleasure = [&]() -> std::string_view {
 			switch (a_intensity) {
 			case 1:
 				return "Rapport_Pleasure_1"sv;
@@ -208,14 +206,78 @@ namespace RP
 			default:
 				return "Rapport_Pleasure_3"sv;
 			}
+		};
+
+		// A climax outranks everything, including the stage. This is the moment the
+		// whole scene is for and AAF is the only thing that knows when it arrives.
+		if (any({ "climax"sv, "orgasm"sv })) {
+			return "Rapport_Climax"sv;
+		}
+
+		// Mouth working around something.
+		//
+		// MouthToMouth must not reach here -- it is kissing, and an open-jawed
+		// blowjob face on a kiss is this same mistake pointed the other way. It is
+		// excluded explicitly rather than by leaving "mouthto" out, because
+		// "mouthto" is exactly how MouthToVagina and MouthToPenis are spelled.
+		const auto kissOnly = std::ranges::all_of(tags, [](const std::string& tag) {
+			return tag.find("mouthto") == std::string::npos ||
+			       tag.find("mouthtomouth") != std::string::npos;
+		});
+		// "tongueto", "rimjob" and "licking" are here because the install has them
+		// and nothing else would catch them: BP70 spells a rimjob
+		// "RimJob,TongueToAnus" with no mouth tag anywhere, so an exact list built
+		// from the acts you thought of leaves that scene stony-faced.
+		if (any({ "blowjob"sv, "cunnilingus"sv, "analingus"sv, "fellatio"sv, "irrumatio"sv,
+				  "oral"sv, "tomouth"sv, "69"sv, "tongueto"sv, "rimjob"sv, "rimming"sv,
+				  "licking"sv }) ||
+			(!kissOnly && any({ "mouthto"sv }))) {
+			return "Rapport_Oral"sv;
+		}
+
+		if (any({ "penisto"sv, "vaginal"sv, "anal"sv, "vaginato"sv, "anusto"sv, "strapon"sv,
+				  "dildo"sv, "handjob"sv, "handto"sv, "footto"sv, "fingering"sv, "titfuck"sv,
+				  "masturbat"sv, "spanking"sv })) {
+			return pleasure();
 		}
 
 		// Foreplay with no penetration yet.
-		if (has("kissing") || has("mouthtomouth")) {
+		if (any({ "kissing"sv, "mouthtomouth"sv, "foreplay"sv, "tease"sv, "grope"sv, "fondle"sv })) {
 			return "Rapport_Kiss"sv;
 		}
 
-		// Names no act we have a face for. Says nothing, so change nothing.
+		// Nothing named an act we know -- but if the tags look sexual AT ALL, that
+		// is a pack spelling something in a way nobody anticipated, not a scene
+		// where nothing is happening. Give a pleasure face at the story's own
+		// intensity rather than leaving a blank one on during sex.
+		if (LooksLikeSex(a_actTags)) {
+			return pleasure();
+		}
+
+		// Last resort, and the most author-independent signal there is: AAF's own
+		// arousal number. Nearly every position in this install carries Stim0..Stim9
+		// regardless of which pack wrote it, so a high one says these two are
+		// worked up even when no tag names what they are doing -- and the install
+		// has positions like "F_M, DoubleBed, FromFront, Stim3, Love5" with no act
+		// tag at all, which is plainly sex and was getting a blank face.
+		//
+		// SFW and NonSex veto it outright. A cuddle at Stim1 is meant to look calm,
+		// and overriding an author who said so is the one place this tolerance would
+		// do harm rather than good.
+		if (!any({ "sfw"sv, "nonsex"sv })) {
+			for (const auto& tag : tags) {
+				if (!tag.starts_with("stim") || tag.size() < 5) {
+					continue;
+				}
+				const auto digit = tag[4];
+				if (digit >= '3' && digit <= '9') {
+					return pleasure();
+				}
+			}
+		}
+
+		// Genuinely says nothing sexual -- a walk, an idle, a transition. Change
+		// nothing, because here a neutral face is the correct one.
 		return {};
 	}
 

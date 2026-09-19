@@ -15,6 +15,20 @@ namespace RP
 		std::uint32_t maxConcurrentScenes{ 1 };
 		float         sceneSeconds{ 30.0f };
 
+		// A scene with NO tree never ends itself. AAF walks a tree to its own Finish
+		// branch and stops -- observed four times -- but an unconstrained scene just
+		// loops its animation forever, so something here has to end it.
+		//
+		// Separate from MaxSceneSeconds on purpose. That one is a deadlock breaker
+		// and its 900s is meant never to fire; using it as the length meant every
+		// female/female pair on this install, and every quickie, ran a quarter of an
+		// hour and then logged a deadlock warning about it.
+		//
+		// 300s clears athome's declared 285s of stages, so a scenario still finishes
+		// the arc it wrote before this cuts in. Lower it if unconstrained scenes feel
+		// long -- they have no ending to reach, so nothing is lost by stopping one.
+		float         noTreeSceneSeconds{ 300.0f };
+
 		// NOT a length. A scene runs for as long as the animation's author made it:
 		// a position tree walks its own stages and exits through its own Finish
 		// branch, and cutting that short is how a climax gets lost.

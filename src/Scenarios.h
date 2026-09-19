@@ -159,6 +159,10 @@ namespace RP
 			kGood = 3,
 		};
 
+		// Is the running scene walking a tree AAF will end by itself? False means
+		// nothing will ever stop it but us.
+		[[nodiscard]] bool OnATree() const;
+
 		[[nodiscard]] Quality Preflight(
 			std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second) const;
 

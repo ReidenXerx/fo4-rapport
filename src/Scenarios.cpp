@@ -711,6 +711,12 @@ namespace RP
 		}
 	}
 
+	bool Scenarios::OnATree() const
+	{
+		NamedLock lock{ _lock, "scenarios" };
+		return _running != nullptr && _treeSteps > 0;
+	}
+
 	void Scenarios::NoteAnimationAdvanced()
 	{
 		std::vector<Order> outgoing;

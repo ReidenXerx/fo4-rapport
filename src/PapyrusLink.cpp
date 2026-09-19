@@ -660,6 +660,10 @@ namespace RP
 
 	std::int32_t PapyrusLink::SceneToStop()
 	{
+		// BEFORE the lock. Scenarios takes its own, and calling into another
+		// subsystem while holding this one is what stopped the poll once already.
+		const auto onATree = Scenarios::GetSingleton().OnATree();
+
 		NamedLock lock{ _counter, "request counter" };
 		if (!_sceneRunning || _stopAsked || _inFlightRequest == 0) {
 			return 0;
@@ -670,20 +674,36 @@ namespace RP
 		// being lost -- the ending is the last thing to happen, so ours was the one
 		// part guaranteed to be cut.
 		//
-		// What remains is a deadlock breaker. AAF does not end a scene that has no
-		// tree, so without something here the pair stays flagged busy for the rest
-		// of the save.
+		// Two different questions, and they were sharing one answer.
+		//
+		// ON A TREE: AAF ends it through its own Finish branch, observed four times.
+		// MaxSceneSeconds is then a pure deadlock breaker and should never fire.
+		//
+		// NO TREE: nothing ends it, ever. The animation loops until we stop it. That
+		// is not a deadlock, it is the normal case for an unconstrained scene -- and
+		// it is what every female/female pair on this install gets, because no f_f
+		// position enters a tree. Running those to the 900s breaker meant a quarter
+		// of an hour of kissing followed by a warning calling it stuck.
+		const auto& settings = Config::GetSingleton();
+		const auto  cap = onATree ? settings.maxSceneSeconds : settings.noTreeSceneSeconds;
 		const auto elapsed =
 			std::chrono::duration<float>{ std::chrono::steady_clock::now() - _sceneStartedAt }.count();
-		if (elapsed < Config::GetSingleton().maxSceneSeconds) {
+		if (elapsed < cap) {
 			return 0;
 		}
 
-		logger::warn(
-			"request {}: running for {:.0f}s with no ending from AAF - stopping it. This is the "
-			"deadlock breaker, not a length: either the animation has no tree to leave through, or "
-			"something is stuck",
-			_inFlightRequest, elapsed);
+		if (onATree) {
+			logger::warn(
+				"request {}: on a tree and still running after {:.0f}s - stopping it. AAF ends a "
+				"tree through its own Finish branch, so this really is the deadlock breaker and "
+				"something is stuck",
+				_inFlightRequest, elapsed);
+		} else {
+			logger::info(
+				"request {}: {:.0f}s with no tree to end it - stopping it. Expected, not a fault: "
+				"an unconstrained scene has no ending to reach and AAF loops it forever",
+				_inFlightRequest, elapsed);
+		}
 		return _inFlightRequest;
 	}
 
