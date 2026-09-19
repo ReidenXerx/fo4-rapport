@@ -121,7 +121,12 @@ Function Pump() Global Native
 ;   1  apply an overlay set      2  remove an overlay set
 ;   3  apply a facial expression 4  take AAF's busy keywords off this actor
 ;   5  clear a facial expression -- the zeroed set AND the block removal
-;   8  move a running scene to the next stage of a scenario
+;   6  ask the player whether to start AAF's quest
+;   7  release an actor AAF left flagged busy
+; There is no kind 8. It moved a running scene to a scenario's next stage by
+; calling ChangePosition, which AAF refused 26 times out of 26 -- with tags,
+; with a position id, and with no filters at all. Staging is AAF's now: Rapport
+; picks the tree the scene STARTS on and AAF walks it.
 ; Collected on the same poll as the scene doorbell, for the same reason: the
 ; plugin cannot call AAF, and Papyrus is the only side that can.
 Int Function TakeOverlayOrder() Global Native
@@ -194,3 +199,48 @@ Function RequestFailed(Int aiRequest, String asWhy) Global Native
 ; One log for the whole mod. Papyrus writes into Rapport.log rather than into a
 ; second file that nobody thinks to read next to the first.
 Function Trace(String asText) Global Native
+
+; ---- the addon door ------------------------------------------------------
+; The only two functions another mod needs. Everything above is the bridge
+; talking to the plugin; these are yours.
+;
+; Rapport is the framework and it does not decide WHEN anyone has sex -- an
+; addon does, and then asks for a scenario BY NAME. A name is the only thing
+; whose meaning survives a different install: the tags, the trees and the
+; positions differ on every machine, and an addon naming those would be
+; choosing from a catalogue it cannot see.
+;
+; Names ship in Data/F4SE/Plugins/Rapport/scenarios.json. Right now:
+;   "quickie"  somewhere public, short, nothing removed, no guaranteed ending
+;   "athome"   five stages, unhurried, ends in a climax
+;   "tender"   three stages, slow, ends in a climax
+
+; Ask FIRST, before you walk two actors anywhere. Bigger is better:
+;   -1  no scenario by that name -- the only answer that means "do not ask"
+;    0  the scenario wanted a tree and nothing here fits this pair
+;    1  the scenario constrains nothing by design; AAF picks freely
+;    2  something fits, but nothing guarantees it reaches a climax
+;    3  a matching tree that is known to finish
+;
+; Only -1 is a refusal. 0 through 3 all PLAY -- they differ in how strong a
+; promise Rapport can make about how the scene goes. At 0 and 1 AAF chooses
+; the position itself and the scene may be short or end vaguely; Rapport still
+; keeps the faces and applies the aftermath either way. So 0 is a reason to
+; prefer a different scenario, never a reason to leave two actors standing.
+;
+; It answers with the selection the start would actually make, on this
+; install, for these two actors, right now -- not a static capability check.
+; Two women get 0 from every tree-bearing scenario on a stock install: AAF's
+; packs ship 24 female/female positions and not one of them enters a position
+; tree. They play; nothing can promise how they end.
+Int Function CanRun(String asScenario, Actor akFirst, Actor akSecond) Global Native
+
+; Then ask. False means not now -- a scene is already running, the bridge is
+; not up yet, or one of the actors is None. All of those are transient, so
+; treat a False as "try again later" rather than an error; the reason is in
+; Rapport.log.
+;
+; Rapport takes it from here: it chooses the tree, keeps the faces, stops the
+; scene when the tree ends, and applies the aftermath. You get SceneStarted
+; and SceneEnded back through your own AAF listeners if you want them.
+Bool Function RequestScene(Actor akFirst, Actor akSecond, String asScenario) Global Native

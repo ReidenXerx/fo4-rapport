@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NamedLock.h"
+#include "TreeIndex.h"
 #include "Orders.h"
 
 namespace RP
@@ -120,6 +121,39 @@ namespace RP
 		[[nodiscard]] std::string ChooseSceneStart(
 			std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second);
 
+		// How well a scenario would play for a specific pair, RIGHT NOW, without
+		// starting anything. An addon walks two actors across a room before it can
+		// ask for a scene, and finding out then that nothing fits wastes the walk
+		// and strands them mid-floor.
+		//
+		// Ordered worst to best is deliberate: an addon comparing two scenarios
+		// can just take the larger, and a new value can only be added at the ends
+		// without renumbering what an already-compiled addon believes.
+		enum class Quality : std::int32_t
+		{
+			kUnknownScenario = -1,  // the id is not in scenarios.json
+
+			// The scenario wanted a tree and nothing in the catalogue fits this
+			// pair. The scene STILL PLAYS -- AAF chooses the position and there
+			// is no guaranteed ending -- so this is a weaker promise, never a
+			// refusal. On this install it is what two women get for every
+			// tree-bearing scenario, because no f_f position enters a tree.
+			kNothingFits = 0,
+
+			// The scenario asks for no tree at all (quickie). It will play; AAF
+			// chooses, and it may be short.
+			kUnconstrained = 1,
+
+			// A tree was found, but only by giving up the guaranteed climax.
+			kNoGuaranteedEnding = 2,
+
+			// A tree that matches and is known to reach an ending.
+			kGood = 3,
+		};
+
+		[[nodiscard]] Quality Preflight(
+			std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second) const;
+
 		// How long the chosen tree is authored to run, or 0 when none was chosen.
 		[[nodiscard]] float ChosenSeconds() const;
 
@@ -187,6 +221,23 @@ namespace RP
 		// Set when a scene we chose a furniture tree for failed to start, cleared
 		// the moment one starts. The next choice then takes NoFurn only, because
 		// asking again for a couch that is not there asks for the same failure.
+		// One rung-by-rung run of the selection ladder, decided and not yet acted
+		// on, so the real start and the pre-flight cannot answer differently.
+		struct Selection
+		{
+			const TreeIndex::Entry* entry{ nullptr };
+			const Scenario*         scenario{ nullptr };
+			bool                    relaxed{ false };        // gave up the ending
+			bool                    unconstrained{ false };  // asks for no tree
+			std::string_view        why;                     // when entry is null
+		};
+
+		[[nodiscard]] Selection SelectLocked(
+			std::string_view a_id,
+			std::uint32_t    a_first,
+			std::uint32_t    a_second,
+			bool             a_avoidFurniture) const;
+
 		bool        _avoidFurniture{ false };
 
 		// The declared stage seconds are WEIGHTS, and this scales them onto the

@@ -478,18 +478,26 @@ namespace RP
 		}
 	}
 
-	std::string Scenarios::ChooseSceneStart(
-		std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second)
+	// The entire selection, with no side effects, so the pre-flight an addon runs
+	// before it stages anything asks the exact question the real start will ask.
+	// Two copies of this ladder would drift, and a pre-flight that disagrees with
+	// the start it is predicting is worse than having none.
+	//
+	// Caller holds _lock.
+	Scenarios::Selection Scenarios::SelectLocked(
+		std::string_view a_id,
+		std::uint32_t    a_first,
+		std::uint32_t    a_second,
+		bool             a_avoidFurniture) const
 	{
-		NamedLock lock{ _lock, "scenarios" };
-
-		_chosenPosition.clear();
-		_chosenSeconds = 0.0f;
+		Selection out;
 
 		const auto scenario = Find(a_id);
 		if (!scenario) {
-			return {};
+			out.why = "no such scenario";
+			return out;
 		}
+		out.scenario = scenario;
 
 		// The stage that ASKED for a tree describes the ending, and a scenario that
 		// asks for none gets none.
@@ -515,14 +523,18 @@ namespace RP
 				"scenario \"{}\": no stage asks for a tree, so the scene starts unconstrained - "
 				"AAF picks, and it is free to be short",
 				scenario->id);
-			return {};
+			out.unconstrained = true;
+			out.why = "scenario asks for no tree";
+			return out;
 		}
 		if (ending->include.empty()) {
 			logger::warn(
 				"scenario \"{}\": stage \"{}\" asks for a tree but names no tags to choose one by - "
 				"starting unconstrained rather than picking arbitrarily",
 				scenario->id, ending->id);
-			return {};
+			out.unconstrained = true;
+			out.why = "the ending stage names no tags";
+			return out;
 		}
 
 		const auto& index = TreeIndex::GetSingleton();
@@ -531,7 +543,8 @@ namespace RP
 				"scenario \"{}\": no tree catalogue, so the scene starts unconstrained and its "
 				"ending is whatever AAF picks",
 				scenario->id);
-			return {};
+			out.why = "no tree catalogue";
+			return out;
 		}
 
 		// The budget is the WHOLE scene, not the ending stage's share of it.
@@ -546,12 +559,12 @@ namespace RP
 		const auto  composition = Aftermath::GetSingleton().CompositionOf(a_first, a_second);
 		const auto* chosen = index.Choose(
 			ending->include, ending->exclude, composition, ending->requireEnding,
-			_avoidFurniture, budget);
+			a_avoidFurniture, budget);
 
 		// Nothing without furniture fits either, so take the furniture one back --
 		// a scene that might not start beats no scene at all, and the refusal that
 		// set this flag may have been about something else entirely.
-		if (!chosen && _avoidFurniture) {
+		if (!chosen && a_avoidFurniture) {
 			logger::info(
 				"scenario \"{}\": nothing without furniture fits, so trying one that wants it "
 				"after all",
@@ -559,6 +572,38 @@ namespace RP
 			chosen = index.Choose(
 				ending->include, ending->exclude, composition, ending->requireEnding, false,
 				budget);
+		}
+
+		// Last rung: stop insisting on a guaranteed climax.
+		//
+		// Requiring the ending is the right default and a hard requirement is the
+		// wrong way to hold it. Measured on this install it recovers athome from
+		// 24 candidates to 25 and tender from 22 to 24 -- small here, and the
+		// point is the install where it is not: a thin pack set can leave a
+		// scenario with a perfectly good match that happens not to be graded, and
+		// refusing it buys nothing.
+		//
+		// It does NOT rescue female+female, which is what it was first proposed
+		// for. Two women have 24 positions on this install and NOT ONE of them
+		// enters a tree, so there is nothing for any rung to relax TO. What makes
+		// f_f playable is the unconstrained path below -- no position named, AAF
+		// chooses freely, Rapport still keeps the faces and the aftermath. That
+		// is a content gap in AAF's packs, not something selection can fix.
+		//
+		// Loud, because "it finished somehow" is not what the scenario asked for
+		// and the log is where that difference has to be visible.
+		if (!chosen && ending->requireEnding) {
+			chosen = index.Choose(
+				ending->include, ending->exclude, composition, false, false, budget);
+			if (chosen) {
+				out.relaxed = true;
+				logger::warn(
+					"scenario \"{}\": no {} tree on this install both matches [{}] and reaches a "
+					"climax, so relaxing to \"{}\" - it will play out, but nothing guarantees it "
+					"finishes",
+					scenario->id, composition.empty() ? "any-pair" : composition, ending->include,
+					chosen->positionID);
+			}
 		}
 
 		if (!chosen) {
@@ -571,20 +616,64 @@ namespace RP
 				"guarantees how it finishes",
 				scenario->id, composition.empty() ? "any-pair" : composition, ending->include,
 				index.Size(), index.WithEnding());
+			out.why = "nothing in the catalogue matches";
+			return out;
+		}
+
+		out.entry = chosen;
+		return out;
+	}
+
+	std::string Scenarios::ChooseSceneStart(
+		std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second)
+	{
+		NamedLock lock{ _lock, "scenarios" };
+
+		_chosenPosition.clear();
+		_chosenSeconds = 0.0f;
+
+		const auto picked = SelectLocked(a_id, a_first, a_second, _avoidFurniture);
+		if (!picked.entry) {
 			return {};
 		}
 
+		const auto* chosen = picked.entry;
 		_chosenPosition = chosen->positionID;
 		_chosenSeconds = chosen->seconds;
 
 		logger::info(
 			"scenario \"{}\": starting on \"{}\" - a {}-stage tree ending in a {}{}. AAF stages it "
 			"from here; Rapport keeps the faces and the aftermath",
-			scenario->id, chosen->positionID, chosen->stages,
+			picked.scenario->id, chosen->positionID, chosen->stages,
 			TreeIndex::Describe(chosen->ending),
 			chosen->LengthKnown() ? std::format(" and authored for {:.0f}s", chosen->seconds)
 			                      : " of unrecorded length");
 		return _chosenPosition;
+	}
+
+	// What an addon asks BEFORE it walks two actors across a room: would this
+	// scenario play for this pair, and how well?
+	//
+	// Deliberately the same call the start makes, including its logging -- a
+	// pre-flight that takes a cheaper shortcut is a pre-flight that says yes to
+	// something the start then refuses.
+	Scenarios::Quality Scenarios::Preflight(
+		std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "scenarios" };
+
+		const auto picked = SelectLocked(a_id, a_first, a_second, _avoidFurniture);
+		if (!picked.scenario) {
+			return Quality::kUnknownScenario;
+		}
+		if (picked.entry) {
+			return picked.relaxed ? Quality::kNoGuaranteedEnding : Quality::kGood;
+		}
+
+		// A scenario that asks for no tree is not a failure -- quickie is exactly
+		// that by design, and AAF picking freely is the intended behaviour. It is
+		// simply a weaker promise than a chosen tree.
+		return picked.unconstrained ? Quality::kUnconstrained : Quality::kNothingFits;
 	}
 
 	void Scenarios::NoteSceneRefused()

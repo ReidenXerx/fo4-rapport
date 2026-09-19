@@ -370,6 +370,63 @@ namespace
 	{
 		RP::PapyrusLink::GetSingleton().OnRequestFailed(a_request, a_why.c_str());
 	}
+
+	// ---- the addon door ------------------------------------------------------
+	//
+	// Everything above this line is the BRIDGE talking to the plugin. These two
+	// are the opposite direction: another mod's Papyrus talking to Rapport.
+	//
+	// By NAME, not by a tag list or a position id. A scenario is the unit an addon
+	// reasons about -- "these two are at home and comfortable" -- and it is the
+	// only unit whose meaning survives the catalogue changing under it. An addon
+	// that named tags would be choosing from a catalogue it cannot see, and every
+	// install has a different one.
+
+	bool Papyrus_RequestScene(
+		std::monostate, RE::Actor* a_first, RE::Actor* a_second, RE::BSFixedString a_scenario)
+	{
+		const std::string_view scenario{ a_scenario.empty() ? "" : a_scenario.c_str() };
+
+		// The scenario owns its own length. An addon that had to pass seconds
+		// would be guessing at content it has never read, and the number it
+		// guessed would silently become the deadlock breaker's baseline.
+		const auto& settings = RP::Config::GetSingleton();
+		const auto  seconds =
+			scenario.empty()
+				? settings.sceneSeconds
+				: (std::max)(settings.sceneSeconds,
+				             RP::Scenarios::GetSingleton().SecondsFor(scenario));
+
+		const auto ok =
+			RP::PapyrusLink::GetSingleton().RequestScene(a_first, a_second, seconds, scenario);
+		if (!ok) {
+			// An addon gets a plain false and no reason, because the reasons are
+			// all transient -- busy, bridge not up, one of them is None. Saying
+			// WHY in the log and `false` on the wire keeps the addon's side a
+			// retry loop instead of an error-handling tree.
+			logger::info(
+				"papyrus: an addon asked for \"{}\" and was turned down - see the line above for "
+				"why",
+				scenario);
+		}
+		return ok;
+	}
+
+	// Ask BEFORE walking two actors across a room. Returns Scenarios::Quality:
+	// -1 unknown scenario, 0 nothing fits, 1 unconstrained, 2 no guaranteed
+	// ending, 3 good. Worse-to-better, so an addon comparing two scenarios takes
+	// the larger without a table.
+	std::int32_t Papyrus_CanRun(
+		std::monostate, RE::BSFixedString a_scenario, RE::Actor* a_first, RE::Actor* a_second)
+	{
+		if (!a_first || !a_second) {
+			return static_cast<std::int32_t>(RP::Scenarios::Quality::kNothingFits);
+		}
+		const std::string_view scenario{ a_scenario.empty() ? "" : a_scenario.c_str() };
+		const auto quality = RP::Scenarios::GetSingleton().Preflight(
+			scenario, a_first->GetFormID(), a_second->GetFormID());
+		return static_cast<std::int32_t>(quality);
+	}
 }
 
 namespace RP
@@ -435,6 +492,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneStarted"sv, Papyrus_SceneStarted, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
 		logger::info("papyrus: bound 48 native functions on {}", kCoreScript);
 		return true;

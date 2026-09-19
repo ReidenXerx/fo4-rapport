@@ -122,6 +122,12 @@ namespace RP
 			Ending        ending{ Ending::kNone };
 			float         seconds{ 0.0f };
 			std::uint32_t stages{ 0 };
+
+			// The position the tree ends ON, taken from its exit branch. Every
+			// branch in this install carries a positionID (530/530), so an exit
+			// branch always names one -- this is not a best-effort field.
+			std::string endPositionID;
+			Ending      endGrade{ Ending::kNone };  // which exit won, when several
 		};
 		std::unordered_map<std::string, Tree> trees;
 
@@ -215,17 +221,30 @@ namespace RP
 					tree.stages = std::max(tree.stages, static_cast<std::uint32_t>(running.size()));
 					tree.seconds = std::max(tree.seconds, total);
 
+					const auto branchID = Lower(Attr(branch, "id"));
+
+					auto grade = Ending::kNone;
+					if (branchID.find("climax") != std::string::npos) {
+						grade = Ending::kClimax;
+					} else if (branchID.find("orgasm") != std::string::npos) {
+						grade = Ending::kOrgasm;
+					} else if (branchID.find("finish") != std::string::npos) {
+						grade = Ending::kFinishOnly;
+					}
+					tree.ending = std::max(tree.ending, grade);
+
 					if (Lower(Attr(branch, "isExit")) == "true") {
 						hasExit = true;
-					}
 
-					const auto branchID = Lower(Attr(branch, "id"));
-					if (branchID.find("climax") != std::string::npos) {
-						tree.ending = std::max(tree.ending, Ending::kClimax);
-					} else if (branchID.find("orgasm") != std::string::npos) {
-						tree.ending = std::max(tree.ending, Ending::kOrgasm);
-					} else if (branchID.find("finish") != std::string::npos) {
-						tree.ending = std::max(tree.ending, Ending::kFinishOnly);
+						// Several exits can end one tree. Take the best-graded --
+						// the scenario asked to END a certain way, so the branch
+						// that actually gets there is the one that describes it.
+						if (tree.endPositionID.empty() || grade > tree.endGrade) {
+							if (auto onID = Attr(branch, "positionID"); !onID.empty()) {
+								tree.endPositionID = std::move(onID);
+								tree.endGrade = grade;
+							}
+						}
 					}
 
 					if (selfClosing) {
@@ -289,6 +308,15 @@ namespace RP
 
 				auto& decl = declared[id];
 
+				// Before the hidden test: a climax position is hidden BY DESIGN
+				// (UAP hides all of them) and its tags are exactly what a scenario
+				// asking for an ending needs to match against. Only overwrite with
+				// a non-empty set, so a bare retiring re-declaration cannot erase
+				// the real pack's tags.
+				if (auto declTags = SplitTags(Attr(element, "tags")); !declTags.empty()) {
+					decl.tags = std::move(declTags);
+				}
+
 				const auto hiddenAttr = Attr(element, "isHidden");
 				const bool hidden = hiddenAttr.empty() ? hiddenByDefault
 				                                       : Lower(hiddenAttr) == "true";
@@ -299,7 +327,6 @@ namespace RP
 
 				if (auto treeID = Attr(element, "positionTree"); !treeID.empty()) {
 					decl.treeID = std::move(treeID);
-					decl.tags = SplitTags(Attr(element, "tags"));
 					if (!decl.seen) {
 						decl.seen = true;
 						order.push_back(id);
@@ -330,8 +357,14 @@ namespace RP
 			Entry made;
 			made.positionID = id;
 			made.treeID = std::move(decl.treeID);
-			made.tags = std::move(decl.tags);
+			made.tags = decl.tags;
 			made.ending = found->second.ending;
+
+			if (const auto& endID = found->second.endPositionID; !endID.empty()) {
+				if (const auto endDecl = declared.find(endID); endDecl != declared.end()) {
+					made.endingTags = endDecl->second.tags;
+				}
+			}
 			made.seconds = found->second.seconds;
 			made.stages = found->second.stages;
 
@@ -419,15 +452,26 @@ namespace RP
 			if (a_noFurnitureOnly && NeedsFurniture(entry)) {
 				continue;
 			}
-			if (std::ranges::any_of(exclude, [&](const auto& tag) { return entry.tags.contains(tag); })) {
+			// Excluded on either end. A tag the scenario does not want is not
+			// acceptable merely because the tree saves it for the last stage.
+			if (std::ranges::any_of(exclude, [&](const auto& tag) {
+				    return entry.tags.contains(tag) || entry.endingTags.contains(tag);
+			    })) {
 				continue;
 			}
 
-			// ANY of the wanted tags, not all: a stage's list has always been
-			// alternatives, and AAF's own includeTags being an AND is what made
-			// the first version of this ask for something that is all of them.
-			const auto matched = static_cast<float>(std::ranges::count_if(
-				include, [&](const auto& tag) { return entry.tags.contains(tag); }));
+			// Match the scenario's wanted tags against where the tree ENDS, not
+			// where it starts -- a scenario names the act it wants to finish on,
+			// and 54 of the 66 trees here end on a different act from the one they
+			// open with. "Pit Doggy" enters doggy and from-behind and ends
+			// blowjob, climax and from-front: asking for doggy was getting a
+			// facial, and asking for a facial was matching nothing.
+			//
+			// Falling back to the entry tags for a tree with no exit position is
+			// not a compromise -- it is the only description that tree has.
+			const auto& matchAgainst = entry.endingTags.empty() ? entry.tags : entry.endingTags;
+			const auto  matched = static_cast<float>(std::ranges::count_if(
+                include, [&](const auto& tag) { return matchAgainst.contains(tag); }));
 			if (!include.empty() && matched == 0.0f) {
 				continue;
 			}

@@ -39,7 +39,18 @@ namespace RP
 		{
 			std::string                     positionID;   // what we name to AAF
 			std::string                     treeID;
-			std::unordered_set<std::string> tags;         // lowercased
+			std::unordered_set<std::string> tags;         // the ENTRY position's, lowercased
+
+			// The tags of the position the tree ENDS on, which is a different
+			// animation from the one it starts on and usually a different act.
+			// Measured here: 54 of 66 entry/ending tag sets differ -- "Pit Doggy"
+			// enters doggy and from-behind and ends blowjob, climax and from-front.
+			// A scenario asking to END a certain way was being matched on the
+			// opening, so it could ask for doggy and get a facial.
+			//
+			// Empty when the tree names no terminal position. Selection then falls
+			// back to the entry tags, because that is the only thing there is.
+			std::unordered_set<std::string> endingTags;
 			Ending                          ending{ Ending::kNone };
 
 			// Sum of the branches' authored time. ZERO MEANS UNKNOWN, not instant:
