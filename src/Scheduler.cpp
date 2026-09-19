@@ -201,8 +201,25 @@ namespace RP
 				logger::info("   {} candidate(s) within the {:.0f}-hour cooldown", resting, cooldown);
 			}
 
+			// THREE is enough for the stand-in, which only ever looks at the best
+			// one. It is not enough for an addon, and the reason is subtle enough to
+			// be worth stating.
+			//
+			// While Rapport decides, resting actors are filtered out BEFORE ranking,
+			// so the three kept are all eligible. Once an addon takes over that
+			// filter is gone -- it has to be, or the addon could never see a resting
+			// pair to apply its own rule to -- and now the top three by score can
+			// all be resting. The addon would find nothing actionable while a
+			// perfectly good pair sat just below the cut, and no log line would say
+			// so. With a day-long cooldown and the same close-together settlers
+			// always scoring highest, that is not a rare case.
+			//
+			// Ranking is O(n^2) over the candidates either way; keeping more of the
+			// result costs a longer sort tail and nothing else, against a pass that
+			// measures 0.02 ms.
+			const auto keep = Candidates::GetSingleton().StoodDown() ? 24u : 3u;
 			const auto ranked = RankPairs(
-				candidates, _scan.ObserverPositions(), Config::GetSingleton().Weights(), 3);
+				candidates, _scan.ObserverPositions(), Config::GetSingleton().Weights(), keep);
 
 			const auto& weights = Config::GetSingleton().Weights();
 
@@ -239,7 +256,14 @@ namespace RP
 				logger::info("   best pair {} the {:.2f} bar ({} candidates)",
 					ranked.front().score >= weights.minimumScore ? "CLEARS" : "misses",
 					weights.minimumScore, candidates.size());
+				// The top few only. Publishing 24 does not mean narrating 24 every
+				// twenty seconds.
+				std::size_t shown = 0;
 				for (const auto& pair : ranked) {
+					if (shown++ >= 3) {
+						logger::info("   ... and {} more published to the addon", ranked.size() - 3);
+						break;
+					}
 					logger::info(
 						"   {} {} + {} — score {:.2f} (apart {:.0f}, faction {}, {}, {}, "
 						"observers {}{})",
