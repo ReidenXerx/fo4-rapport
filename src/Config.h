@@ -15,19 +15,6 @@ namespace RP
 		std::uint32_t maxConcurrentScenes{ 1 };
 		float         sceneSeconds{ 30.0f };
 
-		// A scene with NO tree never ends itself. AAF walks a tree to its own Finish
-		// branch and stops -- observed four times -- but an unconstrained scene just
-		// loops its animation forever, so something here has to end it.
-		//
-		// Separate from MaxSceneSeconds on purpose. That one is a deadlock breaker
-		// and its 900s is meant never to fire; using it as the length meant every
-		// female/female pair on this install, and every quickie, ran a quarter of an
-		// hour and then logged a deadlock warning about it.
-		//
-		// 300s clears athome's declared 285s of stages, so a scenario still finishes
-		// the arc it wrote before this cuts in. Lower it if unconstrained scenes feel
-		// long -- they have no ending to reach, so nothing is lost by stopping one.
-		float         noTreeSceneSeconds{ 300.0f };
 
 		// NOT a length. A scene runs for as long as the animation's author made it:
 		// a position tree walks its own stages and exits through its own Finish
@@ -37,7 +24,9 @@ namespace RP
 		// end a scene that has no tree -- the duration it is given is ignored, and
 		// the actors stay flagged busy until somebody calls StopScene. So a scene
 		// that has run this long is not a long scene, it is a stuck one.
-		float         maxSceneSeconds{ 900.0f };
+		// An EMERGENCY STOP, not a length. See Rapport.ini for the reasoning and the
+		// measurement 600 is chosen against.
+		float         maxSceneSeconds{ 600.0f };
 
 		// How long an actor AAF refused as busy is left out of the running. AAF's
 		// busy flag outlives our request -- it is cleared by the scene ending, and

@@ -660,10 +660,6 @@ namespace RP
 
 	std::int32_t PapyrusLink::SceneToStop()
 	{
-		// BEFORE the lock. Scenarios takes its own, and calling into another
-		// subsystem while holding this one is what stopped the poll once already.
-		const auto onATree = Scenarios::GetSingleton().OnATree();
-
 		NamedLock lock{ _counter, "request counter" };
 		if (!_sceneRunning || _stopAsked || _inFlightRequest == 0) {
 			return 0;
@@ -674,36 +670,38 @@ namespace RP
 		// being lost -- the ending is the last thing to happen, so ours was the one
 		// part guaranteed to be cut.
 		//
-		// Two different questions, and they were sharing one answer.
+		// ONE emergency stop, for every scene, and deliberately not a model of how
+		// scenes end.
 		//
-		// ON A TREE: AAF ends it through its own Finish branch, observed four times.
-		// MaxSceneSeconds is then a pure deadlock breaker and should never fire.
+		// This briefly had two caps, on the theory that a tree scene ends itself and
+		// an unconstrained one never does. The first half is true -- observed four
+		// times, AAF leaves through the tree's own Finish branch. The second half was
+		// wrong within ten minutes: an unconstrained scene ended ITSELF at 290.8s
+		// with nothing here firing, six seconds off the duration AAF was handed.
+		// Whether AAF honours that duration or the staged animation simply ran out of
+		// stages is not answerable from one scene.
 		//
-		// NO TREE: nothing ends it, ever. The animation loops until we stop it. That
-		// is not a deadlock, it is the normal case for an unconstrained scene -- and
-		// it is what every female/female pair on this install gets, because no f_f
-		// position enters a tree. Running those to the 900s breaker meant a quarter
-		// of an hour of kissing followed by a warning calling it stuck.
-		const auto& settings = Config::GetSingleton();
-		const auto  cap = onATree ? settings.maxSceneSeconds : settings.noTreeSceneSeconds;
+		// So do not pretend to know. One number, high enough that a real scene can
+		// never reach it, whose only job is that two actors are never left flagged
+		// busy for the rest of the save.
+		//
+		// 600s is chosen against the content: the longest tree in this install
+		// declares 265s, and at the worst ratio measured between declared and actual
+		// (1.89x) that is 501s. Roughly 100s of headroom, and nothing in the
+		// catalogue comes close. A pack with a much longer tree would want this
+		// raised -- which is why the log says the number rather than just tripping.
 		const auto elapsed =
 			std::chrono::duration<float>{ std::chrono::steady_clock::now() - _sceneStartedAt }.count();
-		if (elapsed < cap) {
+		if (elapsed < Config::GetSingleton().maxSceneSeconds) {
 			return 0;
 		}
 
-		if (onATree) {
-			logger::warn(
-				"request {}: on a tree and still running after {:.0f}s - stopping it. AAF ends a "
-				"tree through its own Finish branch, so this really is the deadlock breaker and "
-				"something is stuck",
-				_inFlightRequest, elapsed);
-		} else {
-			logger::info(
-				"request {}: {:.0f}s with no tree to end it - stopping it. Expected, not a fault: "
-				"an unconstrained scene has no ending to reach and AAF loops it forever",
-				_inFlightRequest, elapsed);
-		}
+		logger::warn(
+			"request {}: still running after {:.0f}s - emergency stop. Nothing should reach this: "
+			"the longest tree installed would run about 501s at worst, so either an animation is "
+			"looping with no way out or something is stuck. Raise MaxSceneSeconds if a pack really "
+			"has a scene this long",
+			_inFlightRequest, elapsed);
 		return _inFlightRequest;
 	}
 
