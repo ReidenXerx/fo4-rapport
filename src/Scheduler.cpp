@@ -1,5 +1,6 @@
 #include "Scheduler.h"
 
+#include "Candidates.h"
 #include "Aftermath.h"
 #include "Config.h"
 #include "Expressions.h"
@@ -219,6 +220,11 @@ namespace RP
 
 			Aftermath::GetSingleton().Tick(_scan.LoadedIDs());
 
+			// Published every pass, whatever the stand-in does with it. An addon polls
+			// on its own clock and must see what this pass measured, including that
+			// there is nothing worth acting on.
+			Candidates::GetSingleton().Publish(ranked);
+
 			if (ranked.empty()) {
 				logger::info("   no viable pair ({} candidates, {} watching)",
 					candidates.size(), _scan.ObserverPositions().size());
@@ -242,10 +248,20 @@ namespace RP
 			}
 
 			// The only place anything is acted on. A dry run reports and stops here;
-			// this is a stand-in for the Chemistry addon, which will own the decision
-			// once it exists.
+			// this is a stand-in for the Chemistry addon, and it now yields the moment
+			// a real addon says it is taking over.
+			//
+			// The check is a call and not a config flag on purpose: whether Rapport
+			// should decide depends on which mods are INSTALLED, and an ini that has
+			// to be edited to match is an ini that will be wrong. Two things starting
+			// scenes is the failure being prevented here.
 			const auto& settings = Config::GetSingleton();
-			if (!settings.dryRun && !ranked.empty() && ranked.front().score >= weights.minimumScore) {
+			if (Candidates::GetSingleton().StoodDown()) {
+				if (_ticks % 10 == 0) {
+					logger::info("   an addon owns the decision; the stand-in is standing down");
+				}
+			} else if (!settings.dryRun && !ranked.empty() &&
+					   ranked.front().score >= weights.minimumScore) {
 				if (link.Busy()) {
 					logger::info("   holding: a scene is already running");
 				} else if (!link.Ready()) {

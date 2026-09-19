@@ -46,6 +46,7 @@ set(SOURCES
 	"src/PapyrusLink.h"
 	"src/PapyrusLink.cpp"
 	"src/Scheduler.h"
+	"src/Candidates.cpp"
 	"src/Scheduler.cpp"
 	"src/main.cpp"
 )

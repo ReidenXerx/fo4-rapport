@@ -200,7 +200,67 @@ Function RequestFailed(Int aiRequest, String asWhy) Global Native
 ; second file that nobody thinks to read next to the first.
 Function Trace(String asText) Global Native
 
-; ---- the addon door ------------------------------------------------------
+; ---- the addon door, part one: WHICH TWO ---------------------------------
+;
+; Rapport scores, you select.
+;
+; Every pass, Rapport enumerates the loaded actors, drops the children, the wrong
+; races, the quest actors with running packages and the hostiles, ranks every
+; remaining pair, and publishes what it measured. None of that is policy and you
+; should not reimplement any of it. What it deliberately does NOT decide is
+; whether any of those pairs is worth acting on -- that is yours.
+;
+; Index 0 is the best-scoring pair. Out of range gives 0 or False, which is how
+; the loop finds the end:
+;
+;   Int i = 0
+;   While i < Rapport:Core.CandidateCount()
+;       If !Rapport:Core.CandidatePlayerNear(i) && Rapport:Core.CandidateObservers(i) < 2
+;           Actor a = Game.GetForm(Rapport:Core.CandidateFirst(i)) as Actor
+;           Actor b = Game.GetForm(Rapport:Core.CandidateSecond(i)) as Actor
+;           If a != None && b != None && Rapport:Core.CanRun("athome", a, b) >= 2
+;               Rapport:Core.RequestScene(a, b, "athome")
+;               Return
+;           EndIf
+;       EndIf
+;       i += 1
+;   EndWhile
+;
+; FORM IDS, not Actors, and the reason matters: the pointers behind a scored pair
+; are only valid on the tick that produced them. You read this later, on your own
+; timer, and an actor can unload in between. A stale id resolves to None through
+; Game.GetForm and you skip it; a stale pointer would be a crash in your mod.
+Int Function CandidateCount() Global Native
+Int Function CandidateFirst(Int aiIndex) Global Native
+Int Function CandidateSecond(Int aiIndex) Global Native
+
+; Rapport's own ranking of the pair. The bar it would have used is MinimumScore in
+; Rapport.ini, but nothing enforces it -- the number is reported, never applied.
+Float Function CandidateScore(Int aiIndex) Global Native
+
+; The raw measurements behind that score, so you can weigh them differently.
+; Distance is in game units. Observers counts uninvolved living actors who could
+; see the spot, and does not include the player -- ask separately.
+Float Function CandidateDistance(Int aiIndex) Global Native
+Int Function CandidateObservers(Int aiIndex) Global Native
+Bool Function CandidatePlayerNear(Int aiIndex) Global Native
+Bool Function CandidateInterior(Int aiIndex) Global Native
+Bool Function CandidateNight(Int aiIndex) Global Native
+Bool Function CandidateSharedFaction(Int aiIndex) Global Native
+
+; Say this ONCE, at startup, and Rapport stops starting scenes on its own.
+;
+; Rapport ships a stand-in decision so the framework can be tested without an
+; addon, and it takes the best pair whenever it clears the bar. Two mods doing that
+; means two mods reserving the same actors. This is a call rather than a setting
+; because whether Rapport should decide depends on what is INSTALLED, and an ini
+; that has to be edited to match is an ini that will be wrong.
+;
+; It only stops the deciding. Scoring, publishing, the faces, the aftermath and
+; the scene lifecycle all carry on.
+Function TakeOverDecisions(String asWho) Global Native
+
+; ---- the addon door, part two: ASK FOR IT --------------------------------
 ; The only two functions another mod needs. Everything above is the bridge
 ; talking to the plugin; these are yours.
 ;

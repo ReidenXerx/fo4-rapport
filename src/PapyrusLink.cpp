@@ -1,5 +1,6 @@
 #include "PapyrusLink.h"
 
+#include "Candidates.h"
 #include "Config.h"
 #include "DebugHub.h"
 #include "Aftermath.h"
@@ -375,6 +376,84 @@ namespace
 		RP::PapyrusLink::GetSingleton().OnRequestFailed(a_request, a_why.c_str());
 	}
 
+	// ---- the addon door: WHICH TWO -------------------------------------------
+	//
+	// Rapport scores, the addon selects. These publish what a pass measured about
+	// every viable pair so an addon can apply its own policy -- privacy, frequency,
+	// whether these two have done this before -- none of which the framework has an
+	// opinion about.
+	//
+	// Form ids, not Actors. The pointers behind a scored pair are valid on the tick
+	// that produced them; an addon reads this later on its own poll and an actor can
+	// unload in between. A stale id resolves to None and the addon skips it.
+	//
+	// Index out of range returns 0 / false rather than erroring. That is how a
+	// Papyrus loop is expected to find the end here.
+
+	std::int32_t Papyrus_CandidateCount(std::monostate)
+	{
+		return static_cast<std::int32_t>(RP::Candidates::GetSingleton().Count());
+	}
+
+	std::int32_t Papyrus_CandidateFirst(std::monostate, std::int32_t a_index)
+	{
+		const auto offer = RP::Candidates::GetSingleton().At(static_cast<std::size_t>(a_index));
+		return offer ? static_cast<std::int32_t>(offer->first) : 0;
+	}
+
+	std::int32_t Papyrus_CandidateSecond(std::monostate, std::int32_t a_index)
+	{
+		const auto offer = RP::Candidates::GetSingleton().At(static_cast<std::size_t>(a_index));
+		return offer ? static_cast<std::int32_t>(offer->second) : 0;
+	}
+
+	float Papyrus_CandidateScore(std::monostate, std::int32_t a_index)
+	{
+		const auto offer = RP::Candidates::GetSingleton().At(static_cast<std::size_t>(a_index));
+		return offer ? offer->score : 0.0f;
+	}
+
+	float Papyrus_CandidateDistance(std::monostate, std::int32_t a_index)
+	{
+		const auto offer = RP::Candidates::GetSingleton().At(static_cast<std::size_t>(a_index));
+		return offer ? offer->signals.distance : 0.0f;
+	}
+
+	std::int32_t Papyrus_CandidateObservers(std::monostate, std::int32_t a_index)
+	{
+		const auto offer = RP::Candidates::GetSingleton().At(static_cast<std::size_t>(a_index));
+		return offer ? static_cast<std::int32_t>(offer->signals.observers) : 0;
+	}
+
+	bool Papyrus_CandidatePlayerNear(std::monostate, std::int32_t a_index)
+	{
+		const auto offer = RP::Candidates::GetSingleton().At(static_cast<std::size_t>(a_index));
+		return offer && offer->signals.playerNear;
+	}
+
+	bool Papyrus_CandidateInterior(std::monostate, std::int32_t a_index)
+	{
+		const auto offer = RP::Candidates::GetSingleton().At(static_cast<std::size_t>(a_index));
+		return offer && offer->signals.interior;
+	}
+
+	bool Papyrus_CandidateNight(std::monostate, std::int32_t a_index)
+	{
+		const auto offer = RP::Candidates::GetSingleton().At(static_cast<std::size_t>(a_index));
+		return offer && offer->signals.night;
+	}
+
+	bool Papyrus_CandidateSharedFaction(std::monostate, std::int32_t a_index)
+	{
+		const auto offer = RP::Candidates::GetSingleton().At(static_cast<std::size_t>(a_index));
+		return offer && offer->signals.sharedFaction;
+	}
+
+	void Papyrus_TakeOverDecisions(std::monostate, RE::BSFixedString a_who)
+	{
+		RP::Candidates::GetSingleton().StandDown(a_who.empty() ? "" : a_who.c_str());
+	}
+
 	// ---- the addon door ------------------------------------------------------
 	//
 	// Everything above this line is the BRIDGE talking to the plugin. These two
@@ -496,6 +575,17 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneStarted"sv, Papyrus_SceneStarted, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestFailed"sv, Papyrus_RequestFailed, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateCount"sv, Papyrus_CandidateCount, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateFirst"sv, Papyrus_CandidateFirst, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateSecond"sv, Papyrus_CandidateSecond, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateScore"sv, Papyrus_CandidateScore, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateDistance"sv, Papyrus_CandidateDistance, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateObservers"sv, Papyrus_CandidateObservers, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidatePlayerNear"sv, Papyrus_CandidatePlayerNear, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateInterior"sv, Papyrus_CandidateInterior, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateNight"sv, Papyrus_CandidateNight, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateSharedFaction"sv, Papyrus_CandidateSharedFaction, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "TakeOverDecisions"sv, Papyrus_TakeOverDecisions, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
