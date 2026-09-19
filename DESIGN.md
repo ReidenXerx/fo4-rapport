@@ -1,6 +1,8 @@
-# Autonomy Framework for Fallout 4: design document
+# Rapport and Chemistry for Fallout 4: design document
 
-*Working title. v0.2, 2026-09-17. Target: Fallout 4 1.10.163 (old-gen) + F4SE 0.6.23 + AAF.*
+*v0.2, 2026-09-17. Drafted under the working title "Autonomy Framework"; A-9 settled the names.*
+
+*Target: Fallout 4 1.10.163 (old-gen) + F4SE 0.6.23 + AAF.*
 
 ## 1. Goal
 
@@ -97,8 +99,8 @@ performance, even on a Steam Deck running an 800-plugin load order:
 - On load, drop state for actors that no longer resolve.
 
 ### 3.4 Configuration
-- `Data/F4SE/Plugins/AutonomyFramework.ini`: performance knobs (tick, budget, radius, warm-up, max concurrent scenes).
-- `Data/F4SE/Plugins/AutonomyFramework/*.json`: faction compatibility, location weights, blocklists. Read once at startup.
+- `Data/F4SE/Plugins/Rapport.ini`: performance knobs (tick, budget, radius, warm-up, max concurrent scenes).
+- `Data/F4SE/Plugins/Rapport/*.json`: faction compatibility, location weights, blocklists. Read once at startup.
 - **MCM:** all switches are global values or mod settings, so the menu works with no helper scripts.
   Hotkeys are only shortcuts, never the only way to do something.
 
@@ -236,7 +238,7 @@ re-releasing the autonomy core.
 
 | | |
 | --- | --- |
-| **Autonomy Framework** | Plumbing only. Scheduler, actor enumeration and filtering, AAF bridge and actor locking, spot finding and privacy, attraction/need/cooldown/refusal state, co-save. Ships a public API (Papyrus functions and an F4SE message API) and no behaviour of its own. |
+| **Rapport** (the framework) | Plumbing only. Scheduler, actor enumeration and filtering, AAF bridge and actor locking, spot finding and privacy, attraction/need/cooldown/refusal state, co-save. Ships a public API (Papyrus functions and an F4SE message API) and no behaviour of its own. |
 | **NPC Autonomy** (addon) | Decides when and whom. Requires the framework. |
 | **Player Proposals** (addon) | Replaces Sex 'Em Up. Dialogue, the player's own choices. Requires the framework. |
 
@@ -314,7 +316,8 @@ needed a second slice. `IsChild()` is confirmed to reach the engine's implementa
 
 "Autonomy" is deliberately not in any of these: AAF Autonomy Enhanced is what this replaces, and the
 two should not be confused on a mod list. The earlier `AutonomyFramework.ini` and
-`AutonomyFramework/*.json` paths in the Config section above are superseded by the Rapport names.
+`AutonomyFramework/*.json` paths in the Config section above were swept to the Rapport names on
+2026-09-20; this line is what records that they ever had another one.
 
 ## A-10 (2026-09-18) — Aftermath, and taking over CumOverlays
 

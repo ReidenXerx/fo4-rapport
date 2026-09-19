@@ -1,5 +1,5 @@
 {
-  "name": "autonomy-framework",
+  "name": "rapport",
   "version-string": "0.1.0",
   "description": "NPC autonomy and player proposals for Fallout 4, built on AAF",
   "supports": "windows & x64",

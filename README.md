@@ -168,13 +168,13 @@ In short: use it, study it, change it, share it. Anything you distribute that is
 must carry the same freedoms. `extern/CommonLibF4` is a submodule rather than vendored source and is
 governed by its own terms.
 
-## Not decided yet
+## Settled since
 
-Deliberately left to the owner rather than settled in this file:
-
-- **Repository visibility**, and whether this ships on Nexus, LoversLab, both or neither.
-- **Naming and branding.** A-9 settled the name as Rapport; `DESIGN.md`, `vcpkg.json` and the header
-  comment in `Rapport.ini` still carry the earlier working title "Autonomy Framework" and have not
-  been swept.
-- **Adult-content gating and warnings.** `DESIGN.md` §6 says to flag it as adult content and state
-  the hard rules from §1 on the page. What that looks like inside the repository is open.
+- **Visibility and distribution.** Public, and it ships on Nexus:
+  [Rapport](https://www.nexusmods.com/fallout4/mods/109219) and
+  [Chemistry](https://www.nexusmods.com/fallout4/mods/109225), both age-restricted.
+- **Naming.** A-9 settled the name; `DESIGN.md`, `vcpkg.json` and the header comment in
+  `Rapport.ini` were swept off the working title "Autonomy Framework" on 2026-09-20.
+- **Adult-content gating.** Handled where it is actually enforced -- the Nexus pages carry the
+  adult tags, and the hard rules from DESIGN §1 are stated there. Nothing in the repository gates
+  anything, because nothing in the repository can.
