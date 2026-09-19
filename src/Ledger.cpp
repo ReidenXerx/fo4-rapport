@@ -117,6 +117,18 @@ namespace RP
 		return it == _pairs.end() ? 0u : it->second.scenes;
 	}
 
+	float Ledger::HoursSinceRefusal(std::uint32_t a_formID) const
+	{
+		const auto now = GameHours();
+		NamedLock lock{ _lock, "ledger" };
+
+		const auto it = _records.find(a_formID);
+		if (it == _records.end() || it->second.lastRefusedAt < 0.0f || now < 0.0f) {
+			return std::numeric_limits<float>::infinity();
+		}
+		return (std::max)(0.0f, now - it->second.lastRefusedAt);
+	}
+
 	void Ledger::RecordRefusal(std::uint32_t a_first, std::uint32_t a_second)
 	{
 		const auto now = GameHours();

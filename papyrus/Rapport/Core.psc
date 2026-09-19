@@ -286,9 +286,19 @@ Int Function SceneCount(Int aiFormID) Global Native
 Float Function HoursSincePair(Int aiFirst, Int aiSecond) Global Native
 Int Function PairSceneCount(Int aiFirst, Int aiSecond) Global Native
 
-; Requests involving this actor that AAF turned down. Useful for backing off an
-; actor the engine keeps refusing rather than asking forever.
+; Requests involving this actor that AAF turned down, and how long ago the last one
+; was. Use BOTH: a cumulative count with no recency would avoid an actor forever
+; over two failures a week ago, and recency alone cannot tell a one-off from an NPC
+; who is permanently stuck.
+;
+; Together they give an escalating backoff, which is what this actually needs. AAF
+; silently refuses an actor carrying its busy keywords, and a request that died
+; without cleaning up leaves that flag on an NPC for the rest of the save -- at
+; which point they fail every time and cost a poll each.
+;
+; A very large number (1e9) when they have never been refused.
 Int Function RefusalCount(Int aiFormID) Global Native
+Float Function HoursSinceRefusal(Int aiFormID) Global Native
 
 ; YOUR number, per actor, kept in Rapport's co-save on your behalf so you do not
 ; have to build a second one for a single float. Rapport never reads it and has

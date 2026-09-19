@@ -60,6 +60,11 @@ namespace RP
 		// against a cooldown does not need a special case.
 		[[nodiscard]] float HoursSinceScene(std::uint32_t a_formID) const;
 
+		// And since a request involving them was refused. Infinity when none ever
+		// was, for the same reason: a caller comparing against a backoff needs no
+		// special case for "never".
+		[[nodiscard]] float HoursSinceRefusal(std::uint32_t a_formID) const;
+
 		// ---- and the same two facts about a PAIR ----------------------------
 		//
 		// Separate from the per-actor records because lastPartner is only the MOST

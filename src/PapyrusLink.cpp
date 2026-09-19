@@ -500,6 +500,19 @@ namespace
 			RP::Ledger::GetSingleton().Get(static_cast<std::uint32_t>(a_formID)).scenes);
 	}
 
+	// WHEN they were last refused, not just how often. A cumulative count with no
+	// recency is the wrong signal on its own: an actor AAF turned down twice a week
+	// ago should not be avoided forever. The two together let an addon back off for
+	// longer each time an actor keeps failing, which is the shape this needs --
+	// there is at least one NPC on this install permanently flagged busy inside AAF
+	// by something that is not us, and asking about them every poll is wasted.
+	float Papyrus_HoursSinceRefusal(std::monostate, std::int32_t a_formID)
+	{
+		const auto hours =
+			RP::Ledger::GetSingleton().HoursSinceRefusal(static_cast<std::uint32_t>(a_formID));
+		return std::isfinite(hours) ? hours : 1.0e9f;
+	}
+
 	std::int32_t Papyrus_RefusalCount(std::monostate, std::int32_t a_formID)
 	{
 		return static_cast<std::int32_t>(
@@ -673,6 +686,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "HoursSinceScene"sv, Papyrus_HoursSinceScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "LastPartner"sv, Papyrus_LastPartner, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneCount"sv, Papyrus_SceneCount, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "HoursSinceRefusal"sv, Papyrus_HoursSinceRefusal, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RefusalCount"sv, Papyrus_RefusalCount, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "HoursSincePair"sv, Papyrus_HoursSincePair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PairSceneCount"sv, Papyrus_PairSceneCount, std::nullopt, false);
