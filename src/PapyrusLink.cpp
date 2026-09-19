@@ -115,6 +115,12 @@ namespace
 		RP::Scenarios::GetSingleton().OnRefused(a_why.c_str());
 	}
 
+	bool Papyrus_RefusedOurScene(std::monostate, RE::BSFixedString a_why)
+	{
+		return RP::PapyrusLink::GetSingleton().RefusedOurScene(
+			a_why.empty() ? "AAF refused the scene" : a_why.c_str());
+	}
+
 	void Papyrus_NoteScenePosition(std::monostate, RE::BSFixedString a_position)
 	{
 		RP::Expressions::GetSingleton().NotePosition(a_position.empty() ? "" : a_position.c_str());
@@ -715,6 +721,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteBridgeConnected"sv, Papyrus_NoteBridgeConnected, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BlockFaces"sv, Papyrus_BlockFaces, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneRefused"sv, Papyrus_SceneRefused, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "RefusedOurScene"sv, Papyrus_RefusedOurScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteScenePosition"sv, Papyrus_NoteScenePosition, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorSex"sv, Papyrus_NoteActorSex, std::nullopt, false);
@@ -1578,6 +1585,26 @@ namespace RP
 		_inFlightScenario.clear();
 		_sceneRunning = false;
 		_stopAsked = false;
+	}
+
+	bool PapyrusLink::RefusedOurScene(std::string_view a_why)
+	{
+		// AAF reports a refusal through the SAME event it reports a scene start
+		// with, in a four-argument form, and until now nothing did anything about
+		// it beyond writing a line. The request stayed in flight -- so both actors
+		// stayed flagged busy in AAF, unusable by every AAF mod, and every tick
+		// reported "a scene is already running" -- until the 780-second watchdog
+		// noticed. One refusal cost THIRTEEN MINUTES of the framework doing
+		// nothing, which from the outside is indistinguishable from a wedge, and
+		// was mistaken for one.
+		//
+		// Only ever called for a refusal carrying OUR meta tag, so this cannot
+		// tear down a scene somebody else's mod was refused.
+		if (!_sceneInFlight.load()) {
+			return false;
+		}
+		OnRequestFailed(_inFlightRequest, a_why);
+		return true;
 	}
 
 	void PapyrusLink::OnRequestFailed(std::int32_t a_request, std::string_view a_why)

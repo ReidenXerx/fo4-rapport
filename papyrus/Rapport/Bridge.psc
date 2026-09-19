@@ -446,6 +446,21 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 		If akArgs != None && akArgs.Length > 1
 			Rapport:Core.Trace("aaf REFUSED the scene: " + akArgs[1])
 			Rapport:Core.SceneRefused(akArgs[1] as String)
+
+			; And STOP WAITING FOR IT, if it was ours.
+			;
+			; args[3] on the failure form carries the meta tag the scene was
+			; requested with -- the same string set in Start() -- so a refusal of
+			; our scene is told from a refusal of somebody else's by the thing AAF
+			; already puts in the message. Without this the request stayed in
+			; flight until the 780-second watchdog: thirteen minutes of both actors
+			; flagged busy in AAF and every tick answering "a scene is already
+			; running", which looks exactly like a wedge and was taken for one.
+			If akArgs.Length > 3 && (akArgs[3] as String) == "Rapport,autonomy"
+				If Rapport:Core.RefusedOurScene("AAF refused the scene: " + akArgs[1])
+					Rapport:Core.Trace("bridge: that refusal was ours - the request is failed rather than left to time out")
+				EndIf
+			EndIf
 		EndIf
 		Return
 	EndIf

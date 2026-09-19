@@ -73,6 +73,11 @@ namespace RP
 		// was nothing in flight, which is how the medic knows whether it actually
 		// healed something or merely re-armed a clock.
 		bool AbandonInFlight(std::string_view a_why);
+
+		// AAF refused the scene we asked for. Fails the request in flight instead
+		// of leaving it to time out thirteen minutes later. False when there was
+		// nothing in flight for the refusal to be about.
+		bool RefusedOurScene(std::string_view a_why);
 		[[nodiscard]] std::uint32_t SilentTicks() const noexcept { return _silentTicks; }
 		[[nodiscard]] std::uint32_t Heals() const noexcept { return _heals.load(); }
 

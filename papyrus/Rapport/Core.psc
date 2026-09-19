@@ -116,6 +116,13 @@ Function NoteStopAsked() Global Native
 ; arguments instead of eleven; the scenario tries its next alternative.
 Function SceneRefused(String asWhy) Global Native
 
+; AAF refused the scene we asked for, and the refusal carried OUR meta tag. Fails
+; the request in flight instead of leaving it to the 780-second watchdog, which
+; is thirteen minutes of both actors flagged busy in AAF and the framework
+; reporting "a scene is already running" to everything that asks.
+; Returns False when there was nothing in flight for the refusal to be about.
+Bool Function RefusedOurScene(String asWhy) Global Native
+
 Function NoteSceneTags(String asTags) Global Native
 
 ; The position AAF is playing, by NAME. Rapport uses it two ways: as the key for a
