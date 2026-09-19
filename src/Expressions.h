@@ -39,6 +39,10 @@ namespace RP
 		// progression the scene gets -- kissing is not the same face as sex.
 		void NoteTags(std::string_view a_tags);
 
+		// The position AAF is playing, by name. Kept for the resolver: it is both an
+		// override key and, failing everything else, words to read.
+		void NotePosition(std::string_view a_position);
+
 		// The act AAF is playing RIGHT NOW, as its own tags. Empty until an
 		// animation naming an act has been reported.
 		//
@@ -64,8 +68,32 @@ namespace RP
 		//
 		// a_intensity is 1..3. Returns empty to mean "leave the face alone",
 		// which is the honest answer before any animation has been reported.
+		// a_position is the position id AAF reported, which is consulted FIRST
+		// against the override file and LAST as words to read. Empty is fine and
+		// means "tags only".
 		[[nodiscard]] static std::string_view FaceForAct(
-			std::string_view a_actTags, int a_intensity);
+			std::string_view a_actTags, std::string_view a_position, int a_intensity);
+
+		// What AAF is playing, by name. Empty until an animation has been reported.
+		[[nodiscard]] std::string LivePosition() const;
+
+		// Data/F4SE/Plugins/Rapport/act-overrides.json, if it exists. Position id ->
+		// one of oral / pleasure / kiss / climax / none.
+		//
+		// Small on purpose. The pack's own tags classify 98.8% of the positions on
+		// the reference install and reading the position's NAME takes that to 99.2%,
+		// so this file is for the handful left and for anything an author tagged
+		// wrongly. A full hand-built inventory would be 1131 entries here, 99% of
+		// them a second copy of data that ships with the pack and goes stale the
+		// moment that pack updates.
+		void LoadOverrides();
+		[[nodiscard]] std::size_t OverrideCount() const;
+
+		// Says, once at load, every position this build cannot read. That list IS
+		// the override file's contents, and it comes from the classifier that
+		// actually runs rather than from a tool that reimplements it -- so the two
+		// can never disagree about what needs overriding.
+		void ReportUnclassified() const;
 
 		void OnSceneEnded();
 
@@ -77,6 +105,11 @@ namespace RP
 
 	private:
 		std::string _liveAct;
+		std::string _livePosition;
+
+		// Lowercased position id -> face set. Static after Load; read from the
+		// resolver, which is why it is a plain map behind the same lock.
+		static inline std::unordered_map<std::string, std::string> _overrides;
 
 	public:
 

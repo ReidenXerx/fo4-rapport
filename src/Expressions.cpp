@@ -1,6 +1,7 @@
 #include "Expressions.h"
 
 #include "PapyrusLink.h"
+#include "TreeIndex.h"
 
 namespace
 {
@@ -152,6 +153,12 @@ namespace RP
 		logger::info("expressions: driving {:08X} and {:08X} over {:.0f}s", a_first, a_second, _duration);
 	}
 
+	void Expressions::NotePosition(std::string_view a_position)
+	{
+		NamedLock lock{ _lock, "expressions" };
+		_livePosition.assign(a_position);
+	}
+
 	void Expressions::NoteTags(std::string_view a_tags)
 	{
 		NamedLock lock{ _lock, "expressions" };
@@ -166,7 +173,7 @@ namespace RP
 		// Only an animation that names an act moves this. AAF sends a tag list for
 		// transitions and idles too, and letting one of those overwrite the act
 		// would blank the face in the middle of the scene.
-		if (!FaceForAct(a_tags, 2).empty()) {
+		if (!FaceForAct(a_tags, _livePosition, 2).empty()) {
 			_liveAct.assign(a_tags);
 		}
 	}
@@ -177,8 +184,49 @@ namespace RP
 		return _liveAct;
 	}
 
-	std::string_view Expressions::FaceForAct(std::string_view a_actTags, int a_intensity)
+	std::string_view Expressions::FaceForAct(
+		std::string_view a_actTags, std::string_view a_position, int a_intensity)
 	{
+		const auto pleasureFor = [](int a_level) -> std::string_view {
+			switch (a_level) {
+			case 1:
+				return "Rapport_Pleasure_1"sv;
+			case 2:
+				return "Rapport_Pleasure_2"sv;
+			default:
+				return "Rapport_Pleasure_3"sv;
+			}
+		};
+
+		// FIRST, and it beats everything including a climax tag: somebody looked at
+		// this position and said what it is. Nothing derived should overrule that.
+		if (!a_position.empty()) {
+			if (const auto it = _overrides.find(Lower(a_position)); it != _overrides.end()) {
+				const auto& want = it->second;
+				if (want == "oral") {
+					return "Rapport_Oral"sv;
+				}
+				if (want == "kiss") {
+					return "Rapport_Kiss"sv;
+				}
+				if (want == "climax") {
+					return "Rapport_Climax"sv;
+				}
+				if (want == "pleasure") {
+					return pleasureFor(a_intensity);
+				}
+				if (want == "none") {
+					return {};
+				}
+				// An unknown word is a typo in the file, and silently ignoring it
+				// would leave somebody wondering why their override does nothing.
+				logger::warn(
+					"expressions: act-overrides.json gives \"{}\" for \"{}\", which is not one of "
+					"oral / pleasure / kiss / climax / none - ignoring it",
+					want, a_position);
+			}
+		}
+
 		const auto tags = SplitTags(a_actTags);
 
 		// SUBSTRING, not equality. Pack authors do not agree on tag spelling and
@@ -288,9 +336,136 @@ namespace RP
 			}
 		}
 
+		// LAST: read the position's own NAME.
+		//
+		// Not a guess -- measured. Fourteen positions on this install carry no act in
+		// their tags at all, and five of them say it plainly in the title: "Gay
+		// Blowjob (Couch)", "Toilet Blowjob 1". The author knew what it was; they
+		// only wrote it in the one place nothing was reading.
+		//
+		// Last rather than first because a name is incidental and tags are authored
+		// data. "Impregnate Cowgirl" ends on a climax position whose NAME still says
+		// cowgirl, so a name consulted early would have overruled the climax tag.
+		if (!a_position.empty()) {
+			const auto words = SplitTags(a_position);
+			const auto named = [&](std::initializer_list<std::string_view> needles) {
+				return std::ranges::any_of(words, [&](const std::string& word) {
+					return std::ranges::any_of(needles, [&](std::string_view n) {
+						return word.find(n) != std::string::npos;
+					});
+				});
+			};
+			if (named({ "blowjob"sv, "cunnilingus"sv, "rimjob"sv, "facial"sv, "deepthroat"sv })) {
+				return "Rapport_Oral"sv;
+			}
+			if (named({ "missionary"sv, "cowgirl"sv, "doggy"sv, "spooning"sv, "pronebone"sv,
+						"prone"sv, "grind"sv, "anal"sv, "impregnate"sv, "fuck"sv, "sex"sv,
+						"scissor"sv, "handjob"sv })) {
+				return pleasureFor(a_intensity);
+			}
+			if (named({ "kiss"sv, "cuddle"sv, "hug"sv, "hold"sv })) {
+				return "Rapport_Kiss"sv;
+			}
+		}
+
 		// Genuinely says nothing sexual -- a walk, an idle, a transition. Change
 		// nothing, because here a neutral face is the correct one.
 		return {};
+	}
+
+	void Expressions::LoadOverrides()
+	{
+		_overrides.clear();
+
+		const auto path =
+			std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport" / "act-overrides.json";
+		std::error_code ec;
+		if (!std::filesystem::exists(path, ec)) {
+			// Absent is the normal case. The pack's own tags classify almost
+			// everything; this file exists for the handful they do not.
+			return;
+		}
+
+		std::ifstream file{ path };
+		if (!file) {
+			logger::error("expressions: {} exists but could not be opened", path.string());
+			return;
+		}
+
+		nlohmann::json json;
+		try {
+			file >> json;
+		} catch (const std::exception& e) {
+			logger::error(
+				"expressions: {} is not valid JSON ({}) - every position falls back to its tags",
+				path.string(), e.what());
+			return;
+		}
+
+		const auto acts = json.find("acts");
+		if (acts == json.end() || !acts->is_object()) {
+			logger::warn("expressions: {} has no \"acts\" object - nothing overridden", path.string());
+			return;
+		}
+
+		for (const auto& [position, want] : acts->items()) {
+			if (!want.is_string() || position.empty()) {
+				continue;
+			}
+			_overrides.insert_or_assign(Lower(position), Lower(want.get<std::string>()));
+		}
+		logger::info(
+			"expressions: {} position(s) overridden by hand from act-overrides.json",
+			_overrides.size());
+	}
+
+	void Expressions::ReportUnclassified() const
+	{
+		// Straight from the classifier that actually runs, rather than from a tool
+		// that reimplements it -- so what this prints IS what needs overriding, and
+		// the two cannot drift apart.
+		const auto& index = TreeIndex::GetSingleton();
+		if (!index.Usable()) {
+			return;
+		}
+
+		std::vector<std::string> unreadable;
+		for (const auto& entry : index.Entries()) {
+			std::string joined;
+			for (const auto& tag : entry.tags) {
+				joined += tag;
+				joined.push_back(',');
+			}
+			if (FaceForAct(joined, entry.positionID, 2).empty()) {
+				unreadable.push_back(entry.positionID);
+			}
+		}
+
+		if (unreadable.empty()) {
+			logger::info(
+				"expressions: every indexed position's act can be read from its tags or its name");
+			return;
+		}
+
+		logger::info(
+			"expressions: {} position(s) whose act cannot be read from tags OR name. Put them in "
+			"Data/F4SE/Plugins/Rapport/act-overrides.json under \"acts\", as "
+			"\"<position id>\": \"oral|pleasure|kiss|climax|none\":",
+			unreadable.size());
+		for (const auto& id : unreadable) {
+			logger::info("expressions:   \"{}\": \"pleasure\",", id);
+		}
+	}
+
+	std::string Expressions::LivePosition() const
+	{
+		NamedLock lock{ _lock, "expressions" };
+		return _livePosition;
+	}
+
+	std::size_t Expressions::OverrideCount() const
+	{
+		return _overrides.size();
 	}
 
 	void Expressions::Collect(std::string_view a_setID, std::vector<Order>& a_out)

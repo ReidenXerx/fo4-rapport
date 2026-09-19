@@ -123,6 +123,11 @@ namespace RP
 		// back to their old behaviour rather than concluding the install has none.
 		[[nodiscard]] bool Usable() const noexcept { return !_entries.empty(); }
 
+		// Read-only, for anything that wants to walk what was indexed. Built once at
+		// load and not touched afterwards, so no lock: a reader that raced a rebuild
+		// would be reading during startup, before any of this is reachable.
+		[[nodiscard]] const std::vector<Entry>& Entries() const noexcept { return _entries; }
+
 		[[nodiscard]] static std::string_view Describe(Ending a_ending);
 
 	private:

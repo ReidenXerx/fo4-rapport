@@ -103,6 +103,12 @@ Function SceneRefused(String asWhy) Global Native
 
 Function NoteSceneTags(String asTags) Global Native
 
+; The position AAF is playing, by NAME. Rapport uses it two ways: as the key for a
+; hand-written override, and -- when the tags name no act at all -- as words to read.
+; Measured: five positions on the reference install say "Blowjob" in the title and
+; nothing in their tags.
+Function NoteScenePosition(String asPosition) Global Native
+
 ; An actor's sex: 0 male, 1 female, anything else unknown. Reported from Papyrus
 ; because only Papyrus holds a real Actor to ask.
 Function NoteActorSex(Int aiFormID, Int aiSex) Global Native

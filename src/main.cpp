@@ -45,7 +45,13 @@ namespace
 			RP::DebugHub::GetSingleton().Load();
 			RP::Aftermath::GetSingleton().Load();
 			RP::Expressions::GetSingleton().Load();
+			RP::Expressions::GetSingleton().LoadOverrides();
 			RP::Scenarios::GetSingleton().Load();
+
+			// After Scenarios, because that is what builds the tree catalogue this
+			// walks. Says which positions nothing can read, which IS the contents of
+			// act-overrides.json.
+			RP::Expressions::GetSingleton().ReportUnclassified();
 			RP::Takeover::GetSingleton().Load();
 			RP::PapyrusLink::GetSingleton().OnDataReady();
 			RP::Scheduler::GetSingleton().Start();

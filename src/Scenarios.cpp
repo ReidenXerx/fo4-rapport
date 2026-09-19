@@ -695,7 +695,8 @@ namespace RP
 			return;
 		}
 		const auto act = Expressions::GetSingleton().LiveAct();
-		auto       want = Expressions::FaceForAct(act, a_intensity);
+		const auto position = Expressions::GetSingleton().LivePosition();
+		auto       want = Expressions::FaceForAct(act, position, a_intensity);
 		if (want.empty()) {
 			return;
 		}

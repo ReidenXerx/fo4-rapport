@@ -457,6 +457,9 @@ Event AAF:AAF_API.OnAnimationStart(AAF:AAF_API akSender, Var[] akArgs)
 	If akArgs != None && akArgs.Length > 3
 		Int index = Self.FindRequestByActors(akArgs)
 		If index >= 0
+			; args[2] BEFORE args[3]: the tag handler consults the position, both as an
+			; override key and as words to read when the tags name no act.
+			Rapport:Core.NoteScenePosition(akArgs[2] as String)
 			Rapport:Core.NoteSceneTags(akArgs[3] as String)
 
 		EndIf
@@ -508,6 +511,9 @@ Event AAF:AAF_API.OnAnimationChange(AAF:AAF_API akSender, Var[] akArgs)
 	If akArgs != None && akArgs.Length > 3
 		Int index = Self.FindRequestByActors(akArgs)
 		If index >= 0
+			; args[2] BEFORE args[3]: the tag handler consults the position, both as an
+			; override key and as words to read when the tags name no act.
+			Rapport:Core.NoteScenePosition(akArgs[2] as String)
 			Rapport:Core.NoteSceneTags(akArgs[3] as String)
 		EndIf
 	EndIf

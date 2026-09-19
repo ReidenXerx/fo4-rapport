@@ -1,0 +1,30 @@
+{
+  "comment": [
+    "What a position IS, when nothing else can tell.",
+    "",
+    "Rapport works this out in three steps, and this file is the first of them:",
+    "  1. this file, by position id -- somebody looked and said",
+    "  2. the pack's own tags        -- 98.8% of positions on the reference install",
+    "  3. the position's NAME        -- takes that to 99.2%",
+    "",
+    "So this is deliberately SMALL. A full hand-built inventory would be over a",
+    "thousand entries here, 99% of them a second copy of data that ships with the",
+    "pack and goes stale the moment that pack updates. The tags stay current; a",
+    "copy of them does not.",
+    "",
+    "You do not have to find the entries yourself. On every launch Rapport logs",
+    "every position whose act it cannot read, already formatted for pasting in --",
+    "and that list comes from the classifier that actually runs, so it can never",
+    "disagree with the rules being applied.",
+    "",
+    "Values: oral | pleasure | kiss | climax | none",
+    "  none means 'this is not a sexual act', which stops a face being applied at",
+    "  all -- use it for utility and transition positions.",
+    "",
+    "This also OVERRULES the tags, so it is the place to correct an author who",
+    "tagged something wrongly, not only to fill a silence."
+  ],
+
+  "acts": {
+  }
+}

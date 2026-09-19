@@ -95,6 +95,11 @@ namespace
 		RP::Scenarios::GetSingleton().OnRefused(a_why.c_str());
 	}
 
+	void Papyrus_NoteScenePosition(std::monostate, RE::BSFixedString a_position)
+	{
+		RP::Expressions::GetSingleton().NotePosition(a_position.empty() ? "" : a_position.c_str());
+	}
+
 	void Papyrus_NoteSceneTags(std::monostate, RE::BSFixedString a_tags)
 	{
 		// BOTH. One decides what a scene leaves behind, the other decides what the
@@ -634,6 +639,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorBusy"sv, Papyrus_NoteActorBusy, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneRefused"sv, Papyrus_SceneRefused, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteScenePosition"sv, Papyrus_NoteScenePosition, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorSex"sv, Papyrus_NoteActorSex, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneSlots"sv, Papyrus_NoteSceneSlots, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "Pump"sv, Papyrus_Pump, std::nullopt, false);
