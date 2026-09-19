@@ -129,25 +129,79 @@ def overlay(base, extra):
 #
 # `level` is how far into it the expression is, 0-100, and every style scales
 # itself by it. Without that, a tense Kiss looks like a tense Climax.
+# THE EYES ARE WHERE THE BUDGET WENT, now that the jaw is the animation's.
+#
+# An audit of the generated table found 15 of the 50 morphs never set above zero,
+# and the loudest gap by far: `Upper Eye Lid Down` appears in 24 of 24 style-sets
+# and `Upper Eye Lid Up` in NONE. Every face this mod could make narrowed or shut
+# the eyes; not one ever opened them, so surprise, shock and being overwhelmed
+# were unreachable -- which is most of what makes a face vibrant.
+#
+# Each style now has its own way of coming, and an actor keeps theirs for the
+# whole playthrough because it is derived from their form id. The mapping follows
+# what each style already IS rather than an arbitrary split: style 2 is the one
+# that grits, and gritting with wide eyes is a contradiction.
+#
+# ONLY ABOVE level 70, so this reaches Oral, Pleasure_3 and Climax and leaves
+# anticipation and kissing alone. A gasp during a kiss is a timer, not a reaction.
+#
+# Deliberately NO new mouth morphs. The jaw was just handed to the animation
+# because we lose that fight; adding frowns and lip rolls would walk straight back
+# into it. Eyes, brows, nose and cheeks are uncontested.
+EYES_FROM = 70
+
+
+def eyes(lvl, settings):
+    """Style eye-work, or nothing at all below the threshold."""
+    return scale(settings, lvl / 100.0) if lvl >= EYES_FROM else []
+
+
+# ---- the three ways a person reacts ----------------------------------------
+#
+# Everyone gets the same set of expressions; these decide HOW that person wears
+# them. An actor keeps their style for the whole playthrough because it is derived
+# from their form id, so this reads as character rather than as the game shuffling
+# faces at them.
+#
+# `level` is how far into it the expression is, 0-100, and every style scales
+# itself by it. Without that, a tense Kiss looks like a tense Climax.
 STYLES = [
-    ("1", "lets go: open, lifted, soft", lambda lvl: []),
-
-    ("2", "grits: brows down and in, nose wrinkled, teeth bared, hard squint",
+    ("1", "lets go: open, lifted, soft -- and at the peak the eyes go WIDE",
      lambda lvl: overlay(
-         scale(sym("Middle Brow Down", 70) + sym("Nose Up", 65)
-               + sym("Upper Lip Up", 55) + sym("Lower Eye Lid Up", 60), lvl / 100.0),
-         # Brow Squeeze is the one that must NOT be scaled away: it is what makes
-         # the difference between furrowed and merely lowered.
-         [("Brow Squeeze", int(round(80 * lvl / 100.0)))])),
+         # The outer brows lift, which is the "lifted" this style is named for and
+         # was using only half of -- Right Outer Brow Up was one of the fifteen
+         # morphs never set at all.
+         scale(pair("Left Brow Outer Up", "Right Outer Brow Up", 55), lvl / 100.0),
+         # Overrides, NOT additions: the base sets shut these eyes, and a lid that
+         # is told to go both down and up at once is a lid doing neither.
+         eyes(lvl, sym("Upper Eye Lid Down", 0) + sym("Upper Eye Lid Up", 85)
+              + sym("Lower Eye Lid Down", 25)))),
 
-    ("3", "holds it in: lip bitten, the face uneven, one brow up",
-     lambda lvl: scale(
-         [("Lower Lip Roll In", 70), ("Sticky Lips", 45),
-          # Deliberately ONE side. A real face is not symmetrical, and every set
-          # here is mirrored, so the only place asymmetry can come from is a style.
-          ("Left Smile", 45), ("Right Nose Up", 40), ("Left Brow Outer Up", 60),
-          ("Right Middle Brow Down", 35)],
-         lvl / 100.0)),
+    ("2", "grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut",
+     lambda lvl: overlay(
+         overlay(
+             scale(sym("Middle Brow Down", 70) + sym("Nose Up", 65)
+                   + sym("Upper Lip Up", 55) + sym("Lower Eye Lid Up", 60), lvl / 100.0),
+             # Brow Squeeze is the one that must NOT be scaled away: it is what makes
+             # the difference between furrowed and merely lowered.
+             [("Brow Squeeze", int(round(80 * lvl / 100.0)))]),
+         # This style already squinted hard; at the peak it closes completely.
+         eyes(lvl, sym("Upper Eye Lid Down", 100) + sym("Lower Eye Lid Up", 75)))),
+
+    ("3", "holds it in: lip bitten, the face uneven, one brow up, eyes unfocused",
+     lambda lvl: overlay(
+         scale(
+             [("Lower Lip Roll In", 70), ("Sticky Lips", 45),
+              # Deliberately ONE side. A real face is not symmetrical, and every set
+              # here is mirrored, so the only place asymmetry can come from is a style.
+              ("Left Smile", 45), ("Right Nose Up", 40), ("Left Brow Outer Up", 60),
+              ("Right Middle Brow Down", 35)],
+             lvl / 100.0),
+         # Neither shut nor wide: half-lidded and somewhere else entirely. The lids
+         # are deliberately UNEVEN, like the rest of this style.
+         eyes(lvl, [("Left Upper Eye Lid Down", 60), ("Right Upper Eye Lid Down", 45),
+                    ("Left Upper Eye Lid Up", 0), ("Right Upper Eye Lid Up", 0),
+                    ("Left Lower Eye Lid Down", 35), ("Right Lower Eye Lid Down", 30)]))),
 ]
 
 # Each set is (id, note, [(morph name, intensity 0-100), ...], lock, level).
