@@ -21,6 +21,8 @@ set(SOURCES
 	"src/PCH.h"
 	"src/Config.h"
 	"src/Config.cpp"
+	"src/Mailbox.h"
+	"src/Mailbox.cpp"
 	"src/ActorScan.h"
 	"src/ActorScan.cpp"
 	"src/Pairing.h"

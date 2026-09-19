@@ -146,6 +146,15 @@ namespace RP
 		bool          dryRun{ true };
 		bool          verbose{ false };
 
+		// ---- the dev command channel ----------------------------------------
+		// Both default OFF, and the second is deliberately a SEPARATE flag rather
+		// than a level of the first: opening a channel that reports plugin state
+		// and opening one that runs arbitrary console commands are different
+		// decisions, and nobody should make the second by accident while making
+		// the first.
+		bool          devMailbox{ false };
+		bool          devConsole{ false };
+
 		[[nodiscard]] static Config& GetSingleton() noexcept;
 
 		void Load();

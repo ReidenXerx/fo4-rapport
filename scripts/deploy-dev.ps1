@@ -43,6 +43,16 @@ New-Item -ItemType Directory -Force -Path (Join-Path $plugins 'Rapport') | Out-N
 
 Copy-Item $dll (Join-Path $plugins 'Rapport.dll') -Force
 Copy-Item (Join-Path $root 'data\F4SE\Plugins\Rapport.ini') $plugins -Force
+
+# The dev command channel, turned on HERE and nowhere else.
+#
+# The repo's ini ships with DevMailbox=0 and must keep doing so -- make-release
+# copies that same file, so a 1 in it would put a command channel in strangers'
+# games. Flipping it in the staging copy after the copy is the one place the
+# distinction between "the dev build" and "the build" actually lives.
+$devIni = Join-Path $plugins 'Rapport.ini'
+(Get-Content $devIni) -replace '^DevMailbox=0', 'DevMailbox=1' | Set-Content $devIni -Encoding ASCII
+Write-Host '  dev command channel: ON in staging (repo default stays 0)'
 Copy-Item (Join-Path $root 'data\F4SE\Plugins\Rapport\*.json') (Join-Path $plugins 'Rapport') -Force
 
 # The plugin and the compiled Papyrus. Both are built, not committed: the esp is

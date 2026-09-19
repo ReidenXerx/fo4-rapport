@@ -1,5 +1,6 @@
 #include "Config.h"
 #include "DebugHub.h"
+#include "Mailbox.h"
 #include "Aftermath.h"
 #include "Expressions.h"
 #include "Ledger.h"
@@ -76,6 +77,10 @@ namespace
 			RP::Takeover::GetSingleton().Load();
 			RP::PapyrusLink::GetSingleton().OnDataReady();
 			RP::Scheduler::GetSingleton().Start();
+
+			// AFTER Config::Load, because the flag that decides whether this exists
+			// at all is read there. Does nothing whatsoever unless DevMailbox=1.
+			RP::Mailbox::GetSingleton().Start();
 			break;
 		case F4SE::MessagingInterface::kNewGame:
 		case F4SE::MessagingInterface::kPostLoadGame:

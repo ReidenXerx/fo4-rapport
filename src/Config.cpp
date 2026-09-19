@@ -121,6 +121,10 @@ namespace RP
 					diagnoseStageTags = (value == "1" || value == "true" || value == "True");
 				} else if (key == "Verbose") {
 					verbose = (value == "1" || value == "true" || value == "True");
+				} else if (key == "DevMailbox") {
+					devMailbox = (value == "1" || value == "true" || value == "True");
+				} else if (key == "DevConsole") {
+					devConsole = (value == "1" || value == "true" || value == "True");
 				} else {
 					continue;
 				}
