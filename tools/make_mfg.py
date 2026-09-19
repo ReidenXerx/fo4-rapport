@@ -11,6 +11,7 @@ Run it after editing SETS; the XML is generated, not hand-maintained.
 """
 import io
 import pathlib
+import re
 
 MORPHS = [
     "Brow Squeeze", "Jaw Forward", "Jaw Open", "Left Brow Outer Up",
@@ -202,6 +203,55 @@ STYLES = [
          eyes(lvl, [("Left Upper Eye Lid Down", 60), ("Right Upper Eye Lid Down", 45),
                     ("Left Upper Eye Lid Up", 0), ("Right Upper Eye Lid Up", 0),
                     ("Left Lower Eye Lid Down", 35), ("Right Lower Eye Lid Down", 30)]))),
+
+    # ---- the vulgar three ---------------------------------------------------
+    #
+    # Added because the style axis turned out to be the thing that gives an NPC a
+    # face of their own: it is derived from their form id, so it never changes
+    # for them, and the same person comes the same way every time. Three ways was
+    # not enough population for that to read as character rather than coincidence.
+    #
+    # Nothing here goes above 80. The jaw taught that lesson: the visible twitch
+    # is |our value - whatever else is writing the morph|, and 100 is where it
+    # stops being an expression and becomes a fight. These also spend the morphs
+    # the earlier audit found completely unused -- Frown, Lip Corner In, Lower Lip
+    # Up, Upper Lip Roll In -- which is most of what was left on the table.
+    #
+    # NO JAW in any of them, for the same reason Climax and Oral have none.
+
+    ("4", "gone: vacant, tongue out, the lights are off",
+     lambda lvl: overlay(
+         scale([("Tongue To Roof", 70), ("Left Lower Lip Down", 55),
+                ("Right Lower Lip Down", 55), ("Left Frown", 30), ("Right Frown", 30),
+                ("Left Middle Brow Up", 70), ("Right Middle Brow Up", 70)],
+               lvl / 100.0),
+         # Lids hauled wide while the rest of the face gives up. FO4 has no
+         # eyeball-roll morph, so "rolled back" has to be read from the lid.
+         eyes(lvl, sym("Upper Eye Lid Down", 0) + sym("Upper Eye Lid Up", 95)
+              + sym("Lower Eye Lid Up", 30)))),
+
+    ("5", "sneers: lip curled off the teeth, contemptuous, enjoying it meanly",
+     lambda lvl: overlay(
+         scale([("Left Upper Lip Up", 75), ("Right Upper Lip Up", 45),
+                ("Left Nose Up", 65), ("Right Nose Up", 35),
+                ("Left Lip Corner In", 50), ("Right Lip Corner In", 50),
+                ("Left Lower Lip Up", 40), ("Right Lower Lip Up", 40),
+                ("Left Brow Outer Up", 70), ("Right Middle Brow Down", 45)],
+               lvl / 100.0),
+         # Narrowed, not shut. A sneer that closes its eyes is just a wince.
+         eyes(lvl, sym("Upper Eye Lid Down", 55) + sym("Lower Eye Lid Up", 70)))),
+
+    ("6", "grins: wide, shameless, teeth out and thoroughly pleased",
+     lambda lvl: overlay(
+         scale([("Left Smile", 80), ("Right Smile", 65),
+                ("Left Lip Corner Out", 60), ("Right Lip Corner Out", 60),
+                ("Left Upper Lip Up", 40), ("Right Upper Lip Up", 40),
+                ("Left Cheek Up", 70), ("Right Cheek Up", 70),
+                ("Left Middle Brow Up", 60), ("Right Middle Brow Up", 60)],
+               lvl / 100.0),
+         # Cheeks this high push the lower lid up on their own; the squeeze is
+         # what separates a real grin from bared teeth.
+         eyes(lvl, sym("Upper Eye Lid Down", 65) + sym("Lower Eye Lid Up", 75)))),
 ]
 
 # Each set is (id, note, [(morph name, intensity 0-100), ...], lock, level).
@@ -302,7 +352,33 @@ HEADER = '''<mfgSetData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs
 '''
 
 
+def check_styles_match_the_plugin():
+    """The plugin builds a set name by appending a style number; this file emits
+    the sets. If the two disagree the plugin asks AAF for an id that does not
+    exist -- and AAF does not complain about an unknown mfgSet, so the face just
+    silently never changes.
+
+    That is not hypothetical. Three of the eight faces shipped that way for the
+    whole of their existence because VariantFor could not tell a style suffix
+    from a base name ending in a digit. Nothing caught it but a human reading two
+    adjacent log lines. So the counts are checked here, where it costs nothing.
+    """
+    root = pathlib.Path(__file__).resolve().parent.parent
+    header = (root / "src" / "Expressions.h").read_text(encoding="utf-8")
+    found = re.search(r"kStyles\s*=\s*(\d+)", header)
+    if not found:
+        raise SystemExit("could not find kStyles in src/Expressions.h")
+    declared = int(found.group(1))
+    if declared != len(STYLES):
+        raise SystemExit(
+            "MISMATCH: src/Expressions.h says kStyles = %d but this file defines "
+            "%d style(s). The plugin would ask AAF for set names that do not "
+            "exist and the faces would silently never apply." % (declared, len(STYLES)))
+    print("kStyles = %d in both the plugin and this file" % declared)
+
+
 def main():
+    check_styles_match_the_plugin()
     out = io.StringIO()
     out.write(HEADER)
 

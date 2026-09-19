@@ -75,7 +75,7 @@ namespace RP
 		// agree: this appends a number to a set name, and a name nothing defines is
 		// a face that silently never appears. The generator prints every set it
 		// wrote so the pair can be checked by eye.
-		static constexpr std::uint32_t kStyles = 3;
+		static constexpr std::uint32_t kStyles = 6;
 
 		// The set name for THIS actor.
 		//
