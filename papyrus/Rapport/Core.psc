@@ -178,6 +178,13 @@ Function DeferOrder(Int aiFormID) Global Native
 ; next load.
 Function RequeueOrder() Global Native
 
+; A form id as "FF004C9B (-16757605)" -- hex first because that is what AAF's log,
+; xEdit and the console all say, decimal after because that is what every earlier
+; line of this log says. Papyrus has no hex formatter and its Int is signed, so
+; every FF-prefixed (dynamically created) form prints negative on its own, and
+; those are most of what autonomy pairs.
+String Function FormIdText(Int aiFormID) Global Native
+
 ; ---- what Rapport:Medic asks ----------------------------------------------
 ; Both exist so the medic never has to touch the bridge to find out how the
 ; bridge is doing. Asking the patient whether it is breathing is not a check.

@@ -294,6 +294,21 @@ namespace
 		RP::PapyrusLink::GetSingleton().RequeueStranded();
 	}
 
+	// "FF004C9B (-16757605)" -- both, because both are the id somebody is holding.
+	//
+	// Papyrus has no hex formatter and its Int is SIGNED, so every dynamically
+	// created form -- the FF-prefixed ones, which is most of what autonomy pairs:
+	// settlers, drifters, the Goodneighbor watch -- prints as a negative number
+	// that matches nothing in AAF's log, in xEdit, or in the console. Hex is what
+	// every other tool says. The decimal is kept beside it because it is what
+	// every earlier line of this log says, and a diagnosis that spans two sessions
+	// should not need a converter.
+	RE::BSFixedString Papyrus_FormIdText(std::monostate, std::int32_t a_formID)
+	{
+		return RE::BSFixedString{ std::format(
+			"{:08X} ({})", static_cast<std::uint32_t>(a_formID), a_formID) };
+	}
+
 	// ---- what the medic asks, and what it is allowed to do -----------------
 	//
 	// The medic is a SEPARATE script on a SEPARATE quest precisely so that it is
@@ -721,6 +736,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerRegions"sv, Papyrus_MoisturizerRegions, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DeferOrder"sv, Papyrus_DeferOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequeueOrder"sv, Papyrus_RequeueOrder, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "FormIdText"sv, Papyrus_FormIdText, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BridgeSilentTicks"sv, Papyrus_BridgeSilentTicks, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "AbandonInFlight"sv, Papyrus_AbandonInFlight, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerFront"sv, Papyrus_MoisturizerFront, std::nullopt, false);

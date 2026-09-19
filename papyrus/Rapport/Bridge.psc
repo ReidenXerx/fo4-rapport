@@ -379,7 +379,7 @@ Function DoStartScene(Int aiRequest)
 		Return
 	EndIf
 
-	Rapport:Core.Trace("bridge: request " + aiRequest + " starting for " + akFirst.GetFormID() + " and " + akSecond.GetFormID() + ", aaf status " + status)
+	Rapport:Core.Trace("bridge: request " + aiRequest + " starting for " + Rapport:Core.FormIdText(akFirst.GetFormID()) + " and " + Rapport:Core.FormIdText(akSecond.GetFormID()) + ", aaf status " + status)
 	_api.StartScene(actors, settings)
 	Rapport:Core.Trace("bridge: StartScene returned for request " + aiRequest)
 EndFunction
@@ -732,7 +732,7 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	Actor target = Game.GetForm(aiFormID) as Actor
 	If target == None
 		Rapport:Core.DeferOrder(aiFormID)
-		Rapport:Core.Trace("order: " + aiFormID + " no longer resolves - " + asSetID + " was not carried out")
+		Rapport:Core.Trace("order: " + Rapport:Core.FormIdText(aiFormID) + " no longer resolves - " + asSetID + " was not carried out")
 		Return
 	EndIf
 
@@ -756,16 +756,16 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	If !target.Is3DLoaded()
 		Rapport:Core.DeferOrder(aiFormID)
 		Rapport:Core.RequeueOrder()
-		Rapport:Core.Trace("order: " + aiFormID + " is not loaded - " + asSetID + " deferred rather than asked of AAF")
+		Rapport:Core.Trace("order: " + Rapport:Core.FormIdText(aiFormID) + " is not loaded - " + asSetID + " deferred rather than asked of AAF")
 		Return
 	EndIf
 
 	If aiKind == 1
 		_api.ApplyOverlaySet(target, asSetID)
-		Rapport:Core.Trace("aftermath: asked AAF for " + asSetID + " on " + aiFormID)
+		Rapport:Core.Trace("aftermath: asked AAF for " + asSetID + " on " + Rapport:Core.FormIdText(aiFormID))
 	ElseIf aiKind == 2
 		_api.RemoveOverlaySet(target, asSetID)
-		Rapport:Core.Trace("aftermath: asked AAF to remove " + asSetID + " from " + aiFormID)
+		Rapport:Core.Trace("aftermath: asked AAF to remove " + asSetID + " from " + Rapport:Core.FormIdText(aiFormID))
 	ElseIf aiKind == 3
 		_api.ApplyMFGSet(target, asSetID)
 		; And hold it there, if asked to. AddMFGBlock is the half of this API
@@ -779,10 +779,10 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		If Rapport:Core.BlockFaces()
 			_api.AddMFGBlock(target, Self.AllMorphIDs())
 		EndIf
-		Rapport:Core.Trace("face: asked AAF for " + asSetID + " on " + aiFormID)
+		Rapport:Core.Trace("face: asked AAF for " + asSetID + " on " + Rapport:Core.FormIdText(aiFormID))
 	ElseIf aiKind == 4
 		Self.ReleaseActor(target)
-		Rapport:Core.Trace("released the AAF busy keywords from " + aiFormID)
+		Rapport:Core.Trace("released the AAF busy keywords from " + Rapport:Core.FormIdText(aiFormID))
 	ElseIf aiKind == 15
 		Self.QueryAnimationsFor(aiFormID, asSetID, asExtra)
 		Return
@@ -795,7 +795,7 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		; is exactly the failure this is meant to prevent.
 		_api.ApplyMFGSet(target, asSetID)
 		_api.RemoveMFGBlock(target, Self.AllMorphIDs())
-		Rapport:Core.Trace("face: cleared " + asSetID + " from " + aiFormID)
+		Rapport:Core.Trace("face: cleared " + asSetID + " from " + Rapport:Core.FormIdText(aiFormID))
 	EndIf
 EndFunction
 
@@ -1056,7 +1056,7 @@ Function ApplyTakeover()
 		String name = Rapport:Core.TakeoverName(i)
 
 		If target == None
-			Rapport:Core.Trace("takeover: " + name + " (" + formID + ") did not resolve - left alone")
+			Rapport:Core.Trace("takeover: " + name + " (" + Rapport:Core.FormIdText(formID) + ") did not resolve - left alone")
 		ElseIf shouldStop
 			If target.IsRunning()
 				target.Stop()

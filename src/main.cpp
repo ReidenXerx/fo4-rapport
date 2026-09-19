@@ -22,6 +22,27 @@ namespace
 		}
 		*path /= RP_PROJECT_NAME ".log"sv;
 
+		// Keep the PREVIOUS run before truncating this one.
+		//
+		// The log is opened with truncate, so launching the game destroys the only
+		// record of what went wrong last time -- and what goes wrong in this mod is
+		// very often a thing that ENDS the session, which means the launch that
+		// follows it is the launch that erases the evidence. That happened tonight:
+		// a wedge at 01:20 was diagnosed from the log, the game was relaunched, and
+		// the lines needed to settle a follow-up question were gone.
+		//
+		// One generation is enough. Two runs back has never been the interesting
+		// one, and an unbounded pile of logs in somebody's Documents folder is its
+		// own small rudeness.
+		std::error_code ec;
+		auto previous = *path;
+		previous.replace_extension(".prev.log");
+		std::filesystem::remove(previous, ec);
+		std::filesystem::rename(*path, previous, ec);
+		// ec is deliberately ignored: there is no log to report a logging failure
+		// into, and a first run has nothing to rename. Neither is worth refusing to
+		// start over.
+
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 		log->set_level(spdlog::level::info);
