@@ -114,6 +114,10 @@ namespace RP
 		[[nodiscard]] std::size_t Size() const noexcept { return _entries.size(); }
 		[[nodiscard]] std::size_t WithEnding() const noexcept { return _withEnding; }
 
+		// Of those, the ones whose content is actually marked. The difference
+		// between the two is how much of "reaches a climax" is a branch name.
+		[[nodiscard]] std::size_t WithClimaxTag() const noexcept { return _withClimaxTag; }
+
 		// An empty index means the scan found nothing -- no AAF folder, no files, no
 		// read access. That is not evidence that trees are absent, so callers fall
 		// back to their old behaviour rather than concluding the install has none.
@@ -124,5 +128,6 @@ namespace RP
 	private:
 		std::vector<Entry> _entries;
 		std::size_t        _withEnding{ 0 };
+		std::size_t        _withClimaxTag{ 0 };
 	};
 }

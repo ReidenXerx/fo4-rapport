@@ -106,6 +106,7 @@ namespace RP
 	{
 		_entries.clear();
 		_withEnding = 0;
+		_withClimaxTag = 0;
 
 		const auto      folder = std::filesystem::path{ "Data" } / "AAF";
 		std::error_code ec;
@@ -387,6 +388,9 @@ namespace RP
 
 			if (made.ending >= Ending::kOrgasm) {
 				++_withEnding;
+				if (made.climaxTagged) {
+					++_withClimaxTag;
+				}
 			}
 			_entries.push_back(std::move(made));
 		}
@@ -399,9 +403,11 @@ namespace RP
 		}
 
 		logger::info(
-			"trees: {} tree(s) in {} file(s); {} selectable entry position(s), {} of them reaching "
-			"a climax or an orgasm",
-			trees.size(), files, _entries.size(), _withEnding);
+			"trees: {} tree(s) in {} file(s); {} selectable entry position(s). {} are GRADED as "
+			"reaching a climax or an orgasm, and {} of those have a position actually TAGGED for "
+			"one - the rest name a branch \"Orgasm\" over content that marks no climax anywhere, "
+			"so they are preferred against rather than trusted",
+			trees.size(), files, _entries.size(), _withEnding, _withClimaxTag);
 
 		if (orphaned > 0) {
 			logger::warn(
