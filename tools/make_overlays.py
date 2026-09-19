@@ -24,23 +24,47 @@ authors its assets instead of borrowing them.
 
 THE BODY TEXTURES ARE DELIBERATELY UV-AGNOSTIC
 ----------------------------------------------
-Two different female body UV layouts are live on the development machine:
+Because the live body UV has NOT been established, not because two are known to
+conflict -- an earlier version of this comment claimed the latter and could not
+support it.
 
-    Textures/Actors/Character/basehumanfemale/femalebhed_n.DDS   2048, vanilla
-        -- torso in a left-of-centre column, arms as horizontal bands, legs right
-    Textures/Actors/Character/custombody/FemaleBody_n.dds        4096, CBBE
-        -- torso centred and mirrored, nipples at x 0.43/0.57, navel at y 0.83
+What is actually known. The body mesh the game loads is a BodySlide build:
 
-They disagree about where the chest is. Anything placed by coordinate is therefore
-a coin flip that lands on a shin half the time, and a sweat overlay that is wrong
-is worse than none: it reads as a rash. So the body textures use NO positional
-weighting whatsoever -- isotropic droplets and low-frequency sheen, uniform over
-the whole sheet. That is correct under either layout, which is the entire point.
+    Meshes/Actors/Character/characterassets/FemaleBody.nif
+        "Exported using Outfit Studio."
+        Materials/actors/Character/BaseHumanFemale/basehumanFemaleskin.bgsm
+        Textures/actors/character/basehumanfemale/femalebody_{d,n,s}.dds
+
+Those textures are a smooth-skin replacer -- the normal map is very nearly flat,
+so it carries no landmarks to read a UV off. The one texture on disk with clear
+anatomy (custombody/FemaleBody_n.dds, 4096) is NOT what that mesh references, so
+it cannot be assumed to describe the live layout either.
+
+Placing sweat by coordinate against a layout that has not been established puts
+it on a shin if the guess is wrong, and misplaced sweat reads as a rash. So the
+body textures use NO positional weighting: isotropic beads and low-frequency
+sheen, uniform over the sheet, correct under any layout. Establishing the live UV
+(a probe texture, looked at in game) would allow anatomical placement later.
+
+Note that morphs are NOT a concern here. A morph moves vertices and their UVs
+move with them, so an overlay stays correctly mapped through any body shape or
+BodySlide preset without doing anything.
 
 The face is the opposite case and gets placed properly: the baked head diffuses in
 Textures/Actors/Character/FaceCustomization/*/*_d.dds are an unambiguous front
 unwrap -- eyes y~0.30, nose y~0.45, mouth y~0.55, ears x~0.10/0.90 -- so the blush
 sits on the cheeks by measurement rather than by guess.
+
+WORTH INVESTIGATING BEFORE EXTENDING THIS
+-----------------------------------------
+The same mesh references `template/SkinTemplate_Wet.bgsm` -- Fallout 4 ships its
+OWN wet-skin material. That is a shader, not a texture: no art, no UV dependence,
+body-agnostic by construction, and the correct way to render wet skin if it can be
+driven per actor at runtime. Unproven: it is vanilla and lives in a BA2, and the
+plausible mechanism (F4EE `bEnableSkinOverrides`, which is enabled) has no
+skin-override data installed anywhere here to demonstrate it. If it works it would
+likely replace the sweat textures below -- but not the blush, which is colour and
+cannot come from a wetness shader.
 
 KNOWN LIMITATIONS, STATED RATHER THAN DISCOVERED IN GAME
 --------------------------------------------------------
