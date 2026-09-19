@@ -1493,6 +1493,18 @@ namespace RP
 			queued, _collected.load(), _started.load(), _ended.load(), _failed.load(),
 			_sceneInFlight.load() ? "a scene is in flight" : "idle");
 
+		// The stranded list, ALWAYS, INCLUDING WHEN IT IS EMPTY.
+		//
+		// A requeue that is working and a requeue that was never reached both
+		// write nothing until an actor comes back, so "no stranded line in the
+		// log" was two different facts wearing one appearance -- which is the
+		// exact confusion this health block exists to end, reintroduced by the
+		// person who wrote that sentence. Saying "holding 0" is the whole point:
+		// it is what makes a later "holding 4" mean something.
+		logger::info(
+			"health: holding {} cleanup order(s) for actors who were not loaded, {} heal(s) so far",
+			StrandedOrders(), _heals.load());
+
 		logger::info("health: {}", AAFHealth::GetSingleton().Summary());
 
 		logger::info(
