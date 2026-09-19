@@ -180,3 +180,70 @@ DLL, so its argument layout is not readable in any source and has to be learned 
 
 **Until this is settled, treat tag-driven position changes as unproven.** Everything that has
 actually worked came from AAF's own trees running themselves.
+
+## 16. `OnAnimationChange` is the stage-advance hook. `OnStageEvent` is silent.
+
+Established by counting events across three complete scenes (2026-09-19).
+
+`OnStageEvent` is registered by the bridge and fired **zero** times. The hook whose
+name promises exactly this does not deliver it, and nothing says so.
+
+`OnAnimationChange` fires **once per tree step**, and the count matched the
+catalogue's stage count for all three trees -- 6 events for a 6-stage tree, three
+times out of three. Scene three names them unambiguously: `Gay Spooning`, `02`,
+`03`, `04`, `Orgasm (loop)`, `Orgasm (loop)`.
+
+`OnAnimationStart` fires **once per scene**, on the entry animation only: 2 Start
+events against 10 Change events. Anything that forwards only `Start` freezes on
+the tree's opening position for the whole rest of the scene.
+
+Both carry the same layout: `args[2]` the position name, `args[3]` the tag list.
+No argument carries a stage NUMBER -- `args[0]`, `args[7]` and `args[8]` were
+`0`, `0` and `False` on all 21 animation events -- so steps must be counted, not
+read.
+
+## 17. A tree's declared `time` is not wall-clock, and the ratio is not constant
+
+One tree declaring 120s along its longest path ran **179.9s** in one scene and
+**226.3s** in another: 1.50x and 1.89x. Two samples, two different multipliers, so
+there is no calibration factor to apply. Treat the declared total as a LOWER BOUND
+and never as a duration.
+
+This is why the story advances on tree steps and not on a scaled clock. Scaling
+stage seconds onto the declared length put the orgasm face 63 and 58 seconds ahead
+of the orgasm animation in two scenes, then held it for the remainder.
+
+## 18. "Reaches an orgasm" is a branch NAME. 27 of 61 have no climax tag at all.
+
+`ending` is graded from a branch id containing "climax" / "orgasm" / "finish". Of
+74 selectable entries, 61 grade as reaching an orgasm -- and only **34** have a
+position tagged `climax*` anywhere in the tree, **32** at the exit position.
+
+`rxl_bp70_impregnate_mish_Tree` is the proof: branches named `Orgasm` and
+`Finish`, and all eleven positions it can reach carry the same tag list with no
+climax among them. It ran a complete 226-second scene and never emitted a climax
+tag. `Impregnate Cowgirl` and `Gay Spooning` both did.
+
+So a branch name is a claim about the author's intent and the position tags are
+the fact. Grade from the tags when the answer matters -- and note this is the same
+trap as `isExit` (finding 11), in the opposite direction: there, two trees named a
+branch "Stage 4 (No orgasm)" and a substring test read them as reaching one.
+
+## 19. An AAF animation almost never carries its own facial expression
+
+`mfgSet` is the facial layer and it hangs off `<action>` and `<animation>`, **not
+off `<position>`** -- a census of position attributes finds zero and is simply
+looking in the wrong place.
+
+Across the whole install: 11 mfgSet definitions outside Rapport's own, and **10
+references**, against 2,240 actions and 1,358 animations. Roughly 0.4%. The BP70
+pack that most scenes here play references none.
+
+AAF's `<morph>` / `<morphSet>` layer is a different thing and is **body only** --
+`Erection`, `Penis Adjust`, `Anus Spread`, `VaginaPenetrate`, `NippleLength`. Not
+one facial morph among 1,699 entries.
+
+So a framework is the primary source of faces, not a fallback. The risk runs the
+other way: Rapport's sets are declared `lock="true"`, which holds a morph against
+anything else that would move it, so on those ~10 animations we would override a
+face the author chose deliberately for that exact animation.
