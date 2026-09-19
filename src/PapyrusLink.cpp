@@ -449,6 +449,27 @@ namespace
 		return offer && offer->signals.sharedFaction;
 	}
 
+	// An actor's display name, because Papyrus cannot get one.
+	//
+	// Fallout 4's base Papyrus has NO name accessor: no GetName on Form, no
+	// GetDisplayName on ObjectReference, nothing on Actor. Which is why AAF's own
+	// scripts never print a name and why an addon's log is otherwise a wall of form
+	// ids -- and a table of 0002F0B and 000F61B6 is unreadable, which is the only
+	// way a diagnostic log can fail at its job.
+	//
+	// The plugin side has had this all along; GetDisplayFullName is what Rapport's
+	// own pair logging uses. Takes an Actor rather than a form id because the caller
+	// has already resolved one through Game.GetForm, and CommonLibF4 offers no
+	// lookup-by-id to do it on this side.
+	RE::BSFixedString Papyrus_ActorName(std::monostate, RE::Actor* a_who)
+	{
+		if (!a_who) {
+			return "";
+		}
+		const auto* const name = a_who->GetDisplayFullName();
+		return name ? name : "";
+	}
+
 	// ---- the addon door: WHAT HAPPENED BEFORE --------------------------------
 	//
 	// The Ledger's own comment states this split: it records FACTS and nothing
@@ -648,6 +669,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "CandidateInterior"sv, Papyrus_CandidateInterior, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CandidateNight"sv, Papyrus_CandidateNight, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CandidateSharedFaction"sv, Papyrus_CandidateSharedFaction, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ActorName"sv, Papyrus_ActorName, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "HoursSinceScene"sv, Papyrus_HoursSinceScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "LastPartner"sv, Papyrus_LastPartner, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneCount"sv, Papyrus_SceneCount, std::nullopt, false);

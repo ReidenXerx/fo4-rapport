@@ -248,6 +248,16 @@ Bool Function CandidateInterior(Int aiIndex) Global Native
 Bool Function CandidateNight(Int aiIndex) Global Native
 Bool Function CandidateSharedFaction(Int aiIndex) Global Native
 
+; An actor's display name, because Papyrus cannot get one.
+;
+; Fallout 4's base Papyrus has no name accessor at all -- no GetName on Form, no
+; GetDisplayName on ObjectReference, nothing on Actor. So an addon's log is a wall
+; of form ids unless the framework hands the name over, and an unreadable diagnostic
+; log is a diagnostic log that has failed.
+;
+; Empty string for None or for an actor with no name.
+String Function ActorName(Actor akWho) Global Native
+
 ; ---- the addon door, part three: WHAT HAPPENED BEFORE --------------------
 ;
 ; Rapport keeps these in the SAVE, per actor, so a player with three characters
