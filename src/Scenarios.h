@@ -165,6 +165,26 @@ namespace RP
 		// How long the chosen tree is authored to run, or 0 when none was chosen.
 		[[nodiscard]] float ChosenSeconds() const;
 
+		// AAF's tree moved to its next position. THIS is what advances the story,
+		// not a clock.
+		//
+		// There is no timer in this any more, and that is the point. The stage
+		// clock was scaling declared branch times onto wall time, and the declared
+		// time is not wall time: measured, a tree declaring 120s ran 179.9s in one
+		// scene and 226.3s in another -- 1.50x and 1.89x, so not even a constant to
+		// correct by. Everything downstream of that guess was wrong by the same
+		// margin, most visibly the orgasm face arriving 58 to 63 seconds before the
+		// orgasm animation.
+		//
+		// AAF knows exactly when it steps, and says so. Counting those steps is
+		// exact and needs no arithmetic about durations at all.
+		//
+		// Note what is NOT used: OnStageEvent. The bridge registers for it and it
+		// fired zero times across three complete scenes, so the hook whose name
+		// promises this is silent. OnAnimationChange is the one that works, and its
+		// count matched the catalogue's stage count for all three trees.
+		void NoteAnimationAdvanced();
+
 		// A scene would not start. If its tree needed furniture, the next one will
 		// not ask for any.
 		void NoteSceneRefused();
@@ -236,6 +256,14 @@ namespace RP
 			std::string_view        why;                     // when entry is null
 		};
 
+		// Resolve the face for where the story and the animation both are, and queue
+		// it if it changed. Caller holds _lock.
+		//
+		// Shared by the poll and by the tree-step notification on purpose. Doing it
+		// only on the poll left the face up to a whole poll interval behind the
+		// animation -- which defeats the reason for listening to the steps at all.
+		void ResolveFaceLocked(int a_intensity, std::string_view a_stageID, std::vector<Order>& a_out);
+
 		[[nodiscard]] Selection SelectLocked(
 			std::string_view a_id,
 			std::uint32_t    a_first,
@@ -248,6 +276,18 @@ namespace RP
 		// length the chosen tree is actually authored for. 1.0 when that length is
 		// unknown, which is the old behaviour and the honest answer.
 		float       _stageScale{ 1.0f };
+
+		// How many positions the chosen tree walks, from the catalogue, and how
+		// many steps AAF has actually taken. The scenario's stages are spread over
+		// the first; the second says where we are.
+		//
+		// _treeSteps is 0 when no tree was chosen -- an unconstrained scene, which
+		// is what quickie asks for by design and what every female/female pair gets
+		// on this install. Such a scene takes no tree steps at all, so it keeps the
+		// clock. That is not a redundant second mechanism; it is the only one
+		// available when there is nothing stepping.
+		std::uint32_t _treeSteps{ 0 };
+		std::uint32_t _stepsSeen{ 0 };
 
 		// The face we last asked for, so an unchanged answer queues nothing.
 		std::string _faceApplied;

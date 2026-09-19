@@ -100,6 +100,10 @@ namespace
 		// face does while it happens, and they read the same tags for it.
 		RP::Aftermath::GetSingleton().NoteTags(a_tags.c_str());
 		RP::Expressions::GetSingleton().NoteTags(a_tags.c_str());
+
+		// THREE. The tags say what is happening; the fact that this arrived at all
+		// says the tree moved, and that is what advances the story now.
+		RP::Scenarios::GetSingleton().NoteAnimationAdvanced();
 	}
 
 	// The second doorbell. Same shape as the first and for the same reason: the

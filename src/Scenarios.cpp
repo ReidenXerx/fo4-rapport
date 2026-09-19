@@ -647,6 +647,8 @@ namespace RP
 		const auto* chosen = picked.entry;
 		_chosenPosition = chosen->positionID;
 		_chosenSeconds = chosen->seconds;
+		_treeSteps = chosen->stages;
+		_stepsSeen = 0;
 
 		logger::info(
 			"scenario \"{}\": starting on \"{}\" - a {}-stage tree ending in a {}{}. AAF stages it "
@@ -681,6 +683,71 @@ namespace RP
 		// that by design, and AAF picking freely is the intended behaviour. It is
 		// simply a weaker promise than a chosen tree.
 		return picked.unconstrained ? Quality::kUnconstrained : Quality::kNothingFits;
+	}
+
+	void Scenarios::ResolveFaceLocked(
+		int a_intensity, std::string_view a_stageID, std::vector<Order>& a_out)
+	{
+		if (!_running) {
+			return;
+		}
+		const auto act = Expressions::GetSingleton().LiveAct();
+		const auto want = Expressions::FaceForAct(act, a_intensity);
+		if (want.empty() || want == _faceApplied) {
+			return;
+		}
+
+		logger::info(
+			"scenario \"{}\": stage \"{}\" is at intensity {} and AAF is playing [{}] - face {}",
+			_running->id, a_stageID, a_intensity, act, want);
+		_faceApplied.assign(want);
+		for (const auto formID : { _first, _second }) {
+			if (formID != 0) {
+				a_out.push_back(Order{ Order::Kind::kApplyExpression, formID, _faceApplied, {} });
+			}
+		}
+	}
+
+	void Scenarios::NoteAnimationAdvanced()
+	{
+		std::vector<Order> outgoing;
+		{
+			NamedLock lock{ _lock, "scenarios" };
+			if (!_running || _treeSteps == 0) {
+				return;
+			}
+
+			// The entry animation is step 0 and arrives as one of these too, so the
+			// count is of steps TAKEN and the first call leaves us on stage 0.
+			const auto step = _stepsSeen;
+			if (_stepsSeen < _treeSteps) {
+				++_stepsSeen;
+			}
+
+			// Spread the scenario's stages over the tree's steps. A 5-stage scenario
+			// on a 6-step tree gives the opening stage the extra one:
+			//   step 0,1 -> prelude   2 -> oral   3 -> main   4 -> build   5 -> finish
+			const auto count = static_cast<std::uint32_t>(_running->stages.size());
+			const auto want = static_cast<std::size_t>(
+				std::min<std::uint64_t>(count - 1, static_cast<std::uint64_t>(step) * count / _treeSteps));
+
+			logger::info(
+				"scenario \"{}\": AAF took tree step {} of {} - stage {} of {}",
+				_running->id, step + 1, _treeSteps, want + 1, count);
+
+			if (want > _stage || _stage >= _running->stages.size()) {
+				EnterStage(want, outgoing);
+			}
+
+			// Immediately, on this same call. The act was updated a line before this
+			// one in the native, so by the time we are here _liveAct is already the
+			// animation AAF has just moved to -- including its climax tag. Waiting
+			// for the next poll would put the face up to three seconds behind the
+			// orgasm it is meant to land on.
+			const auto at = std::min<std::size_t>(_stage, _running->stages.size() - 1);
+			ResolveFaceLocked(_running->stages[at].intensity, _running->stages[at].id, outgoing);
+		}
+		PapyrusLink::GetSingleton().QueueOrders(outgoing);
 	}
 
 	void Scenarios::NoteSceneRefused()
@@ -743,24 +810,12 @@ namespace RP
 			//
 			// Cheap: a tag split and a few comparisons, and it only queues an order
 			// when the answer actually changed.
-			const auto act = Expressions::GetSingleton().LiveAct();
-			if (const auto want = Expressions::FaceForAct(act, intensity); !want.empty()) {
-				if (want != _faceApplied) {
-					logger::info(
-						"scenario \"{}\": stage \"{}\" is at intensity {} and AAF is playing [{}] - "
-						"face {}",
-						_running->id, stageID, intensity, act, want);
-					_faceApplied.assign(want);
-					for (const auto formID : { _first, _second }) {
-						if (formID != 0) {
-							outgoing.push_back(
-								Order{ Order::Kind::kApplyExpression, formID, _faceApplied, {} });
-						}
-					}
-				}
-			}
+			ResolveFaceLocked(intensity, stageID, outgoing);
 
-			if (!past) {
+			// Only when nothing is stepping. A scene on a tree advances on AAF's
+			// steps, which is exact; running the clock as well would race it and
+			// win sometimes, putting the story ahead of the animation again.
+			if (!past && _treeSteps == 0) {
 				const auto elapsed = std::chrono::duration<float>{
 					std::chrono::steady_clock::now() - _stageStartedAt
 				}.count();
@@ -794,5 +849,7 @@ namespace RP
 		_chosenPosition.clear();
 		_chosenSeconds = 0.0f;
 		_faceApplied.clear();
+		_treeSteps = 0;
+		_stepsSeen = 0;
 	}
 }
