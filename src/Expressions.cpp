@@ -192,10 +192,26 @@ namespace RP
 		// A set an author wrote by hand in act-overrides.json, or any name that
 		// already carries a style, is used as given rather than having a second
 		// number stapled on.
-		if (a_setID.size() > 2 && a_setID[a_setID.size() - 2] == '_' &&
-			a_setID.back() >= '1' && a_setID.back() <= '9') {
-			return std::string{ a_setID };
-		}
+		// NO "already styled" GUARD. There used to be one -- if the id ended in
+		// _1.._9 it was returned unchanged, on the theory that it already carried
+		// a style. It cannot tell a style suffix from a BASE NAME THAT ENDS IN A
+		// DIGIT, and three of the eight base names do:
+		//
+		//     Rapport_Pleasure_1  ->  returned as-is  ->  no such mfgSet
+		//     Rapport_Pleasure_2  ->  returned as-is  ->  no such mfgSet
+		//     Rapport_Pleasure_3  ->  returned as-is  ->  no such mfgSet
+		//
+		// The generator emits Rapport_Pleasure_3_1/_2/_3 and nothing called plain
+		// Rapport_Pleasure_3, so AAF was asked for a set that does not exist and
+		// the three faces covering the whole MIDDLE of every scene silently never
+		// applied. Only Climax, Oral, Kiss, Anticipation and Dazed -- the five
+		// whose names do not end in a digit -- ever worked. Caught by reading
+		// "face: asked AAF for Rapport_Pleasure_3" in a live log and noticing it
+		// had no style suffix where Rapport_Climax_2 on the line above did.
+		//
+		// The guard was never needed: every caller passes a BASE id from
+		// FaceForAct, and the one id that must not be styled is Rapport_Clear,
+		// which is handled above by name.
 		return std::format("{}_{}", a_setID, (a_formID % kStyles) + 1);
 	}
 
