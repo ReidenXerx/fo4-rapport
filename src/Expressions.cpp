@@ -296,9 +296,23 @@ namespace RP
 		//
 		// The reverse order is not available: "penistomouth" contains "penisto", so
 		// checking penetration first would turn every blowjob into a pleasure face.
+		// NAME THE TARGET, never a fragment of it. "tomouth" was here to catch
+		// penistomouth (151) and anustomouth (1) -- and it also catches
+		// MOUTHTOMOUTH (27), which put an open-jawed blowjob face on a kissing
+		// animation. Observed live on a scene tagged
+		// SEUKissing, KISSING, MOUTHTOMOUTH, SFW.
+		//
+		// That is the SECOND time this exact shape has bitten: the special case
+		// that used to rescue MouthToMouth was deleted precisely because listing
+		// targets was supposed to make it fall out naturally -- and then the
+		// fragment that broke it was left in the list. A substring of a target is
+		// not a target. "tongueto" is narrowed for the same reason before it finds
+		// a tonguetomouth in some pack nobody here has installed.
 		if (any({ "blowjob"sv, "cunnilingus"sv, "analingus"sv, "fellatio"sv, "irrumatio"sv,
-				  "oral"sv, "tomouth"sv, "69"sv, "tongueto"sv, "rimjob"sv, "rimming"sv,
-				  "licking"sv, "mouthtovagina"sv, "mouthtopenis"sv, "mouthtoanus"sv })) {
+				  "oral"sv, "69"sv, "rimjob"sv, "rimming"sv, "licking"sv,
+				  "penistomouth"sv, "anustomouth"sv, "vaginatomouth"sv,
+				  "mouthtovagina"sv, "mouthtopenis"sv, "mouthtoanus"sv,
+				  "tonguetoanus"sv, "tonguetopenis"sv, "tonguetovagina"sv })) {
 			return "Rapport_Oral"sv;
 		}
 

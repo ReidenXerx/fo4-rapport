@@ -107,6 +107,12 @@ namespace RP
 		// only a scene ending does. So the honest response is to stop offering them
 		// for a while rather than to keep asking and keep being refused.
 		void NoteActorBusy(std::uint32_t a_formID);
+
+		// Is this actor on the busy bench, WITHOUT counting it as a skip.
+		// IsActorBusy increments the skip diagnostic, which is right when the
+		// scheduler passes somebody over and wrong when we are only asking who to
+		// blame for a failure that already happened.
+		[[nodiscard]] bool PeekActorBusy(std::uint32_t a_formID);
 		[[nodiscard]] bool IsActorBusy(std::uint32_t a_formID);
 
 		// The second doorbell, shared by overlays and expressions. Latched exactly

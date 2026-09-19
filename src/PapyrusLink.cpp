@@ -1145,6 +1145,13 @@ namespace RP
 		logger::info("{:08X} is flagged busy in AAF - passing over them for {:.0f}s", a_formID, seconds);
 	}
 
+	bool PapyrusLink::PeekActorBusy(std::uint32_t a_formID)
+	{
+		NamedLock lock{ _busyLock, "busy bench" };
+		const auto entry = _busyUntil.find(a_formID);
+		return entry != _busyUntil.end() && std::chrono::steady_clock::now() < entry->second;
+	}
+
 	bool PapyrusLink::IsActorBusy(std::uint32_t a_formID)
 	{
 		NamedLock lock{ _busyLock, "busy bench" };
@@ -1344,9 +1351,33 @@ namespace RP
 		// against a dead scene.
 		Scenarios::GetSingleton().End();
 
-		Ledger::GetSingleton().RecordRefusal(
-			static_cast<std::uint32_t>(_inFlightFirst),
-			static_cast<std::uint32_t>(_inFlightSecond));
+		// BLAME ONLY WHOEVER WAS ACTUALLY BUSY.
+		//
+		// RecordRefusal is what Chemistry reads, and it escalates: one refusal
+		// benches a pair for 2 game hours, two for 4, three for 6. Blaming both
+		// ends of the pair meant a stuck flag on ONE npc benched every partner he
+		// was ever offered with. Measured live: Johnny Friendly carried a stale
+		// AAF busy flag, and Melvin Koch -- who was merely standing next to him --
+		// was sat down for six game hours twice over for it.
+		//
+		// The busy bench was written a moment ago by NoteActorBusy and names the
+		// actual actor, so ask it rather than guess from the reason string. A zero
+		// is skipped by RecordRefusal, so this penalises one end or neither.
+		// When neither is benched the failure is about the request, not a person,
+		// and both are recorded as before.
+		const auto first = static_cast<std::uint32_t>(_inFlightFirst);
+		const auto second = static_cast<std::uint32_t>(_inFlightSecond);
+		const bool firstBusy = PeekActorBusy(first);
+		const bool secondBusy = PeekActorBusy(second);
+		if (firstBusy != secondBusy) {
+			logger::info(
+				"request {}: {:08X} was the busy one - {:08X} is not charged with this refusal",
+				a_request, firstBusy ? first : second, firstBusy ? second : first);
+			Ledger::GetSingleton().RecordRefusal(firstBusy ? first : 0u,
+				secondBusy ? second : 0u);
+		} else {
+			Ledger::GetSingleton().RecordRefusal(first, second);
+		}
 		Expressions::GetSingleton().OnSceneEnded();
 
 		ClearInFlight();
