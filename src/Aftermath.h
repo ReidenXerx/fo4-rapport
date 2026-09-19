@@ -20,16 +20,24 @@ namespace RP
 	class Aftermath
 	{
 	public:
-		// Where the cum comes from. Two mods do this job and they share nothing:
-		// CumOverlays paints a flat texture through LooksMenu, Commonwealth
-		// Moisturizer equips a BodySlide-conformed mesh and swaps headparts. The
-		// mesh looks far better and is the only one of the two that has a face at
-		// all, so it wins when both are present -- but a framework supports what
-		// is installed rather than requiring one particular mod.
+		// Where the cum comes from. ONE backend now: Commonwealth Moisturizer,
+		// which equips a BodySlide-conformed mesh and swaps headparts.
+		//
+		// CumOverlays was the other, painting a flat LooksMenu texture, and it is
+		// gone. Supporting two backends was the right instinct -- a framework
+		// supports what is installed -- and it did not survive contact: the mesh
+		// is the only one of the two that does a FACE at all, it is what every
+		// session here has actually run, and the overlay path was never once
+		// exercised end to end because "auto" prefers the mesh whenever both are
+		// present. A second path that cannot be tested is not support, it is a
+		// claim.
+		//
+		// kOverlay is deliberately NOT reused as a value. Old saves carry marks
+		// written by it, and the mark handling still tells them apart by setID
+		// prefix so they come off correctly.
 		enum class Backend
 		{
 			kNone,
-			kOverlay,
 			kMoisturizer
 		};
 

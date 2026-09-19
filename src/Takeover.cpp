@@ -73,15 +73,18 @@ namespace RP
 			const auto feature = entry.value("whileFeature", std::string{});
 
 			// An entry owned by a feature is only in force while that feature is.
-			// The two aftermath backends are mutually exclusive: whichever one
-			// Rapport is driving gets its listener stopped, and the other is left
-			// completely alone rather than silenced for no reason.
+			//
+			// "aftermath-overlay" is retained and always FALSE: CumOverlays is no
+			// longer a backend. Any takeover entry still asking for it is inert
+			// rather than a parse error, so an old config file does not break a
+			// load. CumOverlays' own entry is gated on "aftermath", not on this,
+			// so it is still silenced -- we do not drive it, and we also do not
+			// let it paint over the meshes.
 			const auto& aftermath = Aftermath::GetSingleton();
 			const auto  active =
 				feature.empty()                         ? true :
 				feature == "aftermath"                  ? aftermath.Enabled() :
-				feature == "aftermath-overlay"          ? aftermath.Enabled() &&
-				                                          aftermath.Which() == Aftermath::Backend::kOverlay :
+				feature == "aftermath-overlay"          ? false :
 				feature == "aftermath-moisturizer"      ? aftermath.Enabled() &&
 				                                          aftermath.Which() == Aftermath::Backend::kMoisturizer :
 				                                          true;

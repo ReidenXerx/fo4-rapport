@@ -47,8 +47,6 @@ namespace RP
 	std::string_view Aftermath::Name(Backend a_backend) noexcept
 	{
 		switch (a_backend) {
-		case Backend::kOverlay:
-			return "CumOverlays (overlay textures)"sv;
 		case Backend::kMoisturizer:
 			return "Commonwealth Moisturizer (worn meshes)"sv;
 		default:
@@ -141,24 +139,28 @@ namespace RP
 		const auto hasMoisturizer = installed("ComMoisturizer.esp"sv);
 		const auto hasOverlays = installed("CumOverlays.esp"sv);
 
+		// A config asking for the backend that no longer exists is answered rather
+		// than ignored. Silently doing something else is how a player spends an
+		// evening wondering why their setting does nothing.
 		if (a_wanted == "overlay") {
-			_backend = hasOverlays ? Backend::kOverlay : Backend::kNone;
-		} else if (a_wanted == "moisturizer") {
-			_backend = hasMoisturizer ? Backend::kMoisturizer : Backend::kNone;
-		} else {
-			// Moisturizer first when both are there: it is geometry rather than a
-			// flat texture, and it is the only one of the two that does faces.
-			_backend = hasMoisturizer ? Backend::kMoisturizer
-			         : hasOverlays    ? Backend::kOverlay
-			                          : Backend::kNone;
+			logger::warn(
+				"aftermath: \"backend\": \"overlay\" is no longer a thing - CumOverlays support "
+				"was removed. Commonwealth Moisturizer is the only backend; falling through to it");
 		}
+
+		_backend = hasMoisturizer ? Backend::kMoisturizer : Backend::kNone;
 
 		if (_backend == Backend::kNone) {
 			_enabled = false;
 			logger::warn(
-				"aftermath: neither ComMoisturizer.esp nor CumOverlays.esp is installed{} - "
-				"scenes will leave nothing behind, because there is no art to leave",
-				a_wanted == "auto" ? "" : " (and the one you asked for is the missing one)");
+				"aftermath: Commonwealth Moisturizer (ComMoisturizer.esp) is NOT INSTALLED, so "
+				"there is no aftermath backend and scenes will leave nothing behind.{} "
+				"Everything else -- scenes, faces, sweat, autonomy -- is unaffected.",
+				hasOverlays
+					? " CumOverlays is installed but is no longer driven: it paints a flat texture"
+					  " and cannot do a face, and the mesh path is the only one that was ever"
+					  " actually exercised."
+					: "");
 			return;
 		}
 
@@ -166,12 +168,11 @@ namespace RP
 		if (_backend == Backend::kMoisturizer) {
 			CheckMoisturizerMorphs();
 		}
-		if (hasMoisturizer && hasOverlays) {
+		if (hasOverlays) {
 			logger::info(
-				"aftermath: both aftermath mods are installed - Rapport drives {} and SILENCES both, "
-				"because a mod still listening to AAF goes on painting the same bodies on its own "
-				"schedule",
-				_backend == Backend::kMoisturizer ? "the meshes" : "the overlays");
+				"aftermath: CumOverlays is installed and is NOT driven any more, but it is still "
+				"SILENCED - a mod left listening to AAF goes on painting the same bodies on its "
+				"own schedule, and its flat textures would land on top of the meshes");
 		}
 	}
 
