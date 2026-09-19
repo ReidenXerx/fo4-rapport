@@ -235,14 +235,26 @@ namespace RP
 			return "Rapport_Oral"sv;
 		}
 
+		// "scissor" and "feetto" are here because a live f_f scene tagged
+		// SCISSOR, FEETTOVAGINA, STIM9 fell through every family and landed on a
+		// KISS face. "footto" was in this list; the pack spells it FEETto. That is
+		// the whole lesson again in one tag.
 		if (any({ "penisto"sv, "vaginal"sv, "anal"sv, "vaginato"sv, "anusto"sv, "strapon"sv,
-				  "dildo"sv, "handjob"sv, "handto"sv, "footto"sv, "fingering"sv, "titfuck"sv,
-				  "masturbat"sv, "spanking"sv })) {
+				  "dildo"sv, "handjob"sv, "handto"sv, "footto"sv, "feetto"sv, "fingering"sv,
+				  "titfuck"sv, "masturbat"sv, "spanking"sv, "scissor"sv, "tribb"sv, "grinding"sv,
+				  "doggy"sv })) {
 			return pleasure();
 		}
 
-		// Foreplay with no penetration yet.
-		if (any({ "kissing"sv, "mouthtomouth"sv, "foreplay"sv, "tease"sv, "grope"sv, "fondle"sv })) {
+		// Foreplay with no act named yet.
+		//
+		// "tease" was in this list and had to come OUT. It is a STAGE MODIFIER, not
+		// an act: the install pairs it with real ones -- "LOVE5, TEASE,
+		// PenisToVagina" is a BP70 entry animation. It only ever decided anything
+		// when nothing else matched, and then it decided wrongly, putting a kiss
+		// face on a scissoring scene at STIM9. A word that is right only when it is
+		// never reached is not a rule, it is a trap.
+		if (any({ "kissing"sv, "mouthtomouth"sv, "foreplay"sv, "grope"sv, "fondle"sv, "cuddle"sv })) {
 			return "Rapport_Kiss"sv;
 		}
 
