@@ -47,6 +47,33 @@ ID = {name: i for i, name in enumerate(MORPHS)}
 # Brows, eyelids and cheeks stay locked: they are what gives an expression its
 # shape, and nothing here drives them per frame the way the mouth is driven.
 # If a brow ever flickers, it joins this set rather than getting its own rule.
+# THE JAW IS NOT SET AT ALL in Rapport_Climax or Rapport_Oral, and that is a
+# SEPARATE fix from the unlocking below.
+#
+# Unlocking was the wrong lever twice. `lock` is AAF's own concept -- whether
+# another AAF MOD may override our morph -- and it is no defence at all against
+# the animation's own facial track. That fight exists at every intensity; it is
+# only VISIBLE when the gap is large, and the amplitude of the twitch is simply
+# |our value - the animation's|.
+#
+# The evidence is exact. Jaw Open reached 100 in precisely two sets, Climax and
+# Oral, and those are precisely the two faces the owner reported a slamming chin
+# on -- once each, on separate sessions, the second time after unlocking had
+# supposedly fixed it. Pleasure_3 sits at 85 and has never been reported; nothing
+# else exceeds 60.
+#
+# So the jaw is left out of both. Most sex animations animate the mouth
+# themselves, so an open mouth is expected to survive -- just the animator's
+# rather than ours -- and the brows, nose and eyes carry the expression, which is
+# the part of this table the owner singled out as working.
+#
+# UNKNOWN, and the game decides it: whether ApplyMFGSet REPLACES the morph
+# override or MERGES into it. If it merges, omitting Jaw Open leaves whatever the
+# previous set wrote -- Climax would inherit Pleasure_3's 85 rather than nothing.
+# Still better than 100, but not the same thing. Watch for a chin that is stuck
+# part-open rather than twitching.
+#
+# Pleasure_3's 85 is the next suspect if this is not enough.
 MOUTH = frozenset(
     ["Jaw Forward", "Jaw Open", "Left Jaw", "Right Jaw",
      "Lower Lip Funnel", "Upper Lip Funnel",
@@ -161,17 +188,18 @@ SETS = [
      True, 85),
 
     ("Rapport_Climax",
-     "The moment. Jaw wide, teeth showing, eyes screwed shut.",
-     [("Jaw Open", 100), ("Brow Squeeze", 60), ("Tongue To Roof", 60)]
+     "The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. "
+     "See the note on MOUTH below: the animation owns it.",
+     [("Brow Squeeze", 60), ("Tongue To Roof", 60)]
      + sym("Cheek Up", 100) + sym("Middle Brow Up", 100)
      + sym("Upper Eye Lid Down", 100) + sym("Lower Eye Lid Down", 85)
      + sym("Lower Lip Down", 60),
      True, 100),
 
     ("Rapport_Oral",
-     "Mouth working around something: funnelled lips, jaw forward and open. "
-     "Built on the same morphs Atomic Lust's own Blowjob set uses.",
-     [("Jaw Open", 100), ("Jaw Forward", 60), ("Lower Lip Funnel", 60),
+     "Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it "
+     "was the loudest part of this set and the animation does it better.",
+     [("Lower Lip Funnel", 60),
       ("Upper Lip Funnel", 60), ("Pucker", 40), ("Upper Lip Roll Out", 70),
       ("Lower Lip Roll Out", 50)]
      + sym("Upper Eye Lid Down", 50) + sym("Lower Eye Lid Down", 40),

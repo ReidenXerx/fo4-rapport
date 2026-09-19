@@ -304,9 +304,8 @@
 	<setting morphID="36" intensity="30" lock="true"/>  <!-- Right Middle Brow Down -->
 </mfgSet>
 
-<!-- The moment. Jaw wide, teeth showing, eyes screwed shut. -- lets go: open, lifted, soft -->
+<!-- The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. See the note on MOUTH below: the animation owns it. -- lets go: open, lifted, soft -->
 <mfgSet id="Rapport_Climax_1">
-	<setting morphID="2" intensity="100"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="60" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="60"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="100" lock="true"/>  <!-- Left Cheek Up -->
@@ -321,9 +320,8 @@
 	<setting morphID="34" intensity="60"/>  <!-- Right Lower Lip Down -->
 </mfgSet>
 
-<!-- The moment. Jaw wide, teeth showing, eyes screwed shut. -- grits: brows down and in, nose wrinkled, teeth bared, hard squint -->
+<!-- The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. See the note on MOUTH below: the animation owns it. -- grits: brows down and in, nose wrinkled, teeth bared, hard squint -->
 <mfgSet id="Rapport_Climax_2">
-	<setting morphID="2" intensity="100"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="80" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="60"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="100" lock="true"/>  <!-- Left Cheek Up -->
@@ -346,9 +344,8 @@
 	<setting morphID="33" intensity="60" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- The moment. Jaw wide, teeth showing, eyes screwed shut. -- holds it in: lip bitten, the face uneven, one brow up -->
+<!-- The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. See the note on MOUTH below: the animation owns it. -- holds it in: lip bitten, the face uneven, one brow up -->
 <mfgSet id="Rapport_Climax_3">
-	<setting morphID="2" intensity="100"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="60" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="60"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="100" lock="true"/>  <!-- Left Cheek Up -->
@@ -369,10 +366,8 @@
 	<setting morphID="36" intensity="35" lock="true"/>  <!-- Right Middle Brow Down -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips, jaw forward and open. Built on the same morphs Atomic Lust's own Blowjob set uses. -- lets go: open, lifted, soft -->
+<!-- Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it was the loudest part of this set and the animation does it better. -- lets go: open, lifted, soft -->
 <mfgSet id="Rapport_Oral_1">
-	<setting morphID="2" intensity="100"/>  <!-- Jaw Open -->
-	<setting morphID="1" intensity="60"/>  <!-- Jaw Forward -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60"/>  <!-- Upper Lip Funnel -->
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
@@ -384,10 +379,8 @@
 	<setting morphID="32" intensity="40" lock="true"/>  <!-- Right Lower Eye Lid Down -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips, jaw forward and open. Built on the same morphs Atomic Lust's own Blowjob set uses. -- grits: brows down and in, nose wrinkled, teeth bared, hard squint -->
+<!-- Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it was the loudest part of this set and the animation does it better. -- grits: brows down and in, nose wrinkled, teeth bared, hard squint -->
 <mfgSet id="Rapport_Oral_2">
-	<setting morphID="2" intensity="100"/>  <!-- Jaw Open -->
-	<setting morphID="1" intensity="60"/>  <!-- Jaw Forward -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60"/>  <!-- Upper Lip Funnel -->
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
@@ -408,10 +401,8 @@
 	<setting morphID="0" intensity="56" lock="true"/>  <!-- Brow Squeeze -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips, jaw forward and open. Built on the same morphs Atomic Lust's own Blowjob set uses. -- holds it in: lip bitten, the face uneven, one brow up -->
+<!-- Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it was the loudest part of this set and the animation does it better. -- holds it in: lip bitten, the face uneven, one brow up -->
 <mfgSet id="Rapport_Oral_3">
-	<setting morphID="2" intensity="100"/>  <!-- Jaw Open -->
-	<setting morphID="1" intensity="60"/>  <!-- Jaw Forward -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60"/>  <!-- Upper Lip Funnel -->
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
