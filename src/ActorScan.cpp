@@ -111,6 +111,22 @@ namespace RP
 					++_rejectedRaces[actor->race ? actor->race->GetFormID() : 0u];
 				} else if (actor->talkingToPlayer) {
 					++_counters.inDialogue;
+				} else if (actor->boolFlags.any(RE::Actor::BOOL_FLAGS::kInRandomScene)) {
+					// Two NPCs in the middle of an ambient conversation. talkingToPlayer
+					// does not cover this and reads 0 straight through one: it is about
+					// the PLAYER, and this is two other people talking to each other.
+					//
+					// Seen in game 2026-09-20 -- the two Goodneighbor Neighborhood Watch
+					// actors were paired off partway through their scripted exchange
+					// about the dead synth, and the tick line said "dialogue 0" while it
+					// happened, because by that filter's definition it was true.
+					//
+					// kInRandomScene rather than GetCurrentScene(), deliberately. This
+					// catches the ambient chatter and leaves authored story scenes to
+					// IsQuestDriven below; the broader check would also drop everybody
+					// standing in a quest scene, and in Goodneighbor and Diamond City
+					// that is most of the street.
+					++_counters.inRandomScene;
 				} else if (IsQuestDriven(*actor)) {
 					++_counters.questDriven;
 				} else {

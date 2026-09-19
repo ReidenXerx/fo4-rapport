@@ -14,7 +14,8 @@ namespace RP
 		std::uint32_t inCombat{ 0 };
 		std::uint32_t outOfRange{ 0 };
 		std::uint32_t raceNotAllowed{ 0 };   // race is not on the allow-list
-		std::uint32_t inDialogue{ 0 };
+		std::uint32_t inDialogue{ 0 };       // talking to the PLAYER, and only that
+		std::uint32_t inRandomScene{ 0 };    // mid ambient NPC-to-NPC conversation
 		std::uint32_t questDriven{ 0 };      // a quest alias is running packages on them
 		std::uint32_t candidates{ 0 };
 	};

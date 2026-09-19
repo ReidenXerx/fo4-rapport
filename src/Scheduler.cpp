@@ -133,10 +133,11 @@ namespace RP
 
 		logger::info(
 			"tick {}: {} actors -> {} candidates in {} slice(s), {:.3f} ms total, worst slice {:.3f} ms "
-			"(stale {}, unloaded {}, child {}, dead {}, combat {}, out of range {}, race {}, dialogue {}, quest {})",
+			"(stale {}, unloaded {}, child {}, dead {}, combat {}, out of range {}, race {}, dialogue {}, chatting {}, quest {})",
 			_ticks, _scan.Size(), counters.candidates, _scan.Slices(), _passMs, _worstSliceMs,
 			counters.stale, counters.notLoaded, counters.child, counters.dead, counters.inCombat,
-			counters.outOfRange, counters.raceNotAllowed, counters.inDialogue, counters.questDriven);
+			counters.outOfRange, counters.raceNotAllowed, counters.inDialogue, counters.inRandomScene,
+			counters.questDriven);
 
 		if (Config::GetSingleton().verbose && !_scan.RejectedRaces().empty()) {
 			std::vector<std::pair<std::uint32_t, std::uint32_t>> byCount{
