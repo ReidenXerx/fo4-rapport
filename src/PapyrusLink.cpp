@@ -567,6 +567,18 @@ namespace
 	// that named tags would be choosing from a catalogue it cannot see, and every
 	// install has a different one.
 
+	// Is a scene of ours already running or starting?
+	//
+	// So an addon can stop before doing work it cannot use. RequestScene already
+	// declines while busy, but by then the addon has read every candidate, scored
+	// them, and printed a decision -- observed four polls running, each one a full
+	// twenty-row evaluation thrown away. A scene lasts minutes and a poll is
+	// seconds, so that is most of what an addon does while one plays.
+	bool Papyrus_Busy(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().Busy();
+	}
+
 	bool Papyrus_RequestScene(
 		std::monostate, RE::Actor* a_first, RE::Actor* a_second, RE::BSFixedString a_scenario)
 	{
@@ -699,6 +711,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "GetNeed"sv, Papyrus_GetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SetNeed"sv, Papyrus_SetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverDecisions"sv, Papyrus_TakeOverDecisions, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "Busy"sv, Papyrus_Busy, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 

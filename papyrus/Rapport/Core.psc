@@ -355,6 +355,12 @@ Function TakeOverDecisions(String asWho) Global Native
 ;   "athome"   five stages, unhurried, ends in a climax
 ;   "tender"   three stages, slow, ends in a climax
 
+; True while a scene of ours is running or starting. Check it FIRST and skip the
+; whole pass: RequestScene declines while busy anyway, but by then you have read
+; every candidate, scored them and printed a decision you cannot use. A scene lasts
+; minutes and a poll lasts seconds.
+Bool Function Busy() Global Native
+
 ; Ask FIRST, before you walk two actors anywhere. Bigger is better:
 ;   -1  no scenario by that name -- the only answer that means "do not ask"
 ;    0  the scenario wanted a tree and nothing here fits this pair
