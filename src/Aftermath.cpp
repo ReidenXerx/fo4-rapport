@@ -437,41 +437,45 @@ namespace RP
 		}
 		const auto expires = now + _hours;
 
-		if (_backend == Backend::kMoisturizer) {
-			// One mark per actor, not one per set: Moisturizer puts everything on
-			// in a single call and takes it all off in a single call, so a mark
-			// per set would queue one removal too many and the extra would strip
-			// what a later scene had just applied.
-			const auto regions = RegionsFor(sets);
-			if (regions.empty()) {
-				logger::info(
-					"aftermath: the sets for this scene name no place Moisturizer knows (tags: {})",
-					tags);
-				return;
-			}
-			for (const auto formID : receivers) {
-				Apply(formID, "CMkz:" + regions, expires);
-			}
+		// One mark per actor, not one per set: Moisturizer puts everything on in a
+		// single call and takes it all off in a single call, so a mark per set
+		// would queue one removal too many and the extra would strip what a later
+		// scene had just applied.
+		const auto regions = RegionsFor(sets);
+		if (regions.empty()) {
 			logger::info(
-				"aftermath: {} keep(s) Moisturizer [{}] until hour {:.1f} (now {:.1f}){}",
-				who, regions, expires, now, because);
+				"aftermath: the sets for this scene name no place Moisturizer knows (tags: {})",
+				tags);
 			return;
 		}
+		for (const auto formID : receivers) {
+			Apply(formID, "CMkz:" + regions, expires);
+		}
+		logger::info(
+			"aftermath: {} keep(s) Moisturizer [{}] until hour {:.1f} (now {:.1f}){}",
+			who, regions, expires, now, because);
 
-		std::string named;
-		for (const auto& set : sets) {
-			if (!named.empty()) {
-				named += ", ";
-			}
-			named += set;
-			for (const auto formID : receivers) {
-				Apply(formID, set, expires);
+		// ASK NOW, not on the next scheduler tick.
+		//
+		// Tick is driven by the scheduler, which runs every 20 seconds, so
+		// aftermath arrived anywhere from 5 to 18 seconds after the scene it
+		// belongs to -- measured across a live session. That is long enough to
+		// read as unrelated to what just happened, which is the whole point of it.
+		//
+		// The wait bought nothing. Tick's only extra condition is that the owner
+		// is loaded, and the two people who have just finished a scene in front of
+		// the player are the most certainly-present actors in the game. Anything
+		// restored from a save still goes through Tick, where that check does earn
+		// its keep.
+		for (const auto formID : receivers) {
+			for (auto& mark : _marks) {
+				if (mark.formID == formID && !mark.asked) {
+					PapyrusLink::GetSingleton().QueueOrder(
+						Order{ Order::Kind::kApplyMoisturizer, mark.formID, mark.setID });
+					mark.asked = true;
+				}
 			}
 		}
-
-		logger::info(
-			"aftermath: {} keep(s) [{}] until hour {:.1f} (now {:.1f}){}",
-			who, named, expires, now, because);
 	}
 
 	void Aftermath::Apply(std::uint32_t a_formID, const std::string& a_setID, float a_expiresAt)
