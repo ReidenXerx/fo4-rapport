@@ -486,8 +486,81 @@ namespace RP
 		return _overrides.size();
 	}
 
+	int Expressions::HeatLevelFor(std::string_view a_faceSetID)
+	{
+		// Matched on the BASE set id, before VariantFor appends a style number --
+		// which is what both callers pass.
+		if (a_faceSetID == "Rapport_Climax"sv || a_faceSetID == "Rapport_Pleasure_3"sv) {
+			return 3;
+		}
+		if (a_faceSetID == "Rapport_Pleasure_2"sv || a_faceSetID == "Rapport_Oral"sv) {
+			return 2;
+		}
+		if (a_faceSetID == "Rapport_Pleasure_1"sv) {
+			return 1;
+		}
+		// Nothing has happened yet. A flush before the first touch is the tell
+		// that this is a timer and not a reaction.
+		if (a_faceSetID == "Rapport_Anticipation"sv || a_faceSetID == "Rapport_Kiss"sv ||
+			a_faceSetID == "Rapport_Clear"sv) {
+			return 0;
+		}
+		// Rapport_Dazed and anything unrecognised: leave the skin alone. Sweat
+		// does not evaporate the moment a scene ends, and an unknown set is not a
+		// reason to strip somebody.
+		return -1;
+	}
+
+	std::string Expressions::HeatSetFor(int a_level)
+	{
+		if (a_level <= 0 || a_level > kHeatLevels) {
+			return {};
+		}
+		return std::format("Rapport_Heat_{}", a_level);
+	}
+
+	void Expressions::CollectHeat(std::string_view a_faceSetID, std::uint32_t a_first,
+		std::uint32_t a_second, std::vector<Order>& a_out)
+	{
+		NamedLock lock{ _lock, "expressions" };
+
+		const int   level = HeatLevelFor(a_faceSetID);
+		std::string heat  = HeatSetFor(level);
+		if (level < 0 || heat == _heatApplied) {
+			return;
+		}
+
+		for (const auto formID : { a_first, a_second }) {
+			if (formID == 0) {
+				continue;
+			}
+			if (!_heatApplied.empty()) {
+				a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, _heatApplied });
+			}
+			if (!heat.empty()) {
+				a_out.push_back(Order{ Order::Kind::kApplyOverlay, formID, heat });
+			}
+			// Registered here as well as in Collect. Without this a scenario that
+			// ended badly -- before OnSceneEnded ran its Dazed pass, which is the
+			// only other thing that adds them -- leaves two actors wearing an
+			// overlay that nothing on the clear list will ever take off.
+			if (std::ranges::find(_wearing, formID) == _wearing.end()) {
+				_wearing.push_back(formID);
+			}
+		}
+
+		logger::info("expressions: skin {} -> {} (scenario)",
+			_heatApplied.empty() ? "(none)" : _heatApplied.c_str(),
+			heat.empty() ? "(none)" : heat.c_str());
+		_heatApplied = std::move(heat);
+	}
+
 	void Expressions::Collect(std::string_view a_setID, std::vector<Order>& a_out)
 	{
+		const int   level = HeatLevelFor(a_setID);
+		std::string heat  = HeatSetFor(level);
+		const bool  shift = level >= 0 && heat != _heatApplied;
+
 		for (const auto formID : { _first, _second }) {
 			if (formID == 0) {
 				continue;
@@ -495,9 +568,29 @@ namespace RP
 			a_out.push_back(
 				Order{ Order::Kind::kApplyExpression, formID, VariantFor(a_setID, formID) });
 
+			if (shift) {
+				// Off before on. AAF has no notion of replacing an overlay set --
+				// applying a second one leaves both, and the sets differ only in
+				// how heavy they are, so the result is the sum of every level the
+				// scene passed through rather than the one it is at.
+				if (!_heatApplied.empty()) {
+					a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, _heatApplied });
+				}
+				if (!heat.empty()) {
+					a_out.push_back(Order{ Order::Kind::kApplyOverlay, formID, heat });
+				}
+			}
+
 			if (std::ranges::find(_wearing, formID) == _wearing.end()) {
 				_wearing.push_back(formID);
 			}
+		}
+
+		if (shift) {
+			logger::info("expressions: skin {} -> {}",
+				_heatApplied.empty() ? "(none)" : _heatApplied.c_str(),
+				heat.empty() ? "(none)" : heat.c_str());
+			_heatApplied = std::move(heat);
 		}
 	}
 
@@ -580,7 +673,17 @@ namespace RP
 		}
 		for (const auto formID : _wearing) {
 			a_out.push_back(Order{ Order::Kind::kClearExpression, formID, _clearSet });
+			// EVERY level, not just the one we think is on. After a save and a
+			// reload _heatApplied is empty while the overlay is still on the
+			// actor, and an overlay nothing removes is on them for good -- the
+			// exact failure the sets were written without a duration to avoid.
+			// Removing a set that was never applied costs an order and does
+			// nothing.
+			for (int level = 1; level <= kHeatLevels; ++level) {
+				a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, HeatSetFor(level) });
+			}
 		}
+		_heatApplied.clear();
 		logger::info("expressions: clearing {} face(s) - {}", _wearing.size(), a_why);
 		_wearing.clear();
 	}

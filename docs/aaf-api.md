@@ -176,6 +176,12 @@ Coverage of those 57 templates: Anal, Back, Belly x5, Body, Breast x5, Butt x4, 
 Vaginal x2, with male-body and mutant variants. **There is no face or mouth template among them**,
 so anything aimed at the face needs a pack that provides one.
 
+Commonwealth Moisturizer is that pack, and it gets there by not being an overlay at all: its cum is
+equipped geometry with headpart swaps, which is why it can put something on a face when a slot-3
+skin overlay cannot. Measured across all 16 overlay packs on the development machine -- 959
+templates -- 925 paint biped slot 3 and 34 paint slot 4. **Zero paint the head.** So this is a
+property of the overlay layer generally, not of CumOverlays in particular.
+
 ## The stat layer is empty, and that matters
 
 AAF's schema (`Data/AAF/common.xsd`) supports `relationshipStat` with `isPersistent`, `decayRate`,

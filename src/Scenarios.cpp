@@ -731,6 +731,12 @@ namespace RP
 					Expressions::VariantFor(_faceApplied, formID), {} });
 			}
 		}
+
+		// Sweat and a flush follow the face, so they inherit the climax ratchet
+		// above for free: the level cannot fall back after an orgasm any more than
+		// the expression can. Expressions owns which set is on, because it is also
+		// what takes it off -- here and in CollectClear, one owner.
+		Expressions::GetSingleton().CollectHeat(_faceApplied, _first, _second, a_out);
 	}
 
 	void Scenarios::NoteAnimationAdvanced()

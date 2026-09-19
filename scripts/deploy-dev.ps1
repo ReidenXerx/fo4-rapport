@@ -57,6 +57,29 @@ if (Test-Path $aafOverlay) {
     Copy-Item (Join-Path $aafOverlay '*.xml') $aafTarget -Force
 }
 
+# The overlay assets: the LooksMenu templates, their materials and the textures
+# themselves. These are the only art Rapport ships, and they are GENERATED --
+# run tools/make_overlays.py, not an image editor.
+#
+# Copied as whole trees rather than by extension like the AAF files above,
+# because a .dds under Textures and a .bgem under Materials have to keep their
+# folder structure: the material names the texture by path and the template
+# names the material by path, so a flattened copy resolves to nothing and fails
+# silently as an actor with no overlay on them.
+foreach ($tree in @(
+    @{ From = 'data\F4SE\Plugins\F4EE'; To = 'F4SE\Plugins\F4EE' },
+    @{ From = 'data\Materials';           To = 'Materials' },
+    @{ From = 'data\Textures';            To = 'Textures' })) {
+    $src = Join-Path $root $tree.From
+    if (Test-Path $src) {
+        $dst = Join-Path $Staging $tree.To
+        New-Item -ItemType Directory -Force -Path $dst | Out-Null
+        Copy-Item (Join-Path $src '*') $dst -Recurse -Force
+    } else {
+        Write-Host "  WARNING: no $($tree.From) - run tools/make_overlays.py (sweat and flush will be missing)"
+    }
+}
+
 $esp = Join-Path $root 'build\esp\Rapport.esp'
 
 # The optional Moisturizer plugin. It is a separate esp for one reason: the
@@ -85,6 +108,9 @@ if (Test-Path $pex) {
 foreach ($path in (Join-Path $plugins 'Rapport.dll'),
                   (Join-Path $Staging 'Rapport.esp'),
                   (Join-Path $Staging 'Scripts\Rapport\Bridge.pex'),
+                  (Join-Path $Staging 'F4SE\Plugins\F4EE\Overlays\Rapport\overlays.json'),
+                  (Join-Path $Staging 'Materials\Overlays\Rapport\Rapport_Sweat_2.bgem'),
+                  (Join-Path $Staging 'Textures\Overlays\Rapport\Rapport_Sweat_2.dds'),
                   (Join-Path 'D:\GOGGames\Fallout 4 GOTY\Data\F4SE\Plugins' 'Rapport.dll')) {
     if (Test-Path $path) {
         $item = Get-Item $path

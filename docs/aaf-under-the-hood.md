@@ -294,3 +294,56 @@ never identify what to put back.
 **`ApplyEquipmentSet` ends in `ui.Invoke`** via `AAF_API.sendEvent`, so it kills the calling
 stack like every other AAF call: one actor per `CallFunctionNoWait`, or the second is never
 reached. Confirmed in game -- both trace lines appeared, 33ms apart.
+
+## 21. AAF can apply an overlay but cannot tint one, and nothing on disk paints a face
+
+Asked for sweat and a blush during a scene, the first instinct is to drive somebody else's
+overlays the way `Rapport_overlayData.xml` already drives CumOverlays'. Two measurements kill
+that.
+
+**The overlay vocabulary.** `Data/AAF/common.xsd`, `overlayType`:
+
+```
+<xs:complexType name="overlayType">
+    <xs:attribute type="xs:byte" name="alpha"/>
+```
+
+`template`, `alpha`, `isFemale`. That is all of it. AAF applies a texture somebody else authored
+at an opacity; it has no colour, no tint, no blend parameter. Whatever the overlay is meant to
+look like has to already be in the `.dds`.
+
+**The census.** Across all 16 overlay packs installed on the development machine, 959 templates:
+
+| | |
+| --- | --- |
+| biped slot 3 (body) | 925 |
+| biped slot 4 (left hand) | 34 |
+| **head** | **0** |
+| matching `sweat` / `blush` / `perspir` | **0** |
+
+No F4EE skin-override data is installed either -- `F4SE/Plugins/F4EE/` holds only `Overlays`,
+`Presets` and `Sliders`. So there was nothing to drive and no way to recolour what exists, which
+is why `tools/make_overlays.py` exists and why these are the only assets Rapport ships.
+
+Two things follow that are worth writing down.
+
+**`quantity` PICKS.** An `overlayGroup` with two templates in it applies *one of them*. A set that
+must apply both a body texture and a face texture needs two groups of one, not one group of two.
+`condition` is mandatory (`minOccurs="1"`); `overlayGroup` is unbounded.
+
+**Slot 0 is unproven.** Since not one installed template targets the head, nothing here
+demonstrates that F4EE applies a head overlay at all. Rapport's blush is written as an experiment
+on that question, and the sweat does not depend on the answer.
+
+### The BGEM, since one had to be written
+
+A Bethesda effect-material is a 63-byte header, a length-prefixed NUL-terminated texture path, a
+10-byte gap, a second path, and a 52-byte tail. **The length counts the NUL** -- a 29-character
+path is written as 30.
+
+The check that matters is not that the file parses. A first attempt rebuilt the header field by
+field from a reading of the format and produced 65 bytes where the working file has 63; because a
+BGEM is parsed positionally, those two bytes shift every field after them. It still passed a
+"round-trip test" that scanned the result for plausible strings, which is a test that cannot fail.
+The honest test is to rebuild a material the engine already loads and compare bytes -- see
+`tools/make_overlays.py`, which does exactly that.

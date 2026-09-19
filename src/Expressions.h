@@ -92,6 +92,27 @@ namespace RP
 		[[nodiscard]] static std::string_view FaceForAct(
 			std::string_view a_actTags, std::string_view a_position, int a_intensity);
 
+		// How wet and how flushed, from the face that was chosen. Sweat follows
+		// the expression rather than the clock for the same reason the face does:
+		// AAF's tree steps are what actually advance a scene, and a body that is
+		// dripping while the face is still anticipating reads as two mods.
+		//
+		// Returns -1 to LEAVE whatever is on -- which is what the afterglow wants,
+		// since a flush outlasts the act that caused it -- 0 for none, else 1..3.
+		[[nodiscard]] static int HeatLevelFor(std::string_view a_faceSetID);
+
+		// "" for level <= 0, else the overlaySet id in Rapport_overlayData.xml.
+		[[nodiscard]] static std::string HeatSetFor(int a_level);
+
+		// For the SCENARIO path, which pushes its own expression orders and never
+		// goes through Collect. Takes this subsystem's lock, so it is called from
+		// Scenarios exactly as LiveAct already is -- scenarios then expressions,
+		// never the reverse, which is what keeps that ordering a rule rather than
+		// a coincidence.
+		void CollectHeat(std::string_view a_faceSetID, std::uint32_t a_first,
+			std::uint32_t a_second, std::vector<Order>& a_out);
+		static constexpr int kHeatLevels = 3;
+
 		// What AAF is playing, by name. Empty until an animation has been reported.
 		[[nodiscard]] std::string LivePosition() const;
 
@@ -189,6 +210,11 @@ namespace RP
 		std::size_t   _nextStep{ 0 };
 		std::string   _tags;
 		bool          _sawSexTag{ false };
+
+		// The heat set currently on both actors, "" for none. Only ever one at a
+		// time: AAF stacks what it is given, so a level change must take the old one
+		// off before putting the new one on.
+		std::string _heatApplied;
 
 		std::vector<std::uint32_t> _wearing;
 	};

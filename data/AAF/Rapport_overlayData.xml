@@ -141,3 +141,89 @@
 		</overlayGroup>
 	</condition>
 </overlaySet>
+
+<!--
+	HEAT -- sweat and a flush, DURING a scene rather than after it.
+
+	The only sets here whose textures Rapport ships. Every other set on this page
+	drives CumOverlays' assets; these had nothing to drive. Measured across all 16
+	overlay packs installed on the development machine: 959 templates, of which 925
+	paint biped slot 3, 34 paint slot 4, and NONE paints the head or matches sweat
+	or blush by any spelling. AAF cannot make up the difference either -- its
+	overlay vocabulary is template/alpha/isFemale (common.xsd, overlayType), so it
+	applies a texture at an opacity and cannot tint one. See tools/make_overlays.py.
+
+	TWO GROUPS, not one group of two. `quantity` PICKS from a group, so a single
+	group holding both templates would apply one of them at random -- sweat or
+	blush, never both. A group of one each is what makes both certain.
+
+	The body and the face are separate biped slots (3 and 0), which is why one set
+	can carry both without either fighting the other.
+
+	No duration, for the same reason as every set above: AAF's removal timer is an
+	in-session one that a save, a reload or a crash mid-count all lose, and an
+	overlay stranded that way never comes off. Rapport owns removal instead --
+	Expressions::CollectClear, off the same _wearing list that guarantees a face
+	comes off, which is persisted into the save.
+
+	SLOT 0 IS UNPROVEN. Not one of those 959 templates targets the head, so nothing
+	on this machine demonstrates that F4EE applies a head overlay at all. If the
+	blush silently does nothing, that is the finding, and the sweat is unaffected.
+-->
+
+<overlaySet id="Rapport_Heat_1">
+	<condition isFemale="true">
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Sweat_1" alpha="100" isFemale="true"/>
+		</overlayGroup>
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Blush_1" alpha="100" isFemale="true"/>
+		</overlayGroup>
+	</condition>
+	<condition isFemale="false">
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Sweat_1" alpha="100" isFemale="false"/>
+		</overlayGroup>
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Blush_1" alpha="100" isFemale="false"/>
+		</overlayGroup>
+	</condition>
+</overlaySet>
+
+<overlaySet id="Rapport_Heat_2">
+	<condition isFemale="true">
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Sweat_2" alpha="100" isFemale="true"/>
+		</overlayGroup>
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Blush_2" alpha="100" isFemale="true"/>
+		</overlayGroup>
+	</condition>
+	<condition isFemale="false">
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Sweat_2" alpha="100" isFemale="false"/>
+		</overlayGroup>
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Blush_2" alpha="100" isFemale="false"/>
+		</overlayGroup>
+	</condition>
+</overlaySet>
+
+<overlaySet id="Rapport_Heat_3">
+	<condition isFemale="true">
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Sweat_3" alpha="100" isFemale="true"/>
+		</overlayGroup>
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Blush_3" alpha="100" isFemale="true"/>
+		</overlayGroup>
+	</condition>
+	<condition isFemale="false">
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Sweat_3" alpha="100" isFemale="false"/>
+		</overlayGroup>
+		<overlayGroup quantity="1">
+			<overlay template="Rapport_Blush_3" alpha="100" isFemale="false"/>
+		</overlayGroup>
+	</condition>
+</overlaySet>

@@ -88,7 +88,11 @@ the sets a scene called for; the female and male conditions route the templates 
 giver and a receiver are treated alike. AAF knows the roles — `GetActorData` and the position's own
 role list — and reading them is the obvious next refinement.
 
-**Faces.** There is no face template in CumOverlays' 57. `Rapport_Oral` therefore lands on the chest.
+**Faces.** There is no face template in CumOverlays' 57, so on that backend `Rapport_Oral` lands on
+the chest. This is the single biggest reason the Moisturizer backend exists and is preferred when
+both mods are installed: its cum is worn geometry rather than a skin texture, so it *does* faces --
+ten morph stages conformed to any head by TRI. The `O` region in `aftermath.json` is that face.
+See `docs/moisturizer.md`. The limitation is CumOverlays', not Rapport's.
 
 **Climax.** `requireClimax` exists and defaults to off, because many packs never tag `Climax` at all
 and an honest default cannot assume they do.
