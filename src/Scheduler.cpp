@@ -296,6 +296,10 @@ namespace RP
 				if (_ticks % 10 == 0) {
 					logger::info("   an addon owns the decision; the stand-in is standing down");
 				}
+			} else if (link.AutonomyPaused()) {
+				if (_ticks % 10 == 0) {
+					logger::info("   autonomy is PAUSED - nothing will be started until it is resumed");
+				}
 			} else if (!settings.dryRun && !ranked.empty() &&
 					   ranked.front().score >= weights.minimumScore) {
 				if (link.Busy()) {

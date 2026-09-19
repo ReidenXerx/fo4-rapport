@@ -746,6 +746,21 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	; unloaded is the whole reason to send one -- so every guard below, all of
 	; which exist to keep AAF calls away from absent actors, would refuse exactly
 	; the case these are for.
+	If aiKind == 18
+		; setID is the pitch, extra is the yaw, both in degrees and both already
+		; worked out by the plugin -- it has the positions and real trigonometry.
+		;
+		; TWO FIELDS, not one comma-separated string: splitting that string needs
+		; StringUtil, which is SKSE and does not exist in Fallout 4. An Order
+		; already carries two strings, so there was never a reason to pack them.
+		;
+		; SetAngle takes (pitch, roll, yaw). Roll stays 0 -- a rolled camera is a
+		; bug, never a request.
+		Game.GetPlayer().SetAngle(asSetID as Float, 0.0, asExtra as Float)
+		Rapport:Core.Trace("look: pitch " + asSetID + " yaw " + asExtra)
+		Return
+	EndIf
+
 	If aiKind == 16 || aiKind == 17
 		Actor who = Game.GetForm(aiFormID) as Actor
 		If who == None
@@ -753,8 +768,12 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 			Return
 		EndIf
 		If aiKind == 16
-			Game.GetPlayer().MoveTo(who, 0.0, 0.0, 0.0, True)
-			Rapport:Core.Trace("move: put the player next to " + Rapport:Core.FormIdText(aiFormID))
+			; setID and extra are an optional X/Y offset in world units. Empty
+			; means zero, which is "land on top of them" -- fine for reaching
+			; somebody, useless for LOOKING at them, which is what the offset is
+			; for: you cannot see a face from inside it.
+			Game.GetPlayer().MoveTo(who, asSetID as Float, asExtra as Float, 0.0, False)
+			Rapport:Core.Trace("move: put the player next to " + Rapport:Core.FormIdText(aiFormID) 				+ " (offset " + asSetID + "," + asExtra + ")")
 		Else
 			who.MoveTo(Game.GetPlayer(), 0.0, 0.0, 0.0, True)
 			Rapport:Core.Trace("move: brought " + Rapport:Core.FormIdText(aiFormID) + " to the player")

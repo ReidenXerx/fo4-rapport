@@ -28,6 +28,12 @@ namespace RP
 		[[nodiscard]] bool Ready() const noexcept { return _bridgeReady.load(); }
 		[[nodiscard]] bool Busy() const noexcept { return _sceneInFlight.load(); }
 
+		// Autonomy held off, so a hand-made request can actually get the slot.
+		// Chemistry re-fills it within seconds of a scene ending, which makes a
+		// deliberate test lose a race it never knew it was in.
+		void SetAutonomyPaused(bool a_paused) noexcept { _autonomyPaused.store(a_paused); }
+		[[nodiscard]] bool AutonomyPaused() const noexcept { return _autonomyPaused.load(); }
+
 		// Leaves a request for the bridge to collect. False when one is already
 		// outstanding or the bridge is not listening.
 		// a_scenario is the addon's choice of story, or empty for a single
@@ -276,6 +282,7 @@ namespace RP
 
 		std::atomic_bool          _bridgeReady{ false };
 		std::atomic_bool          _sceneInFlight{ false };
+		std::atomic_bool          _autonomyPaused{ false };
 		std::atomic<std::int32_t> _nextRequest{ 1 };
 		std::chrono::steady_clock::time_point _requestedAt{};
 

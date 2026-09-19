@@ -94,7 +94,13 @@ namespace RP
 			// not an AAF call, so it cannot wedge the stack the way the guard
 			// exists to prevent.
 			kMovePlayerTo = 16,   // put the player next to this actor
-			kMoveHere = 17        // put this actor next to the player
+			kMoveHere = 17,       // put this actor next to the player
+
+			// Point the player's camera. setID carries "pitch,yaw" in degrees,
+			// already worked out on the C++ side -- it has the positions and real
+			// trigonometry, and Papyrus has SetAngle. Splitting it that way keeps
+			// the arithmetic somewhere it can be read.
+			kLookAt = 18
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

@@ -2,6 +2,8 @@
 
 #include "Config.h"
 #include "Orders.h"
+
+#include <cmath>
 #include "PapyrusLink.h"
 #include "Scenarios.h"
 
@@ -102,9 +104,32 @@ namespace RP
 		while (_running.load()) {
 			std::error_code ec;
 			if (std::filesystem::exists(_inbox, ec) && !ec) {
+				// RENAME FIRST, then read the renamed file.
+				//
+				// The first version read the inbox and then deleted it, and
+				// anything a writer appended BETWEEN those two steps was deleted
+				// unread. That is not theoretical -- it silently ate the first
+				// teleport command sent at it, and the failure looked exactly like
+				// the command having never been sent, which is the shape of bug
+				// this whole evening has been about.
+				//
+				// A rename is atomic within a volume, so a writer appending a
+				// moment later creates a fresh Rapport.cmd and loses nothing. It
+				// also keeps the property the delete was there for: whatever is
+				// about to run is already out of the inbox, so a command that takes
+				// the game down is not re-run on the next launch.
+				auto taken = _inbox;
+				taken += ".taken";
+				std::filesystem::remove(taken, ec);
+				std::filesystem::rename(_inbox, taken, ec);
+				if (ec) {
+					std::this_thread::sleep_for(std::chrono::milliseconds{ 250 });
+					continue;
+				}
+
 				std::vector<std::string> lines;
 				{
-					std::ifstream in{ _inbox };
+					std::ifstream in{ taken };
 					std::string   line;
 					while (std::getline(in, line)) {
 						if (!line.empty()) {
@@ -112,10 +137,7 @@ namespace RP
 						}
 					}
 				}
-				// Truncated BEFORE anything runs, not after. A command that takes
-				// the game down would otherwise be re-read and re-run on the next
-				// launch, which is how one mistake becomes a boot loop.
-				std::filesystem::remove(_inbox, ec);
+				std::filesystem::remove(taken, ec);
 
 				for (const auto& line : lines) {
 					if (auto* task = F4SE::GetTaskInterface()) {
@@ -237,11 +259,132 @@ namespace RP
 					? settings.sceneSeconds
 					: (std::max)(settings.sceneSeconds, Scenarios::GetSingleton().SecondsFor(scenario));
 
+			// Capture the reason BEFORE asking, because the interesting one --
+			// a scene already in flight -- is exactly what the call would change.
+			// "REFUSED" with no reason is the uninformative message this whole
+			// codebase keeps being rewritten to stop printing.
+			const bool wasBusy = link.Busy();
+			const bool paused = link.AutonomyPaused();
+
 			const bool taken = link.RequestScene(first, second, seconds, scenario);
-			return std::format("{} {:08X} + {:08X}{} over {:.0f}s",
-				taken ? "OK Rapport took the request:" : "OK Rapport REFUSED (transient - retry):",
+			if (taken) {
+				return std::format("OK Rapport took the request: {:08X} + {:08X}{} over {:.0f}s",
+					firstID, secondID,
+					scenario.empty() ? "" : std::format(" as \"{}\"", scenario), seconds);
+			}
+			return std::format(
+				"OK Rapport REFUSED {:08X} + {:08X} - {}",
 				firstID, secondID,
-				scenario.empty() ? "" : std::format(" as \"{}\"", scenario), seconds);
+				wasBusy
+					? "a scene was already in flight (maxConcurrentScenes). Autonomy re-fills that slot "
+					  "within seconds of one ending, so send \"pause\" first if you want the slot."
+					: (paused ? "autonomy is paused, but this is a different refusal - check the log"
+							  : "transient - check the log for which check said no"));
+		}
+
+		if (verb == "look") {
+			bool       ok = false;
+			const auto formID = ParseFormID(rest, ok);
+			if (!ok) {
+				return "ERR look <formid>   (points the player's camera at them)";
+			}
+			auto* form = RE::TESForm::GetFormByID(formID);
+			auto* actor = form ? form->As<RE::Actor>() : nullptr;
+			if (!actor) {
+				return std::format("ERR {:08X} is not an actor", formID);
+			}
+			auto* player = RE::PlayerCharacter::GetSingleton();
+			if (!player) {
+				return "ERR no player";
+			}
+
+			// Bethesda angles: yaw (Z) is measured from +Y and increases
+			// CLOCKWISE, which is why this is atan2(dx, dy) and not the atan2(dy,
+			// dx) every maths textbook writes. Pitch (X) is positive looking DOWN.
+			// Roll stays zero -- a rolled camera is a bug, never a request.
+			const auto here = player->GetPosition();
+			const auto there = actor->GetPosition();
+			const auto dx = there.x - here.x;
+			const auto dy = there.y - here.y;
+			// Aim at the head rather than the feet, or every portrait is a
+			// close-up of somebody's boots.
+			const auto dz = (there.z + 120.0f) - (here.z + 120.0f);
+
+			constexpr float kRad = 57.2957795f;
+			const auto      flat = std::sqrt(dx * dx + dy * dy);
+			const auto      yaw = std::atan2(dx, dy) * kRad;
+			const auto      pitch = -std::atan2(dz, flat) * kRad;
+
+			link.QueueOrder(Order{ Order::Kind::kLookAt, formID,
+				std::format("{:.2f}", pitch), std::format("{:.2f}", yaw) });
+			return std::format("OK queued - looking at {:08X} (pitch {:.1f}, yaw {:.1f}, {:.0f} units away)",
+				formID, pitch, yaw, flat);
+		}
+
+		if (verb == "watch") {
+			// STAND BACK, THEN FACE THEM. goto alone lands the player inside the
+			// actor, which is the one position from which they cannot be seen --
+			// a portrait needs a few metres and a direction, not proximity.
+			const auto space = rest.find(' ');
+			bool       ok = false;
+			const auto formID = ParseFormID(
+				space == std::string::npos ? std::string_view{ rest } : std::string_view{ rest }.substr(0, space),
+				ok);
+			if (!ok) {
+				return "ERR watch <formid> [distance]   (default 250 units, about 3.5m)";
+			}
+			float distance = 250.0f;
+			if (space != std::string::npos) {
+				try {
+					distance = std::stof(rest.substr(space + 1));
+				} catch (const std::exception&) {
+					return "ERR watch <formid> [distance]";
+				}
+			}
+
+			auto* form = RE::TESForm::GetFormByID(formID);
+			auto* actor = form ? form->As<RE::Actor>() : nullptr;
+			auto* player = RE::PlayerCharacter::GetSingleton();
+			if (!actor || !player) {
+				return std::format("ERR {:08X} is not an actor", formID);
+			}
+
+			// Stand off along the direction the player is ALREADY coming from, so
+			// the camera does not end up inside a wall any more often than it has
+			// to. Perfect would need a navmesh query; this is a test tool.
+			const auto here = player->GetPosition();
+			const auto there = actor->GetPosition();
+			auto       dx = here.x - there.x;
+			auto       dy = here.y - there.y;
+			const auto len = std::sqrt(dx * dx + dy * dy);
+			if (len < 1.0f) {
+				dx = 0.0f;
+				dy = -1.0f;
+			} else {
+				dx /= len;
+				dy /= len;
+			}
+			const auto ox = dx * distance;
+			const auto oy = dy * distance;
+
+			// The yaw from the STAND-OFF point back to the actor, which is the
+			// opposite of the offset direction.
+			constexpr float kRad = 57.2957795f;
+			const auto      yaw = std::atan2(-ox, -oy) * kRad;
+
+			link.QueueOrder(Order{ Order::Kind::kMovePlayerTo, formID,
+				std::format("{:.1f}", ox), std::format("{:.1f}", oy) });
+			link.QueueOrder(Order{ Order::Kind::kLookAt, formID, "0.00", std::format("{:.2f}", yaw) });
+			return std::format("OK queued - standing {:.0f} units off {:08X} and facing them (yaw {:.1f})",
+				distance, formID, yaw);
+		}
+
+		if (verb == "pause" || verb == "resume") {
+			const bool pause = (verb == "pause");
+			link.SetAutonomyPaused(pause);
+			return pause
+					 ? "OK autonomy PAUSED - nothing will start itself until resume"
+					 : "OK autonomy resumed";
 		}
 
 		if (verb == "say") {
@@ -262,7 +405,7 @@ namespace RP
 		}
 
 		return std::format(
-			"ERR unknown verb \"{}\" - try: ping, health, stranded, heal, who, bring, goto, request, say, console",
+			"ERR unknown verb \"{}\" - try: ping, health, stranded, heal, who, bring, goto, look, watch, request, pause, resume, say, console",
 			verb);
 	}
 
