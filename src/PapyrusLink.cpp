@@ -295,9 +295,15 @@ namespace
 	// handed this poll, and the plugin still has it latched -- so asking the
 	// bridge to pass it back would be asking it to re-describe something we
 	// already know, with a chance of describing it differently.
-	void Papyrus_RequeueOrder(std::monostate)
+	void Papyrus_RequeueOrder(
+		std::monostate, std::int32_t a_kind, std::int32_t a_formID,
+		RE::BSFixedString a_setID, RE::BSFixedString a_extra)
 	{
-		RP::PapyrusLink::GetSingleton().RequeueStranded();
+		RP::PapyrusLink::GetSingleton().RequeueStranded(
+			static_cast<RP::Order::Kind>(a_kind),
+			static_cast<std::uint32_t>(a_formID),
+			a_setID.empty() ? "" : a_setID.c_str(),
+			a_extra.empty() ? "" : a_extra.c_str());
 	}
 
 	// "FF004C9B (-16757605)" -- both, because both are the id somebody is holding.
@@ -1163,16 +1169,31 @@ namespace RP
 		return _orders.size();
 	}
 
-	void PapyrusLink::RequeueStranded()
+	void PapyrusLink::RequeueStranded(
+		Order::Kind a_kind, std::uint32_t a_formID, std::string_view a_setID, std::string_view a_extra)
 	{
 		NamedLock lock{ _orderLock, "order queue" };
+
+		// THE ORDER IS PASSED IN, not read from the latch, and the first version
+		// of this got that wrong.
+		//
+		// It took "the order you were just handed" from _orderActor/_orderSet,
+		// reasoning that asking the bridge to describe it again invited it to
+		// describe it differently. But the drain loop dispatches DoOrder with
+		// CallFunctionNoWait, up to eight per poll -- so it takes the next order,
+		// and the next, OVERWRITING the latch, long before the first DoOrder has
+		// run and asked to requeue. The latch is only stable when exactly one
+		// order is in flight, which is why it looked correct in testing.
+		//
+		// DoOrder's own parameters are the only description that cannot have moved
+		// on, so they are the one to trust.
 
 		// Only what is still true whenever the actor comes back. A removal is: the
 		// sweat is on them and should not be. An application is not: the face was
 		// chosen for a stage of a scene that has since ended, and putting it on
 		// them when they walk back into the cell would be a bug wearing the
 		// costume of a fix.
-		switch (_orderKind) {
+		switch (a_kind) {
 		case Order::Kind::kRemoveOverlay:
 		case Order::Kind::kRelease:
 		case Order::Kind::kClearExpression:
@@ -1181,8 +1202,7 @@ namespace RP
 			return;
 		}
 
-		const auto formID = static_cast<std::uint32_t>(_orderActor);
-		if (formID == 0) {
+		if (a_formID == 0) {
 			return;
 		}
 
@@ -1190,7 +1210,7 @@ namespace RP
 		// who stays away accumulates one entry per scene they were never cleared
 		// from, and the list is the thing that has to stay small.
 		for (const auto& held : _stranded) {
-			if (held.formID == formID && held.kind == _orderKind && held.setID == _orderSet) {
+			if (held.formID == a_formID && held.kind == a_kind && held.setID == a_setID) {
 				return;
 			}
 		}
@@ -1208,7 +1228,7 @@ namespace RP
 			_stranded.erase(_stranded.begin());
 		}
 
-		_stranded.push_back(Order{ _orderKind, formID, _orderSet, _orderExtra });
+		_stranded.push_back(Order{ a_kind, a_formID, std::string{ a_setID }, std::string{ a_extra } });
 	}
 
 	void PapyrusLink::ReissueStranded(const std::vector<std::uint32_t>& a_loaded)

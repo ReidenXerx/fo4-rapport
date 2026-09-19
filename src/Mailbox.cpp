@@ -1,7 +1,9 @@
 #include "Mailbox.h"
 
 #include "Config.h"
+#include "Orders.h"
 #include "PapyrusLink.h"
+#include "Scenarios.h"
 
 namespace
 {
@@ -184,6 +186,64 @@ namespace RP
 				link.IsActorBusy(formID) ? "yes" : "no");
 		}
 
+		if (verb == "bring" || verb == "goto") {
+			bool       ok = false;
+			const auto formID = ParseFormID(rest, ok);
+			if (!ok) {
+				return std::format("ERR {} <formid>   (hex by default, or d:<decimal>)", verb);
+			}
+			// Queued, not done here. Papyrus owns MoveTo -- it is the only one of
+			// the two languages that handles a cell change -- so this goes through
+			// the same doorbell as everything else and costs one poll.
+			link.QueueOrder(Order{
+				verb == "goto" ? Order::Kind::kMovePlayerTo : Order::Kind::kMoveHere,
+				formID, "", "" });
+			return std::format("OK queued - {} {:08X}; it lands on the next poll",
+				verb == "goto" ? "moving the player to" : "bringing", formID);
+		}
+
+		if (verb == "request") {
+			// Start a scene on demand instead of waiting for Chemistry to choose a
+			// pair. This is the one that turns "play until it happens" into a test.
+			const auto space = rest.find(' ');
+			if (space == std::string::npos) {
+				return "ERR request <formid> <formid> [scenario]";
+			}
+			bool       okA = false, okB = false;
+			const auto firstID = ParseFormID(std::string_view{ rest }.substr(0, space), okA);
+			auto       tail = rest.substr(space + 1);
+			const auto space2 = tail.find(' ');
+			const auto secondID = ParseFormID(
+				std::string_view{ tail }.substr(0, space2 == std::string::npos ? tail.size() : space2), okB);
+			const std::string scenario =
+				space2 == std::string::npos ? std::string{} : tail.substr(space2 + 1);
+			if (!okA || !okB) {
+				return "ERR request <formid> <formid> [scenario]";
+			}
+
+			auto* formA = RE::TESForm::GetFormByID(firstID);
+			auto* formB = RE::TESForm::GetFormByID(secondID);
+			auto* first = formA ? formA->As<RE::Actor>() : nullptr;
+			auto* second = formB ? formB->As<RE::Actor>() : nullptr;
+			if (!first || !second) {
+				return std::format("ERR {:08X} or {:08X} is not an actor", firstID, secondID);
+			}
+
+			// The scenario owns its own length, exactly as the Papyrus entry point
+			// does it. Two copies of that rule would drift.
+			const auto& settings = Config::GetSingleton();
+			const auto  seconds =
+				scenario.empty()
+					? settings.sceneSeconds
+					: (std::max)(settings.sceneSeconds, Scenarios::GetSingleton().SecondsFor(scenario));
+
+			const bool taken = link.RequestScene(first, second, seconds, scenario);
+			return std::format("{} {:08X} + {:08X}{} over {:.0f}s",
+				taken ? "OK Rapport took the request:" : "OK Rapport REFUSED (transient - retry):",
+				firstID, secondID,
+				scenario.empty() ? "" : std::format(" as \"{}\"", scenario), seconds);
+		}
+
 		if (verb == "say") {
 			// Proves the channel end to end in the one place the owner is already
 			// looking: their own console.
@@ -202,7 +262,8 @@ namespace RP
 		}
 
 		return std::format(
-			"ERR unknown verb \"{}\" - try: ping, health, stranded, heal, who, say, console", verb);
+			"ERR unknown verb \"{}\" - try: ping, health, stranded, heal, who, bring, goto, request, say, console",
+			verb);
 	}
 
 	std::string Mailbox::RunConsole(const std::string& a_command)

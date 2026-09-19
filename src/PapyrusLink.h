@@ -171,7 +171,7 @@ namespace RP
 		// Nothing about this survives a save, deliberately -- _wearing does, and
 		// a load clears everything from that. This only has to cover the gap
 		// WITHIN a session, which is the gap _wearing cannot see.
-		void RequeueStranded();
+		void RequeueStranded(Order::Kind a_kind, std::uint32_t a_formID, std::string_view a_setID, std::string_view a_extra);
 		void ReissueStranded(const std::vector<std::uint32_t>& a_loaded);
 		[[nodiscard]] std::size_t StrandedOrders() const;
 

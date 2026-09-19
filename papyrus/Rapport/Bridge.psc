@@ -740,6 +740,28 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		Return
 	EndIf
 
+	; The teleports, ABOVE the AAF guards and above the _api check.
+	;
+	; They are test scaffolding, they do not touch AAF, and the actor being
+	; unloaded is the whole reason to send one -- so every guard below, all of
+	; which exist to keep AAF calls away from absent actors, would refuse exactly
+	; the case these are for.
+	If aiKind == 16 || aiKind == 17
+		Actor who = Game.GetForm(aiFormID) as Actor
+		If who == None
+			Rapport:Core.Trace("move: " + Rapport:Core.FormIdText(aiFormID) + " does not resolve")
+			Return
+		EndIf
+		If aiKind == 16
+			Game.GetPlayer().MoveTo(who, 0.0, 0.0, 0.0, True)
+			Rapport:Core.Trace("move: put the player next to " + Rapport:Core.FormIdText(aiFormID))
+		Else
+			who.MoveTo(Game.GetPlayer(), 0.0, 0.0, 0.0, True)
+			Rapport:Core.Trace("move: brought " + Rapport:Core.FormIdText(aiFormID) + " to the player")
+		EndIf
+		Return
+	EndIf
+
 	If _api == None
 		Return
 	EndIf
@@ -770,7 +792,7 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	; to where it covers every kind.
 	If !target.Is3DLoaded()
 		Rapport:Core.DeferOrder(aiFormID)
-		Rapport:Core.RequeueOrder()
+		Rapport:Core.RequeueOrder(aiKind, aiFormID, asSetID, asExtra)
 		Rapport:Core.Trace("order: " + Rapport:Core.FormIdText(aiFormID) + " is not loaded - " + asSetID + " deferred rather than asked of AAF")
 		Return
 	EndIf

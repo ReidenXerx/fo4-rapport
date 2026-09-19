@@ -80,7 +80,21 @@ namespace RP
 			// selectable female+male kissing positions, 273 female+male positions
 			// in all. Counting the XML ourselves says one thing and AAF says
 			// another, and only AAF's answer decides anything.
-			kQueryAnimations = 15
+			kQueryAnimations = 15,
+
+			// Teleports, and they exist for TESTING rather than for the mod.
+			//
+			// Papyrus has MoveTo and it handles cells, loaded or not; C++ here has
+			// only SetPosition, which moves within a cell and is no use for the one
+			// case that matters -- reaching somebody who unloaded. So the doorbell
+			// carries it, at the cost of one poll.
+			//
+			// These are handled BEFORE the Is3DLoaded guard in the drain, and that
+			// is deliberate: an unloaded actor is the POINT of them, and MoveTo is
+			// not an AAF call, so it cannot wedge the stack the way the guard
+			// exists to prevent.
+			kMovePlayerTo = 16,   // put the player next to this actor
+			kMoveHere = 17        // put this actor next to the player
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

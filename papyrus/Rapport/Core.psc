@@ -183,7 +183,7 @@ Function DeferOrder(Int aiFormID) Global Native
 ; Only CLEANUP is held -- a removal stays correct however long it waits, an
 ; application does not. Everything else is dropped, and _wearing clears it on the
 ; next load.
-Function RequeueOrder() Global Native
+Function RequeueOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra) Global Native
 
 ; A form id as "FF004C9B (-16757605)" -- hex first because that is what AAF's log,
 ; xEdit and the console all say, decimal after because that is what every earlier
