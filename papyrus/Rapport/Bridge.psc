@@ -482,9 +482,27 @@ Event AAF:AAF_API.OnSceneEnd(AAF:AAF_API akSender, Var[] akArgs)
 EndEvent
 
 Event AAF:AAF_API.OnAnimationChange(AAF:AAF_API akSender, Var[] akArgs)
-	; The tree moved to its next position. Logged raw for now: the argument layout
-	; has never been seen in this project, and the faces will follow it once it is.
+	; The tree moved to its next position, and THIS is the event that says what
+	; the scene is doing now. The layout has been observed: args[2] is the
+	; position name, args[3] the tag list -- same shape as OnAnimationStart.
 	Self.TraceArgs("OnAnimationChange", akArgs)
+
+	; OnAnimationStart fires ONCE, on the tree's entry animation. Measured: two
+	; scenes produced 2 Start events and 10 Change events. So forwarding only
+	; Start meant the plugin's idea of what the scene was doing froze on the
+	; opening position and never advanced -- for the whole rest of the tree.
+	;
+	; That is not cosmetic. The aftermath puts the cum in the last hole touched,
+	; and it was reading the FIRST one. Five trees on this install end in a
+	; different region from the one they open in -- "Gay Pit Doggy" enters rear
+	; and ends oral, and three others open on a position that names no act at
+	; all, so nothing was applied where something plainly should have been.
+	If akArgs != None && akArgs.Length > 3
+		Int index = Self.FindRequestByActors(akArgs)
+		If index >= 0
+			Rapport:Core.NoteSceneTags(akArgs[3] as String)
+		EndIf
+	EndIf
 EndEvent
 
 Event AAF:AAF_API.OnStageEvent(AAF:AAF_API akSender, Var[] akArgs)

@@ -35,7 +35,15 @@ namespace RP
 			std::vector<std::string> options;
 			std::string include;   // the authored list, for the log
 			std::string exclude;   // tags it must avoid
-			std::string face;      // the expression set for this moment
+			// How far along the story this stage is, 1..3. The ACT decides which
+			// family of face fits; this decides how hard they are feeling it.
+			//
+			// `face` is now only a fallback, used before AAF has reported any
+			// animation. It cannot be the answer on its own: a stage named "oral"
+			// carried Rapport_Oral and got it applied over "Impregnate Cowgirl",
+			// because a stage has not chosen the act since ChangePosition went.
+			int         intensity{ 2 };
+			std::string face;      // opening face, before any act is known
 			bool        playable{ true };   // false when nothing installed matches
 
 			// Ask AAF for NOTHING and let whatever is playing carry on.
@@ -240,6 +248,9 @@ namespace RP
 		// length the chosen tree is actually authored for. 1.0 when that length is
 		// unknown, which is the old behaviour and the honest answer.
 		float       _stageScale{ 1.0f };
+
+		// The face we last asked for, so an unchanged answer queues nothing.
+		std::string _faceApplied;
 
 		std::string _chosenPosition;
 		float       _chosenSeconds{ 0.0f };

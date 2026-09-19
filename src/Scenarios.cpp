@@ -2,6 +2,7 @@
 
 #include "PapyrusLink.h"
 #include "Aftermath.h"
+#include "Expressions.h"
 #include "Config.h"
 #include "TreeIndex.h"
 
@@ -106,6 +107,18 @@ namespace RP
 				stage.options = Split(stage.include);
 				stage.exclude = raw.value("exclude", std::string{});
 				stage.face = raw.value("face", std::string{});
+
+				// Authors wrote `face`, not `intensity`, so derive it from what the
+				// face they picked implies rather than making every scenario file
+				// wrong at once. An explicit intensity overrides.
+				stage.intensity = 2;
+				if (stage.face.ends_with("_1") || stage.face.ends_with("Anticipation")) {
+					stage.intensity = 1;
+				} else if (stage.face.ends_with("_3") || stage.face.ends_with("Climax")) {
+					stage.intensity = 3;
+				}
+				stage.intensity = raw.value("intensity", stage.intensity);
+				stage.intensity = std::clamp(stage.intensity, 1, 3);
 				stage.handover = raw.value("handover", false);
 				stage.tree = raw.value("tree", false);
 				stage.requireEnding = raw.value("requireEnding", true);
@@ -342,51 +355,51 @@ namespace RP
 		_stageStartedAt = std::chrono::steady_clock::now();
 
 		if (stage.tree) {
-			// The whole point of the catalogue: pick the ending, do not hope for it.
-			const auto& index = TreeIndex::GetSingleton();
-			const auto composition = Aftermath::GetSingleton().CompositionOf(_first, _second);
-			const auto* chosen = index.Choose(
-				stage.include, stage.exclude, composition, stage.requireEnding, false,
-				stage.seconds);
-
-			if (chosen) {
-				// Named for the log only. The scene was already STARTED on a tree
-				// chosen the same way, and nothing can move it afterwards: naming a
-				// position mid-scene is refused exactly like naming tags was.
-				logger::info(
-					"scenario \"{}\": stage \"{}\" - the ending it would pick here is \"{}\" ({} "
-					"stages, {}). The scene is already on its tree and AAF is staging it",
-					_running->id, stage.id, chosen->positionID, chosen->stages,
-					TreeIndex::Describe(chosen->ending));
-			} else {
-				// Said out loud rather than silently behaving like a handover: "no
-				// tree qualified" and "this stage never wanted one" look identical
-				// from the outside, and only one of them is a content problem.
-				logger::warn(
-					"scenario \"{}\": stage \"{}\" wanted a {} tree ending in a climax matching "
-					"[{}]{} and this install has none of the {} indexed. Letting the scene play "
-					"on instead",
-					_running->id, stage.id,
-					composition.empty() ? "any-pair" : composition, stage.include,
-					stage.exclude.empty() ? "" : std::format(" avoiding [{}]", stage.exclude),
-					index.Size());
-			}
+			// The tree was chosen at StartScene and the scene is walking it. There
+			// is nothing to do here and nothing to decide.
+			//
+			// This used to run the WHOLE selection again and log what it "would"
+			// pick -- a 74-entry scan with scoring and a random draw, on the
+			// Papyrus poll path, inside this lock, discarded immediately. Worse
+			// than wasteful: it passed the stage's own seconds as the budget and
+			// never avoided furniture, so it answered a DIFFERENT question from
+			// the one the start asked and then printed the answer as though it
+			// were the same one. Observed live picking "Prone Bone" while the
+			// scene had been correctly started on "Impregnate Cowgirl" -- two
+			// trees, one scene, and a log that looked like a disagreement.
+			logger::info(
+				"scenario \"{}\": stage \"{}\" over {:.0f}s - the scene is on the tree chosen when "
+				"it started and AAF is staging it",
+				_running->id, stage.id, stage.seconds * _stageScale);
 		} else if (stage.handover) {
 			logger::info(
-				"scenario \"{}\": stage \"{}\" for {:.0f}s - handing the ending to AAF. No position "
-				"change is asked for, so a position that declares a tree walks it to its own climax",
-				_running->id, stage.id, stage.seconds);
+				"scenario \"{}\": stage \"{}\" over {:.0f}s - handing the ending to AAF. No "
+				"position change is asked for, so a position that declares a tree walks it to its "
+				"own climax",
+				_running->id, stage.id, stage.seconds * _stageScale);
 		} else {
+			// "for 35s, any of [Kissing,...]" was wrong twice over. The clock runs
+			// on the SCALED seconds -- measured live, this stage advanced after
+			// 16.6s while the log said 35 -- and the tag list is not asked for
+			// anything: a stage without tree=true makes no request of AAF at all.
+			// Printing it read as a request that was being made and refused.
 			logger::info(
-				"scenario \"{}\": stage \"{}\" for {:.0f}s, any of [{}]{}",
-				_running->id, stage.id, stage.seconds, stage.include,
-				stage.exclude.empty() ? "" : std::format(" avoiding [{}]", stage.exclude));
+				"scenario \"{}\": stage \"{}\" over {:.0f}s, face only - AAF keeps staging the "
+				"tree, and these tags choose nothing from here",
+				_running->id, stage.id, stage.seconds * _stageScale);
 
 			SendCurrentOption(a_out);
 		}
 
-		// The face belongs to the stage, not to a percentage of the clock.
-		if (!stage.face.empty()) {
+		// Only the OPENING face, and only while nothing better is known.
+		//
+		// This used to fire on every stage boundary, which now fights the act: it
+		// would overwrite a correctly chosen face with the stage's guess, and Pump
+		// would not put it back -- _faceApplied already matched, so the wrong face
+		// would sit there until the act itself changed. Once AAF has told us what
+		// is playing, the act decides and the stage only supplies the intensity.
+		if (!stage.face.empty() && _faceApplied.empty()) {
+			_faceApplied = stage.face;
 			for (const auto formID : { _first, _second }) {
 				if (formID != 0) {
 					a_out.push_back(Order{ Order::Kind::kApplyExpression, formID, stage.face, {} });
@@ -708,18 +721,53 @@ namespace RP
 		std::vector<Order> outgoing;
 		{
 			NamedLock lock{ _lock, "scenarios" };
-			if (!_running || _stage >= _running->stages.size()) {
+			if (!_running) {
 				return;
 			}
 
-			const auto elapsed = std::chrono::duration<float>{
-				std::chrono::steady_clock::now() - _stageStartedAt
-			}.count();
-			if (elapsed < _running->stages[_stage].seconds * _stageScale) {
-				return;
+			// PAST the last stage the scene is still running -- for a long time.
+			// Measured: athome's stages finished at 128s, AAF's climax animation
+			// began at 140s and the scene ended at 180s. Returning here, which is
+			// what this did, abandoned the face for the whole ending, including the
+			// orgasm. The story has no more stages to give, so the intensity is
+			// pinned at its maximum and the act keeps driving the face.
+			const bool past = _stage >= _running->stages.size();
+			const int  intensity = past ? 3 : _running->stages[_stage].intensity;
+			const std::string_view stageID = past ? "after the last"sv
+			                                      : std::string_view{ _running->stages[_stage].id };
+
+			// The face follows the ACT, and the act changes when AAF's tree steps --
+			// which is inside a stage, not at its boundary. Resolving only on a
+			// stage change is how an orgasm face arrived 63 seconds before the
+			// orgasm animation and stayed on for the 103 seconds after it.
+			//
+			// Cheap: a tag split and a few comparisons, and it only queues an order
+			// when the answer actually changed.
+			const auto act = Expressions::GetSingleton().LiveAct();
+			if (const auto want = Expressions::FaceForAct(act, intensity); !want.empty()) {
+				if (want != _faceApplied) {
+					logger::info(
+						"scenario \"{}\": stage \"{}\" is at intensity {} and AAF is playing [{}] - "
+						"face {}",
+						_running->id, stageID, intensity, act, want);
+					_faceApplied.assign(want);
+					for (const auto formID : { _first, _second }) {
+						if (formID != 0) {
+							outgoing.push_back(
+								Order{ Order::Kind::kApplyExpression, formID, _faceApplied, {} });
+						}
+					}
+				}
 			}
 
-			EnterStage(_stage + 1, outgoing);
+			if (!past) {
+				const auto elapsed = std::chrono::duration<float>{
+					std::chrono::steady_clock::now() - _stageStartedAt
+				}.count();
+				if (elapsed >= _running->stages[_stage].seconds * _stageScale) {
+					EnterStage(_stage + 1, outgoing);
+				}
+			}
 		}
 		PapyrusLink::GetSingleton().QueueOrders(outgoing);
 	}
@@ -745,5 +793,6 @@ namespace RP
 		// NoteSceneStarted clears it.
 		_chosenPosition.clear();
 		_chosenSeconds = 0.0f;
+		_faceApplied.clear();
 	}
 }

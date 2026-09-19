@@ -39,6 +39,34 @@ namespace RP
 		// progression the scene gets -- kissing is not the same face as sex.
 		void NoteTags(std::string_view a_tags);
 
+		// The act AAF is playing RIGHT NOW, as its own tags. Empty until an
+		// animation naming an act has been reported.
+		//
+		// Only advances on an animation that names an act: a transition or a
+		// standing idle between two positions must not erase where the scene
+		// actually is.
+		[[nodiscard]] std::string LiveAct() const;
+
+		// Which face fits the act being played, at the arousal the story has
+		// reached. The ACT picks the family and the STAGE picks the level.
+		//
+		// The two are genuinely different questions and conflating them is what
+		// went wrong: a scenario stage named "oral" put Rapport_Oral on an actor
+		// while AAF played "Impregnate Cowgirl" -- an oral face, mid-vaginal,
+		// observed in game. A stage can no longer choose the act, so it can no
+		// longer name the face; all it knows is how far along the story is.
+		//
+		// A climax tag wins outright. It is the one moment whose timing we used to
+		// get badly wrong in the other direction: the stage clock put
+		// Rapport_Climax on at 77s of a scene whose climax animation began at 140s
+		// and which ran for 180s, so both actors wore an orgasm face for over a
+		// minute and a half before there was one.
+		//
+		// a_intensity is 1..3. Returns empty to mean "leave the face alone",
+		// which is the honest answer before any animation has been reported.
+		[[nodiscard]] static std::string_view FaceForAct(
+			std::string_view a_actTags, int a_intensity);
+
 		void OnSceneEnded();
 
 		// A scenario is driving the faces for this scene, so the percentage
@@ -46,6 +74,11 @@ namespace RP
 		// clearing and the co-save record are still this layer's, because a face
 		// put on by a stage still has to come off at the end.
 		void StandDown();
+
+	private:
+		std::string _liveAct;
+
+	public:
 
 		// Called on every poll. Queues the next expression when its moment has
 		// come, and the clearing one when the afterglow is over.

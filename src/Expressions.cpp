@@ -13,6 +13,29 @@ namespace
 		return out;
 	}
 
+	// Split on ANY non-alphanumeric, which is what makes this work on what
+	// actually arrives. Papyrus hands us `akArgs[3] as String` -- the coercion of
+	// a Var holding a string array -- so the text carries brackets, quotes and
+	// commas. Treating all of them as separators is why the same parser reads it
+	// correctly in Aftermath, where it has been doing so in game.
+	[[nodiscard]] std::vector<std::string> SplitTags(std::string_view a_text)
+	{
+		std::vector<std::string> tags;
+		std::string              current;
+		for (const char c : a_text) {
+			if (std::isalnum(static_cast<unsigned char>(c)) || c == '_' || c == '-') {
+				current.push_back(c);
+			} else if (!current.empty()) {
+				tags.push_back(Lower(current));
+				current.clear();
+			}
+		}
+		if (!current.empty()) {
+			tags.push_back(Lower(current));
+		}
+		return tags;
+	}
+
 	// Any tag naming an act. A scene that only ever shows these is kissing, and
 	// kissing does not want the face that sex wants.
 	[[nodiscard]] bool LooksLikeSex(std::string_view a_tags)
@@ -139,6 +162,61 @@ namespace RP
 		if (!_sawSexTag && LooksLikeSex(a_tags)) {
 			_sawSexTag = true;
 		}
+
+		// Only an animation that names an act moves this. AAF sends a tag list for
+		// transitions and idles too, and letting one of those overwrite the act
+		// would blank the face in the middle of the scene.
+		if (!FaceForAct(a_tags, 2).empty()) {
+			_liveAct.assign(a_tags);
+		}
+	}
+
+	std::string Expressions::LiveAct() const
+	{
+		NamedLock lock{ _lock, "expressions" };
+		return _liveAct;
+	}
+
+	std::string_view Expressions::FaceForAct(std::string_view a_actTags, int a_intensity)
+	{
+		const auto tags = SplitTags(a_actTags);
+		const auto has = [&](std::string_view name) {
+			return std::ranges::find(tags, name) != tags.end();
+		};
+
+		// A climax outranks everything, including the stage. This is the moment the
+		// whole scene is for and AAF is the only thing that knows when it arrives.
+		if (std::ranges::any_of(tags, [](const std::string& t) { return t.rfind("climax", 0) == 0; })) {
+			return "Rapport_Climax"sv;
+		}
+
+		// Mouth working around something. MouthToMouth is deliberately NOT here --
+		// it is kissing, and an open-jawed blowjob face on a kiss is the same class
+		// of mistake in the other direction.
+		if (has("blowjob") || has("penistomouth") || has("cunnilingus") ||
+			has("mouthtovagina") || has("69")) {
+			return "Rapport_Oral"sv;
+		}
+
+		if (has("penistovagina") || has("penistoanus") || has("handjob") ||
+			has("handtovagina") || has("handtopenis") || has("fingering")) {
+			switch (a_intensity) {
+			case 1:
+				return "Rapport_Pleasure_1"sv;
+			case 2:
+				return "Rapport_Pleasure_2"sv;
+			default:
+				return "Rapport_Pleasure_3"sv;
+			}
+		}
+
+		// Foreplay with no penetration yet.
+		if (has("kissing") || has("mouthtomouth")) {
+			return "Rapport_Kiss"sv;
+		}
+
+		// Names no act we have a face for. Says nothing, so change nothing.
+		return {};
 	}
 
 	void Expressions::Collect(std::string_view a_setID, std::vector<Order>& a_out)
