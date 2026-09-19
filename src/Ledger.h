@@ -60,6 +60,17 @@ namespace RP
 		// against a cooldown does not need a special case.
 		[[nodiscard]] float HoursSinceScene(std::uint32_t a_formID) const;
 
+		// ---- and the same two facts about a PAIR ----------------------------
+		//
+		// Separate from the per-actor records because lastPartner is only the MOST
+		// RECENT partner: as soon as either of them is with somebody else, "have
+		// these two ever" becomes unanswerable from the actor records alone. An
+		// addon that wants couples to emerge needs the history to survive that.
+		//
+		// Order-independent. (A,B) and (B,A) are one record.
+		[[nodiscard]] float HoursSincePair(std::uint32_t a_first, std::uint32_t a_second) const;
+		[[nodiscard]] std::uint32_t PairScenes(std::uint32_t a_first, std::uint32_t a_second) const;
+
 		[[nodiscard]] std::size_t Size() const;
 
 		void Clear();
@@ -92,9 +103,40 @@ namespace RP
 		};
 		static_assert(sizeof(OverlayEntry) == 40, "the on-disk overlay entry has grown padding");
 
+		// One pair, as it goes into the save. Four-byte fields only, same reason as
+		// the others: no padding means the record's length is its arithmetic, which
+		// is what makes the length check on load meaningful.
+		struct PairEntry
+		{
+			std::uint32_t first;
+			std::uint32_t second;
+			float         lastSceneAt;
+			std::uint32_t scenes;
+		};
+		static_assert(sizeof(PairEntry) == 16, "the on-disk pair entry has grown padding");
+
+		struct PairRecord
+		{
+			float         lastSceneAt{ -1.0f };
+			std::uint32_t scenes{ 0 };
+		};
+
+		// (lower << 32) | higher, so the two orders are one key.
+		[[nodiscard]] static std::uint64_t PairKey(std::uint32_t a_first, std::uint32_t a_second) noexcept
+		{
+			return a_first < a_second
+			         ? (static_cast<std::uint64_t>(a_first) << 32) | a_second
+			         : (static_cast<std::uint64_t>(a_second) << 32) | a_first;
+		}
+
+		mutable std::unordered_map<std::uint64_t, PairRecord> _pairs;
+
 		static void F4SEAPI OnSave(const F4SE::SerializationInterface* a_intfc);
 		static void F4SEAPI OnLoad(const F4SE::SerializationInterface* a_intfc);
 		static void F4SEAPI OnRevert(const F4SE::SerializationInterface* a_intfc);
+
+		void LoadPairs(
+			const F4SE::SerializationInterface* a_intfc, std::uint32_t a_version, std::uint32_t a_length);
 
 		void Save(const F4SE::SerializationInterface* a_intfc) const;
 		void Load(const F4SE::SerializationInterface* a_intfc);

@@ -485,6 +485,21 @@ namespace
 			RP::Ledger::GetSingleton().Get(static_cast<std::uint32_t>(a_formID)).refusals);
 	}
 
+	// The same two facts about a PAIR, which the per-actor records cannot answer
+	// once either of them has been with somebody else. Order does not matter.
+	float Papyrus_HoursSincePair(std::monostate, std::int32_t a_first, std::int32_t a_second)
+	{
+		const auto hours = RP::Ledger::GetSingleton().HoursSincePair(
+			static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+		return std::isfinite(hours) ? hours : 1.0e9f;
+	}
+
+	std::int32_t Papyrus_PairSceneCount(std::monostate, std::int32_t a_first, std::int32_t a_second)
+	{
+		return static_cast<std::int32_t>(RP::Ledger::GetSingleton().PairScenes(
+			static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second)));
+	}
+
 	// An addon's own number per actor, kept in the save on its behalf so it does
 	// not have to build a second co-save for one float. Rapport never reads it.
 	float Papyrus_GetNeed(std::monostate, std::int32_t a_formID)
@@ -637,6 +652,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "LastPartner"sv, Papyrus_LastPartner, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneCount"sv, Papyrus_SceneCount, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RefusalCount"sv, Papyrus_RefusalCount, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "HoursSincePair"sv, Papyrus_HoursSincePair, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "PairSceneCount"sv, Papyrus_PairSceneCount, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "GetNeed"sv, Papyrus_GetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SetNeed"sv, Papyrus_SetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverDecisions"sv, Papyrus_TakeOverDecisions, std::nullopt, false);

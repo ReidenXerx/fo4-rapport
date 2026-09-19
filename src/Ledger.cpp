@@ -22,6 +22,7 @@ namespace
 	constexpr auto kOverlayRecord = FourCC("OVRL");
 	constexpr auto kFaceRecord = FourCC("FACE");
 	constexpr auto kSceneRecord = FourCC("SCNE");
+	constexpr auto kPairRecord = FourCC("PAIR");
 	constexpr std::uint32_t kVersion = 1;
 
 	// A corrupt length could otherwise ask for an enormous allocation before the
@@ -81,9 +82,34 @@ namespace RP
 		second.lastPartner = a_first;
 		++second.scenes;
 
+		// And the pair itself, which the two actor records cannot reconstruct once
+		// either of them has been with anybody else.
+		auto& pair = _pairs[PairKey(a_first, a_second)];
+		pair.lastSceneAt = now;
+		++pair.scenes;
+
 		logger::info(
 			"ledger: {:08X} and {:08X} have now had {} and {} scene(s), at hour {:.1f}",
 			a_first, a_second, first.scenes, second.scenes, now);
+	}
+
+	float Ledger::HoursSincePair(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		const auto now = GameHours();
+		NamedLock lock{ _lock, "ledger" };
+
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		if (it == _pairs.end() || it->second.lastSceneAt < 0.0f || now < 0.0f) {
+			return std::numeric_limits<float>::infinity();
+		}
+		return (std::max)(0.0f, now - it->second.lastSceneAt);
+	}
+
+	std::uint32_t Ledger::PairScenes(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		return it == _pairs.end() ? 0u : it->second.scenes;
 	}
 
 	void Ledger::RecordRefusal(std::uint32_t a_first, std::uint32_t a_second)
@@ -143,6 +169,53 @@ namespace RP
 	{
 		NamedLock lock{ _lock, "ledger" };
 		_records.clear();
+		_pairs.clear();
+	}
+
+	void Ledger::LoadPairs(
+		const F4SE::SerializationInterface* a_intfc, std::uint32_t a_version, std::uint32_t a_length)
+	{
+		if (a_version != kVersion) {
+			logger::warn(
+				"ledger: the save's pair table is version {} and this build writes {} - it is left "
+				"alone, and no pair has a history",
+				a_version, kVersion);
+			return;
+		}
+
+		std::uint32_t count = 0;
+		if (a_intfc->ReadRecordData(count) != sizeof(count)) {
+			logger::error("ledger: the pair table's count could not be read");
+			return;
+		}
+		if (count > kMaxEntries) {
+			logger::error("ledger: the pair table claims {} entries - refusing it", count);
+			return;
+		}
+		// The same length check the other records get: count and size must agree
+		// before a single entry is trusted.
+		if (a_length != sizeof(count) + count * sizeof(PairEntry)) {
+			logger::error(
+				"ledger: the pair table is {} bytes but {} entries need {} - refusing it",
+				a_length, count, sizeof(count) + count * sizeof(PairEntry));
+			return;
+		}
+
+		NamedLock lock{ _lock, "ledger" };
+		_pairs.clear();
+		for (std::uint32_t i = 0; i < count; ++i) {
+			PairEntry entry{};
+			if (a_intfc->ReadRecordData(entry) != sizeof(entry)) {
+				logger::error("ledger: the pair table ended early at {} of {}", i, count);
+				return;
+			}
+			if (entry.first == 0 || entry.second == 0) {
+				continue;
+			}
+			_pairs[PairKey(entry.first, entry.second)] =
+				PairRecord{ entry.lastSceneAt, entry.scenes };
+		}
+		logger::info("ledger: read {} pair(s) from the save", _pairs.size());
 	}
 
 	// ---- the save game ------------------------------------------------------
@@ -232,6 +305,25 @@ namespace RP
 		}
 		logger::info("ledger: wrote {} standing overlay(s) into the save", written);
 
+		// The pair table. Its own record type, so a save written before this
+		// existed simply has none and the table starts empty -- and an older build
+		// reading a newer save skips it with the unknown-record warning rather than
+		// misreading it as something else.
+		if (a_intfc->OpenRecord(kPairRecord, kVersion)) {
+			const auto pairCount = static_cast<std::uint32_t>(_pairs.size());
+			a_intfc->WriteRecordData(pairCount);
+			for (const auto& [key, record] : _pairs) {
+				const PairEntry entry{
+					static_cast<std::uint32_t>(key >> 32),
+					static_cast<std::uint32_t>(key & 0xFFFFFFFFu),
+					record.lastSceneAt,
+					record.scenes
+				};
+				a_intfc->WriteRecordData(entry);
+			}
+			logger::info("ledger: wrote {} pair(s) into the save", pairCount);
+		}
+
 		// Who is wearing a face we put on them. Applied with lock=true, so nothing
 		// else will ever take it off; if the game ends here, this list is the only
 		// thing that knows to.
@@ -293,6 +385,23 @@ namespace RP
 				"ledger: dropped {} actor(s) nothing has happened to for {:.0f} game hours",
 				dropped, hours);
 		}
+
+		// The pair table on the same clock. It grows with the SQUARE of the people
+		// involved rather than with their number, so a long playthrough is where it
+		// would quietly become the biggest thing in the co-save if nothing aged it
+		// out.
+		//
+		// No wearing exception here: an overlay stands on an ACTOR, and keeping the
+		// memory of who they were with does not keep it on them.
+		const auto pairsBefore = _pairs.size();
+		std::erase_if(_pairs, [&](const auto& entry) {
+			const auto& record = entry.second;
+			return record.lastSceneAt >= 0.0f && (now - record.lastSceneAt) > hours;
+		});
+		if (const auto dropped = pairsBefore - _pairs.size(); dropped > 0) {
+			logger::info(
+				"ledger: dropped {} pair(s) that have not met for {:.0f} game hours", dropped, hours);
+		}
 	}
 
 	void Ledger::Load(const F4SE::SerializationInterface* a_intfc)
@@ -312,6 +421,10 @@ namespace RP
 			}
 			if (type == kSceneRecord) {
 				LoadScene(a_intfc, version, length);
+				continue;
+			}
+			if (type == kPairRecord) {
+				LoadPairs(a_intfc, version, length);
 				continue;
 			}
 			if (type != kActorRecord) {

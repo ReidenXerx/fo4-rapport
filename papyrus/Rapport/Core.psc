@@ -267,6 +267,15 @@ Float Function HoursSinceScene(Int aiFormID) Global Native
 Int Function LastPartner(Int aiFormID) Global Native
 Int Function SceneCount(Int aiFormID) Global Native
 
+; The same two facts about a PAIR, which the per-actor records cannot answer once
+; either of them has been with somebody else. Order does not matter: (A,B) and
+; (B,A) are one record.
+;
+; This is what a repeat-pairing bonus needs. LastPartner alone decays the moment
+; anyone moves on, so couples could never emerge from it.
+Float Function HoursSincePair(Int aiFirst, Int aiSecond) Global Native
+Int Function PairSceneCount(Int aiFirst, Int aiSecond) Global Native
+
 ; Requests involving this actor that AAF turned down. Useful for backing off an
 ; actor the engine keeps refusing rather than asking forever.
 Int Function RefusalCount(Int aiFormID) Global Native
