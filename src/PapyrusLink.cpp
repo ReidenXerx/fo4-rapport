@@ -355,11 +355,6 @@ namespace
 		return entry ? entry->value.c_str() : "";
 	}
 
-	bool Papyrus_HolsterWeapons(std::monostate)
-	{
-		return RP::Config::GetSingleton().holsterWeapons;
-	}
-
 	void Papyrus_BridgeReady(std::monostate, bool a_aafPresent)
 	{
 		RP::PapyrusLink::GetSingleton().OnBridgeReady(a_aafPresent);
@@ -497,7 +492,6 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "DebugKey"sv, Papyrus_DebugKey, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugType"sv, Papyrus_DebugType, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugValue"sv, Papyrus_DebugValue, std::nullopt, false);
-		a_vm->BindNativeMethod(kCoreScript, "HolsterWeapons"sv, Papyrus_HolsterWeapons, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BridgeReady"sv, Papyrus_BridgeReady, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneStarted"sv, Papyrus_SceneStarted, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneEnded"sv, Papyrus_SceneEnded, std::nullopt, false);

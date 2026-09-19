@@ -190,11 +190,6 @@ String Function TakeoverReason(Int aiIndex) Global Native
 ; than a permanent edit to somebody else's mod.
 Bool Function TakeoverShouldStop(Int aiIndex) Global Native
 
-; True when a scene should take the actors' weapons out of their hands. AAF does
-; not do this: its unEquip set covers biped ARMOUR slots, and it only runs when
-; AAF undresses, so a clothed scene leaves the shotgun in hand.
-Bool Function HolsterWeapons() Global Native
-
 ; ---- reporting back ------------------------------------------------------
 Function BridgeReady(Bool abAafPresent) Global Native
 Function SceneStarted(Int aiRequest) Global Native

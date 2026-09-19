@@ -247,3 +247,50 @@ So a framework is the primary source of faces, not a fallback. The risk runs the
 other way: Rapport's sets are declared `lock="true"`, which holds a morph against
 anything else that would move it, so on those ~10 animations we would override a
 face the author chose deliberately for that exact animation.
+
+## 20. Do not touch equipment. `startEquipmentSet` REPLACES AAF's undressing.
+
+Attempted 2026-09-19, reverted, and the code removed. Recorded so nobody tries it again
+without knowing the cost.
+
+**The goal.** A visible-holstered-weapons mod renders the weapon as an armour piece in a
+biped slot. AAF's own `unEquip` set lists all twelve "Possibly Weapons" slots, so on any
+scene AAF undresses, that rig comes off with the clothes. It does NOT come off on a scene
+AAF leaves clothed -- a cuddle or a kiss -- so the rifle stays on through the animation.
+
+**What broke it.** Passing `settings.startEquipmentSet = "<our set>"` to `StartScene` left
+both actors **fully dressed through a complete sex scene**. Naming a start set replaces
+AAF's automatic undressing rather than adding to it.
+
+**And nothing said so.** AAF accepted the scene, the tree walked, every step and face was
+correct, and neither Rapport.log nor Papyrus.0.log mentioned equipment at all. This is
+visible ONLY on screen, which makes it the worst shape of failure: silent, and invisible to
+every check a plugin can make about itself.
+
+**Where the undressing actually comes from.** `AAF_settings.ini` has
+`auto_equipment_on = true` -- "Automatically makes equipment changes based on action XML
+tags and equipmentRules XML configuration". This install has NO `equipmentRules` file and
+no `customEquipment` anywhere, so the automatic path is AAF applying its own `unEquip` set
+from action tags. `startEquipmentSet` is a separate, explicit override of that decision.
+
+Two more settings matter if this is ever revisited: `protect_custom_equipment = true` means
+a start set will not unequip items with customEquipment states at all, and
+`legacy_equipment_restore = false` means AAF restores from a **frozen copy** taken at scene
+start -- so anything that changes equipment mid-scene is working against a snapshot that
+has already been taken.
+
+**Untested, and left that way deliberately.** `AAF_API.ApplyEquipmentSet(actor, setID)` is
+a runtime call and is additive in principle -- it would leave `startEquipmentSet` alone. It
+was written and never tested in isolation, because the override was still present in the
+same build. So "ApplyEquipmentSet also breaks undressing" is NOT established; it is unknown.
+
+**Two toolchain facts learned on the way.** `Actor.GetEquippedWeapon` returns a `Weapon`
+and Fallout 4 ships **no `Weapon.psc`** -- the base sources have `Armor.psc` and `Form.psc`
+and nothing for weapons -- so the held weapon cannot be read from Papyrus at all
+("unknown type weapon", whatever you assign it to). And the base game has **no
+`GetWornItem`**, only `UnequipItemSlot(int)`, so a mod that clears a biped slot itself can
+never identify what to put back.
+
+**`ApplyEquipmentSet` ends in `ui.Invoke`** via `AAF_API.sendEvent`, so it kills the calling
+stack like every other AAF call: one actor per `CallFunctionNoWait`, or the second is never
+reached. Confirmed in game -- both trace lines appeared, 33ms apart.

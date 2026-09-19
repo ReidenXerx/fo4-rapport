@@ -115,22 +115,6 @@ namespace RP
 		// or two of the eight per-poll orders on every stage, so it is opt-in.
 		bool          diagnoseStageTags{ false };
 
-		// Ask AAF to take the VISIBLE HOLSTERED weapon off during a scene.
-		//
-		// A visible-holstered-weapons mod renders the weapon as an armour piece in a
-		// biped slot. AAF's own unEquip set already lists those twelve slots, but it
-		// only runs when AAF undresses -- so a clothed cuddle kept the rifle on.
-		// Rapport_WeaponsOnly (Data/AAF/Rapport_equipmentSetData.xml) is that list
-		// with the clothing removed, passed as startEquipmentSet.
-		//
-		// AAF owns the restore, and has to: the base game's Papyrus has no
-		// GetWornItem, so a mod that unequips a slot itself cannot read what was in
-		// it and could never put it back.
-		//
-		// The HELD weapon is untouched -- Actor.GetEquippedWeapon returns a Weapon
-		// and Fallout 4 ships no Weapon.psc, so Papyrus cannot make that call.
-		bool          holsterWeapons{ true };
-
 		bool          dryRun{ true };
 		bool          verbose{ false };
 

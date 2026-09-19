@@ -316,27 +316,10 @@ Function DoStartScene(Int aiRequest)
 	settings.preventFurniture = false
 	settings.meta = "Rapport,autonomy"   ; so a scene of ours is identifiable as ours
 
-	; Take the visible holstered weapon off, and ONLY that.
-	;
-	; AAF's own unEquip set already covers the twelve "Possibly Weapons" biped slots
-	; where visible-weapon mods mount their meshes -- but that set only runs when
-	; AAF undresses, so a clothed cuddle leaves the rifle on their back for the
-	; whole scene. Rapport_WeaponsOnly is the same list with every clothing entry
-	; removed, shipped in Data/AAF/Rapport_equipmentSetData.xml.
-	;
-	; AAF does the removal AND the restore. We cannot: Actor has UnequipItemSlot but
-	; the base game has no GetWornItem, so unequipping a slot ourselves would mean
-	; being unable to identify what to give back.
-	;
-	; UNVERIFIED, and the reason this is behind a toggle: whether naming a start set
-	; SUPPRESSES AAF's normal undressing is not readable from anywhere. The struct
-	; declares the field and GetPositionSettings nulls it; the handling is in the
-	; DLL, same as the position trees. If clothes stop coming off on ordinary
-	; scenes, this is why, and HolsterWeapons = 0 disables it.
-	If Rapport:Core.HolsterWeapons()
-		settings.startEquipmentSet = "Rapport_WeaponsOnly"
-		settings.stopEquipmentSet = "reEquip"
-	EndIf
+	; DO NOT set startEquipmentSet or stopEquipmentSet here, and do not call
+	; ApplyEquipmentSet during a scene. Setting a start set REPLACES AAF's own
+	; undressing and both actors stay fully dressed, with nothing in any log to say
+	; so. See docs/aaf-under-the-hood.md finding 20.
 
 	; The tree this scene will run, chosen from the catalogue now that the plugin
 	; knows both sexes. THIS is the only moment a position can be chosen: AAF's
@@ -465,16 +448,6 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 	EndIf
 EndEvent
 
-; NOTE: the weapon an actor is HOLDING is deliberately not touched.
-;
-; It was attempted and abandoned rather than forgotten. Actor.GetEquippedWeapon
-; returns a Weapon, and Fallout 4 ships no Weapon.psc: the base sources have
-; Armor.psc and Form.psc and nothing for weapons, so the call cannot be made from
-; Papyrus at all here -- "unknown type weapon", whatever you assign the result to.
-;
-; It is also not what was asked for. The visible holstered weapon is an armour
-; piece in a biped slot, and that is handled by Rapport_WeaponsOnly through AAF.
-
 Event AAF:AAF_API.OnAnimationStart(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnAnimationStart", akArgs)
 
@@ -486,58 +459,10 @@ Event AAF:AAF_API.OnAnimationStart(AAF:AAF_API akSender, Var[] akArgs)
 		If index >= 0
 			Rapport:Core.NoteSceneTags(akArgs[3] as String)
 
-			; Take the visible holstered weapon off, HERE and not in the scene
-			; settings. Naming a startEquipmentSet replaces AAF's own undressing
-			; instead of adding to it -- measured, both actors stayed fully dressed
-			; through a full scene and nothing in any log said so. Doing it once the
-			; animation is already playing is additive and leaves AAF alone.
-			;
-			; ONE ACTOR PER STACK, and that is not tidiness. ApplyEquipmentSet is
-			; AAF_API.sendEvent, which ends in ui.Invoke("HUDMenu", ...), and a
-			; Papyrus stack that calls into the SWF does not come back. Both actors
-			; in one function means the second is never reached.
-			If Rapport:Core.HolsterWeapons()
-				Var[] a = new Var[1]
-				a[0] = _inFlight[index].first as Var
-				Self.CallFunctionNoWait("StripWeaponsFrom", a)
-				Var[] b = new Var[1]
-				b[0] = _inFlight[index].second as Var
-				Self.CallFunctionNoWait("StripWeaponsFrom", b)
-			EndIf
 		EndIf
 	EndIf
 EndEvent
 
-; Ask AAF to unequip just the weapon slots on ONE actor.
-;
-; Rapport_WeaponsOnly is AAF's own unEquip list with every clothing entry removed,
-; shipped in Data/AAF/Rapport_equipmentSetData.xml. AAF does the removal, which
-; matters because it also owns the restore: the base game's Papyrus has no
-; GetWornItem, so a mod that cleared a slot itself could never tell what to give
-; back.
-;
-; Nothing follows the ApplyEquipmentSet call, on purpose. It ends in ui.Invoke and
-; this stack stops there.
-Function StripWeaponsFrom(Actor akWho)
-	If akWho == None || _api == None
-		Return
-	EndIf
-	Rapport:Core.Trace("weapons: asking AAF for Rapport_WeaponsOnly on " + akWho.GetFormID())
-	_api.ApplyEquipmentSet(akWho, "Rapport_WeaponsOnly")
-EndFunction
-
-; And give it back when the scene is over.
-;
-; AAF re-equips what IT removed at scene end. Whether that covers a set applied
-; mid-scene by somebody else is documented nowhere, so this asks explicitly rather
-; than assuming. "reEquip" is AAF's own stock set, reEquip resetAll="true", so
-; asking twice restores rather than breaking anything.
-Function RestoreGearFor(Actor akWho)
-	If akWho == None || _api == None
-		Return
-	EndIf
-	_api.ApplyEquipmentSet(akWho, "reEquip")
-EndFunction
 
 ; NOTE: the actor SLOT ORDER is not read.
 ;
@@ -560,16 +485,6 @@ Event AAF:AAF_API.OnSceneEnd(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnSceneEnd", akArgs)
 	Int index = Self.FindRequestByActors(akArgs)
 	If index >= 0
-		; Ask for the gear back BEFORE Release, because Release is what forgets the
-		; actors. One per stack, same ui.Invoke reason as the strip.
-		If Rapport:Core.HolsterWeapons()
-			Var[] a = new Var[1]
-			a[0] = _inFlight[index].first as Var
-			Self.CallFunctionNoWait("RestoreGearFor", a)
-			Var[] b = new Var[1]
-			b[0] = _inFlight[index].second as Var
-			Self.CallFunctionNoWait("RestoreGearFor", b)
-		EndIf
 		Self.Release(index, "")
 	EndIf
 EndEvent
