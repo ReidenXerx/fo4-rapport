@@ -349,11 +349,37 @@ namespace RP
 				return std::format("ERR {:08X} is not an actor", formID);
 			}
 
-			// Stand off along the direction the player is ALREADY coming from, so
-			// the camera does not end up inside a wall any more often than it has
-			// to. Perfect would need a navmesh query; this is a test tool.
+			// DO NOT TELEPORT IF ALREADY IN A GOOD SPOT.
+			//
+			// The first version moved the player every time, and in a dense cell
+			// every teleport is a CELL LOAD -- two in quick succession left the
+			// owner staring at a loading screen for minutes. Standing 130 units
+			// from somebody is already a fine place to look at them from; moving
+			// 300 units to "improve" it bought nothing and cost a load.
+			//
+			// So: if the player is already within a sensible band, only turn the
+			// camera. The move is for the case where they are genuinely too far or
+			// standing inside the target.
 			const auto here = player->GetPosition();
 			const auto there = actor->GetPosition();
+			{
+				const auto ddx = here.x - there.x;
+				const auto ddy = here.y - there.y;
+				const auto already = std::sqrt(ddx * ddx + ddy * ddy);
+				constexpr float kCloseEnough = 700.0f;
+				constexpr float kTooClose = 90.0f;
+				if (already >= kTooClose && already <= kCloseEnough) {
+					constexpr float kRad2 = 57.2957795f;
+					const auto      dz2 = there.z - here.z;
+					const auto      yaw2 = std::atan2(-ddx, -ddy) * kRad2;
+					const auto      pitch2 = -std::atan2(dz2, already) * kRad2;
+					link.QueueOrder(Order{ Order::Kind::kLookAt, formID,
+						std::format("{:.2f}", pitch2), std::format("{:.2f}", yaw2) });
+					return std::format(
+						"OK already {:.0f} units away - just turning to face {:08X} (yaw {:.1f}), no teleport",
+						already, formID, yaw2);
+				}
+			}
 			auto       dx = here.x - there.x;
 			auto       dy = here.y - there.y;
 			const auto len = std::sqrt(dx * dx + dy * dy);

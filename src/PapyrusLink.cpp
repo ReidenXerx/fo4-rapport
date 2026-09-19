@@ -655,6 +655,23 @@ namespace
 	bool Papyrus_RequestScene(
 		std::monostate, RE::Actor* a_first, RE::Actor* a_second, RE::BSFixedString a_scenario)
 	{
+		// THE PAUSE HAS TO BE HERE, not only in the scheduler.
+		//
+		// It was in the scheduler's stand-in branch, which sits AFTER the "an
+		// addon owns the decision" branch -- so with Chemistry installed that
+		// branch is never reached, and pause reported success while Chemistry went
+		// on starting scenes through this native. Measured: paused at 02:42:56,
+		// Chemistry started one at 02:43:24.
+		//
+		// This is the door ADDONS come through, so this is where holding them off
+		// belongs. The mailbox calls PapyrusLink::RequestScene directly and is
+		// deliberately not gated: the whole point of pausing is to stop autonomy
+		// taking the slot from a deliberate test.
+		if (RP::PapyrusLink::GetSingleton().AutonomyPaused()) {
+			logger::info("request refused: autonomy is paused, so an addon may not start a scene");
+			return false;
+		}
+
 		const std::string_view scenario{ a_scenario.empty() ? "" : a_scenario.c_str() };
 
 		// The scenario owns its own length. An addon that had to pass seconds
