@@ -184,6 +184,21 @@ namespace RP
 		return _liveAct;
 	}
 
+	std::string Expressions::VariantFor(std::string_view a_setID, std::uint32_t a_formID)
+	{
+		if (a_setID.empty() || a_setID == "Rapport_Clear"sv) {
+			return std::string{ a_setID };
+		}
+		// A set an author wrote by hand in act-overrides.json, or any name that
+		// already carries a style, is used as given rather than having a second
+		// number stapled on.
+		if (a_setID.size() > 2 && a_setID[a_setID.size() - 2] == '_' &&
+			a_setID.back() >= '1' && a_setID.back() <= '9') {
+			return std::string{ a_setID };
+		}
+		return std::format("{}_{}", a_setID, (a_formID % kStyles) + 1);
+	}
+
 	std::string_view Expressions::FaceForAct(
 		std::string_view a_actTags, std::string_view a_position, int a_intensity)
 	{
@@ -477,7 +492,8 @@ namespace RP
 			if (formID == 0) {
 				continue;
 			}
-			a_out.push_back(Order{ Order::Kind::kApplyExpression, formID, std::string{ a_setID } });
+			a_out.push_back(
+				Order{ Order::Kind::kApplyExpression, formID, VariantFor(a_setID, formID) });
 
 			if (std::ranges::find(_wearing, formID) == _wearing.end()) {
 				_wearing.push_back(formID);

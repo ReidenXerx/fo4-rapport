@@ -71,6 +71,24 @@ namespace RP
 		// a_position is the position id AAF reported, which is consulted FIRST
 		// against the override file and LAST as words to read. Empty is fine and
 		// means "tags only".
+		// How many styles tools/make_mfg.py generates per expression. The two MUST
+		// agree: this appends a number to a set name, and a name nothing defines is
+		// a face that silently never appears. The generator prints every set it
+		// wrote so the pair can be checked by eye.
+		static constexpr std::uint32_t kStyles = 3;
+
+		// The set name for THIS actor.
+		//
+		// Everybody gets the same expressions; the style decides how they wear them.
+		// Derived from the form id, so an actor keeps theirs for the whole
+		// playthrough and it reads as character rather than the game shuffling faces
+		// at them -- and it costs no storage, so it survives a save with nothing
+		// written anywhere.
+		//
+		// Rapport_Clear has no variants: there is only one way to put a face back.
+		[[nodiscard]] static std::string VariantFor(
+			std::string_view a_setID, std::uint32_t a_formID);
+
 		[[nodiscard]] static std::string_view FaceForAct(
 			std::string_view a_actTags, std::string_view a_position, int a_intensity);
 

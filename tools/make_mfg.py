@@ -42,7 +42,58 @@ def sym(part, value):
     return pair("Left " + part, "Right " + part, value)
 
 
-# Each set is (id, note, [(morph name, intensity 0-100), ...]).
+def scale(settings, factor):
+    """Same face, dialled down. Used to make a style fit the moment: somebody
+    gritting during anticipation is not gritting the way they do at the peak."""
+    return [(name, int(round(value * factor))) for name, value in settings]
+
+
+def overlay(base, extra):
+    """extra WINS where it names a morph base also sets, so a style can contradict
+    the base rather than only add to it -- which is the whole point of a style that
+    furrows a brow the base was lifting."""
+    out = dict(base)
+    out.update(dict(extra))
+    return list(out.items())
+
+
+# ---- the three ways a person reacts ----------------------------------------
+#
+# Everyone gets the same set of expressions; these decide HOW that person wears
+# them. An actor keeps their style for the whole playthrough because it is derived
+# from their form id, so this reads as character rather than as the game shuffling
+# faces at them.
+#
+# Style 1 is the original face, unchanged. The other two exist because half the
+# morph table was going unused -- nose wrinkle, bared upper lip, the lower-lid
+# squint that makes an expression read as felt rather than posed, the bitten lip --
+# and because two NPCs wearing an identical climax at the same moment is the thing
+# that gives autonomy away as a mod.
+#
+# `level` is how far into it the expression is, 0-100, and every style scales
+# itself by it. Without that, a tense Kiss looks like a tense Climax.
+STYLES = [
+    ("1", "lets go: open, lifted, soft", lambda lvl: []),
+
+    ("2", "grits: brows down and in, nose wrinkled, teeth bared, hard squint",
+     lambda lvl: overlay(
+         scale(sym("Middle Brow Down", 70) + sym("Nose Up", 65)
+               + sym("Upper Lip Up", 55) + sym("Lower Eye Lid Up", 60), lvl / 100.0),
+         # Brow Squeeze is the one that must NOT be scaled away: it is what makes
+         # the difference between furrowed and merely lowered.
+         [("Brow Squeeze", int(round(80 * lvl / 100.0)))])),
+
+    ("3", "holds it in: lip bitten, the face uneven, one brow up",
+     lambda lvl: scale(
+         [("Lower Lip Roll In", 70), ("Sticky Lips", 45),
+          # Deliberately ONE side. A real face is not symmetrical, and every set
+          # here is mirrored, so the only place asymmetry can come from is a style.
+          ("Left Smile", 45), ("Right Nose Up", 40), ("Left Brow Outer Up", 60),
+          ("Right Middle Brow Down", 35)],
+         lvl / 100.0)),
+]
+
+# Each set is (id, note, [(morph name, intensity 0-100), ...], lock, level).
 # Intensities are deliberately short of 100 except at the peak: a face pinned to
 # maximum on every morph reads as a rictus rather than as pleasure.
 SETS = [
@@ -51,33 +102,33 @@ SETS = [
      "save is loaded that was made during one, so nobody is left wearing a face "
      "Rapport put on them.",
      [(name, 0) for name in MORPHS],
-     False),
+     False, 0),
 
     ("Rapport_Anticipation",
      "Before anything happens: lips just parted, brows lifted, eyes a little heavy.",
      [("Jaw Open", 20)] + sym("Middle Brow Up", 40) + sym("Lip Corner Out", 25)
      + sym("Upper Eye Lid Down", 20),
-     True),
+     True, 25),
 
     ("Rapport_Pleasure_1",
      "Early. A soft smile and half-closed eyes; nothing exaggerated.",
      [("Jaw Open", 30)] + sym("Smile", 50) + sym("Lower Eye Lid Down", 40)
      + sym("Upper Eye Lid Down", 45) + sym("Middle Brow Up", 50),
-     True),
+     True, 35),
 
     ("Rapport_Pleasure_2",
      "Building. Mouth further open, cheeks lifting, eyes nearly shut.",
      [("Jaw Open", 60), ("Lower Lip Roll Out", 40)] + sym("Middle Brow Up", 80)
      + sym("Cheek Up", 60) + sym("Upper Eye Lid Down", 70)
      + sym("Lower Eye Lid Down", 60) + sym("Lip Corner Out", 50),
-     True),
+     True, 60),
 
     ("Rapport_Pleasure_3",
      "Near the peak. Brows high and drawn in, eyes shut, mouth open.",
      [("Jaw Open", 85), ("Brow Squeeze", 40)] + sym("Cheek Up", 90)
      + sym("Middle Brow Up", 100) + sym("Outer Brow Down", 50)
      + sym("Upper Eye Lid Down", 90) + sym("Lower Eye Lid Down", 80),
-     True),
+     True, 85),
 
     ("Rapport_Climax",
      "The moment. Jaw wide, teeth showing, eyes screwed shut.",
@@ -85,7 +136,7 @@ SETS = [
      + sym("Cheek Up", 100) + sym("Middle Brow Up", 100)
      + sym("Upper Eye Lid Down", 100) + sym("Lower Eye Lid Down", 85)
      + sym("Lower Lip Down", 60),
-     True),
+     True, 100),
 
     ("Rapport_Oral",
      "Mouth working around something: funnelled lips, jaw forward and open. "
@@ -94,20 +145,20 @@ SETS = [
       ("Upper Lip Funnel", 60), ("Pucker", 40), ("Upper Lip Roll Out", 70),
       ("Lower Lip Roll Out", 50)]
      + sym("Upper Eye Lid Down", 50) + sym("Lower Eye Lid Down", 40),
-     True),
+     True, 70),
 
     ("Rapport_Kiss",
      "Lips pursed, eyes closed. Used for the foreplay tags, which otherwise get "
      "an expression that belongs to a different act entirely.",
      [("Pucker", 70), ("Jaw Open", 15)] + sym("Upper Eye Lid Down", 80)
      + sym("Smile", 20),
-     True),
+     True, 30),
 
     ("Rapport_Dazed",
      "Afterwards, briefly. Eyes heavy, a half smile, jaw slack.",
      [("Jaw Open", 25)] + sym("Upper Eye Lid Down", 45) + sym("Smile", 35)
      + sym("Middle Brow Up", 30),
-     True),
+     True, 30),
 ]
 
 HEADER = '''<mfgSetData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="common.xsd">
@@ -143,41 +194,54 @@ def main():
     out = io.StringIO()
     out.write(HEADER)
 
-    for setID, note, settings, lock in SETS:
-        out.write("<!-- %s -->\n" % note)
-        out.write('<mfgSet id="%s">\n' % setID)
-        for name, value in settings:
-            # THE JAW IS NEVER LOCKED, whatever the set asks for.
-            #
-            # lock="true" holds a morph against whatever else would move it, and the
-            # jaw is the one thing something else moves constantly: the animation's
-            # own facial data, idle breathing, anything driving a mouth frame by
-            # frame. A locked Jaw Open and a per-frame animation both writing every
-            # frame is a chin that opens and closes several times a second.
-            #
-            # Reported in game during CLIMAX, which is exactly where it is worst. Jaw
-            # Open is locked in every set and the intensity climbs 15, 20, 25, 30, 60,
-            # 85 to 100 at Climax and Oral. At 15 the argument is invisible; at 100 it
-            # is a fully open jaw against a closed one.
-            #
-            # Unlocked, the other system wins the jaw while it is animating and ours
-            # applies when nothing else is. Every other morph stays locked, so the
-            # expression still reads -- brows, eyes, cheeks and lips are not things
-            # the game animates continuously, so they never enter the argument.
-            out.write('\t<setting morphID="%d" intensity="%d"%s/>  <!-- %s -->\n'
-                      % (ID[name], value, ' lock="true"' if (lock and name != "Jaw Open") else '', name))
-        out.write('</mfgSet>\n\n')
+    emitted = []
+    for setID, note, settings, lock, level in SETS:
+        # Rapport_Clear has no variants: it is the reset, and there is only one
+        # way to put a face back to nothing.
+        if level == 0:
+            variants = [("", "", [])]
+        else:
+            variants = [("_" + tag, " -- " + how, layer(level))
+                        for tag, how, layer in STYLES]
+
+        for suffix, how, extra in variants:
+            name_v = setID + suffix
+            emitted.append(name_v)
+            out.write("<!-- %s -->\n" % (note + how))
+            out.write('<mfgSet id="%s">\n' % name_v)
+            for name, value in overlay(settings, extra):
+                # THE JAW IS NEVER LOCKED, whatever the set asks for.
+                #
+                # lock="true" holds a morph against whatever else would move it,
+                # and the jaw is the one thing something else moves constantly:
+                # the animation's own facial data, idle breathing, anything
+                # driving a mouth frame by frame. A locked Jaw Open and a
+                # per-frame animation both writing every frame is a chin that
+                # opens and closes several times a second.
+                #
+                # Reported in game during CLIMAX, which is where it is worst: Jaw
+                # Open was locked in every set and climbs 15, 20, 25, 30, 60, 85
+                # to 100 at Climax and Oral. At 15 the argument is invisible; at
+                # 100 it is a fully open jaw against a closed one.
+                holds = lock and name != "Jaw Open"
+                out.write('\t<setting morphID="%d" intensity="%d"%s/>  <!-- %s -->\n'
+                          % (ID[name], value,
+                             ' lock="true"' if holds else '', name))
+            out.write('</mfgSet>\n\n')
 
     out.write('</mfgSetData>\n')
 
     root = pathlib.Path(__file__).resolve().parent.parent
     path = root / "data" / "AAF" / "Rapport_mfgSetData.xml"
-    with io.open(path, 'w', encoding='utf-8', newline='\n') as fh:
+    with io.open(path, 'w', encoding="utf-8", newline="\n") as fh:
         fh.write(out.getvalue())
 
-    print("%s: %d set(s)" % (path.name, len(SETS)))
-    for setID, _, settings, _ in SETS:
-        print("   %-24s %d morph(s)" % (setID, len(settings)))
+    # The plugin builds these names by appending a style number, so a mismatch
+    # here is a face that silently never appears. Printed so it can be checked.
+    print("%s: %d set(s) = %d base(s) x %d style(s)"
+          % (path.name, len(emitted), len(SETS) - 1, len(STYLES)))
+    for name in emitted:
+        print("   %s" % name)
 
 
 main()

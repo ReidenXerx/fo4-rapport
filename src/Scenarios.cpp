@@ -402,7 +402,8 @@ namespace RP
 			_faceApplied = stage.face;
 			for (const auto formID : { _first, _second }) {
 				if (formID != 0) {
-					a_out.push_back(Order{ Order::Kind::kApplyExpression, formID, stage.face, {} });
+					a_out.push_back(Order{ Order::Kind::kApplyExpression, formID,
+						Expressions::VariantFor(stage.face, formID), {} });
 				}
 			}
 		}
@@ -726,7 +727,8 @@ namespace RP
 		_faceApplied.assign(want);
 		for (const auto formID : { _first, _second }) {
 			if (formID != 0) {
-				a_out.push_back(Order{ Order::Kind::kApplyExpression, formID, _faceApplied, {} });
+				a_out.push_back(Order{ Order::Kind::kApplyExpression, formID,
+					Expressions::VariantFor(_faceApplied, formID), {} });
 			}
 		}
 	}
