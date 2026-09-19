@@ -316,6 +316,28 @@ Function DoStartScene(Int aiRequest)
 	settings.preventFurniture = false
 	settings.meta = "Rapport,autonomy"   ; so a scene of ours is identifiable as ours
 
+	; Take the visible holstered weapon off, and ONLY that.
+	;
+	; AAF's own unEquip set already covers the twelve "Possibly Weapons" biped slots
+	; where visible-weapon mods mount their meshes -- but that set only runs when
+	; AAF undresses, so a clothed cuddle leaves the rifle on their back for the
+	; whole scene. Rapport_WeaponsOnly is the same list with every clothing entry
+	; removed, shipped in Data/AAF/Rapport_equipmentSetData.xml.
+	;
+	; AAF does the removal AND the restore. We cannot: Actor has UnequipItemSlot but
+	; the base game has no GetWornItem, so unequipping a slot ourselves would mean
+	; being unable to identify what to give back.
+	;
+	; UNVERIFIED, and the reason this is behind a toggle: whether naming a start set
+	; SUPPRESSES AAF's normal undressing is not readable from anywhere. The struct
+	; declares the field and GetPositionSettings nulls it; the handling is in the
+	; DLL, same as the position trees. If clothes stop coming off on ordinary
+	; scenes, this is why, and HolsterWeapons = 0 disables it.
+	If Rapport:Core.HolsterWeapons()
+		settings.startEquipmentSet = "Rapport_WeaponsOnly"
+		settings.stopEquipmentSet = "reEquip"
+	EndIf
+
 	; The tree this scene will run, chosen from the catalogue now that the plugin
 	; knows both sexes. THIS is the only moment a position can be chosen: AAF's
 	; ChangePosition refuses everything -- tags, a named position, even no filters
@@ -439,8 +461,19 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 		; not when the request was made, because AAF walks the two of them across
 		; a market first and that walk is not the scene.
 		Rapport:Core.SceneStarted(_inFlight[index].id)
+
 	EndIf
 EndEvent
+
+; NOTE: the weapon an actor is HOLDING is deliberately not touched.
+;
+; It was attempted and abandoned rather than forgotten. Actor.GetEquippedWeapon
+; returns a Weapon, and Fallout 4 ships no Weapon.psc: the base sources have
+; Armor.psc and Form.psc and nothing for weapons, so the call cannot be made from
+; Papyrus at all here -- "unknown type weapon", whatever you assign the result to.
+;
+; It is also not what was asked for. The visible holstered weapon is an armour
+; piece in a biped slot, and that is handled by Rapport_WeaponsOnly through AAF.
 
 Event AAF:AAF_API.OnAnimationStart(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnAnimationStart", akArgs)

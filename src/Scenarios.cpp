@@ -695,8 +695,27 @@ namespace RP
 			return;
 		}
 		const auto act = Expressions::GetSingleton().LiveAct();
-		const auto want = Expressions::FaceForAct(act, a_intensity);
-		if (want.empty() || want == _faceApplied) {
+		auto       want = Expressions::FaceForAct(act, a_intensity);
+		if (want.empty()) {
+			return;
+		}
+
+		// A ratchet, not a lock. After a climax the intensity never falls again --
+		// but the FAMILY still follows the act, so switching to oral afterwards
+		// still gets the oral face. Only the level is held.
+		//
+		// This exists because a tree can climax in the middle and carry on: the
+		// stage's own intensity then pulls the face back down to a 1 or a 2, which
+		// reads as the orgasm having un-happened. Erring expressive is the cheaper
+		// mistake here, exactly as it is for an unrecognised tag.
+		if (want == "Rapport_Climax"sv) {
+			_climaxSeen = true;
+		} else if (_climaxSeen &&
+				   (want == "Rapport_Pleasure_1"sv || want == "Rapport_Pleasure_2"sv)) {
+			want = "Rapport_Pleasure_3"sv;
+		}
+
+		if (want == _faceApplied) {
 			return;
 		}
 
@@ -852,6 +871,7 @@ namespace RP
 		_chosenPosition.clear();
 		_chosenSeconds = 0.0f;
 		_faceApplied.clear();
+		_climaxSeen = false;
 		_treeSteps = 0;
 		_stepsSeen = 0;
 	}

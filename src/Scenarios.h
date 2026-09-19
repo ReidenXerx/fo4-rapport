@@ -292,6 +292,15 @@ namespace RP
 		// The face we last asked for, so an unchanged answer queues nothing.
 		std::string _faceApplied;
 
+		// Has this scene reached a climax yet? Once it has, the face never drops
+		// back below the top intensity.
+		//
+		// Observed: "Prone Bone" climaxes at step 2 of 5 and keeps going, so the
+		// climax tag vanished from step 3 and the face fell from Rapport_Climax to
+		// Rapport_Pleasure_2 -- MILDER than the step before it. She visibly
+		// un-orgasmed and then calmed down mid-scene.
+		bool _climaxSeen{ false };
+
 		std::string _chosenPosition;
 		float       _chosenSeconds{ 0.0f };
 		std::uint32_t   _first{ 0 };

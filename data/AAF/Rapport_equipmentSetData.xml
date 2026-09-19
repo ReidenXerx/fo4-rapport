@@ -1,0 +1,52 @@
+<equipmentSetData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="common.xsd">
+	<defaults/>
+
+	<!--
+	Rapport: take the WEAPONS off and leave everything else alone.
+
+	Why this file exists. AAF's own "unEquip" set already lists all twelve
+	"Possibly Weapons" biped slots, so on any scene where AAF undresses, a
+	visible-holstered-weapons mod's rig comes off with the clothes. The gap is the
+	CLOTHED scene: a cuddle or a kiss never triggers undressing at all, so the
+	rifle stays strapped to their back, through the whole animation.
+
+	So this is AAF's unEquip set with every clothing entry removed. Slots 33 to 44,
+	which the Creation Kit leaves unnamed and AAF calls "Possibly Weapons1" through
+	"Possibly Weapons12", are where visible-weapon mods mount their meshes. Nothing
+	here touches BODY, the [U] and [A] armour slots, hair, or anything else a
+	dressed actor is wearing.
+
+	Why it goes through AAF rather than Papyrus. Actor has UnequipItemSlot(int) but
+	the base game's Papyrus has NO GetWornItem, so a mod that unequips a slot
+	itself cannot read what was in it and cannot put it back. Removing somebody's
+	gear with no way to restore it is not acceptable, and AAF's equipmentSet
+	machinery already does the save and restore properly.
+
+	Paired with AAF's stock "reEquip" set as the stop set. That one is
+	reEquip resetAll="true" and restores whatever was taken.
+
+	NOTE, still being tested: whether naming a start set SUPPRESSES AAF's normal
+	undressing is not knowable from any source. The settings struct declares
+	startEquipmentSet and GetPositionSettings defaults it to None, but the handling
+	is in the DLL, the same place the position trees live. If clothes stop coming
+	off on ordinary scenes, that is this file, and HolsterWeapons = 0 in
+	Rapport.ini turns the whole thing off in one line.
+	-->
+
+	<equipmentSet id="Rapport_WeaponsOnly">
+		<condition>
+			<unEquip bipedSlot="Possibly Weapons1"/>
+			<unEquip bipedSlot="Possibly Weapons2"/>
+			<unEquip bipedSlot="Possibly Weapons3"/>
+			<unEquip bipedSlot="Possibly Weapons4"/>
+			<unEquip bipedSlot="Possibly Weapons5"/>
+			<unEquip bipedSlot="Possibly Weapons6"/>
+			<unEquip bipedSlot="Possibly Weapons7"/>
+			<unEquip bipedSlot="Possibly Weapons8"/>
+			<unEquip bipedSlot="Possibly Weapons9"/>
+			<unEquip bipedSlot="Possibly Weapons10"/>
+			<unEquip bipedSlot="Possibly Weapons11"/>
+			<unEquip bipedSlot="Possibly Weapons12"/>
+		</condition>
+	</equipmentSet>
+</equipmentSetData>

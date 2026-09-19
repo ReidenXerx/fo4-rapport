@@ -85,6 +85,8 @@ namespace RP
 					frameBudgetMs = Clamp(std::stof(value), 0.05f, 5.0f);
 				} else if (key == "ScanRadius") {
 					scanRadius = Clamp(std::stof(value), 512.0f, 16384.0f);
+				} else if (key == "HolsterWeapons") {
+					holsterWeapons = (value == "1" || value == "true" || value == "True");
 				} else if (key == "MaxConcurrentScenes") {
 					maxConcurrentScenes = Clamp<std::uint32_t>(std::stoul(value), 1, 4);
 				} else if (key == "SceneSeconds") {
