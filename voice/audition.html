@@ -31,7 +31,7 @@ font:12px ui-monospace,monospace;padding:8px;margin-top:10px;display:none}
 h3{color:var(--acc);margin:22px 0 2px;font-size:15px}h4{color:var(--dim);margin:14px 0 4px;
 font-size:12px;text-transform:uppercase;letter-spacing:.08em}
 .note{color:var(--dim);font-size:12px;margin:0 0 6px;font-style:italic}
-ul{margin:0;padding-left:20px}li{margin:3px 0}code{color:var(--dim);font-size:11px;margin-right:8px}
+ul{margin:0;padding-left:0;list-style:none}li{display:flex;gap:8px;align-items:baseline}.em{color:#9ab87a;font-size:9.5px;letter-spacing:.09em;min-width:62px}.v2{color:var(--dim);font-size:9.5px;letter-spacing:.09em;min-width:62px;font-weight:400}.pc{color:#6a6255;font-size:10px;min-width:30px}.cnt{color:var(--dim);font-size:11px;font-weight:400;letter-spacing:0;text-transform:none}li{margin:3px 0}code{color:var(--dim);font-size:11px;margin-right:8px}
 </style>
 <h1>Rapport &mdash; voice audition</h1>
 <p class="sub">32 voice types &middot; 3 variants each &middot; same script throughout.
@@ -165,7 +165,61 @@ Click a number to hear it; play <b style="color:#9ab87a">VANILLA</b> first to he
       <td class="pl van"><button class="p v" data-src="vanilla/DLC04GangOperatorMale01-vanilla1.wav">1</button><button class="p v" data-src="vanilla/DLC04GangOperatorMale01-vanilla2.wav">2</button></td><td class="pl"><button class="p" data-src="audition/DLC04GangOperatorMale01-1.mp3">1</button><button class="p" data-src="audition/DLC04GangOperatorMale01-2.mp3">2</button><button class="p" data-src="audition/DLC04GangOperatorMale01-3.mp3">3</button></td>
       <td class="pk"><label><input type="radio" name="pick-DLC04GangOperatorMale01" value="MGw601PVTgQWNi2wCmZs" data-vt="DLC04GangOperatorMale01" data-n="1">1</label><label><input type="radio" name="pick-DLC04GangOperatorMale01" value="ntViE0HtunqA3pYf7zsl" data-vt="DLC04GangOperatorMale01" data-n="2">2</label><label><input type="radio" name="pick-DLC04GangOperatorMale01" value="4LFJOZtylUjo0agecQR3" data-vt="DLC04GangOperatorMale01" data-n="3">3</label><button class="clr" data-vt="DLC04GangOperatorMale01">&times;</button></td>
       <td class="ds">A cool professional American criminal in his thirties, slick and transactional, everything is a deal. Speaks low and close, half-whispered, as if avoiding being overheard.</td></tr></table></div>
-<div id="l" hidden><h3>quickie</h3><p class="note">More than two watching. One stage, ~30s, no guaranteed ending. Hurried, aware of the audience, past caring.</p><h4>initiator</h4><ul><li>Come on - we gotta make this quick.</li><li>Someone&#x27;s gonna come through here any second.</li><li>Don&#x27;t think about it. Just - here. Now.</li><li>Quick, before somebody needs something from me.</li><li>I&#x27;ve got about five minutes and I&#x27;m spending them on you.</li><li>Not here. ...Well. Yeah. Alright. Here.</li></ul><h4>responder</h4><ul><li>Then stop talking.</li><li>Fast, then. I mean it.</li><li>Let them look. I stopped caring a long time ago.</li><li>Five minutes. Use them.</li><li>Keep your voice down and I&#x27;m in.</li><li>...Yeah. Yeah, alright.</li></ul><h3>athome</h3><p class="note">Their own place, or indoors with at most two watching. Five stages, unhurried, ends in a climax. Warm, private, no hurry at all.</p><h4>initiator</h4><ul><li>Door&#x27;s shut. Nobody needs us for a while.</li><li>Stay. Just for a while.</li><li>No one&#x27;s coming. We&#x27;ve got all the time we want.</li><li>Come here. I&#x27;ve been thinking about this all day.</li><li>Let me look at you a second.</li><li>We&#x27;re not going anywhere.</li></ul><h4>responder</h4><ul><li>Good. I wasn&#x27;t planning on leaving.</li><li>As long as you want.</li><li>Then take your time.</li><li>Lock it. I don&#x27;t want to hear anybody.</li><li>I&#x27;ve been thinking about it too.</li><li>Come here, then.</li></ul><h3>tender</h3><p class="note">Out in the open, at most two watching. Three slow stages opening with kissing. Nothing rough or dominant - this is the affectionate one.</p><h4>initiator</h4><ul><li>Nobody out here but us.</li><li>Stay out here with me a while.</li><li>It&#x27;s quiet. For once it&#x27;s actually quiet.</li><li>Come here. Just - come here.</li><li>I don&#x27;t want to go back in yet.</li><li>Look at me. ...There you are.</li></ul><h4>responder</h4><ul><li>It is quiet, isn&#x27;t it.</li><li>I&#x27;m not going anywhere.</li><li>Then don&#x27;t go back in.</li><li>Slow. Let&#x27;s go slow.</li><li>...I like this. Being out here.</li><li>Come closer, then.</li></ul></div>
+<div id="l" hidden><p class="note">A line marked <b style="color:#9ab87a">EMOTION</b> renders on v3 with audio tags (whisper, sigh, urgency). The rest render on v2 &mdash; plainer delivery, but the words are guaranteed. Nothing is rewritten to change which side it falls on.</p>
+<h3>quickie <span class="cnt">8/12 can carry emotion</span></h3>
+<p class="note">More than two watching. One stage, ~30s, no guaranteed ending. Hurried, aware of the audience, past caring.</p>
+<h4>initiator</h4><ul>
+<li><b class="em">EMOTION</b> We gotta make this quick.</li>
+<li><b class="em">EMOTION</b> Someone&#x27;s gonna come through here any second.</li>
+<li><b class="em">EMOTION</b> Don&#x27;t think about it. Just - here. Now.</li>
+<li><b class="em">EMOTION</b> Quick, before somebody needs something from me.</li>
+<li><b class="em">EMOTION</b> I&#x27;ve got about five minutes and I&#x27;m spending them on you.</li>
+<li><b class="v2">v2 only</b><span class="pc">0%</span> Not here. ...Well. Yeah. Alright. Here.</li>
+</ul>
+<h4>responder</h4><ul>
+<li><b class="em">EMOTION</b> Then stop talking.</li>
+<li><b class="em">EMOTION</b> Fast, then. I mean it.</li>
+<li><b class="v2">v2 only</b><span class="pc">88%</span> Let them look. I stopped caring a long time ago.</li>
+<li><b class="em">EMOTION</b> Five minutes. Use them.</li>
+<li><b class="v2">v2 only</b><span class="pc">88%</span> Keep your voice down and I&#x27;m in.</li>
+<li><b class="v2">v2 only</b><span class="pc">0%</span> ...Yeah. Yeah, alright.</li>
+</ul>
+<h3>athome <span class="cnt">9/12 can carry emotion</span></h3>
+<p class="note">Their own place, or indoors with at most two watching. Five stages, unhurried, ends in a climax. Warm, private, no hurry at all.</p>
+<h4>initiator</h4><ul>
+<li><b class="v2">v2 only</b><span class="pc">75%</span> Door&#x27;s shut. Nobody needs us for a while.</li>
+<li><b class="em">EMOTION</b> Stay. Just for a while.</li>
+<li><b class="em">EMOTION</b> No one&#x27;s coming. We&#x27;ve got all the time we want.</li>
+<li><b class="em">EMOTION</b> Come here. I&#x27;ve been thinking about this all day.</li>
+<li><b class="em">EMOTION</b> Let me look at you a second.</li>
+<li><b class="em">EMOTION</b> We&#x27;re not going anywhere.</li>
+</ul>
+<h4>responder</h4><ul>
+<li><b class="em">EMOTION</b> Good. I wasn&#x27;t planning on leaving.</li>
+<li><b class="em">EMOTION</b> As long as you want.</li>
+<li><b class="em">EMOTION</b> Then take your time.</li>
+<li><b class="v2">v2 only</b><span class="pc">62%</span> Lock it. I don&#x27;t want to hear anybody.</li>
+<li><b class="em">EMOTION</b> I&#x27;ve been thinking about it too.</li>
+<li><b class="v2">v2 only</b><span class="pc">88%</span> Come here, then.</li>
+</ul>
+<h3>tender <span class="cnt">11/12 can carry emotion</span></h3>
+<p class="note">Out in the open, at most two watching. Three slow stages opening with kissing. Nothing rough or dominant - this is the affectionate one.</p>
+<h4>initiator</h4><ul>
+<li><b class="em">EMOTION</b> Nobody out here but us.</li>
+<li><b class="em">EMOTION</b> Stay out here with me a while.</li>
+<li><b class="v2">v2 only</b><span class="pc">88%</span> It&#x27;s quiet. For once it&#x27;s actually quiet.</li>
+<li><b class="em">EMOTION</b> Come here. Just - come here.</li>
+<li><b class="em">EMOTION</b> I&#x27;m not ready to go back inside yet.</li>
+<li><b class="em">EMOTION</b> Look at me. ...There you are.</li>
+</ul>
+<h4>responder</h4><ul>
+<li><b class="em">EMOTION</b> It is quiet, isn&#x27;t it.</li>
+<li><b class="em">EMOTION</b> I&#x27;m not going anywhere.</li>
+<li><b class="em">EMOTION</b> Then don&#x27;t go back in.</li>
+<li><b class="em">EMOTION</b> Slow. Let&#x27;s go slow.</li>
+<li><b class="em">EMOTION</b> ...I like this. Being out here.</li>
+<li><b class="em">EMOTION</b> Come closer, then.</li>
+</ul></div>
 <div id="bar"><button id="exp">Export picks</button><span id="cnt"></span></div>
 <textarea id="out" readonly></textarea>
 <script>
