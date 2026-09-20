@@ -796,6 +796,19 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		Return
 	EndIf
 
+	If aiKind == 24
+		Actor dest = Game.GetForm(aiFormID) as Actor
+		If dest == None
+			Rapport:Core.Trace("travel: " + Rapport:Core.FormIdText(aiFormID) + " does not resolve")
+			Return
+		EndIf
+		; FastTravel takes an ObjectReference, and an actor IS one -- so we can
+		; travel to a person rather than needing a map marker's form id.
+		Game.FastTravel(dest as ObjectReference)
+		Rapport:Core.Trace("travel: fast travelling to " + Rapport:Core.FormIdText(aiFormID))
+		Return
+	EndIf
+
 	If aiKind == 23
 		Rapport:Core.Trace("quit: closing the game at the mailbox's request")
 		Debug.QuitGame()

@@ -509,6 +509,30 @@ namespace RP
 				   "not the one you last chose by hand. Unsaved progress is gone.";
 		}
 
+		if (verb == "travel") {
+			// FAST TRAVEL FIRST, THEN goto FOR PRECISION. The owner's design, and
+			// it is the same shape as the same-cell/cross-cell split: two
+			// different operations, not one with a bad constant.
+			//
+			// MoveTo alone across a worldspace boundary leaves the loading screen
+			// up indefinitely -- the plugin keeps answering, the actors load, and
+			// the screen never clears, because MoveTo does not perform the
+			// transition the engine is waiting on.
+			bool       ok = false;
+			const auto formID = ParseFormID(rest, ok);
+			if (!ok) {
+				return "ERR travel <formid>";
+			}
+			auto* form = RE::TESForm::GetFormByID(formID);
+			if (!form || !form->As<RE::Actor>()) {
+				return std::format("ERR {:08X} is not an actor", formID);
+			}
+			link.QueueOrder(Order{ Order::Kind::kFastTravel, formID, "", "" });
+			return std::format("OK queued - fast travelling to {:08X}. Follow with \"goto {:08X}\" "
+							   "once loaded if you want to be right next to them.",
+				formID, formID);
+		}
+
 		if (verb == "quit") {
 			// Debug.QuitGame through the doorbell, not kSaveAndQuitToDesktop:
 			// that variant writes a save on the way out.
@@ -670,7 +694,7 @@ namespace RP
 		}
 
 		return std::format(
-			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, gametime, passtime, freeze, thaw, state, god, reload, quit, request, pause, resume, say, console",
+			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, gametime, passtime, freeze, thaw, state, god, reload, travel, quit, request, pause, resume, say, console",
 			verb);
 	}
 

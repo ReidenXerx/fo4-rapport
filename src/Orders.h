@@ -126,7 +126,17 @@ namespace RP
 			// kSaveAndQuitToDesktop deliberately: that one WRITES A SAVE on the
 			// way out, and silently writing to somebody's save slots is not a
 			// thing a test tool should do.
-			kQuitGame = 23
+			kQuitGame = 23,
+
+			// Game.FastTravel. The owner's design: FAST TRAVEL FIRST, THEN MOVE TO.
+			//
+			// MoveTo alone across a WORLDSPACE boundary leaves the loading screen
+			// up forever -- measured going Diamond City -> Goodneighbor, where
+			// nearby/state/the poll all kept answering while the screen stayed on
+			// the loading art. MoveTo never performs the transition the engine is
+			// waiting for. FastTravel does, and then MoveTo is for precision once
+			// the right worldspace is loaded. Two operations, like the cell split.
+			kFastTravel = 24
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

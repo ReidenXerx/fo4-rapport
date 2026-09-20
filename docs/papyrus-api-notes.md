@@ -48,6 +48,18 @@ its job, and the function was still shipped on the strength of a NAME. A signatu
 call something, never what it does. Use `Utility.GetCurrentGameTime()` before and after ANY time
 call, on a throwaway save, starting from the smallest value.
 
+**`MoveTo` ACROSS A WORLDSPACE LEAVES THE LOADING SCREEN UP FOREVER.** Measured 2026-09-20 04:05,
+Diamond City -> Goodneighbor: the move itself succeeded, `nearby` listed the Goodneighbor NPCs, the
+poll kept turning, the plugin kept answering — and the screen stayed on the loading art
+indefinitely. Everything worked except the thing the player could see.
+
+MoveTo does not perform the transition the engine waits on. `Game.FastTravel(ObjectReference)` does,
+and it accepts any reference, so you can travel to a PERSON without needing a map marker's form id.
+The rule is the owner's: **FAST TRAVEL FIRST, THEN MoveTo for precision** — two operations, the same
+shape as the same-cell / cross-cell split, and using either alone is the mistake.
+
+`reload` recovers a stuck loading screen, which is worth knowing independently.
+
 **There is NO Papyrus route to the console.** Searched across the corpus for
 `ExecuteConsoleCommand`, `ConsoleCommand`, a console-wrapping script class, and `Console*.psc` — all
 zero. The 23 files matching "Console" are in-world terminal objects. The cheat EFFECTS are reachable
