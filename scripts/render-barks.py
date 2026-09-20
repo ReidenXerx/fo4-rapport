@@ -20,12 +20,12 @@ is a separate step that must not be baked into the audio.
 
 Key: ELEVENLABS_API_KEY, or the first line of ~/.elevenlabs/api-key. Never printed.
 """
-import argparse, json, os, pathlib, subprocess, sys, time, urllib.error, urllib.request
+import argparse, json, os, pathlib, subprocess, sys, time, urllib.error, urllib.request, zlib
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 API = "https://api.elevenlabs.io/v1/text-to-speech"
-MODEL = "eleven_multilingual_v2"
+MODEL = "eleven_multilingual_v2"   # V-1: NEVER eleven_v3 - it paraphrases (0/3 verbatim)
 SETTINGS = {"stability": 0.4, "similarity_boost": 0.75, "style": 0.3, "use_speaker_boost": True}
 
 
@@ -39,8 +39,13 @@ def api_key() -> str:
     return f.read_text(encoding="utf-8").splitlines()[0].strip()
 
 
-def tts(key: str, voice_id: str, text: str, tries: int = 4) -> bytes:
-    body = json.dumps({"text": text, "model_id": MODEL, "voice_settings": SETTINGS}).encode()
+def tts(key: str, voice_id: str, text: str, seed: int, tries: int = 4) -> bytes:
+    # seed: V-11. A shipped mod is files - re-rendering one line must not
+    # silently change the other thirty-five.
+    # apply_text_normalization off: V-12. Short spoken lines, no numbers or
+    # dates, so "auto" can only expand something unasked.
+    body = json.dumps({"text": text, "model_id": MODEL, "voice_settings": SETTINGS,
+                       "seed": seed, "apply_text_normalization": "off"}).encode()
     req = urllib.request.Request(
         f"{API}/{voice_id}?output_format=pcm_44100", data=body,
         headers={"xi-api-key": key, "Content-Type": "application/json"})
@@ -108,7 +113,11 @@ def main() -> int:
         pcm.parent.mkdir(parents=True, exist_ok=True)
         fuz.parent.mkdir(parents=True, exist_ok=True)
         try:
-            pcm.write_bytes(tts(key, vid, ln["text"]))
+            # Seed is derived from the line id so it is STABLE across runs and
+            # distinct per line - a fixed constant would make every line of a
+            # voice sample the same way.
+            seed = zlib.crc32(ln["id"].encode()) & 0x7FFFFFFF
+            pcm.write_bytes(tts(key, vid, ln["text"], seed))
             r = subprocess.run([sys.executable, str(ROOT / "scripts/pcm-to-fuz.py"),
                                 str(pcm), str(fuz)], capture_output=True, text=True)
             # Check the artifact, not the exit code - xwmaencode has been seen

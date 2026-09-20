@@ -3,7 +3,7 @@
   "audition_script": "Come on - we gotta make this quick. Someone's gonna come through here any second. No, don't think about it. Just come here. Nobody needs us for a while. Stay. Just for a while.",
   "types": {
     "MaleEvenToned": {
-      "vanilla_lines": 3215,
+      "vanilla_lines": 4085,
       "chosen": null,
       "previews": [
         {
@@ -24,7 +24,7 @@
       ]
     },
     "FemaleEvenToned": {
-      "vanilla_lines": 2626,
+      "vanilla_lines": 3428,
       "chosen": null,
       "previews": [
         {
@@ -45,7 +45,7 @@
       ]
     },
     "FemaleBoston": {
-      "vanilla_lines": 2058,
+      "vanilla_lines": 2418,
       "chosen": null,
       "previews": [
         {
@@ -66,7 +66,7 @@
       ]
     },
     "MaleRough": {
-      "vanilla_lines": 2239,
+      "vanilla_lines": 2880,
       "chosen": null,
       "previews": [
         {
@@ -87,7 +87,7 @@
       ]
     },
     "FemaleRough": {
-      "vanilla_lines": 2208,
+      "vanilla_lines": 2839,
       "chosen": null,
       "previews": [
         {
@@ -108,7 +108,7 @@
       ]
     },
     "MaleGhoul": {
-      "vanilla_lines": 1442,
+      "vanilla_lines": 1604,
       "chosen": null,
       "previews": [
         {
@@ -129,7 +129,7 @@
       ]
     },
     "FemaleGhoul": {
-      "vanilla_lines": 1416,
+      "vanilla_lines": 1576,
       "chosen": null,
       "previews": [
         {
@@ -150,7 +150,7 @@
       ]
     },
     "MaleOld": {
-      "vanilla_lines": 1380,
+      "vanilla_lines": 1551,
       "chosen": null,
       "previews": [
         {
@@ -171,7 +171,7 @@
       ]
     },
     "FemaleOld": {
-      "vanilla_lines": 1304,
+      "vanilla_lines": 1464,
       "chosen": null,
       "previews": [
         {
@@ -192,7 +192,7 @@
       ]
     },
     "MaleBoston": {
-      "vanilla_lines": 2464,
+      "vanilla_lines": 2822,
       "chosen": "UBJFYue9ndY0n9Sq9BAB",
       "chosen_name": "Rapport_Male_Boston_Weathered",
       "previews": [
@@ -200,6 +200,490 @@
           "n": 3,
           "voice_id": "UBJFYue9ndY0n9Sq9BAB",
           "file": "audition/MaleBoston-3.mp3"
+        }
+      ]
+    },
+    "RaiderMale01": {
+      "vanilla_lines": 964,
+      "chosen": null,
+      "description": "An aggressive American man in his thirties, wired and unpredictable, voice roughened by chems and shouting, a manic edge under everything. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "KYMjWGUQbvEzItrTLZZt",
+          "file": "audition/RaiderMale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "jSFcjs1MOULismgajpvu",
+          "file": "audition/RaiderMale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "IDmMSqSJBYs0LU4JyIRA",
+          "file": "audition/RaiderMale01-3.mp3"
+        }
+      ]
+    },
+    "RaiderMale02": {
+      "vanilla_lines": 944,
+      "chosen": null,
+      "description": "A brutish American man in his forties, heavy slow menacing voice, thick and thuggish, not clever. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "vgfVCpBzMA2VdVbAaSdO",
+          "file": "audition/RaiderMale02-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "01etp5NSmIuIvXBxcSNd",
+          "file": "audition/RaiderMale02-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "MB9sMzAl0saFYZq7chkM",
+          "file": "audition/RaiderMale02-3.mp3"
+        }
+      ]
+    },
+    "RaiderFemale01": {
+      "vanilla_lines": 795,
+      "chosen": null,
+      "description": "A wild-edged American woman in her late twenties, harsh and strident, chem-burned voice with a laugh always close to the surface. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "Eplzygb8w21jwFZ5pkQu",
+          "file": "audition/RaiderFemale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "C3SjqqCJjqB5DHUfl3Yz",
+          "file": "audition/RaiderFemale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "NzokaE3ZjVsNQwTAOan3",
+          "file": "audition/RaiderFemale01-3.mp3"
+        }
+      ]
+    },
+    "BoSMale01": {
+      "vanilla_lines": 934,
+      "chosen": null,
+      "description": "A disciplined American military man in his thirties, clipped and formal, controlled and slightly clenched. A soldier, never a brute. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "pyQCXMbhd5qPmNigznTG",
+          "file": "audition/BoSMale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "12kqPLhXzewU1FwJo0UH",
+          "file": "audition/BoSMale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "7OJ6YvJNDMh4ruuz9wLW",
+          "file": "audition/BoSMale01-3.mp3"
+        }
+      ]
+    },
+    "BoSMale02": {
+      "vanilla_lines": 934,
+      "chosen": null,
+      "description": "A younger American soldier in his twenties, earnest and eager, more open and less guarded than his officers. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "KH2flyNVoX119aoj13OT",
+          "file": "audition/BoSMale02-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "nSnB53uMzUGtUFbF6PUn",
+          "file": "audition/BoSMale02-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "lVuC68hSM6pvcelrQOoX",
+          "file": "audition/BoSMale02-3.mp3"
+        }
+      ]
+    },
+    "BoSFemale01": {
+      "vanilla_lines": 927,
+      "chosen": null,
+      "description": "A disciplined American military woman in her thirties, clipped and precise, tightly controlled. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "1hZqn6MV4yLUShW4qlnJ",
+          "file": "audition/BoSFemale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "nE41Ur8Fs9ao11FAxy8I",
+          "file": "audition/BoSFemale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "23ngvTghgdRiIfweYbaq",
+          "file": "audition/BoSFemale01-3.mp3"
+        }
+      ]
+    },
+    "BoSFemale02": {
+      "vanilla_lines": 937,
+      "chosen": null,
+      "description": "A younger American servicewoman in her twenties, brisk and earnest, still enthusiastic about the uniform. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "bxG73cgc1mQoMb5LsMon",
+          "file": "audition/BoSFemale02-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "u0P0KvWLnaNsaw6yYEyq",
+          "file": "audition/BoSFemale02-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "ub8aY4jz7tG6IlUT7LA4",
+          "file": "audition/BoSFemale02-3.mp3"
+        }
+      ]
+    },
+    "GuardMaleDiamondCity01": {
+      "vanilla_lines": 650,
+      "chosen": null,
+      "description": "A bored American city guard in his thirties, flat and unimpressed, Boston-inflected, has seen everything twice. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "O4fqfLP2zANVKnb5n1g0",
+          "file": "audition/GuardMaleDiamondCity01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "DhOQidwnxGDwX1Qjubq3",
+          "file": "audition/GuardMaleDiamondCity01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "My8faZSQVzCygdjEq72M",
+          "file": "audition/GuardMaleDiamondCity01-3.mp3"
+        }
+      ]
+    },
+    "GuardMaleDiamondCity02": {
+      "vanilla_lines": 591,
+      "chosen": null,
+      "description": "A gruffer American city guard in his forties, suspicious and short-tempered, Boston-inflected. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "DiLyQkBTtsEZw5xqurB4",
+          "file": "audition/GuardMaleDiamondCity02-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "Nb84zXcYwt5TtHaRkuVP",
+          "file": "audition/GuardMaleDiamondCity02-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "2x6sFcF08V6ZBH8HUesj",
+          "file": "audition/GuardMaleDiamondCity02-3.mp3"
+        }
+      ]
+    },
+    "GuardMaleVault81": {
+      "vanilla_lines": 408,
+      "chosen": null,
+      "description": "A polite, sheltered American man in his thirties, clean-spoken with no wasteland rasp at all - he grew up indoors and it shows. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "BfsXzsOdtlc3zsVandXf",
+          "file": "audition/GuardMaleVault81-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "wSYTcLr3IXCamssTx4cy",
+          "file": "audition/GuardMaleVault81-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "DYB4vTwPwMi01aBgDqHE",
+          "file": "audition/GuardMaleVault81-3.mp3"
+        }
+      ]
+    },
+    "GuardFemaleVault81": {
+      "vanilla_lines": 408,
+      "chosen": null,
+      "description": "A polite, sheltered American woman in her thirties, clean-spoken and well-fed, none of the wasteland roughness. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "SuxMeBC6PQTCOZox93qB",
+          "file": "audition/GuardFemaleVault81-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "1NXHqc2f7L2yJQBMhoFj",
+          "file": "audition/GuardFemaleVault81-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "GfAcD3iGrsY41dUc1JvF",
+          "file": "audition/GuardFemaleVault81-3.mp3"
+        }
+      ]
+    },
+    "MaleTriggerman01": {
+      "vanilla_lines": 621,
+      "chosen": null,
+      "description": "A nineteen-forties American gangster in his forties, smooth and dangerous, mid-Atlantic hood accent, enjoys his own menace. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "IMG20boPA4wwE1kNMiHG",
+          "file": "audition/MaleTriggerman01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "Rh7DX8N9UjvRqqSsNsI8",
+          "file": "audition/MaleTriggerman01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "gQoXEhpmSH2h41dULG4T",
+          "file": "audition/MaleTriggerman01-3.mp3"
+        }
+      ]
+    },
+    "MaleGhoulCombatant01": {
+      "vanilla_lines": 619,
+      "chosen": null,
+      "description": "A heavily rasped male ghoul voice, hard and combat-worn, dry and scraping, still recognisably human underneath. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "0mXLJBTtEXsRbd8WwEbb",
+          "file": "audition/MaleGhoulCombatant01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "codjoVvOmTVkM17GF7Fe",
+          "file": "audition/MaleGhoulCombatant01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "WUDTMAkNpr2eXt0Oq0zq",
+          "file": "audition/MaleGhoulCombatant01-3.mp3"
+        }
+      ]
+    },
+    "GunnersMale01": {
+      "vanilla_lines": 323,
+      "chosen": null,
+      "description": "A hard professional American mercenary in his thirties, flat and businesslike, no wasted words, no cruelty for its own sake. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "Wi9OwIvBqlDn2BgVCaBl",
+          "file": "audition/GunnersMale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "sF7mDgkQYRSoNrpuiIjH",
+          "file": "audition/GunnersMale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "Zz2KHnvviOG1IwJch4Wm",
+          "file": "audition/GunnersMale01-3.mp3"
+        }
+      ]
+    },
+    "DLC03MaleMaineAccent": {
+      "vanilla_lines": 437,
+      "chosen": null,
+      "description": "A weathered fisherman from coastal Maine in his fifties, distinct downeast New England accent, salt-worn and slow. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "xVzMBDfAlzPUICfK97Ob",
+          "file": "audition/DLC03MaleMaineAccent-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "e5gtrdEzzkL4Fg3tBo6l",
+          "file": "audition/DLC03MaleMaineAccent-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "CwKPPtUbKrcnoHHZUGwu",
+          "file": "audition/DLC03MaleMaineAccent-3.mp3"
+        }
+      ]
+    },
+    "DLC03TrapperMale01": {
+      "vanilla_lines": 320,
+      "chosen": null,
+      "description": "An unhinged American man in his forties, ragged breathing in the voice, someone who has been alone in the fog far too long. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "0jCGvfyrisWMeq3ddpv9",
+          "file": "audition/DLC03TrapperMale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "JJgJiQvwW1fY0zUfWA65",
+          "file": "audition/DLC03TrapperMale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "fLJmXHrboGe8Kl1PdCKU",
+          "file": "audition/DLC03TrapperMale01-3.mp3"
+        }
+      ]
+    },
+    "DLC04GangPackMale01": {
+      "vanilla_lines": 325,
+      "chosen": null,
+      "description": "A feral, animalistic American man in his thirties, a barking growl under the words, a raider who believes he is a beast. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "9IuQcBwiTmALzYZvUPuf",
+          "file": "audition/DLC04GangPackMale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "pLfXWpjN0wlQGHhsFAvg",
+          "file": "audition/DLC04GangPackMale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "Hly64vN6HFsuS3bL5UNT",
+          "file": "audition/DLC04GangPackMale01-3.mp3"
+        }
+      ]
+    },
+    "DLC04GangPackFemale01": {
+      "vanilla_lines": 407,
+      "chosen": null,
+      "description": "A feral, animalistic American woman in her late twenties, snarling and growling under the words. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "n1QfqjCWrWfqp7Zyq8Yq",
+          "file": "audition/DLC04GangPackFemale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "c3V51v1qiknieoVplDhu",
+          "file": "audition/DLC04GangPackFemale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "jmISFzGI04Cg7mLc2aeG",
+          "file": "audition/DLC04GangPackFemale01-3.mp3"
+        }
+      ]
+    },
+    "DLC04GangDiscipleMale01": {
+      "vanilla_lines": 375,
+      "chosen": null,
+      "description": "A quiet, deeply unsettling American man in his thirties, soft and intimate and wrong - a knife-in-the-dark voice. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "UwFndkjT7KaQPuZzSACt",
+          "file": "audition/DLC04GangDiscipleMale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "fZGOm9utPhdYL4oqj49X",
+          "file": "audition/DLC04GangDiscipleMale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "AVOMZNAxNjegPNUWlXOw",
+          "file": "audition/DLC04GangDiscipleMale01-3.mp3"
+        }
+      ]
+    },
+    "DLC04GangDiscipleFemale01": {
+      "vanilla_lines": 320,
+      "chosen": null,
+      "description": "A quiet, deeply unsettling American woman in her thirties, soft and breathy and wrong. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "YWVLPIPUb7wxhO0fal2W",
+          "file": "audition/DLC04GangDiscipleFemale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "NxqxNbgkcM1EpruhaRZM",
+          "file": "audition/DLC04GangDiscipleFemale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "Oybz6qAYHan49aI9tBmt",
+          "file": "audition/DLC04GangDiscipleFemale01-3.mp3"
+        }
+      ]
+    },
+    "DLC04GangOperatorMale01": {
+      "vanilla_lines": 297,
+      "chosen": null,
+      "description": "A cool professional American criminal in his thirties, slick and transactional, everything is a deal. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "MGw601PVTgQWNi2wCmZs",
+          "file": "audition/DLC04GangOperatorMale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "ntViE0HtunqA3pYf7zsl",
+          "file": "audition/DLC04GangOperatorMale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "4LFJOZtylUjo0agecQR3",
+          "file": "audition/DLC04GangOperatorMale01-3.mp3"
+        }
+      ]
+    },
+    "DLC04GangOperatorFemale01": {
+      "vanilla_lines": 352,
+      "chosen": null,
+      "description": "A cool professional American criminal woman in her thirties, slick and transactional. Speaks low and close, half-whispered, as if avoiding being overheard.",
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "HMQWW2nFlJiLLZjHmYYL",
+          "file": "audition/DLC04GangOperatorFemale01-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "CdZ8iiJSwT2dWZE3xMW9",
+          "file": "audition/DLC04GangOperatorFemale01-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "Hc5wtiL7QgRZy6Aiwtji",
+          "file": "audition/DLC04GangOperatorFemale01-3.mp3"
         }
       ]
     }

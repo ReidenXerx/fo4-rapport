@@ -103,3 +103,16 @@ surfaces and only one that works:
 
 Also: `/edit/description` is a **404** (it lives on `/edit/general`), and the editor hydrates well
 after `networkidle`. `desc-set` refuses to save unless what the editor holds matches the file.
+
+## Voiceover — read `docs/VOICE-GUIDELINES.md` FIRST
+
+Any work touching TTS, voice types, `.fuz` files or the bark bank follows the
+numbered `V-#` rules there. They are measured, not preferences, and two of them
+exist because the obvious choice is wrong:
+
+- **`V-1` — never `eleven_v3`.** It paraphrases: 0/3 verbatim against v2's 3/3.
+  These lines ship with subtitles, so a model that rewrites them desyncs the
+  screen from the audio.
+- **`V-9` — an agent may not pick a voice.** Designing, organising and rendering
+  are yours; deciding which preview *sounds* right is the owner's, by ear.
+  `render-barks.py` skips `"chosen": null` rather than guessing.
