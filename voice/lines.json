@@ -1,5 +1,5 @@
 {
-  "_": "R-9 scene barks. Spoken at OnSceneStarted, selected by scenario + role. Text is gender-neutral on purpose: one line, every voice type.",
+  "_": "R-9 scene barks. Spoken at OnSceneStarted, selected by scenario + role. Text is gender-neutral on purpose: one line, every voice type. Per-line eleven_v3 verbatim rates are in v3-safety.json; a line below 100 renders on v2 rather than being rewritten to suit the model.",
   "scenario_notes": {
     "quickie": "More than two watching. One stage, ~30s, no guaranteed ending. Hurried, aware of the audience, past caring.",
     "athome": "Their own place, or indoors with at most two watching. Five stages, unhurried, ends in a climax. Warm, private, no hurry at all.",
@@ -10,8 +10,8 @@
       "id": "quickie_init_01",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "Come on - we gotta make this quick.",
-      "chars": 35
+      "text": "We gotta make this quick.",
+      "chars": 25
     },
     {
       "id": "quickie_init_02",
@@ -206,8 +206,8 @@
       "id": "tender_init_05",
       "scenario": "tender",
       "role": "initiator",
-      "text": "I don't want to go back in yet.",
-      "chars": 31
+      "text": "I'm not ready to go back inside yet.",
+      "chars": 36
     },
     {
       "id": "tender_init_06",

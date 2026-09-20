@@ -11,33 +11,63 @@ Measured 2026-09-21 on ElevenLabs Pro against Fallout 4 GOTY (GOG).
 
 ## The model and the chain
 
-### V-1 — Ship `eleven_multilingual_v2`. Never `eleven_v3`.
+### V-1 — v3 is allowed PER LINE, proven by measurement. Never globally.
 
-**Eleven v3 does not reliably say the words you send it.** Three renders per case,
-each transcribed back with `scribe_v1` and compared against the input:
+**Corrected 2026-09-21. The first version of this rule said "never `eleven_v3`"
+on the strength of n=3 renders of a single line, and it was wrong about the
+magnitude.** Measured properly, v3's verbatim rate is about **76%**, not ~0%.
 
-| case | verbatim |
+It is also not random. Drift is a property of the **line**, measured at n=8 to 10:
+
+| line | verbatim |
 | --- | --- |
-| `eleven_multilingual_v2`, plain text | **3 / 3** |
-| `eleven_v3`, plain text | **0 / 3** |
-| `eleven_v3` + `[whispers]` | 1 / 3 |
-| `eleven_v3` + `[whispers]` + CAPS/ellipses | 1 / 3 |
-| `eleven_v3` + `[urgent]` | 0 / 3 |
+| `Then stop talking.` | 10/10 |
+| `I'm not going anywhere.` | 10/10 |
+| `Lock it. I don't want to hear anybody.` | 3/10 |
+| `Come on - we gotta make this quick.` | **0/10** |
 
-Every v3 failure substituted words — "we **gotta** make this quick" came back as
-"we **need to** make this quick", reproducibly, across seeds, and never once on
-v2 with the same transcriber. Some of the noisier transcripts are ASR error on
-whispered audio; that substitution is not.
+Dissecting the 0/10 line found the trigger, and it is not what it looks like:
 
-These lines ship **with subtitles**, and the subtitle is the authored text. A
-model that paraphrases produces a screen that disagrees with the audio. v3's
-expressiveness does not buy that back.
+| variant | verbatim |
+| --- | --- |
+| `Come on - we gotta make this quick.` | 0% |
+| `Come on, we gotta make this quick.` | 0% |
+| `Come on - we **have to** make this quick.` | 0% |
+| `Come on. We gotta make this quick.` | 50% |
+| **`We gotta make this quick.`** | **100%** |
 
-### V-2 — Audio tags are therefore OUT.
+Not the punctuation, not the colloquialism — **the leading conversational
+fragment**. v3 appears to read an opener like "Come on" as *direction* rather
+than content and regenerates the clause after it. A colloquial/plain A-B across
+8 matched line pairs found no difference at all (77% vs 75%), so "gotta" was
+never the problem.
 
-`[whispers]`, `[sighs]`, `[laughs]` and the rest are a **v3-only** feature, and
-V-1 rules out v3. Do not put bracket tags in v2 text — they are not interpreted,
-and an uninterpreted tag risks being read aloud.
+**The rule:** a line may render on v3, with audio tags, **only if it measures
+100% over n≥8**. Otherwise it renders on `eleven_multilingual_v2`, where verbatim
+is guaranteed. Rates live in `voice/v3-safety.json`; 28 of 36 lines currently
+qualify.
+
+These lines ship **with subtitles**, and the subtitle is the authored text — a
+drifting render puts the screen and the audio into disagreement. The gate exists
+for that, not for taste.
+
+### V-1b — Never rewrite a good line to raise its score.
+
+Of six rewrites attempted on drift-prone lines, two reached 100%, two improved
+partway, and two stayed at **0%** — both of them the fragmentary hesitation lines
+(`"...Yeah. Yeah, alright."`). Those are nearly contentless, which is exactly why
+the model feels free to reinvent them, and exactly what makes them good writing.
+
+A line that will not pass renders on v2 and keeps its words. **The TTS model does
+not get a vote on the script.** Only rewrites that measured 100% were applied;
+the rest of the bank stands as written.
+
+### V-2 — Audio tags follow V-1: v3 lines only.
+
+`[whispers]`, `[sighs]`, `[laughs]` and the rest are a **v3-only** feature, so
+they are available exactly where V-1 allows v3 and nowhere else. Never put
+bracket tags in v2 text — they are not interpreted there, and an
+uninterpreted tag risks being read aloud.
 
 Delivery comes from the **voice design description instead**. Every voice in this
 project carries "Speaks low and close, half-whispered, as if avoiding being
@@ -111,8 +141,10 @@ filename or a byte size, stop — that is not evidence.
 ### V-10 — Verify a batch by transcribing it, not by listening for it.
 
 STT is how an agent checks its own output without ears. Spot-check any batch with
-`scribe_v1` and compare against the authored line. It is the only reason V-1 was
-caught rather than shipped.
+`scribe_v1` and compare against the authored line. It is how the v3 drift was
+found before it shipped — and, later, how V-1's own overstatement was caught and
+corrected. The same instrument that finds a defect will find your wrong rule
+about it, if you point it at the question twice.
 
 STT is an imperfect witness on whispered audio — a single mismatch is a lead, a
 reproducible one across seeds is a finding. Say which one you have.
@@ -147,7 +179,7 @@ are for hearing one thing quickly.
 
 | | |
 | --- | --- |
-| model | `eleven_multilingual_v2` |
+| model | `eleven_multilingual_v2` by default; `eleven_v3` only on lines measured 100% (V-1) |
 | output format | `pcm_44100` |
 | voice settings | `stability 0.4`, `similarity_boost 0.75`, `style 0.3`, `use_speaker_boost true` |
 | xWMA bitrate | 48 kbps (vanilla: 32) |
