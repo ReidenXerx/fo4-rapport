@@ -756,8 +756,25 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		;
 		; SetAngle takes (pitch, roll, yaw). Roll stays 0 -- a rolled camera is a
 		; bug, never a request.
-		Game.GetPlayer().SetAngle(asSetID as Float, 0.0, asExtra as Float)
-		Rapport:Core.Trace("look: pitch " + asSetID + " yaw " + asExtra)
+		; DISABLED. SetAngle ON THE PLAYER CRASHED THE GAME.
+		;
+		; 2026-09-20 02:59:52 this ran with pitch -0.13 yaw 104.63; at 02:59:53 the
+		; game died on a null function-pointer call, and the stack was the player
+		; repositioning path -- GameVM::ProcessEvent(PositionPlayerEvent&),
+		; BSTEventSource<PositionPlayerEvent>::Notify, ForceFullUpdate,
+		; DispatchRenderSafeCalls, with PlayerCharacter and "Diamond City" among
+		; the relevant objects. A loading screen appeared first, from a command
+		; that had explicitly NOT teleported anybody, which is the same event
+		; firing.
+		;
+		; So rotating the player is not the harmless camera nudge it looks like:
+		; it raises PositionPlayerEvent and the engine does a full reposition off
+		; the back of it. Whatever the right way to aim the camera is, this is not
+		; it, and a crash is far too high a price for a nicer screenshot.
+		;
+		; Left in place rather than deleted so the next attempt starts from the
+		; finding instead of rediscovering it.
+		Rapport:Core.Trace("look: REFUSED - SetAngle on the player crashed the game on 2026-09-20; see Bridge.psc")
 		Return
 	EndIf
 
