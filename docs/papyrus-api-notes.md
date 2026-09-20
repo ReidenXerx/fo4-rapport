@@ -43,6 +43,27 @@ is not per-actor framing.
 zero. The 23 files matching "Console" are in-world terminal objects. The cheat EFFECTS are reachable
 as ordinary natives (below); arbitrary command strings are not.
 
+## CONFIRMED WORKING — aiming the camera
+
+`Game.StartDialogueCameraOrCenterOnTarget(ObjectReference)` **centres the camera on the actor you
+name**, and `StopDialogueCamera(False, True)` + `ForceFirstPerson()` gives it back. Tried in game
+2026-09-20 03:39, confirmed by the owner watching their own screen, and again on release at 03:40.
+No crash, and the view visibly follows the named target — which is exactly what SetCameraTarget did
+not do.
+
+It took three attempts to get here and only the third was built on a function whose documented
+purpose matched the operation:
+
+1. `SetAngle` on the player, with hand-rolled trigonometry — **crashed the game**
+2. `SetCameraTarget(Actor)` — inert; forces third person, ignores the actor
+3. `StartDialogueCameraOrCenterOnTarget(ObjectReference)` — **works**
+
+**`GetHeadingAngle` is RELATIVE, not absolute.** It returns the angle from the caller's CURRENT
+FACING to the target, not a world yaw. Measured: `state` reported `heading=108deg` for an actor 333
+units away while the absolute world yaw to them was about 104. Feeding it into `SetAngle` would have
+mixed a relative angle into an absolute field and aimed at nothing — so the plan that replaced the
+crashing one would also have been wrong, for a different reason.
+
 ## Verified signatures worth keeping
 
 Camera:
