@@ -261,6 +261,35 @@ everyone, and the mismatch a dialogue mod cannot get away with is invisible in a
   in, and while playing a sound does not itself add risk, there is no reason to put anything
   new inside it.
 
+### Implementation anchor, scouted 2026-09-21
+
+**The hook is `PapyrusLink::OnSceneStarted(std::int32_t a_request)`**, `src/PapyrusLink.cpp:1061`.
+The bark goes immediately after `logger::info("request {}: scene started", a_request)` at
+`:1082` — **below the stale-start guard**, so a late AAF event for a released request cannot
+make somebody speak for a scene that is not theirs. That guard exists because AAF events have
+been measured arriving 94 seconds late.
+
+**What is in hand there** (`src/PapyrusLink.h:255-259`):
+
+    _inFlightFirst · _inFlightSecond · _inFlightScenario · _inFlightDuration · _inFlightRequest
+
+So **the scenario name is free** — `quickie` / `athome` / `tender` is already sitting there, and
+that alone carries the best line in the owner's example ("we need to make this quick").
+
+**What is NOT in hand, and is the first change to make:** `PairSignals`
+(`src/Pairing.h:7-15` — `distance`, `sharedFaction`, `interior`, `night`, `observers`,
+`playerNear`) is computed during pairing and **not carried to scene start**. Without it there is
+no "I don't care they're staring", because the observer count is gone by then.
+
+Snapshot it into the in-flight state at request time rather than re-measuring at scene start.
+It costs nothing — the numbers are already computed — and it is the same discipline Chemistry
+already applies to `WhosePlace`: *"From the snapshot, never recomputed."* Re-measuring would
+also be **wrong**, not merely wasteful: AAF walks the pair for up to ~14 seconds first, so the
+crowd at scene start is not the crowd the decision was made about.
+
+Cell ownership is Chemistry's (`N-3`) and Rapport cannot see it, so a bark that wants *"not in
+our own bed"* needs the addon to pass it with the request, or it is out of scope for v1.
+
 **The ESP generator will need to emit Sound records.** `tools/make_esp.py` already emits
 quests, so the machinery exists; SNDR is new work but small.
 
