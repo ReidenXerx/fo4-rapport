@@ -150,6 +150,72 @@ is the only persona that makes the **relationship store load-bearing** rather th
 that goes up in the corner. Without at least one persona that requires history, the store is
 decoration.
 
+## R-9 - Scene barks: the decision already knows what to say (2026-09-21)
+
+Owner's idea, and it is the **best first use of the voice pipeline**. When a scene starts,
+the actors say something that fits the decision that produced it:
+
+| the decision | roughly |
+| --- | --- |
+| `quickie` chosen | *"we need to make this quick"* |
+| three or more watching | *"I don't care that they're staring"* |
+| their own home, `athome` | something unhurried |
+| `tender`, high relationship | familiar, affectionate |
+| first time for this pair | nervous |
+
+**Every input already exists.** Scenario, observer count, whose cell it is, shared faction,
+time of day, interior, and the pair's history are all computed before the scene starts and
+are already in the log. The line selection is therefore **free** — no new measurement, no new
+pass, no new cost. That is what makes this cheap rather than merely nice.
+
+### It needs no dialogue system at all
+
+This is the important finding, and it is why this ships before N-2 rather than after:
+
+    // Sound.psc
+    Int  Function Play(ObjectReference akSource) Native
+    Bool Function PlayAndWait(ObjectReference akSource) Native
+
+A `Sound` form points at an audio file **by path**. So a bark needs a Sound record in
+Rapport's ESP and a generated file on disk, and nothing else:
+
+- **no `TopicInfo`**, so no CK-authored dialogue tree
+- **no form-id filenames** — the `<VoiceType>/<TopicInfoFormID>.fuz` convention in N-5 is a
+  *dialogue* constraint and does not apply here
+- **no `.lip`** — lip sync is optional, and during a scene the face is already being driven
+  by Rapport's own mfg morphs. The mouth not moving costs nothing here, where in dialogue it
+  would be glaring.
+
+That last point is why this is the right first build: it exercises **generation → packaging
+→ playback end to end** at small scale, and proves the pipeline without depending on the one
+part of the plan that might fail.
+
+### Shape
+
+Same as every other config Rapport already has. `expressions.json` maps act and stage to a
+face; this maps **situation to a line set**, and the sets carry variants. Selection per
+actor uses the R-7 trick — derive from the form id — so the same NPC always speaks in the
+same register, which is what made the six expression styles read as character rather than as
+a shuffle.
+
+`ActorBase.GetSex()` picks the voice at minimum. The Sound route is not bound to the NPC's
+`VoiceType` at all, which removes N-5's multiplier here — a small set of voices covers
+everyone, and the mismatch a dialogue mod cannot get away with is invisible in a bark.
+
+### Two things to decide, neither blocking
+
+- **Subtitles.** `Sound.Play` shows no text. `Debug.Notification` works (F4MCP's `say` verb
+  proves it) and could carry the line as a HUD toast, but it is best-effort and is dropped
+  during menus and loading. A bark nobody reads is still worth having; a bark with a toast is
+  better. Not decided.
+- **When it fires.** Prefer the moment Rapport already logs as `scene started`
+  (`OnSceneInit`), not the walk-together window — that window is the one the AAF crash lives
+  in, and while playing a sound does not itself add risk, there is no reason to put anything
+  new inside it.
+
+**The ESP generator will need to emit Sound records.** `tools/make_esp.py` already emits
+quests, so the machinery exists; SNDR is new work but small.
+
 ---
 
 ## N-1 - The new mod is downstream, and does not own anything (2026-09-21)
