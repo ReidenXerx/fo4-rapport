@@ -38,6 +38,16 @@ movement; do not generalise the crash into "never touch the player".
 person, and aiming it at two different actors produced BYTE-IDENTICAL frames. Whatever it is for, it
 is not per-actor framing.
 
+**`Game.PassTime(Int aiHours)` DOES NOT ADVANCE HOURS.** Measured 2026-09-20 03:42: the clock read
+781.54 before a single `PassTime(1)` and 881.55 after — **about 100 game hours, four days**, from a
+parameter named `aiHours`. Confirmed on a second reading and corroborated by an independent clock
+(Rapport's ledger, 781.3). Whatever the argument means, it is not hours.
+
+This one is the cautionary tale for this whole document: the signature was correct, the survey did
+its job, and the function was still shipped on the strength of a NAME. A signature tells you how to
+call something, never what it does. Use `Utility.GetCurrentGameTime()` before and after ANY time
+call, on a throwaway save, starting from the smallest value.
+
 **There is NO Papyrus route to the console.** Searched across the corpus for
 `ExecuteConsoleCommand`, `ConsoleCommand`, a console-wrapping script class, and `Console*.psc` — all
 zero. The 23 files matching "Console" are in-world terminal objects. The cheat EFFECTS are reachable

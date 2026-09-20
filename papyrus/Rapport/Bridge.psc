@@ -855,8 +855,23 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 	EndIf
 
 	If aiKind == 19
-		Game.PassTime(asSetID as Int)
-		Rapport:Core.Trace("passtime: advanced " + asSetID + " game hour(s)")
+		; DISABLED. PassTime(1) ADVANCED ABOUT 100 GAME HOURS.
+		;
+		; Measured 2026-09-20 03:42 on the owner's save: hour 781.54 before,
+		; 881.55 after a single PassTime(1) -- four game days, from a call whose
+		; parameter is literally named aiHours. Confirmed twice, and corroborated
+		; by Rapport's own ledger clock (781.3) which is an entirely separate code
+		; path.
+		;
+		; Whatever the argument means, it is not "hours to advance". It was shipped
+		; on the strength of a parameter NAME, in the same session as a document
+		; arguing that names mislead -- the survey gave a signature and that was
+		; mistaken for knowing what the function does.
+		;
+		; Left reachable but inert so the next attempt reads this first. If it is
+		; ever re-enabled: test on a THROWAWAY save, read the clock before and
+		; after, and start from the smallest possible value.
+		Rapport:Core.Trace("passtime: REFUSED - PassTime(1) advanced ~100 game hours on 2026-09-20; see Bridge.psc")
 		Return
 	EndIf
 
