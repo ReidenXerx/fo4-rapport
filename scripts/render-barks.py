@@ -1,32 +1,48 @@
 #!/usr/bin/env python3
 """
-Render every R-9 bark for every CHOSEN voice, straight to Fallout 4 .fuz.
+Render every R-9 bark for every chosen voice, straight to Fallout 4 .fuz.
 
-    python scripts/render-barks.py --dry-run     # cost + what it would do
-    python scripts/render-barks.py               # render what is missing
-    python scripts/render-barks.py --only MaleBoston
-    python scripts/render-barks.py --force       # re-render even if present
+    python scripts/render-barks.py --dry-run
+    python scripts/render-barks.py
+    python scripts/render-barks.py --only DLC04GangDiscipleFemale01
+    python scripts/render-barks.py --force
 
-Reads voice/lines.json and voice/voices.json. A voice type with "chosen": null
-is SKIPPED - picking a voice is done by ear, and this script will not guess one.
+Reads voice/lines.json, voice/voices.json and voice/v3-safety.json. A voice type
+with "chosen": null is SKIPPED - picking a voice is done by ear (V-9) and this
+script will not guess one.
 
-It calls the REST API rather than the MCP tools: 36 lines x 10 voices is 360
-renders, which is a script's job. The MCP tools stay for auditioning one line.
+MODEL IS CHOSEN PER LINE (V-1). A line measured 100% verbatim on eleven_v3 gets
+v3 and an audio tag, which is the only way to get emotional delivery at all.
+Every other line gets eleven_multilingual_v2, where verbatim is guaranteed and
+the line keeps its wording - the model does not get a vote on the script (V-1b).
 
-Resumable by default - an existing .fuz is left alone, so a network failure
-halfway through costs only what it had not already done. Output is named by
-LINE ID, not by FormID: the ESP does not exist yet, and mapping line -> FormID
-is a separate step that must not be baked into the audio.
+EVERY v3 RENDER IS TRANSCRIBED BACK AND COMPARED before it is allowed to become
+a .fuz. These lines ship with subtitles, so a render saying something other than
+the authored text puts the screen and the audio into disagreement. A drifting
+take is re-rolled on a new seed, and after `--tries` failures the line falls back
+to v2 rather than shipping the wrong words.
 
 Key: ELEVENLABS_API_KEY, or the first line of ~/.elevenlabs/api-key. Never printed.
 """
-import argparse, json, os, pathlib, subprocess, sys, time, urllib.error, urllib.request, zlib
+import argparse, json, os, pathlib, re, struct, subprocess, sys, time, urllib.error
+import urllib.request, uuid, zlib
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-API = "https://api.elevenlabs.io/v1/text-to-speech"
-MODEL = "eleven_multilingual_v2"   # V-1: NEVER eleven_v3 - it paraphrases (0/3 verbatim)
-SETTINGS = {"stability": 0.4, "similarity_boost": 0.75, "style": 0.3, "use_speaker_boost": True}
+TTS = "https://api.elevenlabs.io/v1/text-to-speech"
+STT = "https://api.elevenlabs.io/v1/speech-to-text"
+SAFE = "eleven_multilingual_v2"   # verbatim guaranteed
+EXPR = "eleven_v3"                # expressive, gated per line by V-1
+
+# Delivery per scenario. Only DOCUMENTED audio tags: an undocumented one was
+# measured causing paraphrase, and an uninterpreted tag risks being read aloud.
+# Lower stability = broader emotional range, which is where the tremble lives.
+SCENARIO = {
+    "quickie": {"tag": "[whispers] ", "speed": 1.10, "stability": 0.30},
+    "athome":  {"tag": "[whispers] ", "speed": 0.95, "stability": 0.40},
+    "tender":  {"tag": "[whispers] ", "speed": 0.92, "stability": 0.35},
+}
+BASE = {"similarity_boost": 0.75, "style": 0.3, "use_speaker_boost": True}
 
 
 def api_key() -> str:
@@ -39,25 +55,23 @@ def api_key() -> str:
     return f.read_text(encoding="utf-8").splitlines()[0].strip()
 
 
-def tts(key: str, voice_id: str, text: str, seed: int, tries: int = 4) -> bytes:
-    # seed: V-11. A shipped mod is files - re-rendering one line must not
-    # silently change the other thirty-five.
-    # apply_text_normalization off: V-12. Short spoken lines, no numbers or
-    # dates, so "auto" can only expand something unasked.
-    body = json.dumps({"text": text, "model_id": MODEL, "voice_settings": SETTINGS,
-                       "seed": seed, "apply_text_normalization": "off"}).encode()
-    req = urllib.request.Request(
-        f"{API}/{voice_id}?output_format=pcm_44100", data=body,
-        headers={"xi-api-key": key, "Content-Type": "application/json"})
+def norm(s: str) -> str:
+    """Compare meaning-bearing words only: tags, case and punctuation are noise."""
+    s = re.sub(r"\[[^\]]*\]", " ", s).lower()
+    return " ".join(re.sub(r"[^a-z' ]", " ", s).split())
+
+
+def _post(url: str, data: bytes, headers: dict, tries: int = 4) -> bytes:
     for n in range(tries):
         try:
-            with urllib.request.urlopen(req, timeout=120) as r:
+            with urllib.request.urlopen(
+                    urllib.request.Request(url, data=data, headers=headers), timeout=180) as r:
                 return r.read()
         except urllib.error.HTTPError as e:
-            # 429 is rate limiting and 5xx is theirs; both are worth waiting out.
-            # A 4xx that is not 429 is our bug and retrying just burns time.
+            # 429 and 5xx are worth waiting out; any other 4xx is our bug, and
+            # retrying it only burns time and credits.
             if e.code != 429 and e.code < 500:
-                raise SystemExit(f"HTTP {e.code} for {voice_id}: {e.read()[:300].decode(errors='replace')}")
+                raise RuntimeError(f"HTTP {e.code}: {e.read()[:200].decode(errors='replace')}")
             if n == tries - 1:
                 raise
             time.sleep(2 ** n)
@@ -68,23 +82,48 @@ def tts(key: str, voice_id: str, text: str, seed: int, tries: int = 4) -> bytes:
     raise RuntimeError("unreachable")
 
 
+def tts(key, voice_id, text, model, seed, settings) -> bytes:
+    body = json.dumps({"text": text, "model_id": model, "seed": seed,
+                       "apply_text_normalization": "off",      # V-12
+                       "voice_settings": settings}).encode()
+    return _post(f"{TTS}/{voice_id}?output_format=pcm_44100", body,
+                 {"xi-api-key": key, "Content-Type": "application/json"})
+
+
+def wav(pcm: bytes) -> bytes:
+    return (b"RIFF" + struct.pack("<I", 36 + len(pcm)) + b"WAVEfmt " +
+            struct.pack("<IHHIIHH", 16, 1, 1, 44100, 88200, 2, 16) +
+            b"data" + struct.pack("<I", len(pcm)) + pcm)
+
+
+def stt(key, pcm: bytes) -> str:
+    bd = uuid.uuid4().hex
+    m = ("--" + bd).encode()
+    body = (m + b'\r\nContent-Disposition: form-data; name="model_id"\r\n\r\nscribe_v1\r\n' +
+            m + b'\r\nContent-Disposition: form-data; name="file"; filename="a.wav"\r\n'
+                b'Content-Type: audio/wav\r\n\r\n' + wav(pcm) + b"\r\n" + m + b"--\r\n")
+    out = _post(STT, body, {"xi-api-key": key,
+                            "Content-Type": "multipart/form-data; boundary=" + bd})
+    return json.loads(out).get("text", "")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--only", default=None, help="one voice type")
-    ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument("--jobs", type=int, default=6)
+    ap.add_argument("--tries", type=int, default=3, help="v3 re-rolls before falling back to v2")
     a = ap.parse_args()
 
     lines = json.loads((ROOT / "voice/lines.json").read_text(encoding="utf-8"))["lines"]
     types = json.loads((ROOT / "voice/voices.json").read_text(encoding="utf-8"))["types"]
+    safety = json.loads((ROOT / "voice/v3-safety.json").read_text(encoding="utf-8"))["rates"]
 
     chosen = {vt: d["chosen"] for vt, d in types.items() if d.get("chosen")}
-    skipped = [vt for vt, d in types.items() if not d.get("chosen")]
     if a.only:
         if a.only not in chosen:
-            sys.exit(f"{a.only} has no chosen voice (or is not a known type). "
-                     f"Chosen: {', '.join(sorted(chosen)) or 'none'}")
+            sys.exit(f"{a.only} has no chosen voice. Chosen: {', '.join(sorted(chosen)) or 'none'}")
         chosen = {a.only: chosen[a.only]}
 
     jobs = []
@@ -95,46 +134,65 @@ def main() -> int:
                 continue
             jobs.append((vt, vid, ln, fuz))
 
+    expr = sum(1 for j in jobs if safety.get(j[2]["id"], 0) == 100)
     chars = sum(len(j[2]["text"]) for j in jobs)
-    print(f"voices chosen : {len(chosen)}  ({', '.join(sorted(chosen)) or 'none'})")
-    if skipped:
-        print(f"NOT auditioned: {len(skipped)}  ({', '.join(sorted(skipped))}) - skipped")
-    print(f"lines         : {len(lines)}")
-    print(f"to render     : {len(jobs)}  ({chars:,} characters -> ~{chars:,} credits)")
+    print(f"voices chosen : {len(chosen)} of {len(types)}")
+    print(f"to render     : {len(jobs)}   ({expr} with emotion on {EXPR}, "
+          f"{len(jobs)-expr} verbatim-only on {SAFE})")
+    print(f"characters    : {chars:,}  (plus re-rolls on drift)")
     if a.dry_run or not jobs:
         return 0
 
     key = api_key()
-    done, failed = [], []
+    done, fellback, failed = [], [], []
 
     def one(job):
         vt, vid, ln, fuz = job
+        sc = SCENARIO[ln["scenario"]]
+        emotional = safety.get(ln["id"], 0) == 100
         pcm = ROOT / "voice/pcm" / vt / f"{ln['id']}.pcm"
         pcm.parent.mkdir(parents=True, exist_ok=True)
         fuz.parent.mkdir(parents=True, exist_ok=True)
+        # Seed from the line id: stable across runs and distinct per line, so
+        # re-rendering one line cannot change the others (V-11).
+        base_seed = zlib.crc32(ln["id"].encode()) & 0x7FFFFFF
+        audio = None
         try:
-            # Seed is derived from the line id so it is STABLE across runs and
-            # distinct per line - a fixed constant would make every line of a
-            # voice sample the same way.
-            seed = zlib.crc32(ln["id"].encode()) & 0x7FFFFFFF
-            pcm.write_bytes(tts(key, vid, ln["text"], seed))
+            if emotional:
+                for t in range(a.tries):
+                    cand = tts(key, vid, sc["tag"] + ln["text"], EXPR, base_seed + t * 977,
+                               {**BASE, "stability": sc["stability"], "speed": sc["speed"]})
+                    if norm(stt(key, cand)) == norm(ln["text"]):
+                        audio = cand
+                        break
+                if audio is None:
+                    fellback.append((vt, ln["id"]))
+            if audio is None:
+                audio = tts(key, vid, ln["text"], SAFE, base_seed,
+                            {**BASE, "stability": 0.4, "speed": sc["speed"]})
+            pcm.write_bytes(audio)
             r = subprocess.run([sys.executable, str(ROOT / "scripts/pcm-to-fuz.py"),
                                 str(pcm), str(fuz)], capture_output=True, text=True)
             # Check the artifact, not the exit code - xwmaencode has been seen
-            # to report success while writing nothing.
+            # reporting success while writing nothing.
             if not fuz.exists() or fuz.stat().st_size == 0:
-                failed.append((vt, ln["id"], (r.stderr or r.stdout).strip()[:200])); return
+                failed.append((vt, ln["id"], (r.stderr or r.stdout).strip()[:160]))
+                return
             done.append((vt, ln["id"]))
         except Exception as e:
-            failed.append((vt, ln["id"], str(e)[:200]))
+            failed.append((vt, ln["id"], str(e)[:160]))
 
+    t0 = time.time()
     with ThreadPoolExecutor(max_workers=a.jobs) as ex:
         for n, _ in enumerate(ex.map(one, jobs), 1):
-            if n % 20 == 0 or n == len(jobs):
-                print(f"  {n}/{len(jobs)}", flush=True)
+            if n % 50 == 0 or n == len(jobs):
+                print(f"  {n}/{len(jobs)}  ({time.time()-t0:.0f}s)", flush=True)
 
     print(f"\nrendered {len(done)}, failed {len(failed)}")
-    for vt, lid, why in failed[:10]:
+    print(f"fell back to {SAFE} after {a.tries} drifting v3 takes: {len(fellback)}")
+    for vt, lid in fellback[:8]:
+        print(f"    {vt}/{lid}")
+    for vt, lid, why in failed[:8]:
         print(f"  FAILED {vt}/{lid}: {why}")
     return 1 if failed else 0
 

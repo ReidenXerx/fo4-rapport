@@ -173,6 +173,47 @@ plausible floor on the reference set before trusting any rejection from it.
 (`scripts/render-barks.py` — resumable, skips what already exists). The MCP tools
 are for hearing one thing quickly.
 
+### V-15 — What the owner's ear actually wants: tremble.
+
+Owner feedback, 2026-09-21, on `DLC04GangDiscipleFemale01` preview 3:
+
+> "its amazingly voice is rumbling and shaking as human could do and tremble"
+
+That is the target quality for this project, stated plainly, and it is worth more
+than any setting in this document because it is the only thing here that came
+from listening.
+
+Two things produce it, and both are controllable:
+
+- **The brief.** That voice was briefed as *"quiet, deeply unsettling, soft and
+  breathy and wrong"*. Breath and instability in the DESCRIPTION are what give a
+  designed voice somewhere to shake from. A brief that asks for "clear",
+  "professional" or "well-projected" forecloses it.
+- **`stability`.** Lower values widen the emotional range, which is where the
+  tremble lives. This project runs 0.30 on `quickie`, 0.35 on `tender`, 0.40 on
+  `athome` — tighter where the delivery should be settled, looser where it should
+  not be.
+
+When designing a new voice, write the brief for a person who is *affected by
+something*, not for a narrator. "Tired but warm", "breathy and wrong", "ragged
+breathing in the voice" all produced usable character. Neutral competence does
+not.
+
+### V-16 — Preview 3 won every time, and nobody knows why yet.
+
+Across all 32 designed voice types the owner picked **preview 3**, including the
+very first one chosen blind before any pattern existed. Voice Design returns
+three variants and does not document an ordering.
+
+Treat this as an **observation, not a rule**. It may be that the third variant
+carries the most deviation from the neutral read, which would match V-15
+exactly — or it may be coincidence across one listener and one session. Do not
+auto-select preview 3 on that basis: V-9 still stands, and an agent choosing a
+voice from a pattern is still an agent choosing a voice it cannot hear.
+
+It is written down so that if it holds across the next batch, it becomes
+evidence instead of a hunch.
+
 ---
 
 ## Settled numbers
@@ -181,7 +222,9 @@ are for hearing one thing quickly.
 | --- | --- |
 | model | `eleven_multilingual_v2` by default; `eleven_v3` only on lines measured 100% (V-1) |
 | output format | `pcm_44100` |
-| voice settings | `stability 0.4`, `similarity_boost 0.75`, `style 0.3`, `use_speaker_boost true` |
+| voice settings | `similarity_boost 0.75`, `style 0.3`, `use_speaker_boost true` |
+| stability / speed | per scenario: quickie 0.30 / 1.10 &middot; tender 0.35 / 0.92 &middot; athome 0.40 / 0.95 |
+| audio tag | `[whispers]` on v3-safe lines only |
 | xWMA bitrate | 48 kbps (vanilla: 32) |
 | lip data | 0 bytes |
 | delivery | TopicInfo records, for subtitles (owner poll 2026-09-21) |
