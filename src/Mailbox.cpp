@@ -1,6 +1,7 @@
 #include "Mailbox.h"
 
 #include "Config.h"
+#include "ActorScan.h"
 #include "Orders.h"
 
 #include <cmath>
@@ -210,6 +211,79 @@ namespace RP
 		if (verb == "heal") {
 			const bool did = link.AbandonInFlight("the mailbox asked");
 			return did ? "OK gave up on the scene in flight" : "OK nothing was in flight";
+		}
+
+		if (verb == "nearby") {
+			// WHO IS ACTUALLY HERE, with the ids every other verb needs.
+			//
+			// Until now those ids were learned by grepping the log for "would
+			// pair" lines, which only names the top three of a ranked list and
+			// only when the scheduler happened to tick. The plugin has had the
+			// whole list the entire time.
+			//
+			// Read-only, and that is the point: the one rule this channel has
+			// earned tonight is to act on NPCs and on our own framework, never on
+			// the player's body -- SetAngle on the player crashed the game.
+			auto* lists = RE::ProcessLists::GetSingleton();
+			auto* player = RE::PlayerCharacter::GetSingleton();
+			if (!lists || !player) {
+				return "ERR no process lists";
+			}
+			float radius = 3000.0f;
+			if (!rest.empty()) {
+				try {
+					radius = std::stof(rest);
+				} catch (const std::exception&) {
+					return "ERR nearby [radius]";
+				}
+			}
+
+			const auto here = player->GetPosition();
+			struct Row
+			{
+				float         distance;
+				std::uint32_t formID;
+				std::string   name;
+				bool          busy;
+				bool          loaded;
+			};
+			std::vector<Row> rows;
+
+			for (const auto* list : { &lists->highActorHandles, &lists->middleHighActorHandles }) {
+				for (const auto& handle : *list) {
+					auto actor = handle.get();
+					if (!actor) {
+						continue;
+					}
+					const auto pos = actor->GetPosition();
+					const auto dx = pos.x - here.x;
+					const auto dy = pos.y - here.y;
+					const auto dz = pos.z - here.z;
+					const auto d = std::sqrt(dx * dx + dy * dy + dz * dz);
+					if (d > radius) {
+						continue;
+					}
+					const char* n = actor->GetDisplayFullName();
+					rows.push_back(Row{ d, actor->GetFormID(), (n && *n) ? n : "(unnamed)",
+						link.IsActorBusy(actor->GetFormID()), actor->Get3D() != nullptr });
+				}
+			}
+
+			std::sort(rows.begin(), rows.end(),
+				[](const Row& a, const Row& b) { return a.distance < b.distance; });
+
+			std::string out = std::format("OK {} actor(s) within {:.0f} units:", rows.size(), radius);
+			std::size_t shown = 0;
+			for (const auto& row : rows) {
+				if (shown++ >= 25) {
+					out += std::format("\n  ... and {} more", rows.size() - 25);
+					break;
+				}
+				out += std::format("\n  {:08X}  {:>6.0f}u  {}{}{}",
+					row.formID, row.distance, row.name,
+					row.loaded ? "" : "  [no 3D]", row.busy ? "  [AAF busy]" : "");
+			}
+			return out;
 		}
 
 		if (verb == "who") {
@@ -497,7 +571,7 @@ namespace RP
 		}
 
 		return std::format(
-			"ERR unknown verb \"{}\" - try: ping, health, stranded, heal, who, bring, goto, look, watch, request, pause, resume, say, console",
+			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, request, pause, resume, say, console",
 			verb);
 	}
 
