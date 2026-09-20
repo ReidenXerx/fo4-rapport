@@ -796,6 +796,12 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		Return
 	EndIf
 
+	If aiKind == 23
+		Rapport:Core.Trace("quit: closing the game at the mailbox's request")
+		Debug.QuitGame()
+		Return
+	EndIf
+
 	If aiKind == 22
 		Debug.SetGodMode(asSetID == "1")
 		If asSetID == "1"

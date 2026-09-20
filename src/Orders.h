@@ -120,7 +120,13 @@ namespace RP
 			// Debug.SetGodMode. The console is unreachable from Papyrus -- that
 			// was searched for and confirmed absent -- but the cheat EFFECTS are
 			// ordinary natives on Debug.
-			kGodMode = 22
+			kGodMode = 22,
+
+			// Debug.QuitGame. Chosen over BGSSaveLoadManager's
+			// kSaveAndQuitToDesktop deliberately: that one WRITES A SAVE on the
+			// way out, and silently writing to somebody's save slots is not a
+			// thing a test tool should do.
+			kQuitGame = 23
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

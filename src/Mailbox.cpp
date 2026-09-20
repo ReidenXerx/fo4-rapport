@@ -2,6 +2,8 @@
 
 #include "Config.h"
 #include "ActorScan.h"
+
+#include "RE/Bethesda/BGSSaveLoad.h"
 #include "Aftermath.h"
 #include "Expressions.h"
 #include "Orders.h"
@@ -490,6 +492,35 @@ namespace RP
 				formID);
 		}
 
+		if (verb == "reload") {
+			// kLoadMostRecentSave. The test-loop primitive: get back to a known
+			// state without the owner touching a menu.
+			//
+			// It DISCARDS UNSAVED PROGRESS, which is the point, and it writes
+			// nothing -- the sibling tasks kQuickSave/kForceSave would overwrite
+			// a save slot and are deliberately not exposed. Overwriting somebody
+			// else's saves is a one-way door and not a test tool's business.
+			auto* manager = RE::BGSSaveLoadManager::GetSingleton();
+			if (!manager) {
+				return "ERR no save/load manager";
+			}
+			manager->QueueSaveLoadTask(RE::BGSSaveLoadManager::QUEUED_TASK::kLoadMostRecentSave);
+			return "OK queued kLoadMostRecentSave - the MOST RECENT save, which may be an autosave, "
+				   "not the one you last chose by hand. Unsaved progress is gone.";
+		}
+
+		if (verb == "quit") {
+			// Debug.QuitGame through the doorbell, not kSaveAndQuitToDesktop:
+			// that variant writes a save on the way out.
+			if (rest != "yes") {
+				return "ERR quit takes a confirmation: \"quit yes\". It closes the game and unsaved "
+					   "progress is lost.";
+			}
+			link.QueueOrder(Order{ Order::Kind::kQuitGame, 0, "", "" });
+			return "OK queued - closing the game. The channel dies with it; the state watcher will "
+				   "report DOWN.";
+		}
+
 		if (verb == "god") {
 			const bool on = (rest == "on" || rest == "1");
 			if (rest != "on" && rest != "off" && rest != "1" && rest != "0") {
@@ -639,7 +670,7 @@ namespace RP
 		}
 
 		return std::format(
-			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, gametime, passtime, freeze, thaw, state, god, request, pause, resume, say, console",
+			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, gametime, passtime, freeze, thaw, state, god, reload, quit, request, pause, resume, say, console",
 			verb);
 	}
 
