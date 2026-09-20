@@ -230,6 +230,21 @@ def main() -> int:
 
     import collections as _c
     bym = _c.Counter(m for _, _, m in done)
+
+    # Record which model actually produced each file. The renderer knew this and
+    # threw it away, so the bark browser could only show which model was TRIED
+    # first - and 16 files in one batch needed their second model.
+    man_path = ROOT / "voice/render-manifest.json"
+    man = {}
+    if man_path.exists():
+        man = json.loads(man_path.read_text(encoding="utf-8")).get("rendered", {})
+    for vt, lid, model in done:
+        man.setdefault(vt, {})[lid] = model
+    man_path.write_text(json.dumps(
+        {"_": "Which model actually produced each .fuz, after the STT gate and any "
+              "fallback. Written by render-barks.py; absent entries were rendered "
+              "before this was recorded.", "rendered": man}, indent=2), encoding="utf-8")
+    print(f"  manifest : {sum(len(v) for v in man.values())} files recorded")
     print(f"\nrendered {len(done)}, failed {len(failed)}")
     print("  by model : " + ", ".join(f"{m} {n}" for m, n in bym.most_common()))
     print(f"  needed the SECOND model after {a.tries} drifting takes: {len(fellback)}")
