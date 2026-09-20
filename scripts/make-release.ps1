@@ -71,6 +71,41 @@ Copy-Into -From "build\$Config\Rapport.dll" -To 'F4SE\Plugins' -Required | Out-N
 Copy-Into -From 'data\F4SE\Plugins\Rapport.ini' -To 'F4SE\Plugins' -Required | Out-Null
 Copy-Into -From 'data\F4SE\Plugins\Rapport' -To 'F4SE\Plugins\Rapport' -Tree -Required | Out-Null
 
+# DIAGNOSTICS OFF IN A RELEASE, forced here rather than trusted.
+#
+# debug.json ships with active="debug" because that is the right default on a
+# DEVELOPMENT machine, and the tree copy above takes it verbatim. Papyrus
+# tracing slows the script engine -- the exact cost this mod exists not to add --
+# and the debug profile also writes to the player's Fallout4Custom.ini. Shipping
+# it on would do both to every stranger who installs this.
+#
+# Rewriting the STAGED copy, never the repo's, so a developer's working tree
+# keeps its own default and a release cannot inherit it.
+$debugJson = Join-Path $stage 'F4SE\Plugins\Rapport\debug.json'
+if (Test-Path $debugJson) {
+    $cfg = Get-Content $debugJson -Raw | ConvertFrom-Json
+    if ($cfg.active -ne 'off') {
+        Write-Host "  debug.json: active '$($cfg.active)' -> 'off' for release"
+        $cfg.active = 'off'
+        # NO BOM. Set-Content -Encoding UTF8 writes one on Windows PowerShell 5.1,
+        # and a byte-order mark at the front of a JSON file is not JSON to most
+        # parsers -- including the one in this plugin. Caught by reading it back.
+        $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($debugJson, ($cfg | ConvertTo-Json -Depth 24), $utf8NoBom)
+    }
+    # READ IT BACK. A packaging step that reports a change it did not make is
+    # the failure this whole project keeps finding.
+    $bytes = [System.IO.File]::ReadAllBytes($debugJson)
+    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+        throw "debug.json was written with a BOM - the plugin cannot parse that."
+    }
+    $check = (Get-Content $debugJson -Raw | ConvertFrom-Json).active
+    if ($check -ne 'off') { throw "debug.json still says '$check' - refusing to ship diagnostics on." }
+    Write-Host "  debug.json: verified active=off"
+} else {
+    throw "MISSING: $debugJson -- cannot verify diagnostics are off."
+}
+
 # Compiled Papyrus. Without these the plugin has no bridge and does nothing at
 # all, which is why it is Required rather than best-effort.
 Copy-Into -From 'build\papyrus\Rapport' -To 'Scripts\Rapport' -Tree -Required | Out-Null
