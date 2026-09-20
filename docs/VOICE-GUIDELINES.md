@@ -223,6 +223,53 @@ voice from a pattern is still an agent choosing a voice it cannot hear.
 It is written down so that if it holds across the next batch, it becomes
 evidence instead of a hunch.
 
+### V-19 — The API surface actually used, and the real budgets.
+
+Endpoints, because the MCP tools do not scale past auditioning (V-14):
+
+| need | call |
+| --- | --- |
+| design a voice from a prose brief | `POST /v1/text-to-voice/design` -> 3 previews, each with `audio_base_64` + `generated_voice_id` |
+| keep one of those previews | `POST /v1/text-to-voice` with `generated_voice_id`, `voice_name`, `voice_description` |
+| render | `POST /v1/text-to-speech/{id}?output_format=pcm_44100` |
+| verify a render | `POST /v1/speech-to-text`, multipart, `model_id=scribe_v1` |
+| budgets and usage | `GET /v1/user` -> `subscription` |
+
+**Professional Voice Cloning is capped at ONE voice on Pro** (`professional_voice_limit: 1`),
+needs 30+ minutes of clean training audio, and takes hours. It is the wrong tool for a
+project that wants thirty distinct voices. **Voice Design is the route**, and it draws on
+the 160 `voice_limit` slots.
+
+**The budgets that actually bind are not credits.** 610,000 characters/month is enormous
+against this work — the whole 32-voice bank, every experiment and every re-render came to a
+small fraction of one month. The limits worth watching:
+
+- `voice_limit: 160` — designed voices you may hold.
+- `max_voice_add_edits: 290` — voice create/edit operations, and `voice_add_edit_counter`
+  does not reset with the character allowance. Deleting and re-creating voices spends it.
+- **The owner's listening time.** 32 voice types at 3 previews is 96 clips. That, not money,
+  is what makes a batch expensive. Never cut content scope to save credits; say so if asked.
+
+### V-20 — Only DOCUMENTED audio tags, and what we deliberately do not use.
+
+`[urgent]` is not in ElevenLabs' tag list. Passing it made v3 paraphrase the line every
+time it was measured (0/8). An undocumented tag is read as a *direction* rather than
+consumed, and the model rewrites around it. Stick to the published list -
+`[whispers]`, `[sighs]`, `[laughs]`, `[exhales]`, `[sarcastic]`, `[curious]`, `[excited]`,
+`[crying]`, `[mischievously]` - and only on v3 lines (V-2).
+
+Capabilities available on this account and **not** used here, so nobody re-discovers them
+as if they were new:
+
+- **`speech_to_speech`** - converts a performance into a target voice, preserving delivery.
+  The strongest emotional control available, and it needs a recorded performance per line.
+  Worth revisiting if tag-driven emotion is not enough.
+- **`text_to_sound_effects`** - generates SFX. Out of scope: Rapport ships no sound effects.
+- **the shared Voice Library** - pre-made community voices. Not used because a FO4 voice
+  type needs to match Bethesda's, which briefs do better than browsing.
+- **`eleven_v3_conversational`, Flash and Turbo** - lower latency, which is worthless for an
+  offline batch that is rendered once and shipped as files.
+
 ---
 
 ## Settled numbers
@@ -268,3 +315,14 @@ python scripts/pcm-to-fuz.py in.pcm out.fuz       # one file, by hand
   `BTDX`/`GNRL` is a 24-byte header, 36-byte records and a name table.
 - **The MCP server can only read files under `ELEVENLABS_MCP_BASE_PATH`.** Anything
   to be transcribed must sit inside it.
+- **Generated HTML is never trusted until its JavaScript parses.** A page whose
+  script throws renders its header and nothing else, which looks almost fine. An
+  escaped apostrophe collapsed on the way into the file, `Bethesda's` closed a JS
+  string early, and the bark browser shipped blank. Extract the script and run
+  `node --check` before claiming a generated page works.
+- **Escapes collapse on the way into a file more often than seems possible.** A
+  backslash-b became a literal backspace byte inside a regex; `
+` in a patch
+  source became a real newline and silently matched nothing. Write patches with
+  raw strings or `chr()`, and verify the bytes with `cat -A` when a replacement
+  "succeeds" but changes no behaviour.

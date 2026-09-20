@@ -62,7 +62,7 @@ function show(t,btn){
   if(btn)btn.classList.add('on');
   const m=document.getElementById('main');
   let h='<div class="vhead"><h2>'+t.vt+'</h2>';
-  t.van.forEach((v,i)=>h+='<button class="pb van" data-src="vanilla/'+v+'" title="Bethesda's real voice type">V'+(i+1)+'</button>');
+  t.van.forEach((v,i)=>h+='<button class="pb van" data-src="vanilla/'+v+'" title="Bethesda&rsquo;s real voice type">V'+(i+1)+'</button>');
   h+='</div><p class="brief">Green <b style="color:var(--van)">V</b> buttons are Bethesda&rsquo;s actual '
    +'voice type, for comparison. <b class="md v3">v3</b> marks lines that tried the expressive model '
    +'first (whisper tag, scenario pacing); <b class="md v2">v2</b> tried the plain one. '
