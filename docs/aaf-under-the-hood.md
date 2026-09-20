@@ -373,3 +373,67 @@ BGEM is parsed positionally, those two bytes shift every field after them. It st
 "round-trip test" that scanned the result for plausible strings, which is a test that cannot fail.
 The honest test is to rebuild a material the engine already loads and compare bytes -- see
 `tools/make_overlays.py`, which does exactly that.
+
+## 22. AAF reports a REFUSAL through the same event as a scene start — with four arguments, not eleven
+
+`OnSceneInit` carries eleven arguments for a real start. A refusal carries **four**: an error level
+in `[0]`, the message in `[1]`, the actors in `[2]`, and — the part that matters — **the meta tag the
+scene was requested with** in `[3]`.
+
+```
+aaf: OnSceneInit args[4] [0]=3.000000
+     [1]=[044] Failed to start 'MM' scene because there are no allowed 'MM' animations
+              compatible with target location: [Location: Ground at Lonnie Sampson]
+     [2]=[[Actor < (00115CF2)>], [Actor < (00023354)>]]
+     [3]=Rapport,autonomy
+```
+
+Length is how you tell them apart. Treating a refusal as a start restarts the scenario, which asks
+for the same impossible thing again — a tight loop whose log says "scene started" every time round.
+
+**The cost of not closing the request out was thirteen minutes.** Until 2026-09-20 nothing failed the
+request on a refusal, so it sat in flight until the 780-second watchdog: both actors stayed flagged
+busy in AAF and therefore unusable by *every* AAF mod on the machine, every tick answered "a scene is
+already running", and no addon could start anything. From outside that is indistinguishable from the
+bridge being dead, and it was read as exactly that.
+
+`args[3]` is what makes failing it safe — a refusal of somebody else's scene still only gets a log
+line.
+
+## 23. An AAF call about an UNLOADED actor wedges the bridge. Resolving is not being here.
+
+`Game.GetForm(id) as Actor` returns non-None for an actor whose 3D is gone. Fast travel leaves the
+form perfectly resolvable and the actor unloaded, so a `target == None` guard passes cleanly on
+somebody who is not in the world — and the AAF call that follows does not come back.
+
+Measured: a scene running in Diamond City, the player fast travelled to Goodneighbor, six
+`RemoveOverlaySet` calls went out at two actors who had just unloaded, and the bridge **stopped
+polling entirely** — no expression, no overlay, no scene ending, nothing timed at all, until a save
+was reloaded.
+
+`Is3DLoaded()` is the check that separates them, and it belongs on **every** order kind.
+
+## 24. Every queued Order costs a POLL, so order COUNT is the width of your failure window
+
+Because a Papyrus stack does not return from an AAF call, the bridge drains one AAF-bound order per
+poll. Six orders is six polls of exposure; two is two.
+
+The heat-clear used to remove all three levels from both actors — six calls — on the reasoning that
+"removing a set that was never applied costs an order and does nothing". That was wrong about the
+cost. Three times the calls is three times the chance of a fast travel landing mid-drain, which is
+exactly what happened.
+
+Clearing only the level actually on takes it to two. The all-levels sweep still earns its place in
+the one case it was written for: after a **load**, where the plugin's record is empty while an
+overlay may still be on the actor.
+
+## 25. `talkingToPlayer` is about the PLAYER. Two NPCs talking to each other are not "in dialogue".
+
+The candidate filter reported `dialogue 0` straight through a scripted exchange between two
+Goodneighbor NPCs, and paired them off mid-conversation. By that filter's definition it was telling
+the truth.
+
+`Actor::boolFlags.any(BOOL_FLAGS::kInRandomScene)` is the ambient-conversation bit, and it fires: it
+rejected 3 actors on the first tick of the first run after the change. Authored story scenes are left
+to the existing quest-alias filter — the broader `GetCurrentScene()` check would drop everybody
+standing in any quest scene, and in Goodneighbor and Diamond City that is most of the street.
