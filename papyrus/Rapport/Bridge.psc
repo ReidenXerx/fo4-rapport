@@ -786,6 +786,24 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		Return
 	EndIf
 
+	If aiKind == 20
+		Actor frozen = Game.GetForm(aiFormID) as Actor
+		If frozen == None
+			Rapport:Core.Trace("ai: " + Rapport:Core.FormIdText(aiFormID) + " does not resolve")
+			Return
+		EndIf
+		; EnableAI(abEnable, abPauseVoice) -- TWO arguments. The decompiled base
+		; sources carry no default values, so every one must be passed; leaving
+		; the second off is a compile error, not a silent default.
+		frozen.EnableAI(asSetID == "1", False)
+		If asSetID == "1"
+			Rapport:Core.Trace("ai: " + Rapport:Core.FormIdText(aiFormID) + " is thawed")
+		Else
+			Rapport:Core.Trace("ai: " + Rapport:Core.FormIdText(aiFormID) + " is frozen where they stand")
+		EndIf
+		Return
+	EndIf
+
 	If aiKind == 19
 		Game.PassTime(asSetID as Int)
 		Rapport:Core.Trace("passtime: advanced " + asSetID + " game hour(s)")

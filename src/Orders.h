@@ -105,7 +105,12 @@ namespace RP
 			// Game.PassTime. The aftermath holds for TWELVE GAME HOURS and every
 			// cooldown is in game hours, so without this none of that layer can be
 			// tested without playing through it in real time.
-			kPassTime = 19
+			kPassTime = 19,
+
+			// EnableAI(false). Holds an NPC exactly where they are so they can be
+			// looked at without wandering off mid-observation. setID is "0" to
+			// freeze and "1" to thaw. Papyrus-only, hence an order.
+			kSetAI = 20
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

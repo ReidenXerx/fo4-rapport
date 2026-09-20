@@ -2,6 +2,8 @@
 
 #include "Config.h"
 #include "ActorScan.h"
+#include "Aftermath.h"
+#include "Expressions.h"
 #include "Orders.h"
 
 #include <cmath>
@@ -434,6 +436,40 @@ namespace RP
 			return std::format("OK queued - camera onto {:08X}; \"look off\" gives it back", formID);
 		}
 
+		if (verb == "gametime") {
+			// The game clock, answered HERE rather than through the doorbell,
+			// because a question C++ can answer should not cost a poll.
+			// GetHoursPassed is hours since the save began, which is the same
+			// clock the aftermath window and every cooldown are measured on.
+			auto* cal = RE::Calendar::GetSingleton();
+			if (!cal) {
+				return "ERR no calendar";
+			}
+			const auto hours = cal->GetHoursPassed();
+			return std::format("OK hour {:.2f} since this save began (day {:.0f}, {:02.0f}:{:02.0f})",
+				hours, std::floor(hours / 24.0f) + 1,
+				std::floor(std::fmod(hours, 24.0f)),
+				std::fmod(hours, 1.0f) * 60.0f);
+		}
+
+		if (verb == "freeze" || verb == "thaw") {
+			// EnableAI. An NPC who wanders off mid-observation is the reason a
+			// screenshot and a log line can disagree about what was happening.
+			bool       ok = false;
+			const auto formID = ParseFormID(rest, ok);
+			if (!ok) {
+				return std::format("ERR {} <formid>", verb);
+			}
+			auto* form = RE::TESForm::GetFormByID(formID);
+			if (!form || !form->As<RE::Actor>()) {
+				return std::format("ERR {:08X} is not an actor", formID);
+			}
+			link.QueueOrder(Order{ Order::Kind::kSetAI, formID, verb == "thaw" ? "1" : "0", "" });
+			return std::format("OK queued - {:08X} will be {}. REMEMBER TO THAW THEM: a frozen NPC "
+							   "stays frozen in the save.",
+				formID, verb == "thaw" ? "thawed" : "frozen where they stand");
+		}
+
 		if (verb == "passtime") {
 			int hours = 1;
 			try {
@@ -571,7 +607,7 @@ namespace RP
 		}
 
 		return std::format(
-			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, passtime, request, pause, resume, say, console",
+			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, gametime, passtime, freeze, thaw, request, pause, resume, say, console",
 			verb);
 	}
 
