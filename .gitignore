@@ -30,3 +30,6 @@ __pycache__/
 /scripts/*.local.ps1
 /scripts/local.*
 voice/renders/
+voice/vanilla/
+voice/pcm/
+voice/ab/
