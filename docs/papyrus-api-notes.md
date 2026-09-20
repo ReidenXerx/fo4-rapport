@@ -1,0 +1,127 @@
+# Papyrus API notes — what the engine already has
+
+The reconstructed base sources live at `D:\F4CustomMods\PapyrusBase\Source\Base` — **9658 `.psc`
+files**, and `scripts/build-papyrus.ps1` already compiles against them. They are the reference for
+every native in the game. They were treated as undocumented for most of a development session while
+sitting in this project's own build command.
+
+**They are decompiled, so they carry no default argument values.** Every argument must be passed
+explicitly; omitting one is a compile error, not a silent default. `EnableAI(Bool abEnable, Bool
+abPauseVoice)` cost a failed build learning that.
+
+Everything below was read from those sources and, where noted, **measured in game**. Nothing here is
+inferred from a function's name.
+
+## The ones that were hand-rolled first, and should not have been
+
+| Wanted | Hand-rolled | The engine already had |
+| --- | --- | --- |
+| Heading from A to B | `atan2` with Bethesda's clockwise-from-+Y convention, head-height correction | `ObjectReference.GetHeadingAngle(ObjectReference akOther)` |
+| Read the game clock | `RE::Calendar::GetHoursPassed` in C++ | `Utility.GetCurrentGameTime()` |
+| Advance the clock | nothing — the aftermath window was untestable | `Game.PassTime(Int aiHours)` |
+| Not land inside a wall | a distance band, tuned until the symptom moved | `ObjectReference.MoveToNearestNavmeshLocation()` |
+
+## Measured behaviour — not what the names suggest
+
+**`Game.SetAngle` on the player CRASHES THE GAME.** 2026-09-20 02:59:52 it ran with pitch -0.13, yaw
+104.63; 02:59:53 the game died on a null function-pointer call. The stack was the player
+repositioning path: `GameVM::ProcessEvent(PositionPlayerEvent&)`,
+`BSTEventSource<PositionPlayerEvent>::Notify`, `ForceFullUpdate`, `DispatchRenderSafeCalls`, with
+`PlayerCharacter` and `BGSLocation "Diamond City"` among the relevant objects. Rotating the player
+raises `PositionPlayerEvent` and the engine does a full reposition off the back of it — which also
+produced a loading screen from a command that had explicitly not teleported anybody.
+
+`MoveTo` on the player is fine and is proven working. It is ROTATION that is the problem, not
+movement; do not generalise the crash into "never touch the player".
+
+**`Game.SetCameraTarget(Actor)` ignores the actor you pass it.** Tried in game: it forces third
+person, and aiming it at two different actors produced BYTE-IDENTICAL frames. Whatever it is for, it
+is not per-actor framing.
+
+**There is NO Papyrus route to the console.** Searched across the corpus for
+`ExecuteConsoleCommand`, `ConsoleCommand`, a console-wrapping script class, and `Console*.psc` — all
+zero. The 23 files matching "Console" are in-world terminal objects. The cheat EFFECTS are reachable
+as ordinary natives (below); arbitrary command strings are not.
+
+## Verified signatures worth keeping
+
+Camera:
+```papyrus
+Function StartDialogueCameraOrCenterOnTarget(ObjectReference akCameraTarget) Global Native
+Function StopDialogueCamera(Bool abConsiderResume, Bool abSwitchingTo1stP) Global Native
+Function ForceFirstPerson() Global Native
+Function ForceThirdPerson() Global Native
+Function PlayEventCamera(camerashot akCamera, ObjectReference akRef) Global Native
+```
+
+Placement:
+```papyrus
+Function MoveTo(ObjectReference akTarget, Float afXOffset, Float afYOffset, Float afZOffset, Bool abMatchRotation) Native
+Function MoveToNearestNavmeshLocation() Native
+Function MoveToNode(ObjectReference akTarget, String asNodeName, String asMatchNodeName) Native
+Function FastTravel(ObjectReference akDestination) Global Native
+```
+
+Time:
+```papyrus
+Float  Function GetCurrentGameTime() Global Native      ; Utility
+String Function GameTimeToString(Float afGameTime) Global Native
+Function WaitGameTime(Float afHours) Global Native
+Function PassTime(Int aiHours) Global Native            ; Game
+```
+
+Cheat effects, all on `Debug`, all Global:
+```papyrus
+Function SetGodMode(Bool abGodMode) Global Native
+Function EnableCollisions(Bool abEnable) Global Native
+Function EnableDetection(Bool abEnable) Global Native
+Function EnableMenus(Bool abEnable) Global Native
+Function EnableAI(Bool abEnable) Global Native          ; ONE arg, and global
+```
+`Actor.EnableAI(Bool abEnable, Bool abPauseVoice)` is a DIFFERENT function — two arguments, instance
+method. Do not conflate them.
+
+Actor state, all instance methods, all read-only:
+```papyrus
+Bool Function IsInScene()        Bool Function IsInCombat()      Bool Function IsTalking()
+Bool Function IsWeaponDrawn()    Bool Function IsSneaking()      Bool Function IsDead()
+Bool Function IsUnconscious()    Int  Function GetSitState()     Int  Function GetSleepState()
+Int  Function GetRelationshipRank(Actor akOther)
+Actor Function GetDialogueTarget()   Package Function GetCurrentPackage()
+Bool Function Is3DLoaded()       Scene Function GetCurrentScene()
+Float Function getDistance(ObjectReference akOther)   ; lowercase in the source, not a typo
+Float Function GetHeadingAngle(ObjectReference akOther)
+```
+
+Holding an actor still:
+```papyrus
+Function EnableAI(Bool abEnable, Bool abPauseVoice) Native
+Bool Function SetRestrained(Bool abRestrained) Native
+Function SetHeadTracking(Bool abEnable) Native
+Function SetLookAt(ObjectReference akTarget, Bool abPathingLookAt) Native
+Function ClearLookAt() Native
+Bool Function SnapIntoInteraction(ObjectReference akTarget) Native
+```
+
+Player controls — `InputEnableLayer`, an instance class created with `InputEnableLayer.Create()`:
+```papyrus
+Function DisablePlayerControls(Bool abMovement, Bool abFighting, Bool abCamSwitch, Bool abLooking, Bool abSneaking, Bool abMenu, Bool abActivate, Bool abJournalTabs, Bool abVATS, Bool abFavorites, Bool abRunning) Native
+Bool Function IsInMenuMode() Global Native     ; Utility
+```
+
+## Worth following up
+
+`GetRelationshipRank(Actor)` is an engine-held relationship value between two actors. Chemistry
+scores pairs on distance, privacy, observers, time of day and faction, and has never consulted it.
+That is a real input sitting unused.
+
+## How this was found
+
+Six subagents, one per capability domain, sweeping by CAPABILITY rather than by name — about 590,000
+tokens of searching that returned six pages. Searching for "camera" finds `SetCameraTarget`;
+searching for "how do you point a view at a thing" finds `StartDialogueCameraOrCenterOnTarget` and
+`GetHeadingAngle` too.
+
+One of them checked the corpus size it had been given and corrected it: 9658 files, not the 1795 it
+was told. Another therefore scoped its search to the top level only, so its "no such function"
+results cover 1795 files rather than the tree — a narrower negative than it looks.
