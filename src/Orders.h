@@ -100,7 +100,12 @@ namespace RP
 			// already worked out on the C++ side -- it has the positions and real
 			// trigonometry, and Papyrus has SetAngle. Splitting it that way keeps
 			// the arithmetic somewhere it can be read.
-			kLookAt = 18
+			kLookAt = 18,
+
+			// Game.PassTime. The aftermath holds for TWELVE GAME HOURS and every
+			// cooldown is in game hours, so without this none of that layer can be
+			// tested without playing through it in real time.
+			kPassTime = 19
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

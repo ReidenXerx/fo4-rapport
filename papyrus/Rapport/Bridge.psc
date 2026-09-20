@@ -756,6 +756,43 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		;
 		; SetAngle takes (pitch, roll, yaw). Roll stays 0 -- a rolled camera is a
 		; bug, never a request.
+		; Game.SetCameraTarget -- the function the engine provides for exactly this,
+		; found by READING THE BASE SOURCES instead of guessing.
+		;
+		; The first version computed a heading by hand and called SetAngle on the
+		; PLAYER. That crashed the game: 2026-09-20 02:59:52 it ran with pitch
+		; -0.13 yaw 104.63, and a second later the game died on a null
+		; function-pointer call with GameVM::ProcessEvent(PositionPlayerEvent&),
+		; BSTEventSource<PositionPlayerEvent>::Notify, ForceFullUpdate and
+		; DispatchRenderSafeCalls on the stack. Rotating the player raises
+		; PositionPlayerEvent and the engine does a full reposition off the back of
+		; it -- which also explains the loading screen that appeared from a command
+		; that had explicitly not teleported anybody.
+		;
+		; SetCameraTarget touches the camera and not the player's body. There was
+		; never a need for trigonometry here; there was a need to read the API.
+		If asSetID == "off"
+			Game.SetCameraTarget(Game.GetPlayer())
+			Rapport:Core.Trace("look: camera released back to the player")
+		Else
+			Actor lookAt = Game.GetForm(aiFormID) as Actor
+			If lookAt == None
+				Rapport:Core.Trace("look: " + Rapport:Core.FormIdText(aiFormID) + " does not resolve")
+				Return
+			EndIf
+			Game.SetCameraTarget(lookAt)
+			Rapport:Core.Trace("look: camera target is now " + Rapport:Core.FormIdText(aiFormID))
+		EndIf
+		Return
+	EndIf
+
+	If aiKind == 19
+		Game.PassTime(asSetID as Int)
+		Rapport:Core.Trace("passtime: advanced " + asSetID + " game hour(s)")
+		Return
+	EndIf
+
+	If aiKind == 99
 		; DISABLED. SetAngle ON THE PLAYER CRASHED THE GAME.
 		;
 		; 2026-09-20 02:59:52 this ran with pitch -0.13 yaw 104.63; at 02:59:53 the

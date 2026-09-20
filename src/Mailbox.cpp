@@ -413,42 +413,42 @@ namespace RP
 		}
 
 		if (verb == "look") {
+			// Game.SetCameraTarget, which is what the engine provides for this.
+			// The previous version worked out a heading by hand and rotated the
+			// PLAYER, and that crashed the game. Reading the base sources found a
+			// purpose-built function in about a minute; guessing cost a session.
+			if (rest == "off") {
+				link.QueueOrder(Order{ Order::Kind::kLookAt, 0, "off", "" });
+				return "OK queued - releasing the camera back to the player";
+			}
 			bool       ok = false;
 			const auto formID = ParseFormID(rest, ok);
 			if (!ok) {
-				return "ERR look <formid>   (points the player's camera at them)";
+				return "ERR look <formid> | look off";
 			}
 			auto* form = RE::TESForm::GetFormByID(formID);
-			auto* actor = form ? form->As<RE::Actor>() : nullptr;
-			if (!actor) {
+			if (!form || !form->As<RE::Actor>()) {
 				return std::format("ERR {:08X} is not an actor", formID);
 			}
-			auto* player = RE::PlayerCharacter::GetSingleton();
-			if (!player) {
-				return "ERR no player";
+			link.QueueOrder(Order{ Order::Kind::kLookAt, formID, "", "" });
+			return std::format("OK queued - camera onto {:08X}; \"look off\" gives it back", formID);
+		}
+
+		if (verb == "passtime") {
+			int hours = 1;
+			try {
+				hours = std::stoi(rest);
+			} catch (const std::exception&) {
+				return "ERR passtime <hours>";
 			}
-
-			// Bethesda angles: yaw (Z) is measured from +Y and increases
-			// CLOCKWISE, which is why this is atan2(dx, dy) and not the atan2(dy,
-			// dx) every maths textbook writes. Pitch (X) is positive looking DOWN.
-			// Roll stays zero -- a rolled camera is a bug, never a request.
-			const auto here = player->GetPosition();
-			const auto there = actor->GetPosition();
-			const auto dx = there.x - here.x;
-			const auto dy = there.y - here.y;
-			// Aim at the head rather than the feet, or every portrait is a
-			// close-up of somebody's boots.
-			const auto dz = (there.z + 120.0f) - (here.z + 120.0f);
-
-			constexpr float kRad = 57.2957795f;
-			const auto      flat = std::sqrt(dx * dx + dy * dy);
-			const auto      yaw = std::atan2(dx, dy) * kRad;
-			const auto      pitch = -std::atan2(dz, flat) * kRad;
-
-			link.QueueOrder(Order{ Order::Kind::kLookAt, formID,
-				std::format("{:.2f}", pitch), std::format("{:.2f}", yaw) });
-			return std::format("OK queued - looking at {:08X} (pitch {:.1f}, yaw {:.1f}, {:.0f} units away)",
-				formID, pitch, yaw, flat);
+			if (hours < 1 || hours > 72) {
+				return "ERR passtime <hours>, 1 to 72";
+			}
+			link.QueueOrder(Order{ Order::Kind::kPassTime, 0, std::to_string(hours), "" });
+			return std::format(
+				"OK queued - passing {} game hour(s). The aftermath window is 12 and cooldowns are in "
+				"game hours, so this is how that layer gets tested at all.",
+				hours);
 		}
 
 		if (verb == "watch") {
@@ -571,7 +571,7 @@ namespace RP
 		}
 
 		return std::format(
-			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, request, pause, resume, say, console",
+			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, passtime, request, pause, resume, say, console",
 			verb);
 	}
 
