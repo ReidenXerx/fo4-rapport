@@ -110,6 +110,54 @@ row mentioning it at the moment it happens. No sweep, no timer, no startup cost.
 per-pass cost this project keeps refusing, and it would run forever on a save where nobody
 is dying.
 
+## R-10 - What RAISES a relationship, and the double-count waiting to happen (2026-09-21)
+
+Owner's roadmap: *"increasing relationship when pair pick each other with every new sex +
+relationship affect decision making of parity with non linear curve"*. Both halves, and the
+trap between them.
+
+**The write path.** A completed scene raises that pair's value, with **diminishing returns** —
+the first time two people sleep together means more than the fortieth, and without a curve the
+number saturates and stops carrying information. Dialogue (the new mod), gifts and vanilla's
+own `OnStoryRelationshipChange` raise it too, so the store's API is *"add this much, for this
+reason"* rather than a sex counter. The reason is worth recording: it is what lets a later mod
+ask *why* two people are close.
+
+**THE DOUBLE-COUNT.** Chemistry `C-3` already gives **+0.15 per previous scene together, capped
+at +0.45**, read from `PairSceneCount` in the co-save. If the relationship store also rises with
+every scene and Chemistry then scores the relationship, **the same fact is counted twice** and
+the cap that `C-3` exists to enforce stops being a cap.
+
+So one of these, decided before either is built:
+
+1. `C-3` becomes a **read of the store** — `PairSceneCount` is retired and the history bonus is
+   just the relationship term. Cleanest, and it is what the store is for.
+2. The store tracks relationship, `C-3` keeps tracking *scenes*, and they are scored as
+   **separate things** on purpose — "we have history" and "we are close" being genuinely
+   different claims.
+
+Option 1 unless somebody argues for 2. Writing it down because this is exactly the kind of
+quiet arithmetic collision that ships and is never noticed.
+
+**Where the curve lives: Chemistry, not Rapport.** Same split as everything else — Rapport
+stores the number, the consumer decides what it is worth. A non-linear response belongs with
+the policy that has a bar of 0.90 to clear, not with the table that holds an integer. Two mods
+could then weigh the same relationship differently, which is the point of the layering.
+
+And per `R-4`: **the curve cannot be designed until the rank scale is measured.**
+
+## R-11 - The player is a pair member like any other (2026-09-21)
+
+The owner wants *"player-npc relationship powered interactions in new mod"*, so the store must
+key player↔NPC pairs with the same machinery as NPC↔NPC. No second table, no special case.
+
+The engine agrees: `GetRelationshipRank(Actor)` takes any actor and the player is one. Rapport
+already resolves the player as a form id like anything else.
+
+The **consequences** differ even though the storage does not — the player has no persona to
+derive (R-7 is about NPCs reacting to *you*), and `R-5`'s "written on interaction" is doing more
+work here, because the player interacts with far more NPCs than any NPC does.
+
 ---
 
 ## R-7 - Persona is DERIVED from the form id, never stored (2026-09-21)
@@ -253,6 +301,18 @@ many authored lines does one persona-driven exchange actually need, and in how m
 types"**. That is a counting exercise, and it is still the first thing to do, because the
 answer decides whether the mod is fifty lines or five thousand.
 
+**And the owner's point: five thousand may not frighten us.** With ElevenLabs over MCP and a
+subagent fan-out, generating many variations of the same line across many voices is
+*embarrassingly parallel* — each line-and-voice is bounded, independent, verifiable by
+listening, and there are far more than three of them, which is exactly the shape that wants a
+fan-out rather than a loop. The generation cost stops being the constraint.
+
+What remains the constraint, and should be sized honestly instead: **authoring** (somebody
+writes the lines and decides which situation each belongs to), **packaging** (`.fuz`, and
+`.lip` if dialogue needs it), and **review** — a generated line that is subtly wrong for the
+moment is worse than no line, and nothing but a person listening catches that. Plan the count
+around what can be *reviewed*, not around what can be generated.
+
 ## N-5 - Voice is solved; the LINES still have to be pre-authored (2026-09-21)
 
 Owner's decision: **ElevenLabs over MCP**, so voice lines can be generated directly rather
@@ -386,6 +446,18 @@ This roadmap is four mods: a relationship store, a persona system, a dialogue sy
 NPC-action API, and an attitude system. The **store is the keystone** — Chemistry consumes
 it immediately, it is independently valuable, and every other piece reads it.
 
-Build order that de-risks the most per week: **dialogue prototype (N-2) → store (R-1..R-6) →
-personas (R-7, R-8) → everything else.** The prototype comes first only because it is the
-one thing that can invalidate the rest.
+**Build order, revised once R-9 existed:**
+
+1. **Scene barks (R-9)** — no dialogue system, no lip sync, no voice-type multiplier, and every
+   input already computed. Proves generation → packaging → playback end to end at small scale,
+   and is shippable on its own.
+2. **Measure the rank scale (R-4)** — one harness session, and it blocks every curve.
+3. **The store (R-1, R-2, R-3, R-5, R-6, R-10, R-11)** — the keystone. Chemistry consumes it
+   immediately; resolve R-10's double-count against `C-3` before writing either.
+4. **Personas (R-7, R-8)** — derived, so they cost nothing to add once the store exists.
+5. **Dialogue prototype (N-2)** — the counting exercise. Still the piece that can invalidate
+   the *new mod*, but no longer the piece that blocks everything else.
+6. **The new mod (N-1..N-4)**, and the deferred attitude stub last.
+
+R-9 displaced N-2 at the front for one reason: it de-risks the same pipeline while depending
+on none of it.
