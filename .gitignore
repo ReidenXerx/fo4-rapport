@@ -29,3 +29,4 @@ __pycache__/
 # has to be committed to make the scripts run.
 /scripts/*.local.ps1
 /scripts/local.*
+voice/renders/

@@ -290,6 +290,79 @@ crowd at scene start is not the crowd the decision was made about.
 Cell ownership is Chemistry's (`N-3`) and Rapport cannot see it, so a bark that wants *"not in
 our own bed"* needs the addon to pass it with the request, or it is out of scope for v1.
 
+### The audio pipeline, measured 2026-09-21
+
+Everything here was read off real files, not assumed. The chain is
+**ElevenLabs pcm_44100 -> WAV -> xWMA -> FUZ**, built by `scripts/pcm-to-fuz.py`.
+
+**ElevenLabs.** Pro: 610,000 credits/month, 160 custom voice slots, 290 voice
+add/edits. `pcm_44100` returns **headerless** 16-bit mono little-endian samples,
+and the MCP server saves them with a **`.mp3` extension regardless** - the
+extension is a lie, the bytes are PCM. Voice Design (`text_to_voice`) is the
+route to many voices; Professional Voice Cloning is capped at **1** slot on Pro
+and is the wrong tool anyway.
+
+**What vanilla actually ships**, from `Fallout4 - Voices.ba2`
+(`Announcer_AirportVoice/00112D18_1.fuz`) against our first render:
+
+| | vanilla | ours |
+| --- | --- | --- |
+| magic / version | `FUZE` / 1 | same |
+| payload | RIFF, tag `0x0161` (xWMA) | same |
+| channels / rate | 1 / 44100 | same |
+| chunks | `fmt`,`dpds`,`data` | same |
+| lip data | 4,191 bytes | **0 - deliberate** |
+| bitrate | **32 kbps** | 48 kbps |
+
+The `dpds` chunk is the xWMA seek table and the engine needs it; `xwmaencode`
+emits it for free. **Vanilla is only 32 kbps**, so the game's own format is the
+dominant quality bottleneck - rendering from PCM still avoids a cascaded lossy
+encode, but the gain is smaller than the source bitrate suggests. We sit at 48,
+above vanilla, because there is no reason not to.
+
+**`lip: 0` is correct here, not a shortcut.** `Config.h` blocks the face for the
+length of a scene (`blockAnimationFaces{true}`) precisely because the engine's
+facial idle "writes the same morphs to blink, breathe and **talk**", and two
+writers on one morph is the flicker. Lip data would be a third writer fighting a
+block Rapport installs itself. So `FaceFXWrapper` is not a missing dependency.
+
+**`xwmaencode.exe`** lives at `D:\GOGGames\Fallout 4 GOTY\Tools\Audio\` -
+the game's own copy. It has been seen to **exit non-zero while still printing a
+plausible-looking message**, and on a locked output file it fails with
+`ERROR_SHARING_VIOLATION`; check that the artifact exists and is non-empty
+rather than trusting the exit code.
+
+### R-9 delivery: TopicInfo records (owner poll, 2026-09-21)
+
+Chosen over plain `SNDR` + `Sound.Play` **for real subtitles** - a half-whispered
+line is easy to miss over combat or a radio. The cost is accepted: DIAL/INFO
+records per line, a fixed audio path, and a heavier generator.
+
+    Function Say(Topic akTopicToSay, Actor akActorToSpeakAs, Bool abSpeakInPlayersHead,
+                 ObjectReference akTarget) Native
+
+Four arguments, **no defaults** - decompiled base sources carry none, so every
+call passes all four. `SayCustom(Keyword, ...)` exists too and may be the better
+fit if we ever want the engine to pick among tagged topics.
+
+**The file path, established from a MOD archive rather than vanilla** (vanilla is
+always load order `00` and therefore proves nothing):
+
+    Sound/Voice/<Plugin.esp>/<VoiceType>/<FormID & 0x00FFFFFF, 8 hex>_<n>.fuz
+
+`LobotomitePack.esm` ships `PlayerVoiceFemale01/000022DA_1.fuz` - the load-order
+byte is written as **`00`** and masked at lookup, so filenames survive any load
+order. Casing varies within that archive (`0001dbd7` beside `00026A5A`), so the
+lookup is case-insensitive. The folder name includes the extension.
+
+An actor whose voice type we did not render falls back to **silence with a
+subtitle** rather than a wrong voice - acceptable degradation, and it means
+coverage can grow one voice type at a time.
+
+**STILL UNVERIFIED, and it gates everything:** whether `Say` actually produces a
+line while AAF has the actor busy in a scene. It must be tested in-game before
+any batch render - a failure here invalidates the route, not just the content.
+
 **The ESP generator will need to emit Sound records.** `tools/make_esp.py` already emits
 quests, so the machinery exists; SNDR is new work but small.
 
