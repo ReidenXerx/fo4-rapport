@@ -181,6 +181,59 @@ point is dialogue at all. So the order is: **thinnest possible dialogue loop, th
 store, then personas** — because if dialogue cannot carry it, the store's shape changes with
 it and building it first would be building it twice.
 
+**Revised the same day by N-5.** Voice is no longer the blocker - ElevenLabs over MCP covers
+it. The prototype's job therefore changes: it is no longer *"can this be voiced"* but **"how
+many authored lines does one persona-driven exchange actually need, and in how many voice
+types"**. That is a counting exercise, and it is still the first thing to do, because the
+answer decides whether the mod is fifty lines or five thousand.
+
+## N-5 - Voice is solved; the LINES still have to be pre-authored (2026-09-21)
+
+Owner's decision: **ElevenLabs over MCP**, so voice lines can be generated directly rather
+than shipping silent dialogue or scavenging vanilla audio. That removes the biggest single
+objection to N-2 - a custom dialogue mod no longer has to sound like a mute.
+
+It does **not** remove the constraint underneath it, and the difference matters.
+
+**Voiced dialogue is named by form id.** Verified in this install:
+
+    Sound/Voice/VaultTecStory.esp/PlayerVoiceFemale01/00003F12_1.fuz
+    Sound/Voice/VaultTecStory.esp/PlayerVoiceFemale01/00003F12_1.lip
+
+`<plugin>.esp / <VoiceType> / <TopicInfoFormID>_<n>.fuz`, with a `.lip` beside it for lip
+sync. So **the dialogue system plays a line that already exists in the ESP** - it cannot be
+handed a sentence at runtime. Generation happens at BUILD time, not in game.
+
+What follows for the design: **personas select which authored line plays; they do not
+compose words.** That is a smaller and much more tractable system than it first sounds, and
+it should be designed as a selection problem from day one rather than discovered to be one
+later.
+
+**The real cost is the multiplier, and it is voice types, not lines.** Every NPC has a
+`VoiceType`, and a line generated in the wrong one sounds wrong immediately. Vanilla ships
+dozens. So the size of the job is *lines x voice types*, not *lines*. Three ways to cut it,
+none chosen yet:
+
+- restrict the mod to **named NPCs** with known voice types
+- ship a small set of **generic** voices and accept the mismatch on the rest
+- author the **player's** side voiced and leave NPC replies to subtitles
+
+**Unverified, and worth checking before committing:** the AAF creature pack next door ships
+`.fuz` files with arbitrary NAMES rather than form ids
+(`Sound/Voice/AAF_DR_creature_pack.esp/DR_female/DR_omega_fuck_no.fuz`), each with a `.lip`
+beside it. Some route plays named files. If that route also carries subtitles and lip sync
+in the dialogue UI, the pre-authored constraint above gets looser. I did not establish which
+route that is.
+
+**Also unverified:** whether `.lip` can be generated outside the Creation Kit. The toolchain
+at `D:\F4CustomMods` currently holds only `PapyrusBase` - no fuz or lip tooling yet. Audio
+without lip sync plays; the mouth simply does not move, which for a flirt mod is a worse
+failure than usual.
+
+One practical note rather than a lecture: cloning a recognisable vanilla voice actor is the
+kind of thing that attracts moderation, and two of this account's pages have been moderated
+already. Generated original voices carry none of that risk.
+
 ## N-3 - Place decides which advance is appropriate (2026-09-21)
 
 The owner asked whether location and ownership had anything in them. It does, and it is
@@ -218,6 +271,13 @@ So the shipping version is an **extraction** of known-good verbs into a Rapport-
 API — not a new build, and not a rediscovery of the same five crashes. The dev file-channel
 stays dev.
 
+**Owner's correction, and it is right:** F4MCP was built for *testing*, and its verb set is
+shaped by what a test harness needs. It is the **seed**, not the finished article. A gameplay
+framework will want things the harness never needed - making an actor face another, hand over
+an item, play an idle, wait for the player's answer, run a short scripted beat. Extract what
+exists because it is proven, then grow it against what the mod actually asks for, rather than
+assuming the test verbs are the right vocabulary.
+
 ---
 
 ## Deliberately deferred
@@ -245,7 +305,13 @@ stays dev.
    (`AAF/AAF_API.psc:374`, `:488`) and **no relationship stat is defined anywhere** — AAF
    built the substrate and left it empty. Using it would make our numbers visible to other
    AAF mods; it would also make us dependent on an unfinished layer. Not decided.
-5. **Persona bias inputs.** Faction and class are available; whether they should bias the
+5. **Which route plays NAME-based `.fuz` files** (N-5). The AAF creature pack does it; if that
+   route carries subtitles and lip sync, dialogue gets much more flexible.
+6. **Whether `.lip` can be generated outside the Creation Kit** (N-5). No fuz/lip tooling in
+   the toolchain yet.
+7. **How many voice types the mod covers** (N-5). This is the number that decides the size of
+   the whole job.
+8. **Persona bias inputs.** Faction and class are available; whether they should bias the
    derivation at all is a taste question nobody has answered.
 
 ## Scope note
