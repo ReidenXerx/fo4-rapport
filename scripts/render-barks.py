@@ -7,20 +7,22 @@ Render every R-9 bark for every chosen voice, straight to Fallout 4 .fuz.
     python scripts/render-barks.py --only DLC04GangDiscipleFemale01
     python scripts/render-barks.py --force
 
-Reads voice/lines.json, voice/voices.json and voice/v3-safety.json. A voice type
+Reads voice/lines.json, voice/voices.json and both safety files. A voice type
 with "chosen": null is SKIPPED - picking a voice is done by ear (V-9) and this
 script will not guess one.
 
-MODEL IS CHOSEN PER LINE (V-1). A line measured 100% verbatim on eleven_v3 gets
-v3 and an audio tag, which is the only way to get emotional delivery at all.
-Every other line gets eleven_multilingual_v2, where verbatim is guaranteed and
-the line keeps its wording - the model does not get a vote on the script (V-1b).
+NEITHER MODEL IS VERBATIM-SAFE. Measured per line on this bank, eleven_v3 gets
+28/36 and eleven_multilingual_v2 gets 16/36 - and they fail on DIFFERENT lines.
+An earlier version of this script trusted v2 blind on the strength of three
+samples of one line, and shipped drifted audio under subtitles that disagreed
+with it.
 
-EVERY v3 RENDER IS TRANSCRIBED BACK AND COMPARED before it is allowed to become
-a .fuz. These lines ship with subtitles, so a render saying something other than
-the authored text puts the screen and the audio into disagreement. A drifting
-take is re-rolled on a new seed, and after `--tries` failures the line falls back
-to v2 rather than shipping the wrong words.
+So EVERY render is transcribed back and compared before it may become a .fuz.
+The safety rates choose only which model to TRY FIRST; correctness comes from
+the gate. If the preferred model cannot produce a verbatim take in `--tries`
+seeds, the other model is tried, and if neither can, the line FAILS rather than
+writing unverified audio - a line no model will say cannot ship under a subtitle
+claiming it did.
 
 Key: ELEVENLABS_API_KEY, or the first line of ~/.elevenlabs/api-key. Never printed.
 """
@@ -55,10 +57,29 @@ def api_key() -> str:
     return f.read_text(encoding="utf-8").splitlines()[0].strip()
 
 
+# Pronunciation variants of the SAME words. A voice saying "wanna" for "want to"
+# is eliding, not substituting, and the subtitle is still correct - flagging it
+# burns a re-roll on a good take. Real drift ("gotta" -> "need to") is different
+# words and still fails, because "need to" is not in this map.
+ELISION = [("wanna", "want to"), ("gonna", "going to"), ("gotta", "got to"),
+           ("gimme", "give me"), ("lemme", "let me"), ("kinda", "kind of"),
+           ("outta", "out of"), ("alright", "all right"), ("'em", "them"),
+           ("'cause", "because"), ("cause", "because")]
+
+
 def norm(s: str) -> str:
-    """Compare meaning-bearing words only: tags, case and punctuation are noise."""
+    """Compare meaning-bearing words only: tags, case, punctuation and elision
+    are noise. STT is also not deterministic - the same audio transcribes
+    slightly differently between passes, so the comparison has to tolerate the
+    ways a word can be *said* while still catching a different word."""
     s = re.sub(r"\[[^\]]*\]", " ", s).lower()
-    return " ".join(re.sub(r"[^a-z' ]", " ", s).split())
+    s = " ".join(re.sub(r"[^a-z' ]", " ", s).split())
+    for short, full in ELISION:
+        # A leading apostrophe has no word boundary before it -  needs a word
+        # character on the left, and "'" is not one, so "'em" never matched.
+        left = "" if short.startswith("'") else r"\b"
+        s = re.sub(left + re.escape(short) + r"\b", full, s)
+    return " ".join(s.split())
 
 
 def _post(url: str, data: bytes, headers: dict, tries: int = 4) -> bytes:
@@ -118,7 +139,12 @@ def main() -> int:
 
     lines = json.loads((ROOT / "voice/lines.json").read_text(encoding="utf-8"))["lines"]
     types = json.loads((ROOT / "voice/voices.json").read_text(encoding="utf-8"))["types"]
-    safety = json.loads((ROOT / "voice/v3-safety.json").read_text(encoding="utf-8"))["rates"]
+    # These rates decide which model to TRY FIRST. They do not decide
+    # correctness - the runtime gate below does. Measured at n=8, a line whose
+    # true rate is ~90% lands on 88% or 100% at random, so classifying lines by
+    # these numbers was sorting noise.
+    s3 = json.loads((ROOT / "voice/v3-safety.json").read_text(encoding="utf-8"))["rates"]
+    s2 = json.loads((ROOT / "voice/v2-safety.json").read_text(encoding="utf-8"))["rates"]
 
     chosen = {vt: d["chosen"] for vt, d in types.items() if d.get("chosen")}
     if a.only:
@@ -134,12 +160,12 @@ def main() -> int:
                 continue
             jobs.append((vt, vid, ln, fuz))
 
-    expr = sum(1 for j in jobs if safety.get(j[2]["id"], 0) == 100)
+    expr = sum(1 for j in jobs if s3.get(j[2]["id"], 0) >= s2.get(j[2]["id"], 0))
     chars = sum(len(j[2]["text"]) for j in jobs)
     print(f"voices chosen : {len(chosen)} of {len(types)}")
-    print(f"to render     : {len(jobs)}   ({expr} with emotion on {EXPR}, "
-          f"{len(jobs)-expr} verbatim-only on {SAFE})")
-    print(f"characters    : {chars:,}  (plus re-rolls on drift)")
+    print(f"to render     : {len(jobs)}   ({expr} trying {EXPR} first, "
+          f"{len(jobs)-expr} trying {SAFE} first)")
+    print(f"characters    : {chars:,}  (every render is transcribed and re-rolled on drift)")
     if a.dry_run or not jobs:
         return 0
 
@@ -149,27 +175,41 @@ def main() -> int:
     def one(job):
         vt, vid, ln, fuz = job
         sc = SCENARIO[ln["scenario"]]
-        emotional = safety.get(ln["id"], 0) == 100
         pcm = ROOT / "voice/pcm" / vt / f"{ln['id']}.pcm"
         pcm.parent.mkdir(parents=True, exist_ok=True)
         fuz.parent.mkdir(parents=True, exist_ok=True)
         # Seed from the line id: stable across runs and distinct per line, so
         # re-rendering one line cannot change the others (V-11).
-        base_seed = zlib.crc32(ln["id"].encode()) & 0x7FFFFFF
-        audio = None
+        base = zlib.crc32(ln["id"].encode()) & 0x7FFFFFF
+        # Try the model measured better for THIS line first, then the other.
+        # Neither model is verbatim-safe in general: v2 measured 16/36 and v3
+        # 28/36 on this bank, and they fail on different lines.
+        order = ([EXPR, SAFE] if s3.get(ln["id"], 0) >= s2.get(ln["id"], 0)
+                 else [SAFE, EXPR])
+        audio = used = None
         try:
-            if emotional:
+            for model in order:
+                tag = sc["tag"] if model == EXPR else ""
+                stab = sc["stability"] if model == EXPR else 0.4
                 for t in range(a.tries):
-                    cand = tts(key, vid, sc["tag"] + ln["text"], EXPR, base_seed + t * 977,
-                               {**BASE, "stability": sc["stability"], "speed": sc["speed"]})
+                    cand = tts(key, vid, tag + ln["text"], model, base + t * 977,
+                               {**BASE, "stability": stab, "speed": sc["speed"]})
+                    # EVERY render is verified, not just the expressive ones.
+                    # The previous version trusted v2 blind and shipped drifted
+                    # audio under a subtitle that disagreed with it.
                     if norm(stt(key, cand)) == norm(ln["text"]):
-                        audio = cand
+                        audio, used = cand, model
                         break
-                if audio is None:
-                    fellback.append((vt, ln["id"]))
+                if audio:
+                    break
             if audio is None:
-                audio = tts(key, vid, ln["text"], SAFE, base_seed,
-                            {**BASE, "stability": 0.4, "speed": sc["speed"]})
+                # Refuse rather than write unverified audio. A line no model
+                # will say cannot ship under a subtitle claiming otherwise.
+                failed.append((vt, ln["id"], "no verbatim take in "
+                               f"{a.tries * len(order)} attempts across both models"))
+                return
+            if used != order[0]:
+                fellback.append((vt, ln["id"], used))
             pcm.write_bytes(audio)
             r = subprocess.run([sys.executable, str(ROOT / "scripts/pcm-to-fuz.py"),
                                 str(pcm), str(fuz)], capture_output=True, text=True)
@@ -178,7 +218,7 @@ def main() -> int:
             if not fuz.exists() or fuz.stat().st_size == 0:
                 failed.append((vt, ln["id"], (r.stderr or r.stdout).strip()[:160]))
                 return
-            done.append((vt, ln["id"]))
+            done.append((vt, ln["id"], used))
         except Exception as e:
             failed.append((vt, ln["id"], str(e)[:160]))
 
@@ -188,12 +228,17 @@ def main() -> int:
             if n % 50 == 0 or n == len(jobs):
                 print(f"  {n}/{len(jobs)}  ({time.time()-t0:.0f}s)", flush=True)
 
+    import collections as _c
+    bym = _c.Counter(m for _, _, m in done)
     print(f"\nrendered {len(done)}, failed {len(failed)}")
-    print(f"fell back to {SAFE} after {a.tries} drifting v3 takes: {len(fellback)}")
-    for vt, lid in fellback[:8]:
-        print(f"    {vt}/{lid}")
-    for vt, lid, why in failed[:8]:
-        print(f"  FAILED {vt}/{lid}: {why}")
+    print("  by model : " + ", ".join(f"{m} {n}" for m, n in bym.most_common()))
+    print(f"  needed the SECOND model after {a.tries} drifting takes: {len(fellback)}")
+    for vt, lid, m in fellback[:10]:
+        print(f"      {vt}/{lid} -> {m}")
+    if failed:
+        print("  FAILED (nothing written - unverified audio is never shipped):")
+        for vt, lid, why in failed[:10]:
+            print(f"      {vt}/{lid}: {why}")
     return 1 if failed else 0
 
 

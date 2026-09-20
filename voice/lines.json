@@ -45,8 +45,8 @@
       "id": "quickie_init_06",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "Not here. ...Well. Yeah. Alright. Here.",
-      "chars": 39
+      "text": "Not here, somebody will see us. ...Fine. Here.",
+      "chars": 46
     },
     {
       "id": "quickie_resp_01",
@@ -87,8 +87,8 @@
       "id": "quickie_resp_06",
       "scenario": "quickie",
       "role": "responder",
-      "text": "...Yeah. Yeah, alright.",
-      "chars": 23
+      "text": "Yeah. Yeah, I'm in.",
+      "chars": 19
     },
     {
       "id": "athome_init_01",
@@ -157,8 +157,8 @@
       "id": "athome_resp_04",
       "scenario": "athome",
       "role": "responder",
-      "text": "Lock it. I don't want to hear anybody.",
-      "chars": 38
+      "text": "Lock the door, because I don't want to hear anybody.",
+      "chars": 52
     },
     {
       "id": "athome_resp_05",

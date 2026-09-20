@@ -11,56 +11,65 @@ Measured 2026-09-21 on ElevenLabs Pro against Fallout 4 GOTY (GOG).
 
 ## The model and the chain
 
-### V-1 — v3 is allowed PER LINE, proven by measurement. Never globally.
+### V-1 — NEITHER model is verbatim-safe. Gate every render.
 
-**Corrected 2026-09-21. The first version of this rule said "never `eleven_v3`"
-on the strength of n=3 renders of a single line, and it was wrong about the
-magnitude.** Measured properly, v3's verbatim rate is about **76%**, not ~0%.
+**Corrected twice, 2026-09-21.** The first version said "never `eleven_v3`" from
+n=3 on one line. The second allowed v3 per line but called
+`eleven_multilingual_v2` "verbatim guaranteed" — *from the same n=3 on the same
+line*. That second claim shipped: the renderer transcribed every v3 take and
+passed v2 straight to disk, and a spot-check found **4 of 8 v2 files had drifted**.
 
-It is also not random. Drift is a property of the **line**, measured at n=8 to 10:
+Measured per line across the whole bank, n=8:
 
-| line | verbatim |
+| model | verbatim |
 | --- | --- |
-| `Then stop talking.` | 10/10 |
-| `I'm not going anywhere.` | 10/10 |
-| `Lock it. I don't want to hear anybody.` | 3/10 |
-| `Come on - we gotta make this quick.` | **0/10** |
+| `eleven_v3` | **28 / 36** |
+| `eleven_multilingual_v2` | **16 / 36** |
 
-Dissecting the 0/10 line found the trigger, and it is not what it looks like:
+The model that was trusted is the **less** reliable one, and the two fail on
+**different lines** — `"Door's shut. Nobody needs us for a while."` is 100% on v2
+and 33% on v3.
 
-| variant | verbatim |
-| --- | --- |
-| `Come on - we gotta make this quick.` | 0% |
-| `Come on, we gotta make this quick.` | 0% |
-| `Come on - we **have to** make this quick.` | 0% |
-| `Come on. We gotta make this quick.` | 50% |
-| **`We gotta make this quick.`** | **100%** |
+**Classifying lines by those rates was sorting noise.** At n=8 a line whose true
+rate is ~90% lands on 88% or 100% at random; three lines condemned in one pass
+measured 100% in the next. A rate is a hint about which model to TRY FIRST. It is
+not a property of the line and it must never decide correctness.
 
-Not the punctuation, not the colloquialism — **the leading conversational
-fragment**. v3 appears to read an opener like "Come on" as *direction* rather
-than content and regenerates the clause after it. A colloquial/plain A-B across
-8 matched line pairs found no difference at all (77% vs 75%), so "gotta" was
-never the problem.
+**Correctness comes from a runtime gate on every single render:** transcribe it,
+compare it, re-roll the seed on drift, try the other model, and if neither will
+say it — **fail, and write nothing**. A line no model will say cannot ship under
+a subtitle claiming it did. Unverified audio never reaches disk.
 
-**The rule:** a line may render on v3, with audio tags, **only if it measures
-100% over n≥8**. Otherwise it renders on `eleven_multilingual_v2`, where verbatim
-is guaranteed. Rates live in `voice/v3-safety.json`; 28 of 36 lines currently
-qualify.
+### V-1b — Rewrite a line only when NO model will say it.
 
-These lines ship **with subtitles**, and the subtitle is the authored text — a
-drifting render puts the screen and the audio into disagreement. The gate exists
-for that, not for taste.
+Of six drift-prone lines, only **two** genuinely needed rewriting. Three simply
+needed the other model and kept their words. The rule is narrower than it first
+looked: the model does not get a vote on the script, but a line that nothing can
+render cannot ship, and that is the one case where the script yields.
 
-### V-1b — Never rewrite a good line to raise its score.
+### V-17 — A failed render leaves the PREVIOUS file in place.
 
-Of six rewrites attempted on drift-prone lines, two reached 100%, two improved
-partway, and two stayed at **0%** — both of them the fragmentary hesitation lines
-(`"...Yeah. Yeah, alright."`). Those are nearly contentless, which is exactly why
-the model feels free to reinvent them, and exactly what makes them good writing.
+The re-render reported "5 failed" while every expected file existed. They were
+the **old, ungated** files from the previous run — present, plausible, wrong. A
+file listing proves nothing about a re-render.
 
-A line that will not pass renders on v2 and keeps its words. **The TTS model does
-not get a vote on the script.** Only rewrites that measured 100% were applied;
-the rest of the bank stands as written.
+Check **modification times against the batch**, not existence: five files sat at
+16-20 minutes against a 4-minute median. Delete a failed target so it is
+genuinely missing rather than silently stale, or the next resumable run will skip
+it forever.
+
+### V-18 — STT is not deterministic, so the comparator must tolerate elision.
+
+The same audio transcribes differently between passes. One file passed the gate
+at render time and came back `"wanna"` for `"want to"` on a later check — the
+same words, elided in delivery, and a correct subtitle either way.
+
+`norm()` therefore maps pronunciation variants (`wanna`/`want to`,
+`'em`/`them`, `alright`/`all right`) before comparing. Real drift survives it:
+`"gotta"` becoming `"need to"` is a different word and still fails.
+
+Watch the regex: a leading apostrophe has no word boundary before it, so a naive
+`'em` never matches anything.
 
 ### V-2 — Audio tags follow V-1: v3 lines only.
 
@@ -220,7 +229,7 @@ evidence instead of a hunch.
 
 | | |
 | --- | --- |
-| model | `eleven_multilingual_v2` by default; `eleven_v3` only on lines measured 100% (V-1) |
+| model | per line, whichever measures better first; EVERY render gated by STT (V-1) |
 | output format | `pcm_44100` |
 | voice settings | `similarity_boost 0.75`, `style 0.3`, `use_speaker_boost true` |
 | stability / speed | per scenario: quickie 0.30 / 1.10 &middot; tender 0.35 / 0.92 &middot; athome 0.40 / 0.95 |
