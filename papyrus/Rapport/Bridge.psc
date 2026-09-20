@@ -772,7 +772,10 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		; SetCameraTarget touches the camera and not the player's body. There was
 		; never a need for trigonometry here; there was a need to read the API.
 		If asSetID == "off"
-			Game.SetCameraTarget(Game.GetPlayer())
+			; StopDialogueCamera(abConsiderResume, abSwitchingTo1stP). Both passed
+			; explicitly; ForceFirstPerson after it is the guaranteed restore.
+			Game.StopDialogueCamera(False, True)
+			Game.ForceFirstPerson()
 			Rapport:Core.Trace("look: camera released back to the player")
 		Else
 			Actor lookAt = Game.GetForm(aiFormID) as Actor
@@ -780,9 +783,56 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 				Rapport:Core.Trace("look: " + Rapport:Core.FormIdText(aiFormID) + " does not resolve")
 				Return
 			EndIf
-			Game.SetCameraTarget(lookAt)
-			Rapport:Core.Trace("look: camera target is now " + Rapport:Core.FormIdText(aiFormID))
+			; StartDialogueCameraOrCenterOnTarget, not SetCameraTarget.
+			;
+			; SetCameraTarget was tried in game and measured: it forces third
+			; person and IGNORES the actor passed to it -- pointing it at two
+			; different actors produced byte-identical frames. This one takes an
+			; ObjectReference and its name says centre-on-target, which is the
+			; operation wanted. StopDialogueCamera is its documented exit.
+			Game.StartDialogueCameraOrCenterOnTarget(lookAt as ObjectReference)
+			Rapport:Core.Trace("look: centred the camera on " + Rapport:Core.FormIdText(aiFormID) 				+ " (heading " + (Game.GetPlayer().GetHeadingAngle(lookAt as ObjectReference) as Int) + "deg)")
 		EndIf
+		Return
+	EndIf
+
+	If aiKind == 22
+		Debug.SetGodMode(asSetID == "1")
+		If asSetID == "1"
+			Rapport:Core.Trace("god: god mode ON")
+		Else
+			Rapport:Core.Trace("god: god mode off")
+		EndIf
+		Return
+	EndIf
+
+	If aiKind == 21
+		Actor subject = Game.GetForm(aiFormID) as Actor
+		If subject == None
+			Rapport:Core.Trace("state: " + Rapport:Core.FormIdText(aiFormID) + " does not resolve")
+			Return
+		EndIf
+		Actor pc = Game.GetPlayer()
+
+		; Every argument passed explicitly -- the base sources are decompiled and
+		; carry no defaults, so an omitted one is a compile error rather than a
+		; silent zero. getDistance is lowercase in ObjectReference.psc; that is
+		; not a typo here.
+		String line = "state: " + Rapport:Core.FormIdText(aiFormID)
+		line = line + " loaded=" + subject.Is3DLoaded()
+		line = line + " scene=" + subject.IsInScene()
+		line = line + " combat=" + subject.IsInCombat()
+		line = line + " talking=" + subject.IsTalking()
+		line = line + " weapon=" + subject.IsWeaponDrawn()
+		line = line + " sneaking=" + subject.IsSneaking()
+		line = line + " dead=" + subject.IsDead()
+		line = line + " unconscious=" + subject.IsUnconscious()
+		line = line + " sit=" + subject.GetSitState()
+		line = line + " sleep=" + subject.GetSleepState()
+		line = line + " relationship=" + subject.GetRelationshipRank(pc)
+		line = line + " dist=" + (subject.getDistance(pc) as Int)
+		line = line + " heading=" + (pc.GetHeadingAngle(subject) as Int) + "deg"
+		Rapport:Core.Trace(line)
 		Return
 	EndIf
 
@@ -845,6 +895,10 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 			; somebody, useless for LOOKING at them, which is what the offset is
 			; for: you cannot see a face from inside it.
 			Game.GetPlayer().MoveTo(who, asSetID as Float, asExtra as Float, 0.0, False)
+			; And land somewhere walkable. An offset move puts the player wherever
+			; the arithmetic said, which is regularly inside a wall; the engine
+			; has a function for exactly this and it was never being called.
+			Game.GetPlayer().MoveToNearestNavmeshLocation()
 			Rapport:Core.Trace("move: put the player next to " + Rapport:Core.FormIdText(aiFormID) 				+ " (offset " + asSetID + "," + asExtra + ")")
 		Else
 			who.MoveTo(Game.GetPlayer(), 0.0, 0.0, 0.0, True)

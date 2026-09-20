@@ -110,7 +110,17 @@ namespace RP
 			// EnableAI(false). Holds an NPC exactly where they are so they can be
 			// looked at without wandering off mid-observation. setID is "0" to
 			// freeze and "1" to thaw. Papyrus-only, hence an order.
-			kSetAI = 20
+			kSetAI = 20,
+
+			// A one-line dump of everything the engine will tell us about an
+			// actor, traced into the log. Papyrus-only: almost none of these
+			// queries are exposed on the C++ side.
+			kState = 21,
+
+			// Debug.SetGodMode. The console is unreachable from Papyrus -- that
+			// was searched for and confirmed absent -- but the cheat EFFECTS are
+			// ordinary natives on Debug.
+			kGodMode = 22
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

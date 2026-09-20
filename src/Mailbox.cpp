@@ -470,6 +470,38 @@ namespace RP
 				formID, verb == "thaw" ? "thawed" : "frozen where they stand");
 		}
 
+		if (verb == "state") {
+			// Queued, because almost none of these queries exist on the C++ side --
+			// IsInScene, GetSitState, GetRelationshipRank and the rest are
+			// Papyrus-only. The answer lands in Rapport.log one poll later.
+			bool       ok = false;
+			const auto formID = ParseFormID(rest, ok);
+			if (!ok) {
+				return "ERR state <formid>";
+			}
+			auto* form = RE::TESForm::GetFormByID(formID);
+			if (!form || !form->As<RE::Actor>()) {
+				return std::format("ERR {:08X} is not an actor", formID);
+			}
+			link.QueueOrder(Order{ Order::Kind::kState, formID, "", "" });
+			return std::format("OK queued - full state for {:08X} lands in Rapport.log next poll "
+							   "(loaded, scene, combat, talking, weapon, sneak, dead, sit, sleep, "
+							   "relationship, distance, heading)",
+				formID);
+		}
+
+		if (verb == "god") {
+			const bool on = (rest == "on" || rest == "1");
+			if (rest != "on" && rest != "off" && rest != "1" && rest != "0") {
+				return "ERR god on | god off";
+			}
+			// Debug.SetGodMode. There is no Papyrus route to the console -- that
+			// was searched for and confirmed absent -- but the cheat effects are
+			// plain natives.
+			link.QueueOrder(Order{ Order::Kind::kGodMode, 0, on ? "1" : "0", "" });
+			return std::format("OK queued - god mode {}", on ? "ON" : "off");
+		}
+
 		if (verb == "passtime") {
 			int hours = 1;
 			try {
@@ -607,7 +639,7 @@ namespace RP
 		}
 
 		return std::format(
-			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, gametime, passtime, freeze, thaw, request, pause, resume, say, console",
+			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, gametime, passtime, freeze, thaw, state, god, request, pause, resume, say, console",
 			verb);
 	}
 
