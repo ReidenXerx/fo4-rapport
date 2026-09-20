@@ -1,0 +1,207 @@
+{
+  "_": "FO4 voice type -> ElevenLabs. 'chosen' is null until auditioned by ear; 'previews' are the three Voice Design variants for that type.",
+  "audition_script": "Come on - we gotta make this quick. Someone's gonna come through here any second. No, don't think about it. Just come here. Nobody needs us for a while. Stay. Just for a while.",
+  "types": {
+    "MaleEvenToned": {
+      "vanilla_lines": 3215,
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "w6VdEVfmeenm74FqOUIJ",
+          "file": "audition/MaleEvenToned-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "bMxasir2H6DhnNeoYQOD",
+          "file": "audition/MaleEvenToned-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "EIls1au8ZummeVlcSZqp",
+          "file": "audition/MaleEvenToned-3.mp3"
+        }
+      ]
+    },
+    "FemaleEvenToned": {
+      "vanilla_lines": 2626,
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "wBjRYyU47p8HBgcG8xbt",
+          "file": "audition/FemaleEvenToned-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "aOw98c4jcdIvRHLKEwlX",
+          "file": "audition/FemaleEvenToned-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "jEN8cFKDy6r0XgCD3czG",
+          "file": "audition/FemaleEvenToned-3.mp3"
+        }
+      ]
+    },
+    "FemaleBoston": {
+      "vanilla_lines": 2058,
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "yOV6sGd4x4VmCGWWhEJC",
+          "file": "audition/FemaleBoston-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "y4oJk6htpe1kk5uxQX9U",
+          "file": "audition/FemaleBoston-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "AOGwtgTLk16GDli2pfBi",
+          "file": "audition/FemaleBoston-3.mp3"
+        }
+      ]
+    },
+    "MaleRough": {
+      "vanilla_lines": 2239,
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "2Ihr1WTcfy1YcGUxowwT",
+          "file": "audition/MaleRough-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "xwUPDwlhmQFzN58p8NMJ",
+          "file": "audition/MaleRough-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "FhqZzjZfDMr6YJZr4Yth",
+          "file": "audition/MaleRough-3.mp3"
+        }
+      ]
+    },
+    "FemaleRough": {
+      "vanilla_lines": 2208,
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "MAT3IFco6gOJbmjmOkaa",
+          "file": "audition/FemaleRough-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "ZBNGFQV3qN0A7iynKxTV",
+          "file": "audition/FemaleRough-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "6YJnnvHR7Um0N6dd0ruU",
+          "file": "audition/FemaleRough-3.mp3"
+        }
+      ]
+    },
+    "MaleGhoul": {
+      "vanilla_lines": 1442,
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "yvj43GSMNfm34h9PNqf7",
+          "file": "audition/MaleGhoul-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "Mo51Tvmvd40pFgTF9IXc",
+          "file": "audition/MaleGhoul-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "Vq8at6DBIsRYuovQYRA7",
+          "file": "audition/MaleGhoul-3.mp3"
+        }
+      ]
+    },
+    "FemaleGhoul": {
+      "vanilla_lines": 1416,
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "aAc6BKmNDpYlMvOqfodj",
+          "file": "audition/FemaleGhoul-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "kxwOwAkjwNhVNm6cu42R",
+          "file": "audition/FemaleGhoul-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "QtqhBt1EYHgljDQbnRAr",
+          "file": "audition/FemaleGhoul-3.mp3"
+        }
+      ]
+    },
+    "MaleOld": {
+      "vanilla_lines": 1380,
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "QGIPs18DIDBjqQmaPXsJ",
+          "file": "audition/MaleOld-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "U3YNNuVF04Q1BJHSppPe",
+          "file": "audition/MaleOld-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "EKJzUEDQQqdM5hB0QY7w",
+          "file": "audition/MaleOld-3.mp3"
+        }
+      ]
+    },
+    "FemaleOld": {
+      "vanilla_lines": 1304,
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "voice_id": "85sXPLOawyxtMpzu3AQi",
+          "file": "audition/FemaleOld-1.mp3"
+        },
+        {
+          "n": 2,
+          "voice_id": "WYf4rFWUv0lIgUttEfAb",
+          "file": "audition/FemaleOld-2.mp3"
+        },
+        {
+          "n": 3,
+          "voice_id": "cEbCDz6Ri2qrvjUCbs6c",
+          "file": "audition/FemaleOld-3.mp3"
+        }
+      ]
+    },
+    "MaleBoston": {
+      "vanilla_lines": 2464,
+      "chosen": "UBJFYue9ndY0n9Sq9BAB",
+      "chosen_name": "Rapport_Male_Boston_Weathered",
+      "previews": [
+        {
+          "n": 3,
+          "voice_id": "UBJFYue9ndY0n9Sq9BAB",
+          "file": "audition/MaleBoston-3.mp3"
+        }
+      ]
+    }
+  }
+}

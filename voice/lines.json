@@ -1,0 +1,262 @@
+{
+  "_": "R-9 scene barks. Spoken at OnSceneStarted, selected by scenario + role. Text is gender-neutral on purpose: one line, every voice type.",
+  "scenario_notes": {
+    "quickie": "More than two watching. One stage, ~30s, no guaranteed ending. Hurried, aware of the audience, past caring.",
+    "athome": "Their own place, or indoors with at most two watching. Five stages, unhurried, ends in a climax. Warm, private, no hurry at all.",
+    "tender": "Out in the open, at most two watching. Three slow stages opening with kissing. Nothing rough or dominant - this is the affectionate one."
+  },
+  "lines": [
+    {
+      "id": "quickie_init_01",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Come on - we gotta make this quick.",
+      "chars": 35
+    },
+    {
+      "id": "quickie_init_02",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Someone's gonna come through here any second.",
+      "chars": 45
+    },
+    {
+      "id": "quickie_init_03",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Don't think about it. Just - here. Now.",
+      "chars": 39
+    },
+    {
+      "id": "quickie_init_04",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Quick, before somebody needs something from me.",
+      "chars": 47
+    },
+    {
+      "id": "quickie_init_05",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I've got about five minutes and I'm spending them on you.",
+      "chars": 57
+    },
+    {
+      "id": "quickie_init_06",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Not here. ...Well. Yeah. Alright. Here.",
+      "chars": 39
+    },
+    {
+      "id": "quickie_resp_01",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Then stop talking.",
+      "chars": 18
+    },
+    {
+      "id": "quickie_resp_02",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Fast, then. I mean it.",
+      "chars": 22
+    },
+    {
+      "id": "quickie_resp_03",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Let them look. I stopped caring a long time ago.",
+      "chars": 48
+    },
+    {
+      "id": "quickie_resp_04",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Five minutes. Use them.",
+      "chars": 23
+    },
+    {
+      "id": "quickie_resp_05",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Keep your voice down and I'm in.",
+      "chars": 32
+    },
+    {
+      "id": "quickie_resp_06",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "...Yeah. Yeah, alright.",
+      "chars": 23
+    },
+    {
+      "id": "athome_init_01",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Door's shut. Nobody needs us for a while.",
+      "chars": 41
+    },
+    {
+      "id": "athome_init_02",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Stay. Just for a while.",
+      "chars": 23
+    },
+    {
+      "id": "athome_init_03",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "No one's coming. We've got all the time we want.",
+      "chars": 48
+    },
+    {
+      "id": "athome_init_04",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Come here. I've been thinking about this all day.",
+      "chars": 49
+    },
+    {
+      "id": "athome_init_05",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Let me look at you a second.",
+      "chars": 28
+    },
+    {
+      "id": "athome_init_06",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "We're not going anywhere.",
+      "chars": 25
+    },
+    {
+      "id": "athome_resp_01",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Good. I wasn't planning on leaving.",
+      "chars": 35
+    },
+    {
+      "id": "athome_resp_02",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "As long as you want.",
+      "chars": 20
+    },
+    {
+      "id": "athome_resp_03",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Then take your time.",
+      "chars": 20
+    },
+    {
+      "id": "athome_resp_04",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Lock it. I don't want to hear anybody.",
+      "chars": 38
+    },
+    {
+      "id": "athome_resp_05",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "I've been thinking about it too.",
+      "chars": 32
+    },
+    {
+      "id": "athome_resp_06",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Come here, then.",
+      "chars": 16
+    },
+    {
+      "id": "tender_init_01",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Nobody out here but us.",
+      "chars": 23
+    },
+    {
+      "id": "tender_init_02",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Stay out here with me a while.",
+      "chars": 30
+    },
+    {
+      "id": "tender_init_03",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "It's quiet. For once it's actually quiet.",
+      "chars": 41
+    },
+    {
+      "id": "tender_init_04",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Come here. Just - come here.",
+      "chars": 28
+    },
+    {
+      "id": "tender_init_05",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "I don't want to go back in yet.",
+      "chars": 31
+    },
+    {
+      "id": "tender_init_06",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Look at me. ...There you are.",
+      "chars": 29
+    },
+    {
+      "id": "tender_resp_01",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "It is quiet, isn't it.",
+      "chars": 22
+    },
+    {
+      "id": "tender_resp_02",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "I'm not going anywhere.",
+      "chars": 23
+    },
+    {
+      "id": "tender_resp_03",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Then don't go back in.",
+      "chars": 22
+    },
+    {
+      "id": "tender_resp_04",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Slow. Let's go slow.",
+      "chars": 20
+    },
+    {
+      "id": "tender_resp_05",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "...I like this. Being out here.",
+      "chars": 31
+    },
+    {
+      "id": "tender_resp_06",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Come closer, then.",
+      "chars": 18
+    }
+  ]
+}

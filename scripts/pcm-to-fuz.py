@@ -25,6 +25,22 @@ RATE, CHANNELS, BITS = 44100, 1, 16
 XWMAENCODE = pathlib.Path(r"D:\GOGGames\Fallout 4 GOTY\Tools\Audio\xwmaencode.exe")
 
 
+def looks_like_mp3_frame(b: bytes) -> bool:
+    """True only for a PLAUSIBLE MPEG audio frame header.
+
+    The sync bits alone are not enough. 16-bit PCM whose first sample is -1 -
+    ordinary near-silence at the start of a spoken line - is the bytes FF FF,
+    which passes a bare sync test and gets a perfectly good render rejected.
+    Measured: 1 of 36 barks in the first batch, and it will recur on any line
+    that opens quietly. So check the fields a real frame must have.
+    """
+    if len(b) < 4 or b[0] != 0xFF or (b[1] & 0xE0) != 0xE0:
+        return False
+    version, layer = (b[1] >> 3) & 3, (b[1] >> 1) & 3
+    bitrate, samplerate = (b[2] >> 4) & 0xF, (b[2] >> 2) & 3
+    return version != 1 and layer != 0 and bitrate not in (0, 15) and samplerate != 3
+
+
 def wav_header(n_bytes: int) -> bytes:
     align = CHANNELS * BITS // 8
     return (b"RIFF" + struct.pack("<I", 36 + n_bytes) + b"WAVEfmt "
@@ -40,7 +56,7 @@ def main() -> int:
     a = ap.parse_args()
 
     pcm = pathlib.Path(a.pcm).read_bytes()
-    if pcm[:3] == b"ID3" or (len(pcm) > 1 and pcm[0] == 0xFF and (pcm[1] & 0xE0) == 0xE0):
+    if pcm[:3] == b"ID3" or looks_like_mp3_frame(pcm):
         sys.exit("refusing: that file is MP3, not PCM - re-render with output_format=pcm_44100")
     if pcm[:4] == b"RIFF":
         sys.exit("refusing: that file already has a RIFF header - pass the raw PCM")
