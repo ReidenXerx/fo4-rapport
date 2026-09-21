@@ -80,6 +80,10 @@ namespace RP
 		// healed something or merely re-armed a clock.
 		bool AbandonInFlight(std::string_view a_why);
 
+		// kPreLoadGame: the world this session's scene and orders belong to is being
+		// left. Forget them - state only, nothing is sent to AAF.
+		void OnGameLoading();
+
 		// AAF refused the scene we asked for. Fails the request in flight instead
 		// of leaving it to time out thirteen minutes later. False when there was
 		// nothing in flight for the refusal to be about.

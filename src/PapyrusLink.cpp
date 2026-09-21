@@ -977,6 +977,50 @@ namespace RP
 			"nothing has been heard about the running scene for {}s", limit.count()));
 	}
 
+	void PapyrusLink::OnGameLoading()
+	{
+		// A SAVE LOAD IS A NEW WORLD. The plugin lives for the whole game session and
+		// Papyrus does not, so anything held here about a scene belongs to the world
+		// being left behind - and nothing else ever let go of it. 2026-09-21: a save
+		// was loaded while request 6 was running; every request after it was refused
+		// 'a scene was already in flight', autonomy with it, and the only thing that
+		// would ever have cleared it was the watchdog, 13 minutes later.
+		//
+		// STATE ONLY. No Release, no face clear, no overlay removal: those would be
+		// orders about actors in a world that is gone, delivered to the one that is
+		// arriving. A save made mid-scene carries its own in-flight pair in the
+		// co-save, and RestoreInFlightPair releases THOSE actors properly.
+		const bool inFlight = _sceneInFlight.load();
+		const auto request = _inFlightRequest;
+		std::size_t dropped = 0;
+		{
+			NamedLock lock{ _orderLock, "order queue" };
+			dropped = _orders.size() + _stranded.size() + _cmkzOrders.size();
+			_orders.clear();
+			_stranded.clear();
+			_cmkzOrders.clear();
+		}
+		{
+			NamedLock lock{ _counter, "request counter" };
+			_pending = Pending{};
+		}
+		// Each only clears its own state for the scene (Barks drops a waiting reply,
+		// Watchers its rolls, Scenarios its stage clock); none of them queues anything.
+		Barks::GetSingleton().OnSceneEnded();
+		Watchers::GetSingleton().OnSceneEnded();
+		Scenarios::GetSingleton().End();
+		ClearInFlight();
+		_sceneInFlight.store(false);
+
+		if (inFlight || dropped) {
+			logger::warn("loading a save: {}{} order(s) for the world being left dropped",
+				inFlight ? std::format("request {} was still in flight and is forgotten, ", request) : std::string{},
+				dropped);
+		} else {
+			logger::info("loading a save: nothing in flight, no orders to drop");
+		}
+	}
+
 	bool PapyrusLink::AbandonInFlight(std::string_view a_why)
 	{
 		if (!_sceneInFlight.load()) {

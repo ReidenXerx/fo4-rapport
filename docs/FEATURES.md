@@ -505,6 +505,20 @@ way to ask whether a scene is running — `GetAAFStatus` is a readiness flag, no
 another mod's reservation mid-scene would break it, and the framework does not guess. Likewise,
 CumOverlays' own earlier applications are not in the ledger, so `PanicClear` will not touch them.
 
+### A save load forgets the scene in flight - VERIFIED IN GAME
+
+**What.** On `kPreLoadGame` the plugin drops the scene it was running, any request still pending, and
+every queued order - state only, nothing sent to AAF, because those would be orders about actors in
+a world that is gone. `PapyrusLink::OnGameLoading`.
+
+**Why.** The plugin lives for the whole game session; a loaded save is a new world. Before this, a
+save loaded mid-scene left the plugin believing the old scene still ran: every request was refused
+"already in flight", autonomy with it, and only the watchdog would ever clear it - 13 minutes later.
+
+**Evidence.** Reproduced and fixed on 2026-09-21: scene started, `reload yes` mid-scene, log "request
+1 was still in flight and is forgotten", and the next request started 12 seconds later with barks.
+A save made mid-scene is still handled by the co-save path (`RestoreInFlightPair`).
+
 ### Stale busy-flag release — BUILT, NOT VERIFIED IN GAME
 
 `StaleFlagGraceSeconds` (120). `AAF_ActorBusy` is stamped by `StartScene` and cleared only by a scene

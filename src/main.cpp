@@ -103,6 +103,9 @@ namespace
 			break;
 		case F4SE::MessagingInterface::kPreLoadGame:
 			RP::Scheduler::GetSingleton().OnUnload();
+			// Before the world changes: a scene and its orders belong to the one
+			// being left, and nothing else would ever let go of them.
+			RP::PapyrusLink::GetSingleton().OnGameLoading();
 			break;
 		default:
 			break;
