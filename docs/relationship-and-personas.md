@@ -410,6 +410,16 @@ also costs nothing extra - Rapport already polls while a scene runs.
   arrive. **Lingering must not grant repeated rolls** - "went close enough" is a
   transition, and rolling per poll would make a bystander who stops to watch
   eventually certain to speak.
+- **Close enough AND able to see it** (owner, 2026-09-21: "when character is
+  close enough and can see it"). Distance alone is wrong: a settler inside
+  `observerRadius` on the other side of a wall, or facing away through a
+  doorway, has nothing to react to. An actor becomes a candidate only on the
+  poll where they are inside the radius AND have line of sight to one of the
+  two participants (engine detection LOS, e.g. `HasDetectionLOS`). The roll
+  happens on that first poll where both hold - so someone who walks round the
+  corner and *then* sees it is rolled at the moment they see it, not when they
+  first came within range behind the wall. Unseen-but-near actors are NOT added
+  to the evaluated set; they may still get their one roll later.
 - **Chance, not certainty.** Roughly one in three, in `scoring.json` so it is
   policy rather than code. The owner's word was *noticeable*, not constant.
 - **A per-actor cooldown across scenes**, so one settler does not become the
