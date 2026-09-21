@@ -672,6 +672,16 @@ namespace
 			a_amount, reason);
 	}
 
+	bool Papyrus_IsPairSeeded(std::monostate, std::int32_t a_first, std::int32_t a_second)
+	{
+		return RP::Ledger::GetSingleton().IsSeeded(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+	}
+
+	float Papyrus_SeedBond(std::monostate, std::int32_t a_rank, bool a_partner)
+	{
+		return RP::Ledger::SeedValue(a_rank, a_partner);
+	}
+
 	bool Papyrus_IsIncestPair(std::monostate, std::int32_t a_first, std::int32_t a_second)
 	{
 		return RP::Ledger::GetSingleton().IsIncest(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
@@ -901,6 +911,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "PairBond"sv, Papyrus_PairBond, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "AddBond"sv, Papyrus_AddBond, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "IsIncestPair"sv, Papyrus_IsIncestPair, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "IsPairSeeded"sv, Papyrus_IsPairSeeded, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SeedBond"sv, Papyrus_SeedBond, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "IsPartnerPair"sv, Papyrus_IsPartnerPair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteVanillaRelationship"sv, Papyrus_NoteVanillaRelationship, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PersonaOf"sv, Papyrus_PersonaOf, std::nullopt, false);

@@ -79,6 +79,9 @@ namespace RP
 			std::string_view a_persona, std::string_view a_scenario, std::string_view a_role,
 			std::int32_t a_sex);
 
+		// personas.json, read at the end of Load. Caller holds _lock.
+		void LoadOverrides();
+
 		// Shared by both pickers: a random line from the fits, never the one this
 		// key played last time. Caller holds _lock.
 		[[nodiscard]] const Line* Choose(std::vector<const Line*> a_fits, const std::string& a_key);
@@ -87,6 +90,8 @@ namespace RP
 		bool                     _enabled{ false };
 		float                    _responderDelay{ 4.5f };
 		std::vector<std::string> _personas;
+		// personas.json: the owner's pins, runtime form id (reference or base NPC) -> persona.
+		std::unordered_map<std::uint32_t, std::string> _overrides;
 		std::vector<Line>        _lines;
 		std::optional<Reply>     _reply;
 

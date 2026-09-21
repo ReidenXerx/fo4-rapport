@@ -359,6 +359,10 @@ Float Function AddBond(Int aiFirst, Int aiSecond, Float afAmount, Int aiReason) 
 Bool Function IsIncestPair(Int aiFirst, Int aiSecond) Global Native
 ; Spouse or courting, per the engine.
 Bool Function IsPartnerPair(Int aiFirst, Int aiSecond) Global Native
+; True once the engine's relationship has been imported for this pair (its first interaction).
+Bool Function IsPairSeeded(Int aiFirst, Int aiSecond) Global Native
+; The bond a pair WOULD start at, written nowhere. Rapport:Relations.BondBetween wraps it.
+Float Function SeedBond(Int aiRank, Bool abPartner) Global Native
 Function NoteVanillaRelationship(Int aiFirst, Int aiSecond, Int aiRank, Bool abBlood, Bool abPartner) Global Native
 String Function PersonaOf(Int aiFormID) Global Native
 

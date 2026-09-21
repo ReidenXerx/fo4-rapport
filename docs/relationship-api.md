@@ -1,0 +1,71 @@
+# Relationship API: what an addon can read and write
+
+Rapport keeps one relationship per pair of people who have *interacted*: a scene, dialogue, a gift.
+It stores a **bond** from -1 (enemies) to +1 (closest), in Rapport's co-save. What the bond is
+*worth* (how much likelier a scene gets, which line a greeting picks) is the consumer's curve, not
+Rapport's (R-10). Chemistry's curve is in its DESIGN.md, C-3.
+
+Design and decisions: `relationship-and-personas.md` (R-1 to R-14).
+
+## Prefer `Rapport:Relations` when you hold both Actors
+
+| Function | Returns | Use |
+| --- | --- | --- |
+| `Rapport:Relations.BondBetween(Actor a, Actor b)` | Float -1..+1 | **Ranking pairs.** The stored bond once the pair has interacted. Before that, what the engine's relationship *would* seed, and nothing is written (R-5). |
+| `Rapport:Relations.AddBondBetween(Actor a, Actor b, Float amount, Int reason)` | the new bond | **Changing a bond.** Imports the engine's relationship first, exactly as a scene does, so the pair keeps its starting point. |
+| `Rapport:Relations.AreBloodRelated(Actor a, Actor b)` | Bool | The engine's blood associations, live |
+| `Rapport:Relations.ArePartners(Actor a, Actor b)` | Bool | Spouse or courting, live |
+
+`amount` moves the bond by that **fraction of the distance left** toward +1 (or -1 when negative), so
+it cannot overshoot, and a large bond grows slowly. `reason`: 3 dialogue, 4 gift, 5 any other addon.
+
+## By form id (`Rapport:Core`)
+
+| Function | Notes |
+| --- | --- |
+| `Float PairBond(Int a, Int b)` | The stored bond, 0 when there is no record. Order-independent. |
+| `Float AddBond(Int a, Int b, Float amount, Int reason)` | Does **not** import the engine's relationship. Use `AddBondBetween` when you have Actors. |
+| `Bool IsPairSeeded(Int a, Int b)` | True once the engine's relationship was imported (the pair's first interaction) |
+| `Bool IsIncestPair(Int a, Int b)` | Stored flag: blood relatives (siblings, parent/child, grandparents, aunts/uncles, cousins; in-laws are not blood) |
+| `Bool IsPartnerPair(Int a, Int b)` | Stored flag: spouse or courting |
+| `Float SeedBond(Int rank, Bool partner)` | The starting-bond formula on its own, stores nothing |
+| `Int PairSceneCount(Int a, Int b)` | Scenes the pair has had together |
+| `String PersonaOf(Int formID)` | `mercantile`, `romantic`, `vulgar` or `reticent`, or the owner's pin from `personas.json` |
+
+## What the numbers are
+
+Measured in game, R-4:
+
+| The engine says | `GetRelationshipRank` | Starting bond |
+| --- | --- | --- |
+| Spouses (the Codmans) | 4 | +0.80 (rank x 0.15, capped at 0.60, +0.20 for a partner) |
+| Siblings, parent and child | 3 | +0.45 |
+| Employer and employee | 1 | +0.15 |
+| Strangers | 0 | 0 |
+
+Every scene adds 15% of the distance left toward +1. On death, the dead actor's records are dropped.
+
+## The incest flag is a flag, never a refusal
+
+Owner's decision, R-14. Nothing in Rapport or Chemistry refuses a blood pair. The flag exists so that
+a consumer that *judges* can read it. The planned attitude layer, where people who know treat it as
+a bad thing, is the first. If your addon refuses on it, that is your addon's choice. Rapport's
+default is not to.
+
+## Personas
+
+Every NPC's persona comes from its form id: stable, costs nothing to save, and the same on every
+machine (R-7). The owner can pin one in `Data/F4SE/Plugins/Rapport/personas.json`:
+
+```json
+{ "overrides": [ { "plugin": "CompanionIvy.esm", "id": "000801", "persona": "romantic" } ] }
+```
+
+`plugin` + `id` are what xEdit shows, without the load-order byte. Either the actor reference or its
+base NPC works. A pin naming a plugin this player does not have is skipped quietly.
+
+## Checking it from outside the game (dev builds)
+
+`rank <a> <b>` on Rapport's command channel traces the engine's rank both ways, blood, partner,
+whether the pair is stored, and `BondBetween`, into `Rapport.log`. `bond <a> <b> [add x]` reads or
+moves the stored bond.

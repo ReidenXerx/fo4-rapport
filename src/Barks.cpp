@@ -12,6 +12,13 @@ namespace RP
 		{
 			return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport" / "barks.json";
 		}
+
+		// Hand-kept, never generated: build-barks-table.py rewrites barks.json, and an
+		// owner's choice of who Ivy IS must not vanish the next time lines are added.
+		std::filesystem::path OverridePath()
+		{
+			return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport" / "personas.json";
+		}
 	}
 
 	Barks& Barks::GetSingleton() noexcept
@@ -78,6 +85,8 @@ namespace RP
 			}
 		}
 
+		LoadOverrides();
+
 		if (_personas.empty() || _lines.empty()) {
 			logger::warn(
 				"barks: {} persona(s) and {} pair line(s) read - nothing could be said, so barks are off",
@@ -92,11 +101,70 @@ namespace RP
 			_enabled ? "" : " - but switched OFF in barks.json");
 	}
 
+	void Barks::LoadOverrides()
+	{
+		// R-13: personas are DERIVED, and the owner can pin one by hand. Keyed by
+		// plugin + file-relative id, so the pin survives a load-order change, and
+		// matched against the actor's reference OR its base NPC: a unique NPC has one
+		// of each, and whichever the owner looked up in xEdit has to work.
+		_overrides.clear();
+		std::ifstream file{ OverridePath() };
+		if (!file) {
+			return;
+		}
+		nlohmann::json document;
+		try {
+			file >> document;
+		} catch (const std::exception& e) {
+			logger::error("barks: {} is not valid json ({}) - no persona is pinned", OverridePath().string(), e.what());
+			return;
+		}
+		const auto handler = RE::TESDataHandler::GetSingleton();
+		const auto list = document.find("overrides");
+		if (!handler || list == document.end() || !list->is_array()) {
+			return;
+		}
+		for (const auto& entry : *list) {
+			const auto plugin = entry.value("plugin", std::string{});
+			const auto persona = entry.value("persona", std::string{});
+			std::uint32_t id = 0;
+			if (const auto raw = entry.find("id"); raw != entry.end()) {
+				id = raw->is_string() ? static_cast<std::uint32_t>(std::stoul(raw->get<std::string>(), nullptr, 16))
+				                      : raw->get<std::uint32_t>();
+			}
+			if (std::ranges::find(_personas, persona) == _personas.end()) {
+				logger::warn("barks: persona pin for {} {:06X} names \"{}\", which is not a persona - skipped", plugin, id,
+					persona);
+				continue;
+			}
+			const auto* form = handler->LookupForm(id, plugin);
+			if (!form) {
+				// A mod this player does not have: normal, not an error.
+				logger::debug("barks: persona pin {} {:06X} is not loaded - skipped", plugin, id);
+				continue;
+			}
+			_overrides[form->GetFormID()] = persona;
+			logger::info("barks: {:08X} ({} {:06X}) is pinned to the {} persona", form->GetFormID(), plugin, id, persona);
+		}
+	}
+
 	std::string_view Barks::PersonaOf(std::uint32_t a_formID) const
 	{
 		NamedLock lock{ _lock, "barks" };
 		if (_personas.empty()) {
 			return {};
+		}
+		if (!_overrides.empty()) {
+			if (const auto it = _overrides.find(a_formID); it != _overrides.end()) {
+				return it->second;
+			}
+			const auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_formID);
+			const auto* npc = actor ? actor->GetNPC() : nullptr;
+			if (npc) {
+				if (const auto it = _overrides.find(npc->GetFormID()); it != _overrides.end()) {
+					return it->second;
+				}
+			}
 		}
 		// Mixed before the modulo, deliberately. Expressions already styles faces
 		// by formID % 6, and a plain formID % 4 shares a factor of two with that --

@@ -105,11 +105,13 @@ namespace RP
 		//
 		// a_blood and a_partner come from the engine's ASSOCIATION types, not from
 		// HasFamilyRelationship: measured, that one is true for a married couple
-		// (John and Cathy) exactly as for brothers (Vadim and Yefim), so it cannot
-		// separate the pair that should be likeliest to have a scene from the one
-		// that must never.
+		// (the Codmans) exactly as for brothers (Vadim and Yefim), R-4.
 		void SeedFromVanilla(std::uint32_t a_first, std::uint32_t a_second, std::int32_t a_rank, bool a_blood,
 			bool a_partner);
+		[[nodiscard]] bool IsSeeded(std::uint32_t a_first, std::uint32_t a_second) const;
+		// What SeedFromVanilla would store, without storing it (a consumer ranking a
+		// pair that has not interacted yet, R-5).
+		[[nodiscard]] static float SeedValue(std::int32_t a_rank, bool a_partner) noexcept;
 		// BLOOD relatives (siblings, parent/child, grandparents, aunts/uncles, cousins).
 		// A FLAG, never a refusal (owner, R-14): nothing in Rapport or Chemistry blocks
 		// on it; a later attitude layer reads it as a 'bad thing' others react to.

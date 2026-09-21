@@ -227,24 +227,6 @@ EndEvent
 ; is the reason this half lives here - the C++ side has no line-of-sight call.
 ;
 ; No AAF call anywhere in this function, so it cannot wedge the poll's stack.
-; The engine's associations (R-3): they cannot be enumerated, so the forms are
-; hardcoded - Fallout4.esm ASTP records, read from the master.
-Bool Function HasAssoc(Actor a, Actor b, Int aiID)
-	AssociationType kind = Game.GetFormFromFile(aiID, "Fallout4.esm") as AssociationType
-	return kind && a.HasAssociation(kind, b)
-EndFunction
-
-; BLOOD: Siblings 1996C, ParentChild 1996B, GrandparentGrandchild 19968, GrandAuntUncle
-; 19967, Cousins 19963, AuntUncle 1995F. In-laws are not blood. Decimal: no hex parser.
-Bool Function BloodRelated(Actor a, Actor b)
-	return Self.HasAssoc(a, b, 104812) || Self.HasAssoc(a, b, 104811) || Self.HasAssoc(a, b, 104808) || Self.HasAssoc(a, b, 104807) || Self.HasAssoc(a, b, 104803) || Self.HasAssoc(a, b, 104799)
-EndFunction
-
-; PARTNERS: Spouse 1996D, Courting 19962.
-Bool Function Partners(Actor a, Actor b)
-	return Self.HasAssoc(a, b, 104813) || Self.HasAssoc(a, b, 104802)
-EndFunction
-
 Function SweepWatchers()
 	Float radius = Rapport:Core.WatchRadius()
 	If radius <= 0.0
@@ -368,7 +350,7 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 	Rapport:Core.NoteActorSex(akSecond.GetFormID(), akSecond.GetLeveledActorBase().GetSex())
 	; And the engine's own relationship between them, while we hold real Actors -
 	; imported into Rapport's store the first time this pair interacts (R-2, R-5).
-	Rapport:Core.NoteVanillaRelationship(akFirst.GetFormID(), akSecond.GetFormID(), akFirst.GetRelationshipRank(akSecond), Self.BloodRelated(akFirst, akSecond), Self.Partners(akFirst, akSecond))
+	Rapport:Core.NoteVanillaRelationship(akFirst.GetFormID(), akSecond.GetFormID(), akFirst.GetRelationshipRank(akSecond), Rapport:Relations.AreBloodRelated(akFirst, akSecond), Rapport:Relations.ArePartners(akFirst, akSecond))
 
 	Request entry = new Request
 	entry.id = aiRequest
@@ -1092,7 +1074,7 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 			Rapport:Core.Trace("relation: an id does not resolve to an actor")
 			Return
 		EndIf
-		Rapport:Core.Trace("relation: " + Rapport:Core.FormIdText(aiFormID) + " -> " + Rapport:Core.FormIdText(b.GetFormID()) + " rank " + a.GetRelationshipRank(b) + " | back " + b.GetRelationshipRank(a) + " | family " + a.HasFamilyRelationship(b) + " | blood " + Self.BloodRelated(a, b) + " | partner " + Self.Partners(a, b))
+		Rapport:Core.Trace("relation: " + Rapport:Core.FormIdText(aiFormID) + " -> " + Rapport:Core.FormIdText(b.GetFormID()) + " rank " + a.GetRelationshipRank(b) + " | back " + b.GetRelationshipRank(a) + " | family " + a.HasFamilyRelationship(b) + " | blood " + Rapport:Relations.AreBloodRelated(a, b) + " | partner " + Rapport:Relations.ArePartners(a, b) + " | stored " + Rapport:Core.IsPairSeeded(aiFormID, b.GetFormID()) + " | bondBetween " + Rapport:Relations.BondBetween(a, b))
 		Return
 	EndIf
 

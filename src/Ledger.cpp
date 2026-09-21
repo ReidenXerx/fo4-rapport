@@ -190,6 +190,18 @@ namespace RP
 			a_first, a_second, a_rank, a_blood, a_partner, pair.bond);
 	}
 
+	float Ledger::SeedValue(std::int32_t a_rank, bool a_partner) noexcept
+	{
+		return VanillaSeed(a_rank, a_partner);
+	}
+
+	bool Ledger::IsSeeded(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		return it != _pairs.end() && it->second.seeded;
+	}
+
 	bool Ledger::IsIncest(std::uint32_t a_first, std::uint32_t a_second) const
 	{
 		NamedLock lock{ _lock, "ledger" };
