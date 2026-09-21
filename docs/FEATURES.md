@@ -738,6 +738,36 @@ released when the scene ends. `src/Watchers.cpp`.
 McDonough, facing a wall, heard one; Cathy's reaction queued behind another bystander's and came nine
 seconds later. Two line-of-sight methods were measured and rejected — see §8b.
 
+## 7c. Relationships, personas and settings
+
+### A relationship between every two people who have touched — VERIFIED IN GAME
+
+Each pair that has interacted has a bond from -1 to +1, kept in the co-save. A scene raises it, and
+dialogue, gifts and other addons can move it. The engine's own relationship seeds it on the first
+interaction, measured on Fallout 4's real scale: spouses +0.80, siblings or parent and child +0.45,
+friends and co-workers +0.15. Before a pair has ever met in a scene, addons can still read what they
+*would* start at, without a record being written. A death forgets the dead actor's records. Blood
+relatives carry an incest flag that nothing refuses on; it is there for a future attitude layer. API:
+`docs/relationship-api.md`.
+
+### Personas you can pin — VERIFIED IN GAME
+
+Every NPC's persona comes from its form id, and `personas.json` can pin any of them by plugin and id
+(Ivy ships as vulgar). A pin that names something other than a person is refused with a warning.
+
+### An MCM menu, with the json as the single source of defaults — VERIFIED IN GAME (reload)
+
+Two pages: *Scene choice* (the bar, closeness, faction, indoors, night, onlookers and the crowd curve)
+and *Voices* (pair lines, bystander comments, radii, chance, timing). The menu's defaults are
+generated from `scoring.json` and `barks.json` (`scripts/build-mcm.py`), so the menu and the files
+cannot disagree. A changed slider applies within one 20 s pass, with no restart. MCM is optional.
+
+### Only the part of the world you are in — VERIFIED IN GAME
+
+Fallout keeps the interior you just left loaded, but detached. Rapport only considers people in your
+cell, or in the same exterior worldspace. Nobody in a cell you left gets scored, counted as an
+onlooker, or started in a scene the game is no longer running.
+
 ## 8. Findings about AAF that any AAF mod author can use
 
 These are why `docs/aaf-under-the-hood.md` exists. All 21 were measured against a running game or read
