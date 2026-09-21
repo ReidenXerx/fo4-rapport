@@ -173,6 +173,14 @@ namespace RP
 
 		[[nodiscard]] std::size_t AllowedRaceCount() const noexcept { return _allowedRaces.size(); }
 
+		// scoring.json "ambientQuests": quests whose aliases hold people as part of
+		// ordinary life (a settlement, a finished quest's standing group), so they
+		// never count as "a quest is directing this actor". By editor id.
+		[[nodiscard]] bool IsAmbientQuest(std::string_view a_editorID) const
+		{
+			return !a_editorID.empty() && std::ranges::find(_ambientQuests, a_editorID) != _ambientQuests.end();
+		}
+
 		[[nodiscard]] static std::filesystem::path IniPath();
 		[[nodiscard]] static std::filesystem::path RacesPath();
 		[[nodiscard]] static std::filesystem::path ScoringPath();
@@ -180,5 +188,6 @@ namespace RP
 	private:
 		std::unordered_set<const RE::TESRace*> _allowedRaces;
 		PairWeights                            _weights{};
+		std::vector<std::string>               _ambientQuests;
 	};
 }

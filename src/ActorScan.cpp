@@ -7,24 +7,36 @@ namespace
 	// An actor filled into a quest alias is not necessarily busy — settlers sit in
 	// settlement aliases permanently. An alias that has INSTANCED PACKAGES is a
 	// quest actively directing them, which is the thing we must not interrupt.
-	[[nodiscard]] bool IsQuestDriven(const RE::Actor& a_actor)
+	// Returns the quest doing the directing, so the log can name it.
+	[[nodiscard]] const RE::TESQuest* QuestDriving(const RE::Actor& a_actor)
 	{
 		const auto& extra = a_actor.extraList;
 		if (!extra) {
-			return false;
+			return nullptr;
 		}
 
 		const auto aliases = extra->GetByType<RE::ExtraAliasInstanceArray>();
 		if (!aliases) {
-			return false;
+			return nullptr;
 		}
 
+		const auto& config = RP::Config::GetSingleton();
 		for (const auto& instance : aliases->aliasArray) {
-			if (instance.instancedPackages && !instance.instancedPackages->empty()) {
-				return true;
+			if (!instance.instancedPackages || instance.instancedPackages->empty()) {
+				continue;
 			}
+			// Owner, 2026-09-21: settlement life is not a quest directing someone.
+			// Seen in Sanctuary: WorkshopParent held a settler, and Min01 - "When
+			// Freedom Calls", long finished - held Sturges, the Longs and Mama Murphy,
+			// so no settler there could ever be a candidate. Quest state cannot tell
+			// these apart (Min01 has no completed flag at stage 230), so it is a list.
+			const char* edid = instance.quest ? instance.quest->GetFormEditorID() : nullptr;
+			if (edid && config.IsAmbientQuest(edid)) {
+				continue;
+			}
+			return instance.quest;
 		}
-		return false;
+		return nullptr;
 	}
 
 	// In the part of the world the player is in: the player's own cell when they are
@@ -69,6 +81,7 @@ namespace RP
 	{
 		_handles.clear();
 		_rejectedRaces.clear();
+		_questHeld.clear();
 		_candidates.clear();
 		_observerPositions.clear();
 		_loadedIDs.clear();
@@ -153,8 +166,14 @@ namespace RP
 					// standing in a quest scene, and in Goodneighbor and Diamond City
 					// that is most of the street.
 					++_counters.inRandomScene;
-				} else if (IsQuestDriven(*actor)) {
+				} else if (const auto* quest = QuestDriving(*actor)) {
 					++_counters.questDriven;
+					// Who and which quest: a count cannot tell "the Minutemen hold every
+					// settler in Sanctuary" from "one courier is mid-delivery".
+					const char* name = actor->GetDisplayFullName();
+					const char* edid = quest ? quest->GetFormEditorID() : nullptr;
+					_questHeld.push_back(std::format("{} [{}]", name && *name ? name : "?",
+						edid && *edid ? std::string{ edid } : std::format("{:08X}", quest ? quest->GetFormID() : 0u)));
 				} else {
 					const auto here = actor->GetPosition();
 					const auto dx = here.x - _origin.x;

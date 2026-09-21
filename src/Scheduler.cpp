@@ -166,6 +166,13 @@ namespace RP
 			}
 			logger::info("   races rejected ({} distinct): {}", byCount.size(), census);
 		}
+		if (Config::GetSingleton().verbose && !_scan.QuestHeld().empty()) {
+			std::string held;
+			for (const auto& who : _scan.QuestHeld()) {
+				held += held.empty() ? who : ", " + who;
+			}
+			logger::info("   held by a quest ({}): {}", _scan.QuestHeld().size(), held);
+		}
 
 		// Dry run: rank the pairs and say what would happen. Nothing below touches an
 		// actor, reserves anyone, or starts anything — that is a later milestone, and

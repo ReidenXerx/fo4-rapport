@@ -685,6 +685,18 @@ assuming the test verbs are the right vocabulary.
 
 ---
 
+## N-7 - Companions get their own module, with their own relationship system (owner, 2026-09-21)
+
+Owner's words: *"Sex with companions will be separate module in our next mod and companions will
+have standalone unique relationship system; it will also bound to relationship db but will have
+bunch unique modifiers."*
+
+So: companions are NOT on Rapport's `ambientQuests` list, and Chemistry's autonomy never takes them
+on its own. The companion module lives in Overture. It reads and writes the same store (`PairBond`,
+`AddBondBetween`, the incest and partner flags) and layers companion-only modifiers on top: affinity,
+the companion's own history with the player, whatever that design settles on. Nothing about it is
+designed yet. This entry exists so the idea is not lost.
+
 ## Deliberately deferred
 
 - **Factions.** The owner's own note: *"i dont have any cool ideas here besides standard

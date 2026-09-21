@@ -122,3 +122,8 @@ and nothing but memory would have turned it off again.
    That turns "which voice types should we add?" from taste into a measured list, ranked by how many
    characters each new voice would cover. The owner still picks by ear (V-9); the list only says
    where to listen. Ties naturally to item 8 (mod voices make the gaps real on a given install).
+
+10. **Companion module in Overture** (owner idea, 2026-09-21; `relationship-and-personas.md` N-7).
+    Sex with companions is its own module in the next mod, with a standalone relationship system
+    bound to the same relationship store and carrying companion-only modifiers. Until then
+    companions stay out of autonomy: they are deliberately not on `ambientQuests`.

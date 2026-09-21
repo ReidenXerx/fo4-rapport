@@ -32,5 +32,8 @@
   "perObserver": 0.2,
   "playerNear": 0.0,
 
-  "minimumScore": 0.9
+  "minimumScore": 0.9,
+
+  "ambientQuestsComment": "Quests whose aliases hold people as part of ordinary life. Anyone else a quest gives packages to is left alone. Companions are NOT here on purpose: they get their own module (owner, 2026-09-21).",
+  "ambientQuests": ["WorkshopParent", "WorkshopPermanentActors", "Min01"]
 }

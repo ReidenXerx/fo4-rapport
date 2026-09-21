@@ -42,6 +42,9 @@ namespace RP
 			return _rejectedRaces;
 		}
 
+		// "Name [QUEST_EDID]" for everyone the quest filter held back this pass.
+		[[nodiscard]] const std::vector<std::string>& QuestHeld() const noexcept { return _questHeld; }
+
 		// Handles, not pointers: a pass spans several frames and an actor collected
 		// in the first slice can be unloaded before the last one.
 		[[nodiscard]] const std::vector<RE::ActorHandle>& Candidates() const noexcept { return _candidates; }
@@ -62,6 +65,7 @@ namespace RP
 
 	private:
 		std::unordered_map<std::uint32_t, std::uint32_t> _rejectedRaces;
+		std::vector<std::string>                         _questHeld;
 		std::vector<RE::ActorHandle>                     _candidates;
 		std::vector<RE::NiPoint3>                        _observerPositions;
 		std::vector<std::uint32_t>                       _loadedIDs;

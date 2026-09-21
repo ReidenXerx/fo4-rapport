@@ -233,6 +233,22 @@ namespace RP
 
 		McmSettings::Overlay("Scoring", document);
 		_weights.LoadFrom(document);
+		_ambientQuests.clear();
+		if (const auto list = document.find("ambientQuests"); list != document.end() && list->is_array()) {
+			for (const auto& quest : *list) {
+				if (quest.is_string()) {
+					_ambientQuests.push_back(quest.get<std::string>());
+				}
+			}
+		}
+		logger::info("scoring: {} ambient quest(s) never hold anyone: {}", _ambientQuests.size(),
+			_ambientQuests.empty() ? std::string{ "none" } : [&] {
+				std::string all;
+				for (const auto& q : _ambientQuests) {
+					all += all.empty() ? q : ", " + q;
+				}
+				return all;
+			}());
 		logger::info(
 			"scoring: range {:.0f}, observers within {:.0f} | proximity {:.2f}, faction {:.2f}, "
 			"interior {:.2f}, night {:.2f}, per observer -{:.2f}, player near -{:.2f}",
