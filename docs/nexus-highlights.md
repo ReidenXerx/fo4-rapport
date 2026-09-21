@@ -54,7 +54,8 @@ match was re-recorded or thrown away. What you hear is what you read.
 
 ### 6. Crowds sound like crowds
 **Hook.** In a crowd, the same NPC projects — same person, louder, playing to the room.
-**Show.** The same kind of bystander alone vs. in the market.
+**Show.** A bystander alone (City Hall) vs. a crowd (the Dugout Inn or the Third Rail) - not the
+market: children stand around there.
 **Proof.** V-21; owner picked every voice by ear.
 
 ---
