@@ -42,6 +42,9 @@ STAGED = pathlib.Path(r"D:\Vortex\fallout4\mods\Rapport-dev\F4SE\Plugins\Rapport
 SHIPPED = ROOT / "data/F4SE/Plugins/Rapport/barks.json"
 LINES = {l["id"]: l["text"] for l in json.loads((ROOT / "voice/lines.json").read_text(encoding="utf-8"))["lines"]}
 
+MCP_CMD, MCP_OUT = F4SE / "F4MCP.cmd", F4SE / "F4MCP.cmd.out"
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+
 DEMO = {"chance": 1.0, "cooldownSeconds": 30, "gapSeconds": 5, "startAfterSeconds": 8}
 
 
@@ -60,6 +63,24 @@ def send(verb, timeout=12.0):
         replies = [l for l in new if l.startswith(("OK", "ERR"))]
         if replies:
             return replies[0]
+        time.sleep(0.2)
+    return None
+
+
+def distance_to(ref):
+    """Player -> actor distance in units, from fo4-mcp's `nearby`, or None."""
+    mark = len(lines(MCP_OUT))
+    with MCP_CMD.open("a", encoding="utf-8") as fh:
+        fh.write("nearby 3000\n")
+    end = time.time() + 6
+    while time.time() < end:
+        new = lines(MCP_OUT)[mark:]
+        if any("<<END>>" in l for l in new):
+            for l in new:
+                m = re.match(r"\s*" + ref.upper() + r"\s+(\d+)u", l)
+                if m:
+                    return float(m.group(1))
+            return None
         time.sleep(0.2)
     return None
 
@@ -114,7 +135,7 @@ def narrate(line):
     return None
 
 
-def run_shot(shot, max_scene):
+def run_shot(shot, max_scene, record=True):
     say(f"== {shot['name']}: {shot['where']}")
     say(f"   shows: {shot['shows']}")
     reply = send("pause")
@@ -137,6 +158,9 @@ def run_shot(shot, max_scene):
             return False
 
     frame(shot["frame"]["ref"], shot["frame"]["distance"], "framing")
+    if record:
+        import record as rec
+        rec.start(shot["name"])
 
     mark = len(lines(LOG))
     r = send(f"request {first} {second} {shot['scenario']}")
@@ -146,7 +170,7 @@ def run_shot(shot, max_scene):
     say(f"   resume: {send('resume')}")
     say("   waiting for the scene (AAF walks the pair together first)...")
 
-    start, started, seen = time.time(), False, 0
+    start, started, seen, last_follow = time.time(), False, 0, 0.0
     while time.time() - start < max_scene:
         new = lines(LOG)[mark:]
         for l in new[seen:]:
@@ -165,13 +189,29 @@ def run_shot(shot, max_scene):
                 say(ev)
             if "scene ended" in l:
                 send("pause")
+                time.sleep(2)
+                send("look off")
+                if record:
+                    import record as rec
+                    say(f"   clip: {rec.stop()}")
                 say("   shot done - autonomy held")
                 return True
         seen = len(new)
+        # FOLLOW: if the pair has moved off the framing, frame them again -
+        # locally, never by MoveTo (watch ... move refuses rather than wedge).
+        if started and time.time() - last_follow >= 3.0:
+            last_follow = time.time()
+            d = distance_to(first)
+            if d is not None and abs(d - shot["frame"]["distance"]) > 150:
+                frame(first, shot["frame"]["distance"], f"following (they were {d:.0f} units away)")
         time.sleep(0.5)
     say(f"   {'scene still running' if started else 'no scene started'} after {max_scene:.0f}s - "
         "leaving it; NOT travelling until it ends")
     send("pause")
+    send("look off")
+    if record:
+        import record as rec
+        say(f"   clip: {rec.stop()}")
     return started
 
 
@@ -186,6 +226,8 @@ def frame(ref, distance, why):
     """
     say(f"   {why}: {send(f'watch {ref} {distance} move')}")
     time.sleep(1.5)
+    # FIXED GAZE: lock the camera on them (Game.SetCameraTarget) until `look off`.
+    send(f"look {ref}")
 
 
 def set_config(values):
@@ -203,6 +245,7 @@ def main():
     ap.add_argument("what", choices=["list", "prepare", "run", "restore"])
     ap.add_argument("shot", nargs="?")
     ap.add_argument("--max-scene", type=float, default=240.0, help="seconds to wait for a scene to end")
+    ap.add_argument("--no-record", action="store_true", help="do not drive OBS")
     a = ap.parse_args()
 
     if a.what == "list":
@@ -224,7 +267,7 @@ def main():
     if not todo:
         sys.exit(f"no shot called {a.shot!r} - try: list")
     for shot in todo:
-        if not run_shot(shot, a.max_scene):
+        if not run_shot(shot, a.max_scene, record=not a.no_record):
             say(f"== {shot['name']} did not complete - stopping here")
             return 1
     say("== demo complete")

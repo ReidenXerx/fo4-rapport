@@ -93,7 +93,9 @@ The scripted demo (`scripts/demo/`) plays these in order; each is reproducible, 
 
 | # | Where | What the viewer sees | Feature |
 | --- | --- | --- | --- |
-| 1 | see `scripts/demo/README.md` | a pair's opener + answer, subtitled | 1, 2, 5 |
-| 2 | a busy spot | heads turn, bystanders comment in turn | 3, 6 |
-| 3 | with a companion | a unique voice speaking, then their own voice in normal dialogue | 4 |
-| 4 | a quiet interior | a bystander in the next room who only HEARD it | 3 |
+| 1 | City Hall (`city-hall`) | opener + answer, subtitled; Geneva's borrowed voice; McDonough hears it through a wall | 1, 2, 3, 4, 5 |
+| 2 | the Dugout Inn (`dugout-inn`) | a bar crowd: heads turn, patrons comment in turn | 3, 6 |
+| 3 | the Third Rail (`third-rail`) | Goodneighbor, a crowd, a tender scene | 1, 3, 6 |
+| 4 | the Old State House (`state-house`) | Hancock and Fahrenheit, both unique voices, speaking; then talk to Hancock normally | 4 |
+
+Run them with `scripts/demo/demo.py` (see `scripts/demo/README.md`); each shot records its own clip.
