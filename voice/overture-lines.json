@@ -1170,8 +1170,8 @@
       "kind": "returning",
       "stage": 0,
       "persona": "mercantile",
-      "text": "My favourite customer. What is it going to be today?",
-      "chars": 52
+      "text": "My favorite customer. What is it going to be today?",
+      "chars": 51
     },
     {
       "id": "ov_romantic_returning_01",

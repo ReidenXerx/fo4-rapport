@@ -20,7 +20,10 @@ about twenty characters.
 """
 import json
 import pathlib
-import re
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from linelint import lint_text
 
 PERSONAS = {
     "mercantile": "Thinks in trade, value and accounts. Offering themselves IS how they show "
@@ -286,32 +289,6 @@ NOTES = {
  "tender":  "Out in the open with at most two watching. Three slow stages opening with "
             "kissing. Nothing rough or dominant - this is the affectionate one.",
 }
-
-
-# Authoring lint. Catching these here costs nothing; catching them in the
-# renderer costs six takes per line and looks like model drift.
-#
-#   British spelling - these are American wasteland characters, and the
-#   transcriber writes American, so every check fails on audio that was right.
-#   Measured: "apologising" failed 3/3 while the audio was perfect.
-#
-#   "X in Y" after a noun - unstressed "in" and "and" are near-identical in
-#   connected speech. "the wind in the grass" came back as "the wind and the
-#   grass" on 2 of 3 takes.
-BRITISH = re.compile(r"\b\w+(?:ising|isation|ised|ises|ourite|ogue)\b", re.I)
-BRITISH_OK = {"raised", "praised", "noised"}
-AMBIGUOUS = re.compile(r"\b(?:wind|rain|sun|light|sound|air|smoke)\s+in\s+the\b", re.I)
-
-
-def lint_text(lid: str, text: str) -> list:
-    bad = []
-    for w in BRITISH.findall(text):
-        if w.lower() not in BRITISH_OK:
-            bad.append(f"{lid}: British spelling {w!r} - the transcriber writes American")
-    if AMBIGUOUS.search(text):
-        bad.append(f"{lid}: a noun followed by " + chr(34) + "in the" + chr(34) +
-                   " - unstressed in/and are indistinguishable, rewrite it")
-    return bad
 
 
 def variants(text):

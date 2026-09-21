@@ -39,6 +39,10 @@ scavenged is an open question - and it does not block authoring the NPC side.
 """
 import json
 import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from linelint import lint_text
 
 REGISTERS = {
     "offer":  "caps, a gift, something material",
@@ -220,7 +224,7 @@ FAREWELL = {
 # about reticent).
 RETURNING = {
  "mercantile": ["Back again. Are you actually buying this time?",
-                "My favourite customer. What is it going to be today?"],
+                "My favorite customer. What is it going to be today?"],
  "romantic":   ["There you are. I was wondering when you would come back.",
                 "I have been thinking about the last time you were here."],
  "vulgar":     ["Look who came back for more of it.",
@@ -231,14 +235,13 @@ RETURNING = {
 
 
 def main() -> int:
-    lines, seen = [], set()
+    lines, seen, problems = [], set(), []
 
     def add(**kw):
         if kw["text"] in seen:
             raise SystemExit(f"duplicate: {kw['text']!r}")
         seen.add(kw["text"])
-        if len(kw["text"]) < 20:
-            raise SystemExit(f"too short, will drift: {kw['id']}")
+        problems.extend(lint_text(kw["id"], kw["text"]))
         lines.append({**kw, "chars": len(kw["text"])})
 
     for persona, texts in GREETING.items():
@@ -281,6 +284,11 @@ def main() -> int:
             for n, t in enumerate(texts, 1):
                 add(id=f"ov_{persona}_{kind}_{n:02d}", kind=kind, stage=0,
                     persona=persona, text=t)
+
+    if problems:
+        for pr in problems:
+            print("LINT: " + pr)
+        raise SystemExit(f"{len(problems)} lines would fail the renderer - fix them here")
 
     out = pathlib.Path(__file__).resolve().parent.parent / "voice/overture-lines.json"
     out.write_text(json.dumps(
