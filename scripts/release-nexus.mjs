@@ -136,7 +136,10 @@ if (dryRun) {
 
 // ── upload ───────────────────────────────────────────────────────────────
 step("Uploading");
-const uploadId = await client.uploadArchive({ bytes, filename: zipName, onState: info });
+// From disk, so an archive above the 100 MB single-part ceiling goes multipart.
+// 0.2.0 is 167 MB with its voices, and the single-part call refused it before a
+// byte was sent.
+const uploadId = await client.uploadArchiveFromDisk({ filePath: zipPath, filename: zipName, onState: info });
 const created = await client.createModFileVersion(file.id, {
   upload_id: uploadId,
   name: `${NEXUS.title} ${version}`,
