@@ -471,3 +471,21 @@ python scripts/pcm-to-fuz.py in.pcm out.fuz       # one file, by hand
   source became a real newline and silently matched nothing. Write patches with
   raw strings or `chr()`, and verify the bytes with `cat -A` when a replacement
   "succeeds" but changes no behaviour.
+
+
+### V-24 - Test speech with a say strip, and time it from the bridge (2026-09-21)
+
+Use `fo4-mcp/tools/host/saystrip.py` (documented in fo4-mcp's
+`docs/dev-command-channel.md`): many attempts, same line, alternating speakers,
+one image of subtitle bands. Single screenshots misled twice in one session.
+
+Two findings it produced, both of which reversed a confident reading:
+
+- **Named NPCs with UNIQUE voice types are silent, not broken.** Only 30 of 531
+  voice types in Fallout4.esm are generic; Geneva (`NPCFGeneva`) and McDonough
+  (`NPCMMayorMcDonough`) are unique and not among our 32 renders. They show our
+  subtitle and play nothing - V-8, working as designed. Rendering them is a
+  credits decision per character, not a fix.
+- **"Allow Default Dialog" is NOT what gates our lines.** Both of those voice
+  types have that flag OFF and both speak our unconditioned lines. Checked in the
+  ESM and in the game, so nobody re-derives it from memory.
