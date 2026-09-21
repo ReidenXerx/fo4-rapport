@@ -168,10 +168,42 @@ def run_shot(shot, max_scene, record=True, cameraman=False):
         rec.start(shot["name"])
 
     mark = len(lines(LOG))
-    r = send(f"request {first} {second} {shot['scenario']}")
-    say(f"   request: {r}")
-    if not (r and r.startswith("OK")):
+    # A REFUSAL IS A FAILURE. The reply to a refused request still begins "OK"
+    # ("OK Rapport REFUSED ... a scene was already in flight"), and the first
+    # cameraman take treated it as accepted and filmed SOMEBODY ELSE'S scene -
+    # autonomy had started one right after the load. Autonomy is paused above,
+    # so wait for that scene to end and ask again.
+    for attempt in range(3):
+        r = send(f"request {first} {second} {shot['scenario']}")
+        say(f"   request: {r}")
+        if r and r.startswith("OK") and "REFUSED" not in r:
+            break
+        if not (r and "in flight" in r):
+            return False
+        say("   another scene is running - waiting for it to end (autonomy is paused), then asking again")
+        seen_end = len(lines(LOG))
+        end = time.time() + 400
+        while time.time() < end and not any("scene ended" in l for l in lines(LOG)[seen_end:]):
+            time.sleep(2)
+        time.sleep(3)
+        mark = len(lines(LOG))
+    else:
         return False
+    # OUR request number, from the line that names both our actors.
+    request = None
+    end = time.time() + 20
+    while request is None and time.time() < end:
+        for l in lines(LOG)[mark:]:
+            m = re.search(r"request (\d+): queued ", l)
+            if m and first.upper() in l.upper() and second.upper() in l.upper():
+                request = m.group(1)
+                break
+        time.sleep(0.3)
+    if request is None:
+        say("   could not find our request in the log - stopping rather than film the wrong scene")
+        return False
+    say(f"   our scene is request {request}")
+    ours = f"request {request}:"
     say(f"   resume: {send('resume')}")
     say("   waiting for the scene (AAF walks the pair together first)...")
 
@@ -179,6 +211,8 @@ def run_shot(shot, max_scene, record=True, cameraman=False):
     while time.time() - start < max_scene:
         new = lines(LOG)[mark:]
         for l in new[seen:]:
+            if "request " in l and ours not in l:
+                continue   # another scene's event - not ours to narrate or end on
             if "scene started" in l:
                 started = True
                 say("STARTS   scene started")
@@ -225,7 +259,7 @@ def run_shot(shot, max_scene, record=True, cameraman=False):
         say("   holding until the scene ends before anything travels...")
         end = time.time() + 900
         while time.time() < end:
-            if any("scene ended" in l for l in lines(LOG)[mark:]):
+            if any(ours + " scene ended" in l for l in lines(LOG)[mark:]):
                 say("   scene ended - safe to move on")
                 return True
             time.sleep(2)
