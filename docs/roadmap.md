@@ -100,3 +100,16 @@ and nothing but memory would have turned it off again.
    structure than the single quest record `tools/make_esp.py` writes by hand. This is the one place
    the real Creation Kit would genuinely help, and it is worth solving before the design depends on
    it rather than after.
+
+   **Update 2026-09-21: solved.** `tools/make_dialogue.py` now generates quest-owned Topics and
+   voiced lines (QUST > DLBR + DIAL > INFO), spoken in game by `Say` - see V-23. The risk above no
+   longer stands; the lesson that does is that a Topic without a Dialogue Branch resolves and stays
+   silent.
+
+8. **Voice fallback for MOD-added voices** (owner: not a priority, 2026-09-21). The Voices service
+   (V-25) measures the official masters' voice types only, so a voice added by a mod - 3DNPC alone
+   brings hundreds - gets the plain sex default (and only for a human or ghoul actor). Extending
+   `scripts/voice-inventory.py` and `voice-races.py` to the player's ACTIVE plugins and their voice
+   archives / loose `Sound/Voice/<plugin>/` folders would give them measured matches too.
+   `rebuild-voices.py` is already incremental, so it is the inputs that grow, not the pipeline.
+   Mind that the map becomes per-install then, and the shipped table cannot contain it.
