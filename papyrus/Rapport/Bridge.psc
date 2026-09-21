@@ -223,7 +223,7 @@ Event OnTimer(Int aiTimerID)
 EndEvent
 
 ; Who is near a running scene, and who can SEE it (R-12). Reports only: the
-; plugin decides who is rolled, who speaks and what they say. HasDetectionLOS
+; plugin decides who is rolled, who speaks and what they say. HasDirectLOS
 ; is the reason this half lives here - the C++ side has no line-of-sight call.
 ;
 ; No AAF call anywhere in this function, so it cannot wedge the poll's stack.
@@ -255,7 +255,13 @@ Function SweepWatchers()
 		Actor who = near[i] as Actor
 		i += 1
 		If who && who != a && who != b && who != player && !who.IsDead()
-			If Rapport:Core.NoteWatcher(who.GetFormID(), who.HasDetectionLOS(a) || who.HasDetectionLOS(b))
+			; HasDirectLOS, not HasDetectionLOS. Detection LOS is the STEALTH system:
+			; friendly townsfolk do not actively detect friendly NPCs, and it answered
+			; no for a whole scene to two watchers with their heads turned to it. Direct
+			; LOS is a ray between the two, blocked by walls - the obstacle test. Facing
+			; is the head turn's job. Empty node names, exactly as vanilla calls it for an
+			; NPC-to-reference check (RefCollectionAliasManager).
+			If Rapport:Core.NoteWatcher(who.GetFormID(), who.HasDirectLOS(a, "", "") || who.HasDirectLOS(b, "", ""))
 				; They noticed: the HEAD turns (pathing False = no walking over).
 				; Two arguments - the decompiled base carries no defaults.
 				who.SetLookAt(a, False)

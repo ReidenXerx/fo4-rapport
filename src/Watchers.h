@@ -12,8 +12,9 @@ namespace RP
 	// someone is CLOSE ENOUGH AND CAN SEE IT while it is still going. So:
 	//
 	//   - the bridge sweeps each poll: every NPC within the radius, and whether
-	//     they have detection line of sight to either participant (Papyrus has
-	//     HasDetectionLOS; the C++ side has no such call);
+	//     they have a DIRECT line of sight to either participant - a ray, blocked by
+	//     walls (Papyrus HasDirectLOS; the C++ side has no such call). Not detection
+	//     LOS: that is the stealth system, and it said no to watchers facing the scene;
 	//   - an actor is ROLLED ONCE PER SCENE, on the first sweep where they are both
 	//     near and seeing. Near-but-unseeing does not spend the roll - someone who
 	//     walks round the corner is rolled when they see it, not when they came
