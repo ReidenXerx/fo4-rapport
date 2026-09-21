@@ -359,9 +359,30 @@ An actor whose voice type we did not render falls back to **silence with a
 subtitle** rather than a wrong voice - acceptable degradation, and it means
 coverage can grow one voice type at a time.
 
-**STILL UNVERIFIED, and it gates everything:** whether `Say` actually produces a
-line while AAF has the actor busy in a scene. It must be tested in-game before
-any batch render - a failure here invalidates the route, not just the content.
+**VERIFIED 2026-09-21, in the running game: `Say` works while AAF has the actor busy.**
+Mayor McDonough, generic greeting topic `000048EB`, fired 4.3 seconds into a running AAF
+scene - he spoke, voiced and subtitled: *"As much as I love talking to the people, I'm a busy
+man."* Outside any scene the same topic gave *"I hope you enjoy your stay in Diamond City"*,
+so the engine is doing real line selection under the topic rather than replaying one line.
+The TopicInfo route stands.
+
+Four things established getting there, each of which would have produced a wrong answer:
+
+- **`IsInScene()` cannot see an AAF scene.** It reports the engine's own quest-scene
+  system, which AAF does not use, and returned False for an actor mid-animation. Never
+  use it as the "is this actor in a Rapport scene" test - ask Rapport.
+- **Rapport runs one scene at a time and autonomy refills the slot within seconds.** A
+  requested scene is REFUSED while another is in flight. `pause` first, then `request`,
+  then `resume`. The third `request` argument is a SCENARIO name, not a duration.
+- **The reconstructed base scripts have no `Topic.psc`, `TopicInfo.psc` or `VoiceType.psc`**,
+  so any script naming those types fails to compile. fo4-mcp carries import-only stubs in
+  `papyrus-stubs/` - never under a directory compiled with `-all`, where they would become
+  .pex files shadowing the game's own types. Overture will need the same.
+- **The screenshot was lying, twice.** At 125% display scaling a DPI-unaware capture took
+  only the top-left 80% of the frame, dropping the bottom strip where subtitles and the
+  loading spinner live - a spoken line read as silence, a healthy loading screen read as a
+  hung game. And `CopyFromScreen` photographs whatever is ON the screen, so an overlapping
+  window replaced four mid-scene frames. The owner caught the first by ear.
 
 **The ESP generator will need to emit Sound records.** `tools/make_esp.py` already emits
 quests, so the machinery exists; SNDR is new work but small.
