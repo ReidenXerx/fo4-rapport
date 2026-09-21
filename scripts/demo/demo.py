@@ -212,6 +212,19 @@ def run_shot(shot, max_scene, record=True):
     if record:
         import record as rec
         say(f"   clip: {rec.stop()}")
+    if started:
+        # HOLD until it really ends. `run all` goes straight on to the next shot's
+        # TRAVEL, and travelling while a scene is still running is the one thing
+        # the safety rules forbid. The clip is closed; the wait is not optional.
+        say("   holding until the scene ends before anything travels...")
+        end = time.time() + 900
+        while time.time() < end:
+            if any("scene ended" in l for l in lines(LOG)[mark:]):
+                say("   scene ended - safe to move on")
+                return True
+            time.sleep(2)
+        say("   STOPPED: the scene never ended - not travelling anywhere")
+        return False
     return started
 
 
@@ -244,7 +257,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("what", choices=["list", "prepare", "run", "restore"])
     ap.add_argument("shot", nargs="?")
-    ap.add_argument("--max-scene", type=float, default=240.0, help="seconds to wait for a scene to end")
+    ap.add_argument("--max-scene", type=float, default=330.0, help="seconds to wait for a scene to end")
     ap.add_argument("--no-record", action="store_true", help="do not drive OBS")
     a = ap.parse_args()
 
