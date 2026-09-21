@@ -1,5 +1,5 @@
 {
-  "_": "R-9 scene barks, spoken at OnSceneStarted. Selected by the SPEAKER's persona (R-7/R-8), the scenario, and their role in it. Built by scripts/build-lines.py - edit the bank there, never this file.",
+  "_": "Voice lines, built by scripts/build-lines.py - edit the bank there, never this file. kind=pair are R-9 scene barks spoken by the two actors at OnSceneStarted, selected by the SPEAKER's persona (R-7/R-8), the scenario and their role. kind=observer are R-12 reactions from a bystander who came within range while a scene was already running, selected by THEIR persona and whether anyone else is watching.",
   "personas": {
     "mercantile": "Thinks in trade, value and accounts. Offering themselves IS how they show interest - it is the one thing they will not price.",
     "romantic": "Fancy words, patience, setting. Wants the moment to be worth remembering and will say so out loud.",
@@ -11,9 +11,14 @@
     "athome": "Their own place, or indoors with at most two watching. Five stages, unhurried, ends in a climax. Private, and in no hurry at all.",
     "tender": "Out in the open with at most two watching. Three slow stages opening with kissing. Nothing rough or dominant - this is the affectionate one."
   },
+  "audience_notes": {
+    "alone": "This watcher is the ONLY one watching. Furtive, awkward, nobody to perform for.",
+    "crowd": "Others are watching too. Emboldened, playing to the room, talking past the pair."
+  },
   "lines": [
     {
       "id": "mercantile_quickie_init_01",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "initiator",
@@ -22,6 +27,7 @@
     },
     {
       "id": "mercantile_quickie_init_02",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "initiator",
@@ -30,6 +36,7 @@
     },
     {
       "id": "mercantile_quickie_init_03",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "initiator",
@@ -38,6 +45,7 @@
     },
     {
       "id": "mercantile_quickie_init_04",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "initiator",
@@ -46,6 +54,7 @@
     },
     {
       "id": "mercantile_quickie_init_05",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "initiator",
@@ -54,6 +63,7 @@
     },
     {
       "id": "mercantile_quickie_init_06",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "initiator",
@@ -62,6 +72,7 @@
     },
     {
       "id": "mercantile_quickie_resp_01",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "responder",
@@ -70,6 +81,7 @@
     },
     {
       "id": "mercantile_quickie_resp_02",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "responder",
@@ -78,6 +90,7 @@
     },
     {
       "id": "mercantile_quickie_resp_03",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "responder",
@@ -86,6 +99,7 @@
     },
     {
       "id": "mercantile_quickie_resp_04",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "responder",
@@ -94,6 +108,7 @@
     },
     {
       "id": "mercantile_quickie_resp_05",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "responder",
@@ -102,6 +117,7 @@
     },
     {
       "id": "mercantile_quickie_resp_06",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "quickie",
       "role": "responder",
@@ -110,6 +126,7 @@
     },
     {
       "id": "mercantile_athome_init_01",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "initiator",
@@ -118,6 +135,7 @@
     },
     {
       "id": "mercantile_athome_init_02",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "initiator",
@@ -126,6 +144,7 @@
     },
     {
       "id": "mercantile_athome_init_03",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "initiator",
@@ -134,6 +153,7 @@
     },
     {
       "id": "mercantile_athome_init_04",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "initiator",
@@ -142,6 +162,7 @@
     },
     {
       "id": "mercantile_athome_init_05",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "initiator",
@@ -150,6 +171,7 @@
     },
     {
       "id": "mercantile_athome_init_06",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "initiator",
@@ -158,6 +180,7 @@
     },
     {
       "id": "mercantile_athome_resp_01",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "responder",
@@ -166,6 +189,7 @@
     },
     {
       "id": "mercantile_athome_resp_02",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "responder",
@@ -174,6 +198,7 @@
     },
     {
       "id": "mercantile_athome_resp_03",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "responder",
@@ -182,6 +207,7 @@
     },
     {
       "id": "mercantile_athome_resp_04",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "responder",
@@ -190,6 +216,7 @@
     },
     {
       "id": "mercantile_athome_resp_05",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "responder",
@@ -198,6 +225,7 @@
     },
     {
       "id": "mercantile_athome_resp_06",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "athome",
       "role": "responder",
@@ -206,6 +234,7 @@
     },
     {
       "id": "mercantile_tender_init_01",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "initiator",
@@ -214,6 +243,7 @@
     },
     {
       "id": "mercantile_tender_init_02",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "initiator",
@@ -222,6 +252,7 @@
     },
     {
       "id": "mercantile_tender_init_03",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "initiator",
@@ -230,6 +261,7 @@
     },
     {
       "id": "mercantile_tender_init_04",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "initiator",
@@ -238,6 +270,7 @@
     },
     {
       "id": "mercantile_tender_init_05",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "initiator",
@@ -246,6 +279,7 @@
     },
     {
       "id": "mercantile_tender_init_06",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "initiator",
@@ -254,6 +288,7 @@
     },
     {
       "id": "mercantile_tender_resp_01",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "responder",
@@ -262,6 +297,7 @@
     },
     {
       "id": "mercantile_tender_resp_02",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "responder",
@@ -270,6 +306,7 @@
     },
     {
       "id": "mercantile_tender_resp_03",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "responder",
@@ -278,6 +315,7 @@
     },
     {
       "id": "mercantile_tender_resp_04",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "responder",
@@ -286,6 +324,7 @@
     },
     {
       "id": "mercantile_tender_resp_05",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "responder",
@@ -294,6 +333,7 @@
     },
     {
       "id": "mercantile_tender_resp_06",
+      "kind": "pair",
       "persona": "mercantile",
       "scenario": "tender",
       "role": "responder",
@@ -302,6 +342,7 @@
     },
     {
       "id": "romantic_quickie_init_01",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "initiator",
@@ -310,6 +351,7 @@
     },
     {
       "id": "romantic_quickie_init_02",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "initiator",
@@ -318,6 +360,7 @@
     },
     {
       "id": "romantic_quickie_init_03",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "initiator",
@@ -326,6 +369,7 @@
     },
     {
       "id": "romantic_quickie_init_04",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "initiator",
@@ -334,6 +378,7 @@
     },
     {
       "id": "romantic_quickie_init_05",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "initiator",
@@ -342,6 +387,7 @@
     },
     {
       "id": "romantic_quickie_init_06",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "initiator",
@@ -350,6 +396,7 @@
     },
     {
       "id": "romantic_quickie_resp_01",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "responder",
@@ -358,6 +405,7 @@
     },
     {
       "id": "romantic_quickie_resp_02",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "responder",
@@ -366,6 +414,7 @@
     },
     {
       "id": "romantic_quickie_resp_03",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "responder",
@@ -374,6 +423,7 @@
     },
     {
       "id": "romantic_quickie_resp_04",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "responder",
@@ -382,6 +432,7 @@
     },
     {
       "id": "romantic_quickie_resp_05",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "responder",
@@ -390,6 +441,7 @@
     },
     {
       "id": "romantic_quickie_resp_06",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "quickie",
       "role": "responder",
@@ -398,6 +450,7 @@
     },
     {
       "id": "romantic_athome_init_01",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "initiator",
@@ -406,6 +459,7 @@
     },
     {
       "id": "romantic_athome_init_02",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "initiator",
@@ -414,6 +468,7 @@
     },
     {
       "id": "romantic_athome_init_03",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "initiator",
@@ -422,6 +477,7 @@
     },
     {
       "id": "romantic_athome_init_04",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "initiator",
@@ -430,6 +486,7 @@
     },
     {
       "id": "romantic_athome_init_05",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "initiator",
@@ -438,6 +495,7 @@
     },
     {
       "id": "romantic_athome_init_06",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "initiator",
@@ -446,6 +504,7 @@
     },
     {
       "id": "romantic_athome_resp_01",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "responder",
@@ -454,6 +513,7 @@
     },
     {
       "id": "romantic_athome_resp_02",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "responder",
@@ -462,6 +522,7 @@
     },
     {
       "id": "romantic_athome_resp_03",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "responder",
@@ -470,6 +531,7 @@
     },
     {
       "id": "romantic_athome_resp_04",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "responder",
@@ -478,6 +540,7 @@
     },
     {
       "id": "romantic_athome_resp_05",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "responder",
@@ -486,6 +549,7 @@
     },
     {
       "id": "romantic_athome_resp_06",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "athome",
       "role": "responder",
@@ -494,6 +558,7 @@
     },
     {
       "id": "romantic_tender_init_01",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "initiator",
@@ -502,6 +567,7 @@
     },
     {
       "id": "romantic_tender_init_02",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "initiator",
@@ -510,6 +576,7 @@
     },
     {
       "id": "romantic_tender_init_03",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "initiator",
@@ -518,6 +585,7 @@
     },
     {
       "id": "romantic_tender_init_04",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "initiator",
@@ -526,6 +594,7 @@
     },
     {
       "id": "romantic_tender_init_05",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "initiator",
@@ -534,6 +603,7 @@
     },
     {
       "id": "romantic_tender_init_06",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "initiator",
@@ -542,6 +612,7 @@
     },
     {
       "id": "romantic_tender_resp_01",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "responder",
@@ -550,6 +621,7 @@
     },
     {
       "id": "romantic_tender_resp_02",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "responder",
@@ -558,6 +630,7 @@
     },
     {
       "id": "romantic_tender_resp_03",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "responder",
@@ -566,6 +639,7 @@
     },
     {
       "id": "romantic_tender_resp_04",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "responder",
@@ -574,6 +648,7 @@
     },
     {
       "id": "romantic_tender_resp_05",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "responder",
@@ -582,6 +657,7 @@
     },
     {
       "id": "romantic_tender_resp_06",
+      "kind": "pair",
       "persona": "romantic",
       "scenario": "tender",
       "role": "responder",
@@ -590,6 +666,7 @@
     },
     {
       "id": "vulgar_quickie_init_01",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
@@ -598,6 +675,7 @@
     },
     {
       "id": "vulgar_quickie_init_02",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
@@ -606,6 +684,7 @@
     },
     {
       "id": "vulgar_quickie_init_03",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
@@ -614,6 +693,7 @@
     },
     {
       "id": "vulgar_quickie_init_04",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
@@ -622,6 +702,7 @@
     },
     {
       "id": "vulgar_quickie_init_05",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
@@ -630,6 +711,7 @@
     },
     {
       "id": "vulgar_quickie_init_06",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
@@ -638,6 +720,7 @@
     },
     {
       "id": "vulgar_quickie_resp_01",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
@@ -646,6 +729,7 @@
     },
     {
       "id": "vulgar_quickie_resp_02",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
@@ -654,6 +738,7 @@
     },
     {
       "id": "vulgar_quickie_resp_03",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
@@ -662,6 +747,7 @@
     },
     {
       "id": "vulgar_quickie_resp_04",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
@@ -670,6 +756,7 @@
     },
     {
       "id": "vulgar_quickie_resp_05",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
@@ -678,6 +765,7 @@
     },
     {
       "id": "vulgar_quickie_resp_06",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
@@ -686,6 +774,7 @@
     },
     {
       "id": "vulgar_athome_init_01",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
@@ -694,6 +783,7 @@
     },
     {
       "id": "vulgar_athome_init_02",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
@@ -702,6 +792,7 @@
     },
     {
       "id": "vulgar_athome_init_03",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
@@ -710,6 +801,7 @@
     },
     {
       "id": "vulgar_athome_init_04",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
@@ -718,6 +810,7 @@
     },
     {
       "id": "vulgar_athome_init_05",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
@@ -726,6 +819,7 @@
     },
     {
       "id": "vulgar_athome_init_06",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
@@ -734,6 +828,7 @@
     },
     {
       "id": "vulgar_athome_resp_01",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
@@ -742,6 +837,7 @@
     },
     {
       "id": "vulgar_athome_resp_02",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
@@ -750,6 +846,7 @@
     },
     {
       "id": "vulgar_athome_resp_03",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
@@ -758,6 +855,7 @@
     },
     {
       "id": "vulgar_athome_resp_04",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
@@ -766,6 +864,7 @@
     },
     {
       "id": "vulgar_athome_resp_05",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
@@ -774,6 +873,7 @@
     },
     {
       "id": "vulgar_athome_resp_06",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
@@ -782,6 +882,7 @@
     },
     {
       "id": "vulgar_tender_init_01",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
@@ -790,6 +891,7 @@
     },
     {
       "id": "vulgar_tender_init_02",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
@@ -798,6 +900,7 @@
     },
     {
       "id": "vulgar_tender_init_03",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
@@ -806,6 +909,7 @@
     },
     {
       "id": "vulgar_tender_init_04",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
@@ -814,6 +918,7 @@
     },
     {
       "id": "vulgar_tender_init_05",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
@@ -822,6 +927,7 @@
     },
     {
       "id": "vulgar_tender_init_06",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
@@ -830,6 +936,7 @@
     },
     {
       "id": "vulgar_tender_resp_01",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
@@ -838,6 +945,7 @@
     },
     {
       "id": "vulgar_tender_resp_02",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
@@ -846,6 +954,7 @@
     },
     {
       "id": "vulgar_tender_resp_03",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
@@ -854,6 +963,7 @@
     },
     {
       "id": "vulgar_tender_resp_04",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
@@ -862,6 +972,7 @@
     },
     {
       "id": "vulgar_tender_resp_05",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
@@ -870,6 +981,7 @@
     },
     {
       "id": "vulgar_tender_resp_06",
+      "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
@@ -878,6 +990,7 @@
     },
     {
       "id": "reticent_quickie_init_01",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "initiator",
@@ -886,6 +999,7 @@
     },
     {
       "id": "reticent_quickie_init_02",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "initiator",
@@ -894,6 +1008,7 @@
     },
     {
       "id": "reticent_quickie_init_03",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "initiator",
@@ -902,6 +1017,7 @@
     },
     {
       "id": "reticent_quickie_init_04",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "initiator",
@@ -910,6 +1026,7 @@
     },
     {
       "id": "reticent_quickie_init_05",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "initiator",
@@ -918,6 +1035,7 @@
     },
     {
       "id": "reticent_quickie_init_06",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "initiator",
@@ -926,6 +1044,7 @@
     },
     {
       "id": "reticent_quickie_resp_01",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "responder",
@@ -934,6 +1053,7 @@
     },
     {
       "id": "reticent_quickie_resp_02",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "responder",
@@ -942,6 +1062,7 @@
     },
     {
       "id": "reticent_quickie_resp_03",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "responder",
@@ -950,6 +1071,7 @@
     },
     {
       "id": "reticent_quickie_resp_04",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "responder",
@@ -958,6 +1080,7 @@
     },
     {
       "id": "reticent_quickie_resp_05",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "responder",
@@ -966,6 +1089,7 @@
     },
     {
       "id": "reticent_quickie_resp_06",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "quickie",
       "role": "responder",
@@ -974,6 +1098,7 @@
     },
     {
       "id": "reticent_athome_init_01",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "initiator",
@@ -982,6 +1107,7 @@
     },
     {
       "id": "reticent_athome_init_02",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "initiator",
@@ -990,6 +1116,7 @@
     },
     {
       "id": "reticent_athome_init_03",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "initiator",
@@ -998,6 +1125,7 @@
     },
     {
       "id": "reticent_athome_init_04",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "initiator",
@@ -1006,6 +1134,7 @@
     },
     {
       "id": "reticent_athome_init_05",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "initiator",
@@ -1014,6 +1143,7 @@
     },
     {
       "id": "reticent_athome_init_06",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "initiator",
@@ -1022,6 +1152,7 @@
     },
     {
       "id": "reticent_athome_resp_01",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "responder",
@@ -1030,6 +1161,7 @@
     },
     {
       "id": "reticent_athome_resp_02",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "responder",
@@ -1038,6 +1170,7 @@
     },
     {
       "id": "reticent_athome_resp_03",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "responder",
@@ -1046,6 +1179,7 @@
     },
     {
       "id": "reticent_athome_resp_04",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "responder",
@@ -1054,6 +1188,7 @@
     },
     {
       "id": "reticent_athome_resp_05",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "responder",
@@ -1062,6 +1197,7 @@
     },
     {
       "id": "reticent_athome_resp_06",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "athome",
       "role": "responder",
@@ -1070,6 +1206,7 @@
     },
     {
       "id": "reticent_tender_init_01",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "initiator",
@@ -1078,6 +1215,7 @@
     },
     {
       "id": "reticent_tender_init_02",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "initiator",
@@ -1086,6 +1224,7 @@
     },
     {
       "id": "reticent_tender_init_03",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "initiator",
@@ -1094,6 +1233,7 @@
     },
     {
       "id": "reticent_tender_init_04",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "initiator",
@@ -1102,6 +1242,7 @@
     },
     {
       "id": "reticent_tender_init_05",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "initiator",
@@ -1110,6 +1251,7 @@
     },
     {
       "id": "reticent_tender_init_06",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "initiator",
@@ -1118,6 +1260,7 @@
     },
     {
       "id": "reticent_tender_resp_01",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "responder",
@@ -1126,6 +1269,7 @@
     },
     {
       "id": "reticent_tender_resp_02",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "responder",
@@ -1134,6 +1278,7 @@
     },
     {
       "id": "reticent_tender_resp_03",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "responder",
@@ -1142,6 +1287,7 @@
     },
     {
       "id": "reticent_tender_resp_04",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "responder",
@@ -1150,6 +1296,7 @@
     },
     {
       "id": "reticent_tender_resp_05",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "responder",
@@ -1158,11 +1305,524 @@
     },
     {
       "id": "reticent_tender_resp_06",
+      "kind": "pair",
       "persona": "reticent",
       "scenario": "tender",
       "role": "responder",
       "text": "I'll wait. I've been waiting anyway.",
       "chars": 36
+    },
+    {
+      "id": "mercantile_observer_alone_01",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "alone",
+      "text": "Huh. Wonder what that would be worth to somebody.",
+      "chars": 49
+    },
+    {
+      "id": "mercantile_observer_alone_02",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "alone",
+      "text": "There is a business in this somewhere, I am certain of it.",
+      "chars": 58
+    },
+    {
+      "id": "mercantile_observer_alone_03",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "alone",
+      "text": "Nobody is paying for that view, which seems like a waste.",
+      "chars": 57
+    },
+    {
+      "id": "mercantile_observer_alone_04",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "alone",
+      "text": "I would charge for this, if I had the nerve to ask.",
+      "chars": 51
+    },
+    {
+      "id": "mercantile_observer_alone_05",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "alone",
+      "text": "That is the most anybody has given away free around here all week.",
+      "chars": 66
+    },
+    {
+      "id": "mercantile_observer_alone_06",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "alone",
+      "text": "Everything in this place has a price. Apparently not that.",
+      "chars": 58
+    },
+    {
+      "id": "mercantile_observer_alone_07",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "alone",
+      "text": "There ought to be a tax on that, and I would collect it.",
+      "chars": 56
+    },
+    {
+      "id": "mercantile_observer_alone_08",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "alone",
+      "text": "Free entertainment. Hard to argue with those margins.",
+      "chars": 53
+    },
+    {
+      "id": "mercantile_observer_crowd_01",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "crowd",
+      "text": "Somebody should be selling tickets to this.",
+      "chars": 43
+    },
+    {
+      "id": "mercantile_observer_crowd_02",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "crowd",
+      "text": "Caps say they do not make it as far as the bed.",
+      "chars": 47
+    },
+    {
+      "id": "mercantile_observer_crowd_03",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "crowd",
+      "text": "If I had a stall right here I would retire by morning.",
+      "chars": 54
+    },
+    {
+      "id": "mercantile_observer_crowd_04",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "crowd",
+      "text": "Admission is free today, apparently. Terrible business.",
+      "chars": 55
+    },
+    {
+      "id": "mercantile_observer_crowd_05",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "crowd",
+      "text": "Taking bets, anyone? I rather like the odds.",
+      "chars": 44
+    },
+    {
+      "id": "mercantile_observer_crowd_06",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "crowd",
+      "text": "This crowd would pay. Somebody is leaving caps on the table.",
+      "chars": 60
+    },
+    {
+      "id": "mercantile_observer_crowd_07",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "crowd",
+      "text": "Best value in the settlement and not one person charging.",
+      "chars": 57
+    },
+    {
+      "id": "mercantile_observer_crowd_08",
+      "kind": "observer",
+      "persona": "mercantile",
+      "audience": "crowd",
+      "text": "I would rent out this exact spot by the hour.",
+      "chars": 45
+    },
+    {
+      "id": "romantic_observer_alone_01",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "alone",
+      "text": "Look at that. There is still something good left out here.",
+      "chars": 58
+    },
+    {
+      "id": "romantic_observer_alone_02",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "alone",
+      "text": "Somebody ought to be that glad to see me.",
+      "chars": 41
+    },
+    {
+      "id": "romantic_observer_alone_03",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "alone",
+      "text": "It is very nearly enough to make a person hopeful.",
+      "chars": 50
+    },
+    {
+      "id": "romantic_observer_alone_04",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "alone",
+      "text": "That is the first beautiful thing I have seen all week.",
+      "chars": 55
+    },
+    {
+      "id": "romantic_observer_alone_05",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "alone",
+      "text": "I should look away, and I find I do not want to.",
+      "chars": 48
+    },
+    {
+      "id": "romantic_observer_alone_06",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "alone",
+      "text": "The world ended and people still do that. Good.",
+      "chars": 47
+    },
+    {
+      "id": "romantic_observer_alone_07",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "alone",
+      "text": "That makes me miss somebody I really should not.",
+      "chars": 48
+    },
+    {
+      "id": "romantic_observer_alone_08",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "alone",
+      "text": "There are far worse things to stumble across out here.",
+      "chars": 54
+    },
+    {
+      "id": "romantic_observer_crowd_01",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "crowd",
+      "text": "Say what you like, that is a lovely thing to see.",
+      "chars": 49
+    },
+    {
+      "id": "romantic_observer_crowd_02",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "crowd",
+      "text": "Everybody is watching and nobody is laughing. That says something.",
+      "chars": 66
+    },
+    {
+      "id": "romantic_observer_crowd_03",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "crowd",
+      "text": "Let them have it. There is little enough of that going around.",
+      "chars": 62
+    },
+    {
+      "id": "romantic_observer_crowd_04",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "crowd",
+      "text": "You can all stare if you want. I happen to think it is sweet.",
+      "chars": 61
+    },
+    {
+      "id": "romantic_observer_crowd_05",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "crowd",
+      "text": "That is the nicest thing to happen here in months.",
+      "chars": 50
+    },
+    {
+      "id": "romantic_observer_crowd_06",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "crowd",
+      "text": "Put the word out, we have got romance in the settlement.",
+      "chars": 56
+    },
+    {
+      "id": "romantic_observer_crowd_07",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "crowd",
+      "text": "I would applaud, but that does seem like rather a lot.",
+      "chars": 54
+    },
+    {
+      "id": "romantic_observer_crowd_08",
+      "kind": "observer",
+      "persona": "romantic",
+      "audience": "crowd",
+      "text": "Look at this lot all pretending they are not watching.",
+      "chars": 54
+    },
+    {
+      "id": "vulgar_observer_alone_01",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "alone",
+      "text": "Well now. That is a hell of a way to spend an afternoon.",
+      "chars": 56
+    },
+    {
+      "id": "vulgar_observer_alone_02",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "alone",
+      "text": "Do not mind me. I am just going to stand right here.",
+      "chars": 52
+    },
+    {
+      "id": "vulgar_observer_alone_03",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "alone",
+      "text": "Somebody is having a considerably better day than I am.",
+      "chars": 55
+    },
+    {
+      "id": "vulgar_observer_alone_04",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "alone",
+      "text": "That is going to stay with me for quite a while.",
+      "chars": 48
+    },
+    {
+      "id": "vulgar_observer_alone_05",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "alone",
+      "text": "They are not even trying to be quiet about it.",
+      "chars": 46
+    },
+    {
+      "id": "vulgar_observer_alone_06",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "alone",
+      "text": "I have paid good caps for less of a show than this.",
+      "chars": 51
+    },
+    {
+      "id": "vulgar_observer_alone_07",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "alone",
+      "text": "Good for them. Filthy, but genuinely good for them.",
+      "chars": 51
+    },
+    {
+      "id": "vulgar_observer_alone_08",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "alone",
+      "text": "I would offer to join in, if I thought they would have me.",
+      "chars": 58
+    },
+    {
+      "id": "vulgar_observer_crowd_01",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "Is anybody else seeing this, or is it only me?",
+      "chars": 46
+    },
+    {
+      "id": "vulgar_observer_crowd_02",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "Go on then, do not stop on our account!",
+      "chars": 39
+    },
+    {
+      "id": "vulgar_observer_crowd_03",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "That is the loudest thing here and I am including the generator.",
+      "chars": 64
+    },
+    {
+      "id": "vulgar_observer_crowd_04",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "We are all watching. Nobody is pretending otherwise.",
+      "chars": 52
+    },
+    {
+      "id": "vulgar_observer_crowd_05",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "Somebody get them a room. Or do not. I am enjoying this.",
+      "chars": 56
+    },
+    {
+      "id": "vulgar_observer_crowd_06",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "Louder, would you! Some of us are standing at the back!",
+      "chars": 55
+    },
+    {
+      "id": "vulgar_observer_crowd_07",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "That is going straight into the story I tell tonight.",
+      "chars": 53
+    },
+    {
+      "id": "vulgar_observer_crowd_08",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "Half this crowd is taking notes, and I am one of them.",
+      "chars": 54
+    },
+    {
+      "id": "reticent_observer_alone_01",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "alone",
+      "text": "Oh. I should not be standing here right now.",
+      "chars": 44
+    },
+    {
+      "id": "reticent_observer_alone_02",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "alone",
+      "text": "I will simply pretend that I did not see any of that.",
+      "chars": 53
+    },
+    {
+      "id": "reticent_observer_alone_03",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "alone",
+      "text": "That is absolutely none of my business whatsoever.",
+      "chars": 50
+    },
+    {
+      "id": "reticent_observer_alone_04",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "alone",
+      "text": "I am going to go and look at literally anything else.",
+      "chars": 53
+    },
+    {
+      "id": "reticent_observer_alone_05",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "alone",
+      "text": "Well, that is me leaving. Right now. Immediately.",
+      "chars": 49
+    },
+    {
+      "id": "reticent_observer_alone_06",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "alone",
+      "text": "Nobody needs to know that I walked past just then.",
+      "chars": 50
+    },
+    {
+      "id": "reticent_observer_alone_07",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "alone",
+      "text": "I did not need to see that today, or on any other day.",
+      "chars": 54
+    },
+    {
+      "id": "reticent_observer_alone_08",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "alone",
+      "text": "I am going to go and be somewhere else entirely.",
+      "chars": 48
+    },
+    {
+      "id": "reticent_observer_crowd_01",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "crowd",
+      "text": "Does nobody else find this all a bit much?",
+      "chars": 42
+    },
+    {
+      "id": "reticent_observer_crowd_02",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "crowd",
+      "text": "I would really rather we all looked somewhere else.",
+      "chars": 51
+    },
+    {
+      "id": "reticent_observer_crowd_03",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "crowd",
+      "text": "Everyone is just going to stand here, are they.",
+      "chars": 47
+    },
+    {
+      "id": "reticent_observer_crowd_04",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "crowd",
+      "text": "This is the most uncomfortable I have been all year.",
+      "chars": 52
+    },
+    {
+      "id": "reticent_observer_crowd_05",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "crowd",
+      "text": "Somebody say something. Or do not. I have no idea.",
+      "chars": 50
+    },
+    {
+      "id": "reticent_observer_crowd_06",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "crowd",
+      "text": "I am not staying to watch this with all of you.",
+      "chars": 47
+    },
+    {
+      "id": "reticent_observer_crowd_07",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "crowd",
+      "text": "We could all agree to walk away. Just a thought.",
+      "chars": 48
+    },
+    {
+      "id": "reticent_observer_crowd_08",
+      "kind": "observer",
+      "persona": "reticent",
+      "audience": "crowd",
+      "text": "Could we please not be doing this as a group.",
+      "chars": 45
     }
   ]
 }

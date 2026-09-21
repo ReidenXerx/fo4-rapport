@@ -199,6 +199,82 @@ BANK = {
                  "I'll wait. I've been waiting anyway."]}},
 }
 
+OBSERVER = {
+ "mercantile": {
+  "alone": ["Huh. Wonder what that would be worth to somebody.",
+            "There is a business in this somewhere, I am certain of it.",
+            "Nobody is paying for that view, which seems like a waste.",
+            "I would charge for this, if I had the nerve to ask.",
+            "That is the most anybody has given away free around here all week.",
+            "Everything in this place has a price. Apparently not that.",
+            "There ought to be a tax on that, and I would collect it.",
+            "Free entertainment. Hard to argue with those margins."],
+  "crowd": ["Somebody should be selling tickets to this.",
+            "Caps say they do not make it as far as the bed.",
+            "If I had a stall right here I would retire by morning.",
+            "Admission is free today, apparently. Terrible business.",
+            "Taking bets, anyone? I rather like the odds.",
+            "This crowd would pay. Somebody is leaving caps on the table.",
+            "Best value in the settlement and not one person charging.",
+            "I would rent out this exact spot by the hour."]},
+ "romantic": {
+  "alone": ["Look at that. There is still something good left out here.",
+            "Somebody ought to be that glad to see me.",
+            "It is very nearly enough to make a person hopeful.",
+            "That is the first beautiful thing I have seen all week.",
+            "I should look away, and I find I do not want to.",
+            "The world ended and people still do that. Good.",
+            "That makes me miss somebody I really should not.",
+            "There are far worse things to stumble across out here."],
+  "crowd": ["Say what you like, that is a lovely thing to see.",
+            "Everybody is watching and nobody is laughing. That says something.",
+            "Let them have it. There is little enough of that going around.",
+            "You can all stare if you want. I happen to think it is sweet.",
+            "That is the nicest thing to happen here in months.",
+            "Put the word out, we have got romance in the settlement.",
+            "I would applaud, but that does seem like rather a lot.",
+            "Look at this lot all pretending they are not watching."]},
+ "vulgar": {
+  "alone": ["Well now. That is a hell of a way to spend an afternoon.",
+            "Do not mind me. I am just going to stand right here.",
+            "Somebody is having a considerably better day than I am.",
+            "That is going to stay with me for quite a while.",
+            "They are not even trying to be quiet about it.",
+            "I have paid good caps for less of a show than this.",
+            "Good for them. Filthy, but genuinely good for them.",
+            "I would offer to join in, if I thought they would have me."],
+  "crowd": ["Is anybody else seeing this, or is it only me?",
+            "Go on then, do not stop on our account!",
+            "That is the loudest thing here and I am including the generator.",
+            "We are all watching. Nobody is pretending otherwise.",
+            "Somebody get them a room. Or do not. I am enjoying this.",
+            "Louder, would you! Some of us are standing at the back!",
+            "That is going straight into the story I tell tonight.",
+            "Half this crowd is taking notes, and I am one of them."]},
+ "reticent": {
+  "alone": ["Oh. I should not be standing here right now.",
+            "I will simply pretend that I did not see any of that.",
+            "That is absolutely none of my business whatsoever.",
+            "I am going to go and look at literally anything else.",
+            "Well, that is me leaving. Right now. Immediately.",
+            "Nobody needs to know that I walked past just then.",
+            "I did not need to see that today, or on any other day.",
+            "I am going to go and be somewhere else entirely."],
+  "crowd": ["Does nobody else find this all a bit much?",
+            "I would really rather we all looked somewhere else.",
+            "Everyone is just going to stand here, are they.",
+            "This is the most uncomfortable I have been all year.",
+            "Somebody say something. Or do not. I have no idea.",
+            "I am not staying to watch this with all of you.",
+            "We could all agree to walk away. Just a thought.",
+            "Could we please not be doing this as a group."]},
+}
+
+AUDIENCE = {
+  "alone": "This watcher is the ONLY one watching. Furtive, awkward, nobody to perform for.",
+  "crowd": "Others are watching too. Emboldened, playing to the room, talking past the pair.",
+}
+
 NOTES = {
  "quickie": "More than two watching. One stage, about thirty seconds, no guaranteed ending. "
             "Hurried, aware of the audience, past caring.",
@@ -248,30 +324,51 @@ def main() -> int:
                     if len(text) < 20:
                         raise SystemExit(f"too short, will drift: {lid} {text!r}")
                     problems.extend(lint_text(lid, text))
-                    lines.append({"id": lid, "persona": persona, "scenario": scenario,
-                                  "role": role, "text": text, "chars": len(text)})
+                    lines.append({"id": lid, "kind": "pair", "persona": persona,
+                                  "scenario": scenario, "role": role,
+                                  "text": text, "chars": len(text)})
 
     if problems:
         for pr in problems:
             print("LINT: " + pr)
         raise SystemExit(f"{len(problems)} lines would fail the renderer - fix them here")
 
-    want = len(PERSONAS) * len(NOTES) * 2 * 6
+    for persona, aud in OBSERVER.items():
+        for audience, texts in aud.items():
+            for n, text in enumerate(texts, 1):
+                lid = f"{persona}_observer_{audience}_{n:02d}"
+                if text in seen:
+                    raise SystemExit(f"duplicate line text: {text!r}")
+                seen.add(text)
+                if len(text) < 20:
+                    raise SystemExit(f"too short, will drift: {lid} {text!r}")
+                problems.extend(lint_text(lid, text))
+                lines.append({"id": lid, "kind": "observer", "persona": persona,
+                              "audience": audience, "text": text, "chars": len(text)})
+
+    want = len(PERSONAS) * len(NOTES) * 2 * 6 + len(PERSONAS) * len(AUDIENCE) * 8
     if len(lines) != want:
         raise SystemExit(f"expected {want} lines, built {len(lines)}")
 
-    doc = {"_": "R-9 scene barks, spoken at OnSceneStarted. Selected by the SPEAKER's "
-                "persona (R-7/R-8), the scenario, and their role in it. Built by "
-                "scripts/build-lines.py - edit the bank there, never this file.",
-           "personas": PERSONAS, "scenario_notes": NOTES, "lines": lines}
+    doc = {"_": "Voice lines, built by scripts/build-lines.py - edit the bank there, "
+                "never this file. kind=pair are R-9 scene barks spoken by the two "
+                "actors at OnSceneStarted, selected by the SPEAKER's persona (R-7/R-8), "
+                "the scenario and their role. kind=observer are R-12 reactions from a "
+                "bystander who came within range while a scene was already running, "
+                "selected by THEIR persona and whether anyone else is watching.",
+           "personas": PERSONAS, "scenario_notes": NOTES, "audience_notes": AUDIENCE,
+           "lines": lines}
     out = pathlib.Path(__file__).resolve().parent.parent / "voice/lines.json"
     out.write_text(json.dumps(doc, indent=2), encoding="utf-8")
 
     tot = sum(l["chars"] for l in lines)
     print(f"{len(lines)} lines, {tot:,} characters, all unique")
+    for kind in ("pair", "observer"):
+        k = [l for l in lines if l["kind"] == kind]
+        print(f"  {kind:9} {len(k):3} lines  {sum(x['chars'] for x in k):,} chars")
     for p in PERSONAS:
         sub = [l for l in lines if l["persona"] == p]
-        print(f"  {p:11} {len(sub):3} lines   avg {sum(l['chars'] for l in sub)//len(sub):3} chars")
+        print(f"    {p:11} {len(sub):3}   avg {sum(l['chars'] for l in sub)//len(sub):3} chars")
     print(f"\nper voice: {tot:,} credits.  32 voices: {tot*32:,}")
     return 0
 

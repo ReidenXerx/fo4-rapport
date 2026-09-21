@@ -368,6 +368,56 @@ quests, so the machinery exists; SNDR is new work but small.
 
 ---
 
+## R-12 - Observer reactions fire on APPROACH, not on scene start (2026-09-21)
+
+Owner's idea and owner's refinement, and the refinement is the better half. The
+first proposal was "a few seconds after the scene starts, pick a watcher". The
+owner's version: **an NPC who comes close enough while a scene is already
+running** gets a chance to react.
+
+That is emergent rather than scripted. Someone wandering past reacts to what they
+walked into; a timer firing a line at a pre-selected watcher is a cutscene. It
+also costs nothing extra - Rapport already polls while a scene runs.
+
+**The policy:**
+
+- **One roll per actor per scene.** Keep a set of actors already evaluated for
+  the running scene. On each poll, any uninvolved actor inside `observerRadius`
+  who is not in that set is added and rolled exactly once. This handles both
+  cases with one rule: somebody already standing there when the scene began is
+  evaluated on the first poll, somebody who walks up is evaluated when they
+  arrive. **Lingering must not grant repeated rolls** - "went close enough" is a
+  transition, and rolling per poll would make a bystander who stops to watch
+  eventually certain to speak.
+- **Chance, not certainty.** Roughly one in three, in `scoring.json` so it is
+  policy rather than code. The owner's word was *noticeable*, not constant.
+- **A per-actor cooldown across scenes**, so one settler does not become the
+  village commentator. Same shape as Chemistry's per-actor scene cooldown, and
+  for the same reason.
+- **`alone` or `crowd`** comes from whether any OTHER observer is present. A
+  watcher on their own is furtive; one in a crowd plays to the room. The line
+  banks are written to that split.
+- **Persona is the speaker's own**, derived from their form id (R-7). The same
+  event getting four different reactions is the persona system made visible, and
+  it is the cheapest demonstration of it we will ever get.
+
+**What has to change in the framework first.** `PairSignals::observers` is a
+`std::uint32_t` - a COUNT (`src/Pairing.h:13`). Rapport currently knows how many
+uninvolved actors could see the spot and **not one thing about who they are**. A
+reaction needs the identities: the form ids, to derive persona, to pick a voice
+type, and to keep the per-actor sets above.
+
+So the count widens to a list, and `observers` stays as its size. This is the
+same shape as the R-9 finding that `PairSignals` is not retained to scene start:
+the framework measures the right thing and then throws away the part an addon
+needs. Both are cheap to fix and neither is discoverable once the lines exist and
+nothing plays.
+
+**Not Chemistry's.** Any second mod that wants bystander reactions wants this
+identically, which by R-1 puts it in the framework.
+
+---
+
 ## N-1 - The new mod is downstream, and does not own anything (2026-09-21)
 
 Same rule as Chemistry: it reads the store, it writes to the store through Rapport's API,
