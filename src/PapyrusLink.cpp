@@ -58,6 +58,14 @@ namespace
 		return RP::Config::GetSingleton().pollSeconds;
 	}
 
+	// How many onlookers are free before the crowd penalty starts. Chemistry reads
+	// this rather than keeping its own copy: DESIGN C-6 there is the bug that two
+	// numbers meaning the same thing produced when they disagreed.
+	std::int32_t Papyrus_ObserverTolerance(std::monostate)
+	{
+		return static_cast<std::int32_t>(RP::Config::GetSingleton().Weights().observerTolerance);
+	}
+
 	void Papyrus_NoteEvent(std::monostate, RE::BSFixedString a_name)
 	{
 		RP::PapyrusLink::GetSingleton().NoteEvent(a_name.c_str());
@@ -831,6 +839,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "TakenSecondID"sv, Papyrus_TakenSecondID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakenDuration"sv, Papyrus_TakenDuration, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PollSeconds"sv, Papyrus_PollSeconds, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ObserverTolerance"sv, Papyrus_ObserverTolerance, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NeedsHandshake"sv, Papyrus_NeedsHandshake, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteEvent"sv, Papyrus_NoteEvent, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorBusy"sv, Papyrus_NoteActorBusy, std::nullopt, false);
@@ -923,7 +932,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
-		logger::info("papyrus: bound 48 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 49 native functions on {}", kCoreScript);
 		return true;
 	}
 

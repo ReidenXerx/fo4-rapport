@@ -1,5 +1,7 @@
 #include "Config.h"
 
+#include "McmSettings.h"
+
 namespace
 {
 	[[nodiscard]] std::string_view Trim(std::string_view a_text) noexcept
@@ -229,6 +231,7 @@ namespace RP
 			return;
 		}
 
+		McmSettings::Overlay("Scoring", document);
 		_weights.LoadFrom(document);
 		logger::info(
 			"scoring: range {:.0f}, observers within {:.0f} | proximity {:.2f}, faction {:.2f}, "

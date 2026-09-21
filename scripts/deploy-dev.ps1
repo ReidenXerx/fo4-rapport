@@ -79,7 +79,8 @@ if (Test-Path $aafOverlay) {
 foreach ($tree in @(
     @{ From = 'data\F4SE\Plugins\F4EE'; To = 'F4SE\Plugins\F4EE' },
     @{ From = 'data\Materials';           To = 'Materials' },
-    @{ From = 'data\Textures';            To = 'Textures' })) {
+    @{ From = 'data\Textures';            To = 'Textures' },
+    @{ From = 'data\MCM';                 To = 'MCM' })) {
     $src = Join-Path $root $tree.From
     if (Test-Path $src) {
         $dst = Join-Path $Staging $tree.To

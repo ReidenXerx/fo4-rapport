@@ -1,6 +1,7 @@
 #include "Watchers.h"
 
 #include "Barks.h"
+#include "McmSettings.h"
 #include "Voices.h"
 
 namespace RP
@@ -45,7 +46,8 @@ namespace RP
 			logger::error("watchers: barks.json is not valid json ({}) - no observer reactions", e.what());
 			return;
 		}
-		const auto settings = document.value("observers", nlohmann::json::object());
+		auto settings = document.value("observers", nlohmann::json::object());
+		McmSettings::Overlay("Observers", settings);
 		_enabled = settings.value("enabled", false);
 		_radius = settings.value("radius", 900.0f);
 		_hearRadius = (std::min)(settings.value("hearRadius", 600.0f), _radius);

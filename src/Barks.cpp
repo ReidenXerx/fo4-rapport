@@ -1,6 +1,7 @@
 #include "Barks.h"
 
 #include "Aftermath.h"
+#include "McmSettings.h"
 #include "PapyrusLink.h"
 #include "Voices.h"
 
@@ -49,6 +50,7 @@ namespace RP
 			return;
 		}
 
+		McmSettings::Overlay("Barks", document);
 		_responderDelay = document.value("responderDelaySeconds", 4.5f);
 		if (const auto personas = document.find("personas"); personas != document.end() && personas->is_array()) {
 			for (const auto& persona : *personas) {

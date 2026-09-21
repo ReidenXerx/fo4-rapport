@@ -9,6 +9,7 @@ namespace RP
 		std::uint32_t seen{ 0 };
 		std::uint32_t stale{ 0 };       // handle no longer resolves
 		std::uint32_t notLoaded{ 0 };   // no 3D
+		std::uint32_t elsewhere{ 0 };   // 3D, but in a cell the player is not in
 		std::uint32_t child{ 0 };       // hard rule: adults only
 		std::uint32_t dead{ 0 };
 		std::uint32_t inCombat{ 0 };

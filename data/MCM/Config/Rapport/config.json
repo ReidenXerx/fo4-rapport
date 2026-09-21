@@ -1,0 +1,278 @@
+{
+  "modName": "Rapport",
+  "displayName": "Rapport",
+  "minMcmVersion": 1,
+  "pluginRequirements": [
+    "Rapport.esp"
+  ],
+  "pages": [
+    {
+      "pageDisplayName": "Scene choice",
+      "content": [
+        {
+          "type": "text",
+          "text": "How Rapport scores a pair. With Chemistry installed, Chemistry makes the decision and adds its own bonuses on top of this score; without it, Rapport's own trigger starts a scene when the best pair clears the bar."
+        },
+        {
+          "type": "section",
+          "text": "The bar"
+        },
+        {
+          "type": "slider",
+          "id": "minimumScore:Scoring",
+          "text": "Score needed (Rapport's own trigger)",
+          "help": "The score the best pair must reach before Rapport's built-in trigger starts a scene. Chemistry has its own bar and ignores this one.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 5.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "section",
+          "text": "Who counts as a pair"
+        },
+        {
+          "type": "slider",
+          "id": "maxPairDistance:Scoring",
+          "text": "Furthest apart",
+          "help": "Two people further apart than this (game units) are never paired.",
+          "valueOptions": {
+            "min": 256,
+            "max": 4096,
+            "step": 64,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "proximity:Scoring",
+          "text": "Closeness weight",
+          "help": "What standing close together is worth. It falls off with the square of distance.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 3.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "sharedFaction:Scoring",
+          "text": "Same faction",
+          "help": "Bonus when both belong to a shared faction.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 2.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "interior:Scoring",
+          "text": "Indoors",
+          "help": "Bonus for being indoors.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 2.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "night:Scoring",
+          "text": "Night",
+          "help": "Bonus at night.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 2.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "section",
+          "text": "Privacy"
+        },
+        {
+          "type": "slider",
+          "id": "observerRadius:Scoring",
+          "text": "Onlooker radius",
+          "help": "Anyone within this distance of the pair counts as watching.",
+          "valueOptions": {
+            "min": 300,
+            "max": 3000,
+            "step": 50,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "observerTolerance:Scoring",
+          "text": "Free onlookers",
+          "help": "Onlookers who cost nothing. The crowd penalty starts after this many. Chemistry uses the same number.",
+          "valueOptions": {
+            "min": 0,
+            "max": 10,
+            "step": 1,
+            "sourceType": "ModSettingInt"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "perObserver:Scoring",
+          "text": "Crowd penalty",
+          "help": "Cost per onlooker past the free ones, before the curve below.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 1.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "observerFalloff:Scoring",
+          "text": "Crowd curve",
+          "help": "How steeply the crowd penalty climbs: 1 is a straight line, higher punishes big crowds harder.",
+          "valueOptions": {
+            "min": 1.0,
+            "max": 3.0,
+            "step": 0.1,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "playerNear:Scoring",
+          "text": "Player watching",
+          "help": "Cost when the player is nearby. 0 by default: the player is not a factor.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 2.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        }
+      ]
+    },
+    {
+      "pageDisplayName": "Voices",
+      "content": [
+        {
+          "type": "section",
+          "text": "Scene lines"
+        },
+        {
+          "type": "switcher",
+          "id": "enabled:Barks",
+          "text": "Pair lines",
+          "help": "The two in a scene say something as it starts.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "responderDelaySeconds:Barks",
+          "text": "Answer after (s)",
+          "help": "How long the second one waits before answering.",
+          "valueOptions": {
+            "min": 1.0,
+            "max": 15.0,
+            "step": 0.5,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "section",
+          "text": "Bystanders"
+        },
+        {
+          "type": "switcher",
+          "id": "enabled:Observers",
+          "text": "Bystander comments",
+          "help": "People who see or hear a scene turn their head and may comment.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "radius:Observers",
+          "text": "Notice radius",
+          "help": "How far away a bystander can notice a scene.",
+          "valueOptions": {
+            "min": 200,
+            "max": 3000,
+            "step": 50,
+            "sourceType": "ModSettingInt"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "hearRadius:Observers",
+          "text": "Hearing radius",
+          "help": "Within this distance a bystander hears it through walls. Never more than the notice radius.",
+          "valueOptions": {
+            "min": 0,
+            "max": 3000,
+            "step": 50,
+            "sourceType": "ModSettingInt"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "chance:Observers",
+          "text": "Chance to comment",
+          "help": "Each bystander who notices rolls once per scene.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 1.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "startAfterSeconds:Observers",
+          "text": "Start after (s)",
+          "help": "No comments in the first seconds of a scene.",
+          "valueOptions": {
+            "min": 0,
+            "max": 120,
+            "step": 1,
+            "sourceType": "ModSettingInt"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "gapSeconds:Observers",
+          "text": "Gap between comments (s)",
+          "help": "So two bystanders never talk over each other.",
+          "valueOptions": {
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "sourceType": "ModSettingInt"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "cooldownSeconds:Observers",
+          "text": "Per-person cooldown (s)",
+          "help": "How long before the same bystander comments again.",
+          "valueOptions": {
+            "min": 0,
+            "max": 1800,
+            "step": 30,
+            "sourceType": "ModSettingInt"
+          }
+        }
+      ]
+    }
+  ]
+}

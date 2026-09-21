@@ -28,6 +28,8 @@ Bool Function NeedsHandshake() Global Native
 ; How often the bridge should ask, in seconds. Read from the ini, so the poll
 ; interval is not a number buried in a script.
 Float Function PollSeconds() Global Native
+; Onlookers free before the crowd penalty starts (scoring observerTolerance, or MCM).
+Int Function ObserverTolerance() Global Native
 
 ; Every AAF event the bridge receives, by name. The plugin counts them so that
 ; "no AAF event has ever arrived" is something the log SAYS rather than something

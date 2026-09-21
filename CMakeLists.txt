@@ -21,6 +21,7 @@ set(SOURCES
 	"src/PCH.h"
 	"src/Barks.h"
 	"src/Barks.cpp"
+	"src/McmSettings.cpp"
 	"src/Watchers.h"
 	"src/Watchers.cpp"
 	"src/Voices.h"

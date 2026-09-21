@@ -2,6 +2,9 @@
 
 #include "Candidates.h"
 #include "Aftermath.h"
+#include "Barks.h"
+#include "McmSettings.h"
+#include "Watchers.h"
 #include "Config.h"
 #include "Expressions.h"
 #include "Ledger.h"
@@ -128,14 +131,23 @@ namespace RP
 
 	void Scheduler::FinishPass()
 	{
+		// The player moved an MCM slider since the last pass. Reloaded HERE, on the
+		// thread that reads the weights, before this pass ranks with them.
+		if (McmSettings::ChangedSinceLastCheck()) {
+			logger::info("mcm: settings changed - reloading scoring, barks and observers");
+			Config::GetSingleton().LoadScoring();
+			Barks::GetSingleton().Load();
+			Watchers::GetSingleton().Load();
+		}
+
 		const auto& counters = _scan.Counters();
 		++_ticks;
 
 		logger::info(
 			"tick {}: {} actors -> {} candidates in {} slice(s), {:.3f} ms total, worst slice {:.3f} ms "
-			"(stale {}, unloaded {}, child {}, dead {}, combat {}, out of range {}, race {}, dialogue {}, chatting {}, quest {})",
+			"(stale {}, unloaded {}, elsewhere {}, child {}, dead {}, combat {}, out of range {}, race {}, dialogue {}, chatting {}, quest {})",
 			_ticks, _scan.Size(), counters.candidates, _scan.Slices(), _passMs, _worstSliceMs,
-			counters.stale, counters.notLoaded, counters.child, counters.dead, counters.inCombat,
+			counters.stale, counters.notLoaded, counters.elsewhere, counters.child, counters.dead, counters.inCombat,
 			counters.outOfRange, counters.raceNotAllowed, counters.inDialogue, counters.inRandomScene,
 			counters.questDriven);
 

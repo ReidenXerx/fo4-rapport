@@ -27,6 +27,29 @@ namespace
 		return false;
 	}
 
+	// In the part of the world the player is in: the player's own cell when they are
+	// indoors, or any exterior cell of the same worldspace when they are out.
+	//
+	// Get3D() is not enough. Fallout keeps the interior the player just left LOADED
+	// but no longer attached, 3D and all. 2026-09-21, standing in Diamond City after
+	// leaving the Third Rail: the Drifters there were scored as "indoors, observers
+	// 17" beside the Codmans, and distances were taken between two interiors that do
+	// not share coordinates. Worse, the Codmans had walked into their house (another
+	// interior) when their scene was requested: two seconds in, every order said
+	// "not loaded", and AAF ended it at eleven.
+	[[nodiscard]] bool InPlayersWorld(RE::Actor& a_actor, RE::PlayerCharacter& a_player)
+	{
+		auto* cell = a_actor.GetParentCell();
+		auto* here = a_player.GetParentCell();
+		if (!cell || !here) {
+			return false;
+		}
+		if (cell == here) {
+			return true;
+		}
+		return !cell->IsInterior() && !here->IsInterior() && cell->worldSpace && cell->worldSpace == here->worldSpace;
+	}
+
 	// How many actors to process between clock reads. Reading the clock per actor
 	// would cost more than the filters it is meant to bound.
 	constexpr std::size_t kClockEvery = 16;
@@ -93,6 +116,9 @@ namespace RP
 				// The player is never an autonomy candidate; they take part by choice.
 			} else if (!actor->Get3D()) {
 				++_counters.notLoaded;
+			} else if (!player || !InPlayersWorld(*actor, *player)) {
+				// Not a candidate and not a witness: nobody in another cell can see this.
+				++_counters.elsewhere;
 			} else if (actor->IsChild()) {
 				++_counters.child;
 			} else if (actor->IsDead(true)) {
