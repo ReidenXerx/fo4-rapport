@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="494" viewBox="0 0 900 494" role="img" aria-label="rapport layer diagram">
+<rect width="900" height="494" rx="14" fill="#1d1d21"/>
+<rect x="28" y="28" width="844" height="78" rx="10" fill="#26262b"/>
+<rect x="28" y="28" width="6" height="78" rx="3" fill="#3fa05a"/>
+<text x="54" y="61" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"><tspan font-size="19" font-weight="700" letter-spacing="1.2" fill="#ecebe7">ADDONS</tspan><tspan font-size="16" font-weight="500" fill="#9a958a">   — decide WHO, WHEN and WHY</tspan></text>
+<text x="54" y="86" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#76716a" text-anchor="start" letter-spacing="0">Chemistry · anything written against Rapport</text>
+<path d="M450 111 L450 123" stroke="#76716a" stroke-width="2"/>
+<path d="M444 120 L450 127 L456 120" fill="none" stroke="#76716a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="28" y="132" width="844" height="78" rx="10" fill="#3b362f" stroke="#c8a24a" stroke-width="2"/>
+<rect x="28" y="132" width="6" height="78" rx="3" fill="#c8a24a"/>
+<text x="54" y="165" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"><tspan font-size="19" font-weight="700" letter-spacing="1.2" fill="#c8a24a">RAPPORT</tspan><tspan font-size="16" font-weight="500" fill="#ecebe7">   — decides HOW IT GOES, and cleans up after</tspan></text>
+<text x="54" y="190" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#9a958a" text-anchor="start" letter-spacing="0">tree selection · faces · sweat · aftermath · actor locking · cooldowns · refusal memory · repair</text>
+<rect x="754" y="146" width="100" height="24" rx="12" fill="#c8a24a"/>
+<text x="804" y="163" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="800" fill="#1d1d21" text-anchor="middle" letter-spacing="1">THIS MOD</text>
+<path d="M450 215 L450 227" stroke="#76716a" stroke-width="2"/>
+<path d="M444 224 L450 231 L456 224" fill="none" stroke="#76716a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="28" y="236" width="844" height="78" rx="10" fill="#26262b"/>
+<rect x="28" y="236" width="6" height="78" rx="3" fill="#6a8caf"/>
+<text x="54" y="269" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"><tspan font-size="19" font-weight="700" letter-spacing="1.2" fill="#ecebe7">AAF</tspan><tspan font-size="16" font-weight="500" fill="#9a958a">   — plays the animation, applies overlays and morphs</tspan></text>
+<text x="54" y="294" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#76716a" text-anchor="start" letter-spacing="0">every animation you see belongs to AAF and the pack authors</text>
+<path d="M450 319 L450 331" stroke="#76716a" stroke-width="2"/>
+<path d="M444 328 L450 335 L456 328" fill="none" stroke="#76716a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="28" y="340" width="844" height="78" rx="10" fill="#26262b"/>
+<rect x="28" y="340" width="6" height="78" rx="3" fill="#7a7a80"/>
+<text x="54" y="373" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"><tspan font-size="19" font-weight="700" letter-spacing="1.2" fill="#ecebe7">ENGINE</tspan><tspan font-size="16" font-weight="500" fill="#9a958a">   — the game itself</tspan></text>
+<text x="54" y="398" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#76716a" text-anchor="start" letter-spacing="0">MFG morphs · LooksMenu overlays · worn geometry</text>
+<text x="450" y="454" font-family="Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="400" fill="#76716a" text-anchor="middle" letter-spacing="0">Content mods such as Violate or Sex 'Em Up are separate: they do not run on Rapport.</text>
+</svg>

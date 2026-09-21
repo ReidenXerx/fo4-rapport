@@ -1,0 +1,34 @@
+# Keep the numbers on the Nexus page true without anybody editing the page.
+#
+# Counts lines of code on every push and publishes a shields.io endpoint JSON to the
+# `badges` branch, which the badge on the mod page reads live. A number typed into a
+# page goes stale the next day; this cannot.
+#
+# The counting rules are in scripts/loc.py and are deliberately conservative - tracked
+# files only, no blank or comment-only lines, no vendored CommonLibF4, no generated
+# pages. A sceptic running cloc should get MORE than the badge says, never less.
+name: badges
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: badges
+  cancel-in-progress: false
+
+jobs:
+  loc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Count lines of code
+        run: python3 scripts/loc.py . --json out/badges/loc.json
+
+      - name: Publish to the badges branch
+        run: bash scripts/publish-badges.sh out/badges
