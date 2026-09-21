@@ -119,6 +119,10 @@ exist because the obvious choice is wrong:
 
 ## Publishing to Nexus — read `nexus-tools/docs/TRUST-PIPELINE.md` FIRST
 
+**Read `nexus-tools/CLAUDE.md` before starting** (`AGENTS.md` there for other agents): the rules
+every Nexus job follows, the badge/diagram generators, and the scars. Private repo:
+https://github.com/ReidenXerx/nexus-tools — clone it next to this project if it is missing.
+
 Anything touching a mod page, a release, or the question *"how do I know this is not
 malware"* follows the numbered `T-#` rules there. Three of them exist because the obvious
 move is wrong:
