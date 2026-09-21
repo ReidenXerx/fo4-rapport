@@ -755,3 +755,22 @@ it immediately, it is independently valuable, and every other piece reads it.
 
 R-9 displaced N-2 at the front for one reason: it de-risks the same pipeline while depending
 on none of it.
+
+---
+
+## R-13 - Owner poll, 2026-09-21: relationships ship WITH the release
+
+Four decisions, taken by poll before the publishing pipeline, and binding on the build:
+
+1. **The release waits for the relationship module.** Barks, personas, bystanders and the voice
+   fallback are verified, but they are published together with relationships, not ahead of them.
+2. **The double count (R-10) is settled as option 1: Chemistry's C-3 becomes a READ of the store.**
+   `PairSceneCount`'s history bonus is retired; a completed scene raises the relationship (with
+   diminishing returns), and Chemistry's history term is the relationship value. One source of
+   truth, so the cap C-3 exists to enforce keeps meaning something.
+3. **Personas stay DERIVED (R-7 stands), plus hand overrides.** No save record for personas. A
+   config keyed by form id gives named NPCs an authored persona; everyone else keeps the derived one.
+4. **Personas drive behaviour, in two places:**
+   - **Chemistry** - who pairs with whom and which scenario is chosen reads the persona.
+   - **Overture** - player approaches read it (R-8: mercantile answers gifts, romantic words and
+     patience, vulgar directness, reticent only history - which is what makes the store load-bearing).

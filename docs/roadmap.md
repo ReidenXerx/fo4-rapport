@@ -73,7 +73,7 @@ and nothing but memory would have turned it off again.
    Rapport does not touch. Unlike overlays it needs no textures; unlike expressions it is not
    instant, so it wants its own persistence.
 
-3. **The Attraction stat** — persistent, written through AAF so its own UI shows it and other mods
+3. **The Attraction stat** - superseded by the relationship module, which ships WITH the release (R-13) — persistent, written through AAF so its own UI shows it and other mods
    can read it. See A-3.
 
 4. **The addon API** — Papyrus functions and an F4SE message API. The moment it exists, the autonomy
