@@ -299,6 +299,8 @@ def main():
     ap.add_argument("shot", nargs="?")
     ap.add_argument("--max-scene", type=float, default=330.0, help="seconds to wait for a scene to end")
     ap.add_argument("--no-record", action="store_true", help="do not drive OBS")
+    ap.add_argument("--pair", nargs=2, metavar=("FIRST", "SECOND"),
+                    help="recast the shot; AAF gathers the pair at FIRST's spot")
     ap.add_argument("--cameraman", action="store_true",
                     help="only trigger events: no travel, framing, camera lock or follow - the owner films")
     a = ap.parse_args()
@@ -321,6 +323,8 @@ def main():
     todo = SHOTS if a.shot in (None, "all") else [s for s in SHOTS if s["name"] == a.shot]
     if not todo:
         sys.exit(f"no shot called {a.shot!r} - try: list")
+    if a.pair:
+        todo = [{**shot, "pair": a.pair} for shot in todo]
     for shot in todo:
         if not run_shot(shot, a.max_scene, record=not a.no_record, cameraman=a.cameraman):
             say(f"== {shot['name']} did not complete - stopping here")

@@ -59,7 +59,17 @@ def main() -> int:
 
     existing = set(voice_root.rglob("*.fuz")) if voice_root.exists() else set()
     stale = sorted(existing - set(wanted))
-    todo = [d for d, s in wanted.items() if not d.exists() or d.stat().st_size != s.stat().st_size]
+    # CONTENT, not size. A re-render can land on the same byte count as the file it
+    # replaces, and a size check would then skip it - leaving the OLD audio deployed
+    # while everything reports success. That was about to happen to the recast
+    # FemaleEvenToned crowd lines (2026-09-21). Size is the cheap first filter;
+    # equal sizes are settled by hashing.
+    import hashlib
+    def same(a, b):
+        if a.stat().st_size != b.stat().st_size:
+            return False
+        return hashlib.md5(a.read_bytes()).digest() == hashlib.md5(b.read_bytes()).digest()
+    todo = [d for d, s in wanted.items() if not d.exists() or not same(d, s)]
 
     print(f"voice types   : {len({d.parent.name for d in wanted})}")
     print(f"files wanted  : {len(wanted):,}")
@@ -80,7 +90,7 @@ def main() -> int:
 
     # Verify the result rather than the intent.
     have = set(voice_root.rglob("*.fuz"))
-    wrong = [d for d in wanted if d not in have or d.stat().st_size != wanted[d].stat().st_size]
+    wrong = [d for d in wanted if d not in have or not same(d, wanted[d])]
     print(f"\nin place      : {len(have):,}   wrong or missing: {len(wrong)}")
     return 1 if wrong else 0
 

@@ -542,3 +542,26 @@ and the owner's ear (V-9) is the real judge. Two traps met on the way, both wort
 
 Also: `voice-profile.py` uses YIN for pitch - torchaudio's detector HALVED Ivy (123 Hz, "male" vs her
 real ~200 Hz); and a cluster member's fit is LEAVE-ONE-OUT, or every pair scores ~0.7 by construction.
+
+### V-27 - Gate every voice on TIMBRE, not pitch: a man shouting sits in a woman's range (2026-09-21)
+
+FemaleEvenToned's crowd voice was a man, shipped, and heard under Ivy's and Magnolia's subtitles.
+The brief did say "woman"; Voice Design produced a man anyway, and preview 2 was picked in a batch
+of 32 without anyone hearing that one. Nothing could catch it: the render gate checks WORDS (V-1),
+and the only sex check measured PITCH - and projecting to a crowd puts a man at 250-350 Hz.
+
+- **`scripts/voice-sex-check.py`** fingerprints every voice type in both registers and requires
+  it to sit clearly closer to its own sex than the other (margin 0.15). The miscast voice: 0.26 to
+  the women, 0.65 to the men. Proven to FAIL on it (exit 1, names it), and to pass all 32 after the
+  recast (FemaleEvenToned crowd now 0.50 women / 0.28 men). Run after any render, before packaging.
+- **Recasting a sibling:** keep the character clause, add "clearly and unmistakably a woman's
+  voice", test on the line that broke, gate the previews on timbre BEFORE the owner listens, and
+  prefer the one closest to the intimate sibling (+0.47 here vs the miscast voice's +0.23).
+- **Re-render only what changed:** move the bad files aside (`voice/retired/`) and let the renderer
+  fill the gaps - `--force` would have redone all 211 lines. 32 lines, 1,676 characters.
+- **`package-voice.py` compares CONTENT, not size**: a same-size re-render would otherwise be
+  skipped, leaving the old audio deployed while everything reports success.
+
+How it was found is the method worth keeping: the owner heard it; a subtitle named the wrong person;
+the file at the path was proven right (MD5), which ruled out packaging; a swap test (another actor,
+same line) ruled out the actor; only then did the voice itself come under suspicion.

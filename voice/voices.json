@@ -50,9 +50,14 @@
       ],
       "chosen_name": "Rapport_FemaleEvenToned",
       "chosen_preview": 3,
-      "chosen_loud": "CvyLwcpjFH6CZsKF4dlW",
+      "chosen_loud": "Ixwy3vn5v21xP6ZKFZuu",
       "chosen_loud_preview": 2,
-      "description_loud": ". Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
+      "description_loud": ". Clearly and unmistakably a woman's voice. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard.",
+      "chosen_loud_retired": {
+        "voice_id": "CvyLwcpjFH6CZsKF4dlW",
+        "why": "male timbre: 0.65 to the men's crowd voices, 0.26 to the women's (2026-09-21). Heard as a man under Ivy's and Magnolia's subtitles."
+      },
+      "chosen_loud_name": "Rapport_FemaleEvenToned_loud_v2"
     },
     "FemaleBoston": {
       "vanilla_lines": 2418,
