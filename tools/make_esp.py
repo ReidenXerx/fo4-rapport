@@ -17,8 +17,12 @@ Rapport:Bridge would put the whole framework at risk to gain one integration.
 Verify what came out with tools/read_esp.py.
 """
 
+import pathlib
 import struct
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import make_dialogue  # noqa: E402
 
 SCRIPT_NAME = 'Rapport:Bridge'
 QUEST_EDID = 'RapportBridgeQuest'
@@ -137,8 +141,14 @@ def build(script_name, quest_edid, with_message):
     # The main plugin carries two: the bridge, and the medic that watches it.
     # The Moisturizer plugin carries one, because it has nothing to watch.
     quests = quest(script_name, quest_edid, QUEST_FORMID)
+    dialogue_records, dialogue_top = 0, 0
     if with_message:
         quests += quest(MEDIC_SCRIPT_NAME, MEDIC_QUEST_EDID, MEDIC_QUEST_FORMID)
+        # The voiced barks. Their quest and its Topic tree go INSIDE this QUST
+        # group, because FO4 nests a quest's dialogue in the quest's own children
+        # rather than at the top level - see make_dialogue.py.
+        blob, dialogue_records, dialogue_top, _ = make_dialogue.build()
+        quests += blob
     quest_group = group('QUST', quests)
 
     # Only the main plugin. The Moisturizer one exists so that no script naming a
@@ -146,12 +156,15 @@ def build(script_name, quest_edid, with_message):
     # to carry a question the bridge asks.
     extra = message_group() if with_message else b''
     next_object = (MEDIC_QUEST_FORMID if with_message else QUEST_FORMID) + 1
+    # Past every id actually used, or the Creation Kit would hand out one that
+    # collides with a Topic the first time anybody opened this plugin in it.
+    next_object = max(next_object, dialogue_top + 1)
 
     # ---- the header ---------------------------------------------------------
     # Record count: bridge quest, plus the medic quest and the message when this
     # is the main plugin. A wrong count here is the kind of thing that loads
     # fine and then goes wrong somewhere nowhere near it.
-    hedr = struct.pack('<fiI', 1.0, 3 if with_message else 1, next_object)
+    hedr = struct.pack('<fiI', 1.0, (3 if with_message else 1) + dialogue_records, next_object)
     header_fields = field('HEDR', hedr)
     header_fields += field('CNAM', zstring(AUTHOR))
     header_fields += field('MAST', zstring(MASTER))
