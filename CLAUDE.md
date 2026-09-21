@@ -116,3 +116,18 @@ exist because the obvious choice is wrong:
 - **`V-9` — an agent may not pick a voice.** Designing, organising and rendering
   are yours; deciding which preview *sounds* right is the owner's, by ear.
   `render-barks.py` skips `"chosen": null` rather than guessing.
+
+## Publishing to Nexus — read `nexus-tools/docs/TRUST-PIPELINE.md` FIRST
+
+Anything touching a mod page, a release, or the question *"how do I know this is not
+malware"* follows the numbered `T-#` rules there. Three of them exist because the obvious
+move is wrong:
+
+- **`T-3` — the CI hash does NOT match the shipped file.** Measured: same size, 83% of
+  bytes different, because a different MSVC toolset generates different code. Never tell a
+  user to verify their download against a build log until the release actually ships the CI
+  artifact.
+- **`T-4` — a VirusTotal lookup is free; an upload is permanent and public.** Link a scan
+  only at zero detections, and renew it per release: every build has a new hash.
+- **`T-1` — public source is necessary and not sufficient.** Nobody can tell by reading a
+  repo whether the binary on the page came from it.
