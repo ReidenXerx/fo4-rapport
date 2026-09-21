@@ -1,4 +1,11 @@
 {
   "_": "Hand-kept persona pins (R-13). Every NPC has a persona derived from its form id; an entry here overrides it. plugin + id are what xEdit shows (the id without the load-order byte); either the actor REFERENCE or its base NPC works. persona must be one of barks.json's personas: mercantile, romantic, vulgar, reticent. This file is never generated.",
-  "overrides": []
+  "overrides": [
+    {
+      "plugin": "CompanionIvy.esm",
+      "id": "000803",
+      "persona": "vulgar",
+      "note": "Ivy (IVYCOMP NPC_, not the _NPC_IVY voice type at 000801), owner poll 2026-09-21"
+    }
+  ]
 }

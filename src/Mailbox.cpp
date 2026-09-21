@@ -1,5 +1,6 @@
 #include "Mailbox.h"
 
+#include "Barks.h"
 #include "Ledger.h"
 
 #include "Config.h"
@@ -341,9 +342,10 @@ namespace RP
 					}
 				}
 			}
-			return std::format("OK {:08X} + {:08X}: bond {:+.3f}, {} scene(s) together, incest {}, partner {}, last reason {}", a, b,
-				ledger.Bond(a, b), ledger.PairScenes(a, b), ledger.IsIncest(a, b), ledger.IsPartner(a, b),
-				static_cast<int>(ledger.LastBondReason(a, b)));
+			auto& barks = Barks::GetSingleton();
+			return std::format("OK {:08X} + {:08X}: bond {:+.3f}, {} scene(s) together, incest {}, partner {}, last reason {}, personas {}/{}",
+				a, b, ledger.Bond(a, b), ledger.PairScenes(a, b), ledger.IsIncest(a, b), ledger.IsPartner(a, b),
+				static_cast<int>(ledger.LastBondReason(a, b)), barks.PersonaOf(a), barks.PersonaOf(b));
 		}
 
 		if (verb == "who") {

@@ -58,11 +58,14 @@ Every NPC's persona comes from its form id: stable, costs nothing to save, and t
 machine (R-7). The owner can pin one in `Data/F4SE/Plugins/Rapport/personas.json`:
 
 ```json
-{ "overrides": [ { "plugin": "CompanionIvy.esm", "id": "000801", "persona": "romantic" } ] }
+{ "overrides": [ { "plugin": "CompanionIvy.esm", "id": "000803", "persona": "vulgar" } ] }
 ```
 
 `plugin` + `id` are what xEdit shows, without the load-order byte. Either the actor reference or its
-base NPC works. A pin naming a plugin this player does not have is skipped quietly.
+base NPC works. A pin naming a plugin this player does not have is skipped quietly. A pin that
+resolves to anything other than an actor or NPC (a voice type, say) is refused with a warning.
+
+Chemistry's persona rules (who pairs, which story) are its DESIGN.md C-8.
 
 ## Checking it from outside the game (dev builds)
 

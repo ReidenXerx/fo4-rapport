@@ -143,6 +143,14 @@ namespace RP
 				logger::debug("barks: persona pin {} {:06X} is not loaded - skipped", plugin, id);
 				continue;
 			}
+			// Only a person can have a persona. 2026-09-21 the first pin named Ivy's
+			// VOICE TYPE (000801, the id next door in the voice overrides) and was
+			// "pinned" without a word while Ivy stayed what the hash made her.
+			if (!form->As<RE::Actor>() && !form->As<RE::TESNPC>()) {
+				logger::warn("barks: persona pin {} {:06X} is not an actor or NPC (form type {}) - skipped", plugin, id,
+					static_cast<int>(form->GetFormType()));
+				continue;
+			}
 			_overrides[form->GetFormID()] = persona;
 			logger::info("barks: {:08X} ({} {:06X}) is pinned to the {} persona", form->GetFormID(), plugin, id, persona);
 		}

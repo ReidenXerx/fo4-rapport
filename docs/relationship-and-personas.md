@@ -814,3 +814,14 @@ Four decisions, taken by poll before the publishing pipeline, and binding on the
    - **Chemistry** - who pairs with whom and which scenario is chosen reads the persona.
    - **Overture** - player approaches read it (R-8: mercantile answers gifts, romantic words and
      patience, vulgar directness, reticent only history - which is what makes the store load-bearing).
+
+## R-15 - How personas drive Chemistry, and Ivy's pin (owner polls, 2026-09-21)
+
+- **Scenario + pairing.** The rules were approved as proposed and are Chemistry's DESIGN.md C-8:
+  same persona +0.10; romantic with vulgar -0.10; in a crowd, +0.15 per vulgar member and -0.30
+  per reticent member; mercantile adds nothing. In the open and uncrowded, a pair with a vulgar
+  member gets `quickie` instead of `tender`.
+- **Ivy is pinned vulgar** in `personas.json`, on her NPC record `IVYCOMP` (CompanionIvy.esm
+  000803). The first pin named 000801, which is her voice type `_NPC_IVY`, and it was accepted
+  without a word. The loader now refuses a pin that is not an actor or NPC.
+
