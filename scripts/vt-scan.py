@@ -56,7 +56,7 @@ def get(path, key):
         sys.exit(f"HTTP {e.code}: {e.read()[:300].decode(errors='replace')}")
 
 
-def write_badge(path, stats, sha):
+def write_badge(path, stats, sha, version=None):
     """Write a shields.io endpoint JSON so the mod page badge is LIVE.
 
     A hardcoded badge asserts a number forever. Engines update their signatures,
@@ -72,7 +72,12 @@ def write_badge(path, stats, sha):
     badge = {
         "schemaVersion": 1,
         "label": "VirusTotal",
-        "message": (f"{mal}/{total} flagged" if mal else f"0/{total} clean"),
+        # The VERSION goes in the badge. A scan is a fact about one build; a badge
+        # that only says "0/74 clean" silently becomes a claim about an old file
+        # the day a new version ships. With the version on it, staleness is
+        # visible instead of false.
+        "message": ((f"{version} · " if version else "")
+                    + (f"{mal}/{total} flagged" if mal else f"0/{total} clean")),
         "color": "red" if mal else "brightgreen",
         "isError": bool(mal),
     }
@@ -82,7 +87,7 @@ def write_badge(path, stats, sha):
     print(f"  badge -> {p}  ({badge['message']})")
 
 
-def report(data, sha, badge_path=None):
+def report(data, sha, badge_path=None, version=None):
     attrs = data["data"]["attributes"]
     stats = attrs.get("last_analysis_stats", {})
     mal = stats.get("malicious", 0)
@@ -100,7 +105,7 @@ def report(data, sha, badge_path=None):
                 print(f"    {eng:24} {res.get('category'):11} {res.get('result')}")
     print(f"\n  https://www.virustotal.com/gui/file/{sha}")
     if badge_path:
-        write_badge(badge_path, stats, sha)
+        write_badge(badge_path, stats, sha, version)
     if mal == 0 and sus == 0:
         print("\n  CLEAN - safe to link on the mod page.")
         return 0
@@ -119,6 +124,8 @@ def main() -> int:
                     help="submit the file if VirusTotal has never seen it (PERMANENT, PUBLIC)")
     ap.add_argument("--hash", action="store_true", help="target is already a sha256")
     ap.add_argument("--wait", type=int, default=300, help="seconds to wait for a fresh analysis")
+    ap.add_argument("--version", default=None,
+                    help="version label shown in the badge, e.g. 0.1.1")
     ap.add_argument("--badge", metavar="PATH", default=None,
                     help="write a shields.io endpoint JSON with the verdict")
     a = ap.parse_args()
@@ -138,7 +145,7 @@ def main() -> int:
     found = get(f"/files/{sha}", key)
     if found:
         print("VirusTotal already has this file:")
-        return report(found, sha, a.badge)
+        return report(found, sha, a.badge, a.version)
 
     print("VirusTotal has never seen this file - nothing public exists for it yet.")
     if not a.upload:
@@ -170,7 +177,7 @@ def main() -> int:
             final = get(f"/files/{sha}", key)
             if final:
                 print()
-                return report(final, sha, a.badge)
+                return report(final, sha, a.badge, a.version)
     print("  timed out waiting; check the link above in a few minutes")
     return 1
 
