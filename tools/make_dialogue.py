@@ -48,6 +48,15 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 DIALOGUE_QUEST_FORMID = 0x01000803
 DIALOGUE_QUEST_EDID = 'RapportDialogueQuest'
 
+# The branch every Topic belongs to. FO4's own Say()-driven topics - the follower
+# commands, category 0 CUST exactly like ours - all sit in a Dialogue Branch
+# (DLBR FollowersSayTopics) and point at it through BNAM. The first build had no
+# branch: its Topics resolved, their quest was running, Say was called, and
+# nothing was ever spoken. Diffed against a line the game DOES speak via Say, the
+# branch was the structural difference.
+BRANCH_FORMID = 0x01000804
+BRANCH_EDID = 'RapportSayTopics'
+
 # A Topic's id is its line's id plus this. The line (INFO) takes the registry id
 # because the AUDIO is named by it; the Topic needs an id of its own and gets one
 # derived from the line's, so it is just as stable without a second registry.
@@ -96,12 +105,26 @@ def dialogue_quest():
     return _record('QUST', DIALOGUE_QUEST_FORMID, fields)
 
 
+def branch(first_topic_id):
+    # Shape of DLBR FollowersSayTopics (0002AE5A): owning quest, TNAM zero, DNAM
+    # 0x01 (top-level), and SNAM naming ONE starting topic. One branch holds many
+    # topics - that one holds all twelve follower Say topics - so every Topic here
+    # points at this single record.
+    fields = _field('EDID', _zstring(BRANCH_EDID))
+    fields += _field('QNAM', struct.pack('<I', DIALOGUE_QUEST_FORMID))
+    fields += _field('TNAM', struct.pack('<I', 0))
+    fields += _field('DNAM', struct.pack('<I', 1))
+    fields += _field('SNAM', struct.pack('<I', first_topic_id))
+    return _record('DLBR', BRANCH_FORMID, fields)
+
+
 def topic(topic_id, info_id, edid):
     # Shape of a CUST topic in Fallout4.esm (DIAL 0002B96F), minus the optional
     # branch and keyword: priority 50.0, owning quest, DATA zero, subtype CUST,
     # and the count of lines it holds.
     fields = _field('EDID', _zstring(edid))
     fields += _field('PNAM', struct.pack('<f', 50.0))
+    fields += _field('BNAM', struct.pack('<I', BRANCH_FORMID))
     fields += _field('QNAM', struct.pack('<I', DIALOGUE_QUEST_FORMID))
     fields += _field('DATA', struct.pack('<I', 0))
     fields += _field('SNAM', b'CUST')
@@ -116,13 +139,16 @@ def line(info_id, text):
     # TRDA's second field is the RESPONSE NUMBER. It is the "_1" in the audio
     # file's name - <INFO & 0xFFFFFF>_1.fuz - so it must be 1.
     trda = bytes.fromhex('ffffffff' '01000000' '00010000' 'ffffffff' 'ffffffff')
-    fields = _field('ENAM', struct.pack('<I', 0))
+    # ENAM 0x02 and no NAM9: both as in INFO 00083C0B, a line the game actually
+    # speaks via Say. The first build copied the commonest UNCONDITIONED spoken
+    # line, which is scene dialogue - structurally close, different role. GNAM
+    # stays absent: there it links to a SHARED response, and ours have their own.
+    fields = _field('ENAM', struct.pack('<I', 2))
     fields += _field('TRDA', trda)
     fields += _field('NAM1', _zstring(text))
     fields += _field('NAM2', b'\0')
     fields += _field('NAM3', b'\0')
     fields += _field('NAM4', b'\0')
-    fields += _field('NAM9', bytes.fromhex('608cf7f78491cf01'))
     fields += _field('NAM0', b'\0')
     fields += _field('INAM', struct.pack('<I', 1))
     return _record('INFO', info_id, fields)
@@ -152,14 +178,14 @@ def load(bank='voice/lines.json', registry='voice/formids.json'):
 def build(bank='voice/lines.json'):
     """Bytes that go INSIDE make_esp.py's QUST group, and the record count."""
     entries = load(bank)
-    children = b''
+    children = branch(entries[0][2]) if entries else b''
     for ln, info_id, topic_id in entries:
         children += topic(topic_id, info_id, 'Rapport_' + ln['id'])
         children += _child_group(topic_id, 7, line(info_id, ln['text']))
     blob = dialogue_quest() + _child_group(DIALOGUE_QUEST_FORMID, 10, children)
     # Records only - the convention make_esp.py already ships with: one quest,
     # plus a Topic and a line per entry. Groups are not counted.
-    count = 1 + 2 * len(entries)
+    count = 1 + (1 if entries else 0) + 2 * len(entries)   # quest, branch, topics, lines
     top = max((t for _, _, t in entries), default=DIALOGUE_QUEST_FORMID)
     return blob, count, top, entries
 
