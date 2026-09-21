@@ -1,0 +1,52 @@
+#pragma once
+
+#include "NamedLock.h"
+
+namespace RP
+{
+	// Which voice an actor speaks RAPPORT'S lines in (V-25). A framework service:
+	// barks are its first client, and observers, Overture and Chemistry ask the
+	// same question the same way instead of each re-deriving it.
+	//
+	// Our lines are rendered for a fixed set of generic voice types. An actor
+	// with one of those speaks in their own voice. An actor with anything else --
+	// a companion, a named NPC, a voice another mod added -- would be silent with
+	// a subtitle (V-8), so instead they BORROW the closest voice we rendered, for
+	// the one line, and have their own back the moment it is said:
+	//
+	//     SetOverrideVoiceType(borrowed) -> Say -> SetOverrideVoiceType(None)
+	//
+	// on ONE Papyrus stack. The engine resolves the audio at Say time, so the
+	// borrowed voice exists for a single call and no save can ever catch an actor
+	// wearing it. Proven in game on Geneva, including that her own voice returns.
+	//
+	// "Closest" is MEASURED, not guessed: scripts/voice-similarity.py compares
+	// speaker-embedding fingerprints of the game's own recordings, same sex only,
+	// and leaves a voice silent when nothing we have is close enough. The result
+	// is data -- voices.json -- and the owner can veto any pair there.
+	class Voices
+	{
+	public:
+		[[nodiscard]] static Voices& GetSingleton() noexcept;
+
+		// At kGameDataReady: the voice types are forms, and their runtime ids
+		// depend on this player's load order.
+		void Load();
+
+		// The runtime form id of the voice type this speaker should BORROW for a
+		// Rapport line, or 0 to speak in their own (or to stay silent, when the
+		// map says nothing we have is close enough).
+		[[nodiscard]] std::uint32_t BorrowFor(std::uint32_t a_speaker) const;
+
+	private:
+		[[nodiscard]] static std::uint32_t Resolve(const nlohmann::json& a_ref, std::string_view a_what);
+
+		mutable std::timed_mutex                         _lock;
+		bool                                             _enabled{ false };
+		std::unordered_set<std::uint32_t>                _own;      // rendered: speak as themselves
+		std::unordered_map<std::uint32_t, std::uint32_t> _borrow;   // unique -> rendered, 0 = silent
+		std::unordered_set<std::uint32_t>                _speakingRaces;   // who may take the default
+		std::uint32_t                                    _unmappedFemale{ 0 };
+		std::uint32_t                                    _unmappedMale{ 0 };
+	};
+}

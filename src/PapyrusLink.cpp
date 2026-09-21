@@ -251,6 +251,13 @@ namespace
 		return RP::PapyrusLink::GetSingleton().OrderExtra().c_str();
 	}
 
+	// The voice a kSayTopic line borrows (V-25), or 0. Read in the same drain
+	// iteration as the fields above, so the latch cannot have moved on.
+	std::int32_t Papyrus_OrderVoice(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().OrderVoice();
+	}
+
 	// ---- the optional Commonwealth Moisturizer plugin ------------------------
 	// Its own doorbell, drained by its own script. Rapport's bridge must never
 	// name a Moisturizer type: it would carry an unresolvable reference on every
@@ -763,6 +770,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "OrderActorID"sv, Papyrus_OrderActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderSetID"sv, Papyrus_OrderSetID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderExtra"sv, Papyrus_OrderExtra, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "OrderVoice"sv, Papyrus_OrderVoice, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeMoisturizerOrder"sv, Papyrus_TakeMoisturizerOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerActorID"sv, Papyrus_MoisturizerActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerRegions"sv, Papyrus_MoisturizerRegions, std::nullopt, false);
@@ -1305,6 +1313,7 @@ namespace RP
 			_orderActor = 0;
 			_orderSet.clear();
 			_orderExtra.clear();
+			_orderVoice = 0;
 			return 0;
 		}
 
@@ -1314,6 +1323,7 @@ namespace RP
 		_orderActor = static_cast<std::int32_t>(order.formID);
 		_orderSet = order.setID;
 		_orderExtra = order.extra;
+		_orderVoice = static_cast<std::int32_t>(order.voice);
 		_orderKind = order.kind;
 		return static_cast<std::int32_t>(order.kind);
 	}

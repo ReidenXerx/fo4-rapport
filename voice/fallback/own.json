@@ -1,0 +1,162 @@
+[
+ {
+  "voice": "BoSFemale01",
+  "master": "Fallout4.esm",
+  "id": 490781
+ },
+ {
+  "voice": "BoSFemale02",
+  "master": "Fallout4.esm",
+  "id": 490782
+ },
+ {
+  "voice": "BoSMale01",
+  "master": "Fallout4.esm",
+  "id": 490779
+ },
+ {
+  "voice": "BoSMale02",
+  "master": "Fallout4.esm",
+  "id": 490780
+ },
+ {
+  "voice": "DLC03MaleMaineAccent",
+  "master": "DLCCoast.esm",
+  "id": 23717
+ },
+ {
+  "voice": "DLC03TrapperMale01",
+  "master": "DLCCoast.esm",
+  "id": 11685
+ },
+ {
+  "voice": "DLC04GangDiscipleFemale01",
+  "master": "DLCNukaWorld.esm",
+  "id": 31990
+ },
+ {
+  "voice": "DLC04GangDiscipleMale01",
+  "master": "DLCNukaWorld.esm",
+  "id": 31982
+ },
+ {
+  "voice": "DLC04GangOperatorFemale01",
+  "master": "DLCNukaWorld.esm",
+  "id": 31991
+ },
+ {
+  "voice": "DLC04GangOperatorMale01",
+  "master": "DLCNukaWorld.esm",
+  "id": 31992
+ },
+ {
+  "voice": "DLC04GangPackFemale01",
+  "master": "DLCNukaWorld.esm",
+  "id": 31994
+ },
+ {
+  "voice": "DLC04GangPackMale01",
+  "master": "DLCNukaWorld.esm",
+  "id": 31995
+ },
+ {
+  "voice": "FemaleBoston",
+  "master": "Fallout4.esm",
+  "id": 144164
+ },
+ {
+  "voice": "FemaleEvenToned",
+  "master": "Fallout4.esm",
+  "id": 80605
+ },
+ {
+  "voice": "FemaleGhoul",
+  "master": "Fallout4.esm",
+  "id": 144162
+ },
+ {
+  "voice": "FemaleOld",
+  "master": "Fallout4.esm",
+  "id": 846498
+ },
+ {
+  "voice": "FemaleRough",
+  "master": "Fallout4.esm",
+  "id": 46
+ },
+ {
+  "voice": "GuardFemaleVault81",
+  "master": "Fallout4.esm",
+  "id": 868284
+ },
+ {
+  "voice": "GuardMaleDiamondCity01",
+  "master": "Fallout4.esm",
+  "id": 698579
+ },
+ {
+  "voice": "GuardMaleDiamondCity02",
+  "master": "Fallout4.esm",
+  "id": 1008059
+ },
+ {
+  "voice": "GuardMaleVault81",
+  "master": "Fallout4.esm",
+  "id": 410863
+ },
+ {
+  "voice": "GunnersMale01",
+  "master": "Fallout4.esm",
+  "id": 539770
+ },
+ {
+  "voice": "MaleBoston",
+  "master": "Fallout4.esm",
+  "id": 144163
+ },
+ {
+  "voice": "MaleEvenToned",
+  "master": "Fallout4.esm",
+  "id": 80594
+ },
+ {
+  "voice": "MaleGhoul",
+  "master": "Fallout4.esm",
+  "id": 144161
+ },
+ {
+  "voice": "MaleGhoulCombatant01",
+  "master": "Fallout4.esm",
+  "id": 539342
+ },
+ {
+  "voice": "MaleOld",
+  "master": "Fallout4.esm",
+  "id": 846499
+ },
+ {
+  "voice": "MaleRough",
+  "master": "Fallout4.esm",
+  "id": 45
+ },
+ {
+  "voice": "MaleTriggerman01",
+  "master": "Fallout4.esm",
+  "id": 539341
+ },
+ {
+  "voice": "RaiderFemale01",
+  "master": "Fallout4.esm",
+  "id": 137671
+ },
+ {
+  "voice": "RaiderMale01",
+  "master": "Fallout4.esm",
+  "id": 128458
+ },
+ {
+  "voice": "RaiderMale02",
+  "master": "Fallout4.esm",
+  "id": 128459
+ }
+]

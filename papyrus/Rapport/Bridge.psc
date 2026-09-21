@@ -707,11 +707,12 @@ Function DrainOverlayOrders()
 			Return
 		EndIf
 
-		Var[] args = new Var[4]
+		Var[] args = new Var[5]
 		args[0] = kind as Var
 		args[1] = Rapport:Core.OrderActorID() as Var
 		args[2] = Rapport:Core.OrderSetID() as Var
 		args[3] = Rapport:Core.OrderExtra() as Var
+		args[4] = Rapport:Core.OrderVoice() as Var
 		Self.CallFunctionNoWait("DoOrder", args)
 
 		budget -= 1
@@ -725,7 +726,7 @@ Function DrainOverlayOrders()
 EndFunction
 
 ; Own stack. One order, and nothing it can block matters to anybody else.
-Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
+Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int aiVoice)
 	; These two come BEFORE every guard below, deliberately. They are the orders
 	; sent when AAF is broken, and every guard below asks whether AAF is working
 	; -- including the one that returns early because form id 0 is not an actor.
@@ -961,8 +962,22 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 			Return
 		EndIf
 		ObjectReference listener = Game.GetForm(asExtra as Int) as ObjectReference
+		; A voice we did not render borrows the closest one we did (V-25) -- for
+		; THIS call only. Set, say, clear on one stack: the audio is resolved at
+		; Say time, so the borrowed voice never outlives the line and no save can
+		; catch the actor wearing it.
+		VoiceType borrowed = None
+		If aiVoice != 0
+			borrowed = Game.GetForm(aiVoice) as VoiceType
+		EndIf
+		If borrowed
+			speaker.SetOverrideVoiceType(borrowed)
+		EndIf
 		; Four arguments: the decompiled base sources carry no defaults.
 		speaker.Say(line, None, False, listener)
+		If borrowed
+			speaker.SetOverrideVoiceType(None)
+		EndIf
 		Rapport:Core.Trace("bark: " + Rapport:Core.FormIdText(aiFormID) + " says topic " + asSetID)
 		Return
 	EndIf

@@ -169,6 +169,7 @@ String Function OrderSetID() Global Native
 ; Only order kind 8 uses this: the tags AAF must AVOID for this stage. The
 ; include tags come through OrderSetID.
 String Function OrderExtra() Global Native
+Int Function OrderVoice() Global Native
 
 ; An order the bridge collected but could not carry out -- an actor who turned
 ; out not to be loaded. Puts the mark back to "not asked for yet" so the next

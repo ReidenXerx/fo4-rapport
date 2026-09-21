@@ -196,6 +196,7 @@ namespace RP
 		[[nodiscard]] std::int32_t       OrderActorID() const noexcept { return _orderActor; }
 		[[nodiscard]] const std::string& OrderSetID() const noexcept { return _orderSet; }
 		[[nodiscard]] const std::string& OrderExtra() const noexcept { return _orderExtra; }
+		[[nodiscard]] std::int32_t       OrderVoice() const noexcept { return _orderVoice; }
 
 		// One line that says what has and has not happened. Logged periodically and
 		// on anything notable.
@@ -281,6 +282,7 @@ namespace RP
 		std::int32_t       _orderActor{ 0 };
 		std::string        _orderSet;
 		std::string        _orderExtra;
+		std::int32_t       _orderVoice{ 0 };
 		std::int32_t       _cmkzActor{ 0 };
 		std::string        _cmkzRegions;
 

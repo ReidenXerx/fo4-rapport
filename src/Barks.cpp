@@ -2,6 +2,7 @@
 
 #include "Aftermath.h"
 #include "PapyrusLink.h"
+#include "Voices.h"
 
 namespace RP
 {
@@ -135,8 +136,15 @@ namespace RP
 	{
 		// Not under _lock: QueueOrder takes the order lock, and a lock taken while
 		// holding another is the cycle this codebase keeps its lock rules for.
-		PapyrusLink::GetSingleton().QueueOrder(Order{
-			Order::Kind::kSayTopic, a_speaker, std::to_string(a_topic), std::to_string(a_target) });
+		Order order{ Order::Kind::kSayTopic, a_speaker, std::to_string(a_topic), std::to_string(a_target) };
+		// Which VOICE says it is not a bark decision -- it is the framework's, and
+		// every speaker of a Rapport line gets the same answer (V-25).
+		order.voice = Voices::GetSingleton().BorrowFor(a_speaker);
+		if (order.voice != 0) {
+			logger::info("bark: {:08X} has a voice we did not render - borrowing {:08X} for this line",
+				a_speaker, order.voice);
+		}
+		PapyrusLink::GetSingleton().QueueOrder(std::move(order));
 	}
 
 	void Barks::OnSceneStarted(

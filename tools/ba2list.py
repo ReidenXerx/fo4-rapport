@@ -67,4 +67,5 @@ def main():
             print('%9d  %s' % (rec[2], name))
 
 
-main()
+if __name__ == '__main__':
+    main()

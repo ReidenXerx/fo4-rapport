@@ -151,5 +151,9 @@ namespace RP
 
 		// A second string. Only the query uses it now: the tags to exclude.
 		std::string   extra;
+
+		// kSayTopic only: a voice type to BORROW for this one line (runtime form
+		// id), 0 to speak in the actor's own. Chosen by the Voices service.
+		std::uint32_t voice{ 0 };
 	};
 }

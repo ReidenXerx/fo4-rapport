@@ -3,6 +3,7 @@
 #include "Mailbox.h"
 #include "Aftermath.h"
 #include "Barks.h"
+#include "Voices.h"
 #include "Expressions.h"
 #include "Ledger.h"
 #include "Scenarios.h"
@@ -68,6 +69,7 @@ namespace
 			RP::DebugHub::GetSingleton().Load();
 			RP::Aftermath::GetSingleton().Load();
 			RP::Expressions::GetSingleton().Load();
+			RP::Voices::GetSingleton().Load();
 			RP::Barks::GetSingleton().Load();
 			RP::Expressions::GetSingleton().LoadOverrides();
 			RP::Scenarios::GetSingleton().Load();

@@ -21,6 +21,8 @@ set(SOURCES
 	"src/PCH.h"
 	"src/Barks.h"
 	"src/Barks.cpp"
+	"src/Voices.h"
+	"src/Voices.cpp"
 	"src/Config.h"
 	"src/Config.cpp"
 	"src/Mailbox.h"

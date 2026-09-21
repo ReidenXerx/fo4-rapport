@@ -34,3 +34,11 @@ voice/vanilla/
 voice/pcm/
 voice/ab/
 voice/play/
+
+# The voice-similarity environment (torch + speechbrain, ~3 GB) and its caches.
+/.venv-voice/
+/voice/fallback/wav/
+/voice/fallback/models/
+# Rebuilt from the game's own archives by scripts/voice-inventory.py (1 MB).
+/voice/fallback/inventory.json
+/voice/fallback/embeddings.npz
