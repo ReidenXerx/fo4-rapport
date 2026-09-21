@@ -382,6 +382,38 @@ where a bark is a moment. Budget for a higher split rate there, and settle the
 convention before authoring rather than retrofitting it - the retrofit here was
 cheap only because the bank was small.
 
+### V-23 — A Say()-able topic needs a DIALOGUE BRANCH. Verified in game.
+
+Our first plugin built topics that resolved, whose quest was running, and on which
+`Say` was called — and nothing was ever spoken. The fix, found by diffing against a
+line the game **actually** speaks via `Say` (the follower commands):
+
+- **Every topic belongs to a `DLBR` (Dialogue Branch)** and points at it with `BNAM`.
+  One branch holds many topics — `FollowersSayTopics` holds twelve. Ours now has one,
+  `RapportSayTopics`, holding all of them. **Without it, a category-0 topic is inert.**
+- **The line shape that works for `Say` is `ENAM 0x02`, no `NAM9`.** The first build
+  copied the commonest *unconditioned* spoken line, which is **scene** dialogue — close
+  in shape, wrong in role. Copy a template **from the same role**, not merely the same
+  record type.
+
+Ruled out by measurement on the way, so nobody re-tries them: the owning quest was
+running (asked it directly); the topic category was right (the game's own `Say` topics
+are category 0 `CUST`, 1,243 of them); the actor could speak (McDonough spoke a vanilla
+greeting via `Say` in the same session).
+
+**`V-8` is now verified, not assumed:** a line with no audio for the speaker's voice
+type still shows its subtitle. McDonough's voice type was never rendered and he displays
+our line anyway.
+
+**Subtitles sit at roughly 72–90% of frame height.** Cropping from 80% or lower misses
+the speaker name and often the text — several "failures" in this session had to be
+re-read with a correct band before they could be trusted.
+
+**Never hardcode a runtime FormID.** Rapport.esp's `01` became `0xE2` on this machine,
+from `plugins.txt`. That index is the player's load order, not ours. In the shipped
+code resolve topics by **file-relative id** (`Game.GetFormFromFile`), never by a number
+that happened to be right here.
+
 ---
 
 ## Settled numbers
