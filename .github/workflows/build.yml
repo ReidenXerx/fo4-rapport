@@ -55,29 +55,27 @@ jobs:
           $dll = Get-ChildItem -Recurse build -Filter Rapport.dll |
                  Where-Object { $_.FullName -notmatch 'CommonLibF4' } |
                  Select-Object -First 1
-          if (-not $dll) { throw "no Rapport.dll was produced" }
+          if (-not $dll) { throw 'no Rapport.dll was produced' }
           $h = (Get-FileHash $dll.FullName -Algorithm SHA256).Hash.ToLower()
-          $size = $dll.Length
-          Write-Host "Rapport.dll  $size bytes  sha256 $h"
-          # Into the job summary, which is public and cannot be edited after the fact.
-          $md = @"
-## Rapport.dll
-
-| | |
-| --- | --- |
-| **SHA256** | ``$h`` |
-| size | $size bytes |
-| commit | ``${{ github.sha }}`` |
-
-Built on a clean GitHub-hosted runner from the source in this commit.
-Hash the file you downloaded and compare:
-
-``````powershell
-Get-FileHash .\Rapport.dll -Algorithm SHA256
-``````
-"@
-          $md | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
-          "RAPPORT_SHA256=$h" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Rapport.dll  $($dll.Length) bytes  sha256 $h"
+          # Built as an ARRAY, not a here-string: a PowerShell here-string needs
+          # its content at column 0, and column 0 terminates a YAML block scalar.
+          # That mismatch is what made the first version of this file unparseable.
+          $md = @(
+            '## Rapport.dll',
+            '',
+            '| | |',
+            '| --- | --- |',
+            "| **SHA256** | $h |",
+            "| size | $($dll.Length) bytes |",
+            "| commit | ${{ github.sha }} |",
+            '',
+            'Built on a clean GitHub-hosted runner from the source in this commit.',
+            'Hash the file you downloaded and compare:',
+            '',
+            '    Get-FileHash .\Rapport.dll -Algorithm SHA256'
+          )
+          $md -join "`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
 
       - name: Upload the plugin
         uses: actions/upload-artifact@v4
