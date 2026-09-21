@@ -42,3 +42,11 @@ voice/play/
 # Rebuilt from the game's own archives by scripts/voice-inventory.py (1 MB).
 /voice/fallback/inventory.json
 /voice/fallback/embeddings.npz
+
+# Ivy's REAL lines, copied from her mod for the owner's ear test. Not ours to publish.
+/voice/audition/ivy/ivy_real_*.wav
+/voice/fallback/wav-mods/
+/voice/fallback/embeddings-mods.npz
+/voice/fallback/profiles/work/
+/voice/audition/ivy/today_*.wav
+/voice/audition/ivy/today_*.wav

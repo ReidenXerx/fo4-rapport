@@ -517,3 +517,28 @@ every fingerprint. Run it when a voice type is RENDERED, when voice archives or
 masters change, or after editing `voice/fallback/overrides.json` - not when lines
 are added (a new line is spoken by whichever voice the map already chose). CI runs
 `build-voices-table.py --check` so the committed table cannot drift from the map.
+
+### V-26 - Fingerprints steer CHOICES, not DESIGNS: a synthetic voice tops out near 0.2 (2026-09-21)
+
+`scripts/voice-audit.py` found the owner's sweet spots: 916 unique voices in the load order, 325
+served badly, and Ivy's group of 145 (Piper, Cait, Alice Bell...) covering 27,270 lines. Then the
+measurement hit a ceiling that is itself the finding:
+
+- **Game-vs-game** (choosing which existing voice to borrow) spans the full range - median best match
+  0.37, Gage->MaleRough 0.735. The V-25 map lives here, and it is sound.
+- **Synthetic-vs-game** does not. Every ElevenLabs voice - six designed candidates for Ivy, AND our own
+  32 renders - scores at most ~0.2 against a real game recording, whatever it sounds like: different
+  microphone, codec and processing dominate the fingerprint. What Ivy says today (our FemaleEvenToned
+  render) is +0.18 against her; the best designed candidate +0.20.
+
+So the realistic bar for a DESIGNED voice is "measurably closer than the current borrow", not 0.35,
+and the owner's ear (V-9) is the real judge. Two traps met on the way, both worth not repeating:
+
+- **The baseline must be what PLAYS.** "Today" first used the vanilla recordings of the borrowed
+  voice (0.24) - but the player hears our render of it, a different person. Measure the render.
+- **Register is part of the fingerprint.** Whispered previews against normal speech measured the
+  whisper. Design and score the identity in normal speech; make the whispered and crowd siblings
+  by swapping only the delivery clause (V-21).
+
+Also: `voice-profile.py` uses YIN for pitch - torchaudio's detector HALVED Ivy (123 Hz, "male" vs her
+real ~200 Hz); and a cluster member's fit is LEAVE-ONE-OUT, or every pair scores ~0.7 by construction.
