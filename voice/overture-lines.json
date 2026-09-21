@@ -16,6 +16,7 @@
     {
       "id": "ov_mercantile_greet_01",
       "kind": "greeting",
+      "stage": 0,
       "persona": "mercantile",
       "text": "Something you need, or are you just browsing?",
       "chars": 45
@@ -23,6 +24,7 @@
     {
       "id": "ov_mercantile_greet_02",
       "kind": "greeting",
+      "stage": 0,
       "persona": "mercantile",
       "text": "If you are buying, then I am listening.",
       "chars": 39
@@ -30,6 +32,7 @@
     {
       "id": "ov_romantic_greet_01",
       "kind": "greeting",
+      "stage": 0,
       "persona": "romantic",
       "text": "Well now. Look who found their way over here.",
       "chars": 45
@@ -37,6 +40,7 @@
     {
       "id": "ov_romantic_greet_02",
       "kind": "greeting",
+      "stage": 0,
       "persona": "romantic",
       "text": "I was hoping somebody interesting would walk past.",
       "chars": 50
@@ -44,6 +48,7 @@
     {
       "id": "ov_vulgar_greet_01",
       "kind": "greeting",
+      "stage": 0,
       "persona": "vulgar",
       "text": "You want something, or do you just like the view?",
       "chars": 49
@@ -51,6 +56,7 @@
     {
       "id": "ov_vulgar_greet_02",
       "kind": "greeting",
+      "stage": 0,
       "persona": "vulgar",
       "text": "Come to talk, or come to do something about it?",
       "chars": 47
@@ -58,6 +64,7 @@
     {
       "id": "ov_reticent_greet_01",
       "kind": "greeting",
+      "stage": 0,
       "persona": "reticent",
       "text": "Oh. Hello. Did you need something from me?",
       "chars": 42
@@ -65,6 +72,7 @@
     {
       "id": "ov_reticent_greet_02",
       "kind": "greeting",
+      "stage": 0,
       "persona": "reticent",
       "text": "I did not see you standing there. Sorry.",
       "chars": 40
@@ -72,6 +80,7 @@
     {
       "id": "ov_mercantile_offer_land_01",
       "kind": "response",
+      "stage": 1,
       "persona": "mercantile",
       "register": "offer",
       "outcome": "land",
@@ -81,6 +90,7 @@
     {
       "id": "ov_mercantile_offer_land_02",
       "kind": "response",
+      "stage": 1,
       "persona": "mercantile",
       "register": "offer",
       "outcome": "land",
@@ -90,6 +100,7 @@
     {
       "id": "ov_mercantile_charm_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "mercantile",
       "register": "charm",
       "outcome": "miss",
@@ -99,6 +110,7 @@
     {
       "id": "ov_mercantile_charm_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "mercantile",
       "register": "charm",
       "outcome": "miss",
@@ -108,6 +120,7 @@
     {
       "id": "ov_mercantile_blunt_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "mercantile",
       "register": "blunt",
       "outcome": "miss",
@@ -117,6 +130,7 @@
     {
       "id": "ov_mercantile_blunt_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "mercantile",
       "register": "blunt",
       "outcome": "miss",
@@ -126,6 +140,7 @@
     {
       "id": "ov_mercantile_linger_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "mercantile",
       "register": "linger",
       "outcome": "miss",
@@ -135,6 +150,7 @@
     {
       "id": "ov_mercantile_linger_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "mercantile",
       "register": "linger",
       "outcome": "miss",
@@ -144,6 +160,7 @@
     {
       "id": "ov_romantic_offer_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "romantic",
       "register": "offer",
       "outcome": "miss",
@@ -153,6 +170,7 @@
     {
       "id": "ov_romantic_offer_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "romantic",
       "register": "offer",
       "outcome": "miss",
@@ -162,6 +180,7 @@
     {
       "id": "ov_romantic_charm_land_01",
       "kind": "response",
+      "stage": 1,
       "persona": "romantic",
       "register": "charm",
       "outcome": "land",
@@ -171,6 +190,7 @@
     {
       "id": "ov_romantic_charm_land_02",
       "kind": "response",
+      "stage": 1,
       "persona": "romantic",
       "register": "charm",
       "outcome": "land",
@@ -180,6 +200,7 @@
     {
       "id": "ov_romantic_blunt_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "romantic",
       "register": "blunt",
       "outcome": "miss",
@@ -189,6 +210,7 @@
     {
       "id": "ov_romantic_blunt_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "romantic",
       "register": "blunt",
       "outcome": "miss",
@@ -198,6 +220,7 @@
     {
       "id": "ov_romantic_linger_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "romantic",
       "register": "linger",
       "outcome": "miss",
@@ -207,6 +230,7 @@
     {
       "id": "ov_romantic_linger_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "romantic",
       "register": "linger",
       "outcome": "miss",
@@ -216,6 +240,7 @@
     {
       "id": "ov_vulgar_offer_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "vulgar",
       "register": "offer",
       "outcome": "miss",
@@ -225,6 +250,7 @@
     {
       "id": "ov_vulgar_offer_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "vulgar",
       "register": "offer",
       "outcome": "miss",
@@ -234,6 +260,7 @@
     {
       "id": "ov_vulgar_charm_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "vulgar",
       "register": "charm",
       "outcome": "miss",
@@ -243,6 +270,7 @@
     {
       "id": "ov_vulgar_charm_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "vulgar",
       "register": "charm",
       "outcome": "miss",
@@ -252,6 +280,7 @@
     {
       "id": "ov_vulgar_blunt_land_01",
       "kind": "response",
+      "stage": 1,
       "persona": "vulgar",
       "register": "blunt",
       "outcome": "land",
@@ -261,6 +290,7 @@
     {
       "id": "ov_vulgar_blunt_land_02",
       "kind": "response",
+      "stage": 1,
       "persona": "vulgar",
       "register": "blunt",
       "outcome": "land",
@@ -270,6 +300,7 @@
     {
       "id": "ov_vulgar_linger_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "vulgar",
       "register": "linger",
       "outcome": "miss",
@@ -279,6 +310,7 @@
     {
       "id": "ov_vulgar_linger_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "vulgar",
       "register": "linger",
       "outcome": "miss",
@@ -288,6 +320,7 @@
     {
       "id": "ov_reticent_offer_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "reticent",
       "register": "offer",
       "outcome": "miss",
@@ -297,6 +330,7 @@
     {
       "id": "ov_reticent_offer_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "reticent",
       "register": "offer",
       "outcome": "miss",
@@ -306,6 +340,7 @@
     {
       "id": "ov_reticent_charm_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "reticent",
       "register": "charm",
       "outcome": "miss",
@@ -315,6 +350,7 @@
     {
       "id": "ov_reticent_charm_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "reticent",
       "register": "charm",
       "outcome": "miss",
@@ -324,6 +360,7 @@
     {
       "id": "ov_reticent_blunt_miss_01",
       "kind": "response",
+      "stage": 1,
       "persona": "reticent",
       "register": "blunt",
       "outcome": "miss",
@@ -333,6 +370,7 @@
     {
       "id": "ov_reticent_blunt_miss_02",
       "kind": "response",
+      "stage": 1,
       "persona": "reticent",
       "register": "blunt",
       "outcome": "miss",
@@ -342,6 +380,7 @@
     {
       "id": "ov_reticent_linger_land_01",
       "kind": "response",
+      "stage": 1,
       "persona": "reticent",
       "register": "linger",
       "outcome": "land",
@@ -351,6 +390,7 @@
     {
       "id": "ov_reticent_linger_land_02",
       "kind": "response",
+      "stage": 1,
       "persona": "reticent",
       "register": "linger",
       "outcome": "land",
@@ -360,6 +400,7 @@
     {
       "id": "ov_mercantile_recoil_01",
       "kind": "recoil",
+      "stage": 1,
       "persona": "mercantile",
       "register": "blunt",
       "outcome": "recoil",
@@ -369,6 +410,7 @@
     {
       "id": "ov_mercantile_recoil_02",
       "kind": "recoil",
+      "stage": 1,
       "persona": "mercantile",
       "register": "blunt",
       "outcome": "recoil",
@@ -378,6 +420,7 @@
     {
       "id": "ov_romantic_recoil_01",
       "kind": "recoil",
+      "stage": 1,
       "persona": "romantic",
       "register": "blunt",
       "outcome": "recoil",
@@ -387,6 +430,7 @@
     {
       "id": "ov_romantic_recoil_02",
       "kind": "recoil",
+      "stage": 1,
       "persona": "romantic",
       "register": "blunt",
       "outcome": "recoil",
@@ -396,6 +440,7 @@
     {
       "id": "ov_vulgar_recoil_01",
       "kind": "recoil",
+      "stage": 1,
       "persona": "vulgar",
       "register": "blunt",
       "outcome": "recoil",
@@ -405,6 +450,7 @@
     {
       "id": "ov_vulgar_recoil_02",
       "kind": "recoil",
+      "stage": 1,
       "persona": "vulgar",
       "register": "blunt",
       "outcome": "recoil",
@@ -414,6 +460,7 @@
     {
       "id": "ov_reticent_recoil_01",
       "kind": "recoil",
+      "stage": 1,
       "persona": "reticent",
       "register": "blunt",
       "outcome": "recoil",
@@ -423,11 +470,756 @@
     {
       "id": "ov_reticent_recoil_02",
       "kind": "recoil",
+      "stage": 1,
       "persona": "reticent",
       "register": "blunt",
       "outcome": "recoil",
       "text": "Not here. Not with everybody watching us.",
       "chars": 41
+    },
+    {
+      "id": "ov2_mercantile_offer_land_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "offer",
+      "outcome": "land",
+      "text": "You keep raising the price and I keep saying yes.",
+      "chars": 49
+    },
+    {
+      "id": "ov2_mercantile_offer_land_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "offer",
+      "outcome": "land",
+      "text": "Now we are negotiating properly.",
+      "chars": 32
+    },
+    {
+      "id": "ov2_mercantile_charm_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "Still words. Lovely ones, but still only words.",
+      "chars": 47
+    },
+    {
+      "id": "ov2_mercantile_charm_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "You are very good at this. I am still waiting.",
+      "chars": 46
+    },
+    {
+      "id": "ov2_mercantile_blunt_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "You could simply have made me an offer instead.",
+      "chars": 47
+    },
+    {
+      "id": "ov2_mercantile_blunt_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "Blunt is cheap. Try something expensive.",
+      "chars": 40
+    },
+    {
+      "id": "ov2_mercantile_linger_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "Standing closer is not the same as offering me something.",
+      "chars": 57
+    },
+    {
+      "id": "ov2_mercantile_linger_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "You are taking up my whole afternoon for free.",
+      "chars": 46
+    },
+    {
+      "id": "ov2_romantic_offer_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "More caps. Is that genuinely all you have got?",
+      "chars": 46
+    },
+    {
+      "id": "ov2_romantic_offer_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "You keep reaching for your pocket instead of your words.",
+      "chars": 56
+    },
+    {
+      "id": "ov2_romantic_charm_land_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "charm",
+      "outcome": "land",
+      "text": "Keep going. Nobody has said anything like that to me in years.",
+      "chars": 62
+    },
+    {
+      "id": "ov2_romantic_charm_land_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "charm",
+      "outcome": "land",
+      "text": "You are going to talk me into something, you know.",
+      "chars": 50
+    },
+    {
+      "id": "ov2_romantic_blunt_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "You were doing so well right up until you said that.",
+      "chars": 52
+    },
+    {
+      "id": "ov2_romantic_blunt_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "That was a step backwards and I think you know it.",
+      "chars": 50
+    },
+    {
+      "id": "ov2_romantic_linger_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "You are close enough to say something, so say it.",
+      "chars": 49
+    },
+    {
+      "id": "ov2_romantic_linger_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "Silence is not the same thing as romance.",
+      "chars": 41
+    },
+    {
+      "id": "ov2_vulgar_offer_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "Caps again. You have no imagination at all.",
+      "chars": 43
+    },
+    {
+      "id": "ov2_vulgar_offer_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "Put it away and tell me what you want to do to me.",
+      "chars": 50
+    },
+    {
+      "id": "ov2_vulgar_charm_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "That was very pretty and it did nothing for me.",
+      "chars": 47
+    },
+    {
+      "id": "ov2_vulgar_charm_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "Less poetry. More detail about what happens next.",
+      "chars": 49
+    },
+    {
+      "id": "ov2_vulgar_blunt_land_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "blunt",
+      "outcome": "land",
+      "text": "Keep talking like that and we are not leaving this room.",
+      "chars": 56
+    },
+    {
+      "id": "ov2_vulgar_blunt_land_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "blunt",
+      "outcome": "land",
+      "text": "Now you are finally saying the right things to me.",
+      "chars": 50
+    },
+    {
+      "id": "ov2_vulgar_linger_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "Standing there breathing at me is not a plan.",
+      "chars": 45
+    },
+    {
+      "id": "ov2_vulgar_linger_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "Use your mouth for words or use it for something better.",
+      "chars": 56
+    },
+    {
+      "id": "ov2_reticent_offer_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "You do not have to give me things. I would rather you did not.",
+      "chars": 62
+    },
+    {
+      "id": "ov2_reticent_offer_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "That makes it feel like a transaction, and it is not.",
+      "chars": 53
+    },
+    {
+      "id": "ov2_reticent_charm_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "You are saying rather a lot and I cannot keep up with it.",
+      "chars": 57
+    },
+    {
+      "id": "ov2_reticent_charm_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "Please slow down. I do not know what to do with that.",
+      "chars": 53
+    },
+    {
+      "id": "ov2_reticent_blunt_miss_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "That is a great deal faster than I am able to move.",
+      "chars": 51
+    },
+    {
+      "id": "ov2_reticent_blunt_miss_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "I am not ready for you to say things like that to me.",
+      "chars": 53
+    },
+    {
+      "id": "ov2_reticent_linger_land_01",
+      "kind": "response",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "linger",
+      "outcome": "land",
+      "text": "You are still here, and I have stopped wanting you to go.",
+      "chars": 57
+    },
+    {
+      "id": "ov2_reticent_linger_land_02",
+      "kind": "response",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "linger",
+      "outcome": "land",
+      "text": "That is the longest anybody has stayed. I did notice.",
+      "chars": 53
+    },
+    {
+      "id": "ov2_mercantile_recoil_01",
+      "kind": "recoil",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Not while I am working. Come and find me later.",
+      "chars": 47
+    },
+    {
+      "id": "ov2_mercantile_recoil_02",
+      "kind": "recoil",
+      "stage": 2,
+      "persona": "mercantile",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "You are going to cost me customers talking like that.",
+      "chars": 53
+    },
+    {
+      "id": "ov2_romantic_recoil_01",
+      "kind": "recoil",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Not with an audience. I want it to actually mean something.",
+      "chars": 59
+    },
+    {
+      "id": "ov2_romantic_recoil_02",
+      "kind": "recoil",
+      "stage": 2,
+      "persona": "romantic",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Take me somewhere the whole settlement is not listening.",
+      "chars": 56
+    },
+    {
+      "id": "ov2_vulgar_recoil_01",
+      "kind": "recoil",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "You are killing me. Get me somewhere with a door on it.",
+      "chars": 55
+    },
+    {
+      "id": "ov2_vulgar_recoil_02",
+      "kind": "recoil",
+      "stage": 2,
+      "persona": "vulgar",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "I want to say yes and I want a wall between us and them.",
+      "chars": 56
+    },
+    {
+      "id": "ov2_reticent_recoil_01",
+      "kind": "recoil",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Everyone here can hear you. I am going to leave.",
+      "chars": 48
+    },
+    {
+      "id": "ov2_reticent_recoil_02",
+      "kind": "recoil",
+      "stage": 2,
+      "persona": "reticent",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Please. Not where people are looking at us like this.",
+      "chars": 53
+    },
+    {
+      "id": "ov3_mercantile_accept_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "mercantile",
+      "outcome": "accept",
+      "text": "Deal. And I am not even going to haggle over it.",
+      "chars": 48
+    },
+    {
+      "id": "ov3_mercantile_accept_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "mercantile",
+      "outcome": "accept",
+      "text": "You have bought yourself an evening. Come on, then.",
+      "chars": 51
+    },
+    {
+      "id": "ov3_romantic_accept_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "romantic",
+      "outcome": "accept",
+      "text": "Yes. Ask me again somewhere quieter and I will say it louder.",
+      "chars": 61
+    },
+    {
+      "id": "ov3_romantic_accept_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "romantic",
+      "outcome": "accept",
+      "text": "Take me somewhere that we will not be interrupted.",
+      "chars": 50
+    },
+    {
+      "id": "ov3_vulgar_accept_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "vulgar",
+      "outcome": "accept",
+      "text": "Finally. Get me somewhere with a door and a bed.",
+      "chars": 48
+    },
+    {
+      "id": "ov3_vulgar_accept_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "vulgar",
+      "outcome": "accept",
+      "text": "Yes, and I have been thinking about your mouth all afternoon.",
+      "chars": 61
+    },
+    {
+      "id": "ov3_reticent_accept_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "reticent",
+      "outcome": "accept",
+      "text": "Yes. I am going to regret saying that out loud, but yes.",
+      "chars": 56
+    },
+    {
+      "id": "ov3_reticent_accept_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "reticent",
+      "outcome": "accept",
+      "text": "Alright. Yes. Before I talk myself back out of it.",
+      "chars": 50
+    },
+    {
+      "id": "ov3_mercantile_refuse_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "mercantile",
+      "outcome": "refuse",
+      "text": "Not at that price. Come back with something better.",
+      "chars": 51
+    },
+    {
+      "id": "ov3_mercantile_refuse_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "mercantile",
+      "outcome": "refuse",
+      "text": "You have not made it worth my while, and you know it.",
+      "chars": 53
+    },
+    {
+      "id": "ov3_romantic_refuse_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "romantic",
+      "outcome": "refuse",
+      "text": "No. You did not earn that, and I think you know why.",
+      "chars": 52
+    },
+    {
+      "id": "ov3_romantic_refuse_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "romantic",
+      "outcome": "refuse",
+      "text": "Ask me again when you actually mean what you are saying.",
+      "chars": 56
+    },
+    {
+      "id": "ov3_vulgar_refuse_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "vulgar",
+      "outcome": "refuse",
+      "text": "No. You bored me, and that is worse than offending me.",
+      "chars": 54
+    },
+    {
+      "id": "ov3_vulgar_refuse_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "vulgar",
+      "outcome": "refuse",
+      "text": "Not a chance. You could not even say it properly.",
+      "chars": 49
+    },
+    {
+      "id": "ov3_reticent_refuse_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "reticent",
+      "outcome": "refuse",
+      "text": "No. I am sorry. Please do not ask me again today.",
+      "chars": 49
+    },
+    {
+      "id": "ov3_reticent_refuse_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "reticent",
+      "outcome": "refuse",
+      "text": "I cannot do this. Not like this, not right now.",
+      "chars": 47
+    },
+    {
+      "id": "ov3_mercantile_notyet_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "mercantile",
+      "outcome": "notyet",
+      "text": "Close. Keep working on it and come back to me.",
+      "chars": 46
+    },
+    {
+      "id": "ov3_mercantile_notyet_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "mercantile",
+      "outcome": "notyet",
+      "text": "You are nearly there. I can almost be persuaded.",
+      "chars": 48
+    },
+    {
+      "id": "ov3_romantic_notyet_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "romantic",
+      "outcome": "notyet",
+      "text": "Not yet. But I very much want you to keep trying.",
+      "chars": 49
+    },
+    {
+      "id": "ov3_romantic_notyet_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "romantic",
+      "outcome": "notyet",
+      "text": "Ask me again. Not today, but do ask me again.",
+      "chars": 45
+    },
+    {
+      "id": "ov3_vulgar_notyet_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "vulgar",
+      "outcome": "notyet",
+      "text": "Keep going like that and you will get there. Not yet.",
+      "chars": 53
+    },
+    {
+      "id": "ov3_vulgar_notyet_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "vulgar",
+      "outcome": "notyet",
+      "text": "You are very close to getting exactly what you want.",
+      "chars": 52
+    },
+    {
+      "id": "ov3_reticent_notyet_01",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "reticent",
+      "outcome": "notyet",
+      "text": "Not today. But I do not want you to stop coming over.",
+      "chars": 53
+    },
+    {
+      "id": "ov3_reticent_notyet_02",
+      "kind": "propose",
+      "stage": 3,
+      "persona": "reticent",
+      "outcome": "notyet",
+      "text": "Give me a little longer than this. Please.",
+      "chars": 42
+    },
+    {
+      "id": "ov_mercantile_farewell_01",
+      "kind": "farewell",
+      "stage": 0,
+      "persona": "mercantile",
+      "text": "Come back when you have got something to trade.",
+      "chars": 47
+    },
+    {
+      "id": "ov_mercantile_farewell_02",
+      "kind": "farewell",
+      "stage": 0,
+      "persona": "mercantile",
+      "text": "Pleasure doing business, whatever it was we did.",
+      "chars": 48
+    },
+    {
+      "id": "ov_romantic_farewell_01",
+      "kind": "farewell",
+      "stage": 0,
+      "persona": "romantic",
+      "text": "Do not be a stranger. I actually mean that.",
+      "chars": 43
+    },
+    {
+      "id": "ov_romantic_farewell_02",
+      "kind": "farewell",
+      "stage": 0,
+      "persona": "romantic",
+      "text": "Go on, then. And think about me while you are gone.",
+      "chars": 51
+    },
+    {
+      "id": "ov_vulgar_farewell_01",
+      "kind": "farewell",
+      "stage": 0,
+      "persona": "vulgar",
+      "text": "Go on. I will be thinking about it either way.",
+      "chars": 46
+    },
+    {
+      "id": "ov_vulgar_farewell_02",
+      "kind": "farewell",
+      "stage": 0,
+      "persona": "vulgar",
+      "text": "Leave, then. You know exactly where I sleep.",
+      "chars": 44
+    },
+    {
+      "id": "ov_reticent_farewell_01",
+      "kind": "farewell",
+      "stage": 0,
+      "persona": "reticent",
+      "text": "Goodbye. Thank you for... yes. Goodbye then.",
+      "chars": 44
+    },
+    {
+      "id": "ov_reticent_farewell_02",
+      "kind": "farewell",
+      "stage": 0,
+      "persona": "reticent",
+      "text": "I will see you around, I hope. If that is alright.",
+      "chars": 50
+    },
+    {
+      "id": "ov_mercantile_returning_01",
+      "kind": "returning",
+      "stage": 0,
+      "persona": "mercantile",
+      "text": "Back again. Are you actually buying this time?",
+      "chars": 46
+    },
+    {
+      "id": "ov_mercantile_returning_02",
+      "kind": "returning",
+      "stage": 0,
+      "persona": "mercantile",
+      "text": "My favourite customer. What is it going to be today?",
+      "chars": 52
+    },
+    {
+      "id": "ov_romantic_returning_01",
+      "kind": "returning",
+      "stage": 0,
+      "persona": "romantic",
+      "text": "There you are. I was wondering when you would come back.",
+      "chars": 56
+    },
+    {
+      "id": "ov_romantic_returning_02",
+      "kind": "returning",
+      "stage": 0,
+      "persona": "romantic",
+      "text": "I have been thinking about the last time you were here.",
+      "chars": 55
+    },
+    {
+      "id": "ov_vulgar_returning_01",
+      "kind": "returning",
+      "stage": 0,
+      "persona": "vulgar",
+      "text": "Look who came back for more of it.",
+      "chars": 34
+    },
+    {
+      "id": "ov_vulgar_returning_02",
+      "kind": "returning",
+      "stage": 0,
+      "persona": "vulgar",
+      "text": "I knew you would be back. You have got that look about you.",
+      "chars": 59
+    },
+    {
+      "id": "ov_reticent_returning_01",
+      "kind": "returning",
+      "stage": 0,
+      "persona": "reticent",
+      "text": "Oh. You came back. I did not really expect that.",
+      "chars": 48
+    },
+    {
+      "id": "ov_reticent_returning_02",
+      "kind": "returning",
+      "stage": 0,
+      "persona": "reticent",
+      "text": "You are here again. I am glad. Sorry, that was too much.",
+      "chars": 56
     }
   ]
 }

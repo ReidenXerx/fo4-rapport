@@ -148,11 +148,15 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--only", default=None, help="one voice type")
+    ap.add_argument("--voices", default=None,
+                    help="comma-separated subset of voice types")
+    ap.add_argument("--lines", default="voice/lines.json",
+                    help="which line bank to render")
     ap.add_argument("--jobs", type=int, default=6)
     ap.add_argument("--tries", type=int, default=3, help="v3 re-rolls before falling back to v2")
     a = ap.parse_args()
 
-    lines = json.loads((ROOT / "voice/lines.json").read_text(encoding="utf-8"))["lines"]
+    lines = json.loads((ROOT / a.lines).read_text(encoding="utf-8"))["lines"]
     types = json.loads((ROOT / "voice/voices.json").read_text(encoding="utf-8"))["types"]
     # These rates decide which model to TRY FIRST. They do not decide
     # correctness - the runtime gate below does. Measured at n=8, a line whose
@@ -166,6 +170,12 @@ def main() -> int:
         if a.only not in chosen:
             sys.exit(f"{a.only} has no chosen voice. Chosen: {', '.join(sorted(chosen)) or 'none'}")
         chosen = {a.only: chosen[a.only]}
+    if a.voices:
+        want = [v.strip() for v in a.voices.split(",") if v.strip()]
+        missing = [v for v in want if v not in chosen]
+        if missing:
+            sys.exit("unknown or unchosen voice types: " + ", ".join(missing))
+        chosen = {v: chosen[v] for v in want}
 
     def voice_for(vt, ln):
         """Crowd observer lines use the PROJECTING voice; everything else is
@@ -221,8 +231,16 @@ def main() -> int:
     def one(job):
         vt, vid, ln, fuz = job
         # Pair barks are keyed by scenario; observer reactions by audience size.
-        sc = (AUDIENCE[ln["audience"]] if ln.get("kind") == "observer"
-              else SCENARIO[ln["scenario"]])
+        # Overture dialogue has neither a scenario nor an audience: it is a
+        # conversation, not a bark. Plain conversational delivery, no whisper
+        # tag, and the intimate voice - a one-to-one exchange is not a heckle
+        # even when it happens in a market.
+        if ln.get("kind") == "observer":
+            sc = AUDIENCE[ln["audience"]]
+        elif ln.get("scenario"):
+            sc = SCENARIO[ln["scenario"]]
+        else:
+            sc = {"tag": "", "speed": 1.0, "stability": 0.45, "style": 0.35}
         pcm = ROOT / "voice/pcm" / vt / f"{ln['id']}.pcm"
         pcm.parent.mkdir(parents=True, exist_ok=True)
         fuz.parent.mkdir(parents=True, exist_ok=True)
