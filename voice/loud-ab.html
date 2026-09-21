@@ -1,0 +1,42 @@
+<!doctype html><meta charset="utf-8"><title>Projecting voices A/B</title>
+<style>
+:root{--bg:#14120f;--fg:#e8e2d4;--dim:#8a8274;--acc:#c8a24a;--line:#2a2621;--loud:#9ab87a}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,Segoe UI,sans-serif;
+padding:28px;max-width:820px;margin:auto}
+h1{font-size:17px;letter-spacing:.07em;text-transform:uppercase;color:var(--acc);margin:0 0 6px}
+p{color:var(--dim);font-size:13px;max-width:660px}
+blockquote{border-left:2px solid var(--line);margin:16px 0;padding:4px 0 4px 14px;
+color:var(--fg);font-size:14px}
+table{width:100%;border-collapse:collapse;margin-top:18px}
+td{padding:11px 8px;border-bottom:1px solid var(--line)}
+.vt{font-weight:600;width:250px}
+th{text-align:left;color:var(--dim);font-size:10.5px;text-transform:uppercase;
+letter-spacing:.1em;padding:0 8px 8px;font-weight:400}
+.pb{background:#241f19;color:var(--fg);border:1px solid var(--line);width:32px;height:32px;
+border-radius:4px;cursor:pointer;margin-right:5px;font:inherit;font-size:12px}
+.pb:hover{border-color:var(--acc);color:var(--acc)}
+.pb.playing{background:var(--acc);color:#14120f;border-color:var(--acc)}
+.pb.loud{border-color:#3a4a2a;color:var(--loud)}
+.pb.loud.playing{background:var(--loud);color:#14120f}
+</style>
+<h1>Crowd delivery &mdash; does a projecting brief help?</h1>
+<p>Every voice was designed with <i>speaks low and close, half-whispered</i> in its brief.
+That is right for two people in a corner and wrong for a heckle across a settlement.
+Left is the <b>current</b> voice; right are three <b style="color:var(--loud)">projecting</b>
+variants briefed to carry. Same text, same settings, same seed.</p>
+<blockquote>Louder, would you! Some of us are standing at the back! Is anybody else seeing
+this, or is it only me? We are all watching, and nobody is pretending otherwise.</blockquote>
+<p>If the difference is not clear, the current voices stay and we save the slots,
+the credits and the audition time.</p>
+<table><tr><th>voice type</th><th>current</th><th>projecting</th></tr><tr><td class="vt">MaleEvenToned</td><td><button class="pb cur" data-src="audition-loud/MaleEvenToned-current.wav">&#9654;</button></td><td><button class="pb loud" data-src="audition-loud/MaleEvenToned-loud1.mp3">1</button><button class="pb loud" data-src="audition-loud/MaleEvenToned-loud2.mp3">2</button><button class="pb loud" data-src="audition-loud/MaleEvenToned-loud3.mp3">3</button></td></tr><tr><td class="vt">FemaleEvenToned</td><td><button class="pb cur" data-src="audition-loud/FemaleEvenToned-current.wav">&#9654;</button></td><td><button class="pb loud" data-src="audition-loud/FemaleEvenToned-loud1.mp3">1</button><button class="pb loud" data-src="audition-loud/FemaleEvenToned-loud2.mp3">2</button><button class="pb loud" data-src="audition-loud/FemaleEvenToned-loud3.mp3">3</button></td></tr><tr><td class="vt">MaleRough</td><td><button class="pb cur" data-src="audition-loud/MaleRough-current.wav">&#9654;</button></td><td><button class="pb loud" data-src="audition-loud/MaleRough-loud1.mp3">1</button><button class="pb loud" data-src="audition-loud/MaleRough-loud2.mp3">2</button><button class="pb loud" data-src="audition-loud/MaleRough-loud3.mp3">3</button></td></tr><tr><td class="vt">DLC04GangDiscipleFemale01</td><td><button class="pb cur" data-src="audition-loud/DLC04GangDiscipleFemale01-current.wav">&#9654;</button></td><td><button class="pb loud" data-src="audition-loud/DLC04GangDiscipleFemale01-loud1.mp3">1</button><button class="pb loud" data-src="audition-loud/DLC04GangDiscipleFemale01-loud2.mp3">2</button><button class="pb loud" data-src="audition-loud/DLC04GangDiscipleFemale01-loud3.mp3">3</button></td></tr></table>
+<script>
+var a = new Audio(), cur = null;
+document.querySelectorAll(".pb").forEach(function (b) {
+  b.onclick = function () {
+    if (cur) { cur.classList.remove("playing"); }
+    if (cur === b && !a.paused) { a.pause(); cur = null; return; }
+    a.src = b.dataset.src; a.play(); b.classList.add("playing"); cur = b;
+  };
+});
+a.onended = function () { if (cur) { cur.classList.remove("playing"); } cur = null; };
+</script>

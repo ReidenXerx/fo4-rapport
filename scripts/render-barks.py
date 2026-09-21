@@ -167,17 +167,32 @@ def main() -> int:
             sys.exit(f"{a.only} has no chosen voice. Chosen: {', '.join(sorted(chosen)) or 'none'}")
         chosen = {a.only: chosen[a.only]}
 
+    def voice_for(vt, ln):
+        """Crowd observer lines use the PROJECTING voice; everything else is
+        intimate. A heckle shouted across a settlement and a line murmured into
+        somebody's ear are not the same performance, and the difference lives in
+        the voice design, not in a per-render setting."""
+        if ln.get("kind") == "observer" and ln.get("audience") == "crowd":
+            loud = types[vt].get("chosen_loud")
+            if loud:
+                return loud, True
+        return chosen[vt], False
+
     jobs = []
-    for vt, vid in sorted(chosen.items()):
+    for vt in sorted(chosen):
         for ln in lines:
             fuz = ROOT / "voice/out" / vt / f"{ln['id']}.fuz"
             if fuz.exists() and not a.force:
                 continue
+            vid, loud = voice_for(vt, ln)
             jobs.append((vt, vid, ln, fuz))
 
     expr = sum(1 for j in jobs if s3.get(j[2]["id"], 0) >= s2.get(j[2]["id"], 0))
+    loud_n = sum(1 for j in jobs if voice_for(j[0], j[2])[1])
     chars = sum(len(j[2]["text"]) for j in jobs)
-    print(f"voices chosen : {len(chosen)} of {len(types)}")
+    print(f"voices chosen : {len(chosen)} of {len(types)}"
+          f"   ({sum(1 for d in types.values() if d.get('chosen_loud'))} have a loud variant)")
+    print(f"projecting    : {loud_n} crowd lines on the loud voice")
     print(f"to render     : {len(jobs)}   ({expr} trying {EXPR} first, "
           f"{len(jobs)-expr} trying {SAFE} first)")
     print(f"characters    : {chars:,}  (every render is transcribed and re-rolled on drift)")

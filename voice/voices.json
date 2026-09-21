@@ -1,5 +1,5 @@
 {
-  "_": "FO4 voice type -> ElevenLabs. 'chosen' is null until auditioned by ear; 'previews' are the three Voice Design variants for that type.",
+  "_": "FO4 voice type -> ElevenLabs. 'chosen' is the intimate voice used for pair barks and for a lone observer; 'chosen_loud' is the projecting voice used for crowd observer lines, because a heckle across a settlement is not a half-whisper. Both were picked by ear by the owner: preview 3 for intimate, preview 2 for loud.",
   "audition_script": "Come on - we gotta make this quick. Someone's gonna come through here any second. No, don't think about it. Just come here. Nobody needs us for a while. Stay. Just for a while.",
   "types": {
     "MaleEvenToned": {
@@ -23,7 +23,10 @@
         }
       ],
       "chosen_name": "Rapport_MaleEvenToned",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "cHKsK64EkTrssmyavWM6",
+      "chosen_loud_preview": 2,
+      "description_loud": ". Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "FemaleEvenToned": {
       "vanilla_lines": 3428,
@@ -46,7 +49,10 @@
         }
       ],
       "chosen_name": "Rapport_FemaleEvenToned",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "CvyLwcpjFH6CZsKF4dlW",
+      "chosen_loud_preview": 2,
+      "description_loud": ". Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "FemaleBoston": {
       "vanilla_lines": 2418,
@@ -69,7 +75,10 @@
         }
       ],
       "chosen_name": "Rapport_FemaleBoston",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "xmD5Il8TkcFWbDIkDBxQ",
+      "chosen_loud_preview": 2,
+      "description_loud": "A Fallout 4 FemaleBoston stand-in. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "MaleRough": {
       "vanilla_lines": 2880,
@@ -92,7 +101,10 @@
         }
       ],
       "chosen_name": "Rapport_MaleRough",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "oGZfJKQrcnfssK1BYhgK",
+      "chosen_loud_preview": 2,
+      "description_loud": ". Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "FemaleRough": {
       "vanilla_lines": 2839,
@@ -115,7 +127,10 @@
         }
       ],
       "chosen_name": "Rapport_FemaleRough",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "dOuxaps6ROgRHnmLNwTq",
+      "chosen_loud_preview": 2,
+      "description_loud": "A Fallout 4 FemaleRough stand-in. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "MaleGhoul": {
       "vanilla_lines": 1604,
@@ -138,7 +153,10 @@
         }
       ],
       "chosen_name": "Rapport_MaleGhoul",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "N0LypJ6QPta3YasokELv",
+      "chosen_loud_preview": 2,
+      "description_loud": "A Fallout 4 MaleGhoul stand-in. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "FemaleGhoul": {
       "vanilla_lines": 1576,
@@ -161,7 +179,10 @@
         }
       ],
       "chosen_name": "Rapport_FemaleGhoul",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "VcuzHM0PrxQHSrZt7EHn",
+      "chosen_loud_preview": 2,
+      "description_loud": "A Fallout 4 FemaleGhoul stand-in. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "MaleOld": {
       "vanilla_lines": 1551,
@@ -184,7 +205,10 @@
         }
       ],
       "chosen_name": "Rapport_MaleOld",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "6SX1NVhqMjw7VqexNILj",
+      "chosen_loud_preview": 2,
+      "description_loud": "A Fallout 4 MaleOld stand-in. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "FemaleOld": {
       "vanilla_lines": 1464,
@@ -207,7 +231,10 @@
         }
       ],
       "chosen_name": "Rapport_FemaleOld",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "bsrsGb8FHLzveRW1fJsN",
+      "chosen_loud_preview": 2,
+      "description_loud": "A Fallout 4 FemaleOld stand-in. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "MaleBoston": {
       "vanilla_lines": 2822,
@@ -219,7 +246,10 @@
           "voice_id": "UBJFYue9ndY0n9Sq9BAB",
           "file": "audition/MaleBoston-3.mp3"
         }
-      ]
+      ],
+      "chosen_loud": "jr9TEYqyHMZNWQ2jWkKZ",
+      "chosen_loud_preview": 2,
+      "description_loud": "A Fallout 4 MaleBoston stand-in. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "RaiderMale01": {
       "vanilla_lines": 964,
@@ -243,7 +273,10 @@
         }
       ],
       "chosen_name": "Rapport_RaiderMale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "QdzIue22ZS6yg62ogc6N",
+      "chosen_loud_preview": 2,
+      "description_loud": "An aggressive American man in his thirties, wired and unpredictable, voice roughened by chems and shouting, a manic edge under everything. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "RaiderMale02": {
       "vanilla_lines": 944,
@@ -267,7 +300,10 @@
         }
       ],
       "chosen_name": "Rapport_RaiderMale02",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "3KMnFRdPtrR1Rhntw9F1",
+      "chosen_loud_preview": 2,
+      "description_loud": "A brutish American man in his forties, heavy slow menacing voice, thick and thuggish, not clever. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "RaiderFemale01": {
       "vanilla_lines": 795,
@@ -291,7 +327,10 @@
         }
       ],
       "chosen_name": "Rapport_RaiderFemale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "eQyU6cxB1tudwKlqZVo9",
+      "chosen_loud_preview": 2,
+      "description_loud": "A wild-edged American woman in her late twenties, harsh and strident, chem-burned voice with a laugh always close to the surface. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "BoSMale01": {
       "vanilla_lines": 934,
@@ -315,7 +354,10 @@
         }
       ],
       "chosen_name": "Rapport_BoSMale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "ZsJgJAbMkGwPJ3zzsITY",
+      "chosen_loud_preview": 2,
+      "description_loud": "A disciplined American military man in his thirties, clipped and formal, controlled and slightly clenched. A soldier, never a brute. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "BoSMale02": {
       "vanilla_lines": 934,
@@ -339,7 +381,10 @@
         }
       ],
       "chosen_name": "Rapport_BoSMale02",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "IZT8hLKgnEo4is2jFplT",
+      "chosen_loud_preview": 2,
+      "description_loud": "A younger American soldier in his twenties, earnest and eager, more open and less guarded than his officers. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "BoSFemale01": {
       "vanilla_lines": 927,
@@ -363,7 +408,10 @@
         }
       ],
       "chosen_name": "Rapport_BoSFemale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "8u02LP9MSegqvCCmq3c3",
+      "chosen_loud_preview": 2,
+      "description_loud": "A disciplined American military woman in her thirties, clipped and precise, tightly controlled. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "BoSFemale02": {
       "vanilla_lines": 937,
@@ -387,7 +435,10 @@
         }
       ],
       "chosen_name": "Rapport_BoSFemale02",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "YNqUUYlMEa4BC1BJmFU7",
+      "chosen_loud_preview": 2,
+      "description_loud": "A younger American servicewoman in her twenties, brisk and earnest, still enthusiastic about the uniform. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "GuardMaleDiamondCity01": {
       "vanilla_lines": 650,
@@ -411,7 +462,10 @@
         }
       ],
       "chosen_name": "Rapport_GuardMaleDiamondCity01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "6iy1DDZEJmYWlkzatNSx",
+      "chosen_loud_preview": 2,
+      "description_loud": "A bored American city guard in his thirties, flat and unimpressed, Boston-inflected, has seen everything twice. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "GuardMaleDiamondCity02": {
       "vanilla_lines": 591,
@@ -435,7 +489,10 @@
         }
       ],
       "chosen_name": "Rapport_GuardMaleDiamondCity02",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "IouCYWGwaU8Llw0Uarkj",
+      "chosen_loud_preview": 2,
+      "description_loud": "A gruffer American city guard in his forties, suspicious and short-tempered, Boston-inflected. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "GuardMaleVault81": {
       "vanilla_lines": 408,
@@ -459,7 +516,10 @@
         }
       ],
       "chosen_name": "Rapport_GuardMaleVault81",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "cjO1o4NR2G5j7UE2CZMh",
+      "chosen_loud_preview": 2,
+      "description_loud": "A polite, sheltered American man in his thirties, clean-spoken with no wasteland rasp at all - he grew up indoors and it shows. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "GuardFemaleVault81": {
       "vanilla_lines": 408,
@@ -483,7 +543,10 @@
         }
       ],
       "chosen_name": "Rapport_GuardFemaleVault81",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "q5pAplRi3CyRqxCpnf14",
+      "chosen_loud_preview": 2,
+      "description_loud": "A polite, sheltered American woman in her thirties, clean-spoken and well-fed, none of the wasteland roughness. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "MaleTriggerman01": {
       "vanilla_lines": 621,
@@ -507,7 +570,10 @@
         }
       ],
       "chosen_name": "Rapport_MaleTriggerman01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "hVPiRAVckW78Toe7EP6U",
+      "chosen_loud_preview": 2,
+      "description_loud": "A nineteen-forties American gangster in his forties, smooth and dangerous, mid-Atlantic hood accent, enjoys his own menace. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "MaleGhoulCombatant01": {
       "vanilla_lines": 619,
@@ -531,7 +597,10 @@
         }
       ],
       "chosen_name": "Rapport_MaleGhoulCombatant01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "ZaDiTcg8FrF0uYcUeRH2",
+      "chosen_loud_preview": 2,
+      "description_loud": "A heavily rasped male ghoul voice, hard and combat-worn, dry and scraping, still recognisably human underneath. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "GunnersMale01": {
       "vanilla_lines": 323,
@@ -555,7 +624,10 @@
         }
       ],
       "chosen_name": "Rapport_GunnersMale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "0a7IkjHUdDBp2jTqETvn",
+      "chosen_loud_preview": 2,
+      "description_loud": "A hard professional American mercenary in his thirties, flat and businesslike, no wasted words, no cruelty for its own sake. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "DLC03MaleMaineAccent": {
       "vanilla_lines": 437,
@@ -579,7 +651,10 @@
         }
       ],
       "chosen_name": "Rapport_DLC03MaleMaineAccent",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "RMNclC5lwSWR6arnogUC",
+      "chosen_loud_preview": 2,
+      "description_loud": "A weathered fisherman from coastal Maine in his fifties, distinct downeast New England accent, salt-worn and slow. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "DLC03TrapperMale01": {
       "vanilla_lines": 320,
@@ -603,7 +678,10 @@
         }
       ],
       "chosen_name": "Rapport_DLC03TrapperMale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "sJzZEl7kNbYZl8xlwV2l",
+      "chosen_loud_preview": 2,
+      "description_loud": "An unhinged American man in his forties, ragged breathing in the voice, someone who has been alone in the fog far too long. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "DLC04GangPackMale01": {
       "vanilla_lines": 325,
@@ -627,7 +705,10 @@
         }
       ],
       "chosen_name": "Rapport_DLC04GangPackMale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "DTdMno396f8MEFLTWDn4",
+      "chosen_loud_preview": 2,
+      "description_loud": "A feral, animalistic American man in his thirties, a barking growl under the words, a raider who believes he is a beast. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "DLC04GangPackFemale01": {
       "vanilla_lines": 407,
@@ -651,7 +732,10 @@
         }
       ],
       "chosen_name": "Rapport_DLC04GangPackFemale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "DSTSAkSThTO4fm67YQIg",
+      "chosen_loud_preview": 2,
+      "description_loud": "A feral, animalistic American woman in her late twenties, snarling and growling under the words. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "DLC04GangDiscipleMale01": {
       "vanilla_lines": 375,
@@ -675,7 +759,10 @@
         }
       ],
       "chosen_name": "Rapport_DLC04GangDiscipleMale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "01DNYvyFBSl8jtuE3zQz",
+      "chosen_loud_preview": 2,
+      "description_loud": "A quiet, deeply unsettling American man in his thirties, soft and intimate and wrong - a knife-in-the-dark voice. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "DLC04GangDiscipleFemale01": {
       "vanilla_lines": 320,
@@ -699,7 +786,10 @@
         }
       ],
       "chosen_name": "Rapport_DLC04GangDiscipleFemale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "WhrIqGBUmmAIT0pRb7W5",
+      "chosen_loud_preview": 2,
+      "description_loud": "A quiet, deeply unsettling American woman in her thirties, soft and breathy and wrong. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "DLC04GangOperatorMale01": {
       "vanilla_lines": 297,
@@ -723,7 +813,10 @@
         }
       ],
       "chosen_name": "Rapport_DLC04GangOperatorMale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "mQvWx0mx7z0wNFZFQeMB",
+      "chosen_loud_preview": 2,
+      "description_loud": "A cool professional American criminal in his thirties, slick and transactional, everything is a deal. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     },
     "DLC04GangOperatorFemale01": {
       "vanilla_lines": 352,
@@ -747,7 +840,10 @@
         }
       ],
       "chosen_name": "Rapport_DLC04GangOperatorFemale01",
-      "chosen_preview": 3
+      "chosen_preview": 3,
+      "chosen_loud": "LYGB1jRWDycC11ZzLWpv",
+      "chosen_loud_preview": 2,
+      "description_loud": "A cool professional American criminal woman in her thirties, slick and transactional. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
     }
   }
 }
