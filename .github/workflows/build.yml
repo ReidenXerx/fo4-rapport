@@ -1,0 +1,87 @@
+# Build Rapport.dll in public, and publish its hash.
+#
+# WHY THIS EXISTS. The plugin is a binary, and "how do I know this DLL is not
+# malware" is a fair question that no amount of argument answers. Source being
+# public is necessary and not sufficient: nobody can tell by looking whether the
+# DLL on the Nexus page was built from it.
+#
+# This makes that checkable. Every push builds the plugin on a clean
+# GitHub-hosted runner from the public source, prints the SHA256 into the job
+# summary, and uploads the DLL as an artifact. Anyone can hash the file they
+# downloaded and compare it to a build log they did not control and cannot edit.
+#
+# It is configured to match the local release build exactly - same generator,
+# same triplet, same pinned vcpkg baseline - because a CI build that differs
+# from the shipped build proves nothing about the shipped build.
+name: build
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout (with CommonLibF4)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Cache vcpkg packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake -B build -S . `
+            -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
+
+      - name: Build
+        shell: pwsh
+        run: cmake --build build --config Release
+
+      - name: Hash the plugin
+        shell: pwsh
+        run: |
+          $dll = Get-ChildItem -Recurse build -Filter Rapport.dll |
+                 Where-Object { $_.FullName -notmatch 'CommonLibF4' } |
+                 Select-Object -First 1
+          if (-not $dll) { throw "no Rapport.dll was produced" }
+          $h = (Get-FileHash $dll.FullName -Algorithm SHA256).Hash.ToLower()
+          $size = $dll.Length
+          Write-Host "Rapport.dll  $size bytes  sha256 $h"
+          # Into the job summary, which is public and cannot be edited after the fact.
+          $md = @"
+## Rapport.dll
+
+| | |
+| --- | --- |
+| **SHA256** | ``$h`` |
+| size | $size bytes |
+| commit | ``${{ github.sha }}`` |
+
+Built on a clean GitHub-hosted runner from the source in this commit.
+Hash the file you downloaded and compare:
+
+``````powershell
+Get-FileHash .\Rapport.dll -Algorithm SHA256
+``````
+"@
+          $md | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          "RAPPORT_SHA256=$h" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload the plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: Rapport-dll-${{ github.sha }}
+          path: build/Release/Rapport.dll
+          if-no-files-found: error
