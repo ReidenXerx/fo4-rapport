@@ -350,6 +350,17 @@ Int Function SceneCount(Int aiFormID) Global Native
 ; anyone moves on, so couples could never emerge from it.
 Float Function HoursSincePair(Int aiFirst, Int aiSecond) Global Native
 Int Function PairSceneCount(Int aiFirst, Int aiSecond) Global Native
+; The relationship store (R-1). Bond is -1 (enemies) .. +1 (closest); AddBond returns the new
+; value (reason 3 dialogue, 4 gift, 5 other addon). The curve that turns it into behaviour is yours.
+Float Function PairBond(Int aiFirst, Int aiSecond) Global Native
+Float Function AddBond(Int aiFirst, Int aiSecond, Float afAmount, Int aiReason) Global Native
+; BLOOD relatives (siblings, parent/child, grandparents, aunts/uncles, cousins). A FLAG for
+; consumers that judge it (NPC attitudes: a 'bad thing'), NEVER a refusal - owner, R-14.
+Bool Function IsIncestPair(Int aiFirst, Int aiSecond) Global Native
+; Spouse or courting, per the engine.
+Bool Function IsPartnerPair(Int aiFirst, Int aiSecond) Global Native
+Function NoteVanillaRelationship(Int aiFirst, Int aiSecond, Int aiRank, Bool abBlood, Bool abPartner) Global Native
+String Function PersonaOf(Int aiFormID) Global Native
 
 ; Requests involving this actor that AAF turned down, and how long ago the last one
 ; was. Use BOTH: a cumulative count with no recency would avoid an actor forever

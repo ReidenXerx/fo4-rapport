@@ -87,6 +87,46 @@ harness, and write the observed scale down before any arithmetic is designed.
 
 This is cheap now and expensive later, which is the whole argument for doing it first.
 
+### R-4 measured (2026-09-21, the `rank <a> <b>` dev verb, Dugout Inn and Diamond City)
+
+| Pair | Master's RELA record | `GetRelationshipRank` | Association |
+| --- | --- | --- | --- |
+| Clarence + Ann Codman | ClarenceAnn, Spouse | **4** both ways | Spouse |
+| Vadim + Yefim | VadimYefim, Siblings | **3** both ways | Siblings |
+| Cathy + John | CathyJohn, **ParentChild** | **3** both ways | ParentChild |
+| Vadim or Yefim + Scarlett | VadimScarlett / YefimScarlett, BossEmployee | **1** both ways | BossEmployee |
+| Cathy + Vadim | none | **0** | none |
+
+It is Skyrim's scale: Lover 4, Ally 3, Friend 1, Acquaintance 0. The RELA record's own rank byte
+is a different encoding (siblings store 1, the employer pair 3), so read the rank through the
+function, never off the record. No negative pair was at hand; the negative half is assumed
+symmetric until one is measured.
+
+**`HasFamilyRelationship` is true for spouses as well as blood relatives** (the Codmans: family
+True, blood False). So it cannot tell the couple from the siblings. The import reads the
+association types (R-3) and keeps two flags:
+
+- **incest**: Siblings, ParentChild, GrandparentGrandchild, AuntUncle, GrandAuntUncle, Cousins.
+  In-laws are not blood.
+- **partner**: Spouse or Courting.
+
+Starting bond = `clamp(rank * 0.15, -0.6, 0.6)`, plus 0.20 for a partner (the Codmans start at
++0.80). Blood adds nothing either way.
+
+An earlier note here called Cathy and John "married". The master says mother and son, and the
+engine's answer was right.
+
+## R-14 - Incest is a FLAG, never a refusal (owner, 2026-09-21)
+
+Owner's words: *"we shouldn't block incest ... add isIncest flag and it will be used later for
+my idea about NPCs reactively have attitude to each other and incest will be 'bad thing'. And in
+a post-apocalyptic world incest would be really common 'bad thing'."*
+
+So nothing in Rapport or Chemistry refuses a pair on blood. The store records it
+(`Rapport:Core.IsIncestPair`, a co-save flag) for the attitude layer to come, where the people
+who know treat it as a bad thing. A blood pair's bond is the engine's rank like anyone else's.
+This settles the question that was open here: *should Chemistry refuse family pairs?* No.
+
 ## R-5 - A pair record is written on interaction, never on sight (2026-09-21)
 
 A per-pair store is O(n²) in the number of NPCs the player has ever loaded, and Rapport's

@@ -76,6 +76,54 @@ namespace RP
 		[[nodiscard]] float HoursSincePair(std::uint32_t a_first, std::uint32_t a_second) const;
 		[[nodiscard]] std::uint32_t PairScenes(std::uint32_t a_first, std::uint32_t a_second) const;
 
+		// ---- the relationship store (R-1): Rapport is mechanism, consumers are policy.
+		//
+		// BOND, -1 (enemies) .. +1 (as close as two people get), per pair, the player a
+		// pair member like anyone (R-11). Every change goes through AddBond with a
+		// reason, so a later mod can ask WHY two people are close (R-10).
+		//
+		// AddBond moves the value toward +1 (or -1) by that fraction of the distance
+		// still left. That is the diminishing return R-10 asks for, for every source at
+		// once: the first scene means more than the fortieth, and the value can never
+		// leave its range. The CURVE that turns bond into behaviour is the consumer's
+		// (Chemistry's) - Rapport only keeps the number.
+		enum class BondReason : std::uint8_t
+		{
+			kNone = 0,
+			kScene = 1,      // a completed scene together
+			kVanilla = 2,    // imported from the engine's own relationship records (R-2)
+			kDialogue = 3,   // Overture
+			kGift = 4,
+			kAddon = 5       // any other mod, through the Papyrus API
+		};
+		[[nodiscard]] float Bond(std::uint32_t a_first, std::uint32_t a_second) const;
+		[[nodiscard]] BondReason LastBondReason(std::uint32_t a_first, std::uint32_t a_second) const;
+		float AddBond(std::uint32_t a_first, std::uint32_t a_second, float a_amount, BondReason a_reason);
+
+		// Import the engine's relationship ONCE per pair, the first time they interact
+		// (R-2, R-5). Later calls are no-ops: from then on our own arithmetic runs.
+		//
+		// a_blood and a_partner come from the engine's ASSOCIATION types, not from
+		// HasFamilyRelationship: measured, that one is true for a married couple
+		// (John and Cathy) exactly as for brothers (Vadim and Yefim), so it cannot
+		// separate the pair that should be likeliest to have a scene from the one
+		// that must never.
+		void SeedFromVanilla(std::uint32_t a_first, std::uint32_t a_second, std::int32_t a_rank, bool a_blood,
+			bool a_partner);
+		// BLOOD relatives (siblings, parent/child, grandparents, aunts/uncles, cousins).
+		// A FLAG, never a refusal (owner, R-14): nothing in Rapport or Chemistry blocks
+		// on it; a later attitude layer reads it as a 'bad thing' others react to.
+		[[nodiscard]] bool IsIncest(std::uint32_t a_first, std::uint32_t a_second) const;
+		// Spouse or courting, per the engine.
+		[[nodiscard]] bool IsPartner(std::uint32_t a_first, std::uint32_t a_second) const;
+
+		// R-6: a dead NPC's rows are waste against a hard ceiling. Called by the
+		// engine's death event, never by a timer.
+		void ForgetActor(std::uint32_t a_formID);
+
+		// One sink on the engine's global death event, registered at data ready.
+		static void RegisterDeathSink();
+
 		[[nodiscard]] std::size_t Size() const;
 
 		void Clear();
@@ -111,19 +159,47 @@ namespace RP
 		// One pair, as it goes into the save. Four-byte fields only, same reason as
 		// the others: no padding means the record's length is its arithmetic, which
 		// is what makes the length check on load meaningful.
-		struct PairEntry
+		// Version 1, read-only: saves written before the relationship store.
+		struct PairEntryV1
 		{
 			std::uint32_t first;
 			std::uint32_t second;
 			float         lastSceneAt;
 			std::uint32_t scenes;
 		};
-		static_assert(sizeof(PairEntry) == 16, "the on-disk pair entry has grown padding");
+		static_assert(sizeof(PairEntryV1) == 16, "the on-disk v1 pair entry has grown padding");
+
+		// Version 2: the relationship store. flags: bit 0 seeded from vanilla, bits 8-15
+		// the last bond reason.
+		struct PairEntry
+		{
+			std::uint32_t first;
+			std::uint32_t second;
+			float         lastSceneAt;
+			std::uint32_t scenes;
+			float         bond;
+			float         lastTouchedAt;
+			std::uint32_t flags;
+		};
+		static_assert(sizeof(PairEntry) == 28, "the on-disk pair entry has grown padding");
 
 		struct PairRecord
 		{
 			float         lastSceneAt{ -1.0f };
 			std::uint32_t scenes{ 0 };
+			float         bond{ 0.0f };
+			// Anything that wrote this record - a scene, dialogue, a gift. The cap evicts
+			// by THIS, not by lastSceneAt: a friendship built only in dialogue has no
+			// scene, and would otherwise be the first thing thrown away.
+			float         lastTouchedAt{ -1.0f };
+			bool          seeded{ false };
+			// BLOOD relatives, from the engine's association types. A FLAG, NEVER A
+			// REFUSAL (owner, R-14): nothing blocks on it. It is there for the attitude
+			// layer to come, where others who know treat it as a bad thing - and in the
+			// wasteland a common one. Their bond is the engine's rank like anyone's.
+			bool          incest{ false };
+			bool          partner{ false };   // spouse or courting, per the engine
+			BondReason    lastReason{ BondReason::kNone };
 		};
 
 		// (lower << 32) | higher, so the two orders are one key.

@@ -142,7 +142,12 @@ namespace RP
 			// FILE-RELATIVE id in decimal, extra is who they say it to. The bridge
 			// resolves it with GetFormFromFile, never GetForm: Rapport.esp's load
 			// order differs on every machine, and a runtime id works on one.
-			kSayTopic = 25
+			kSayTopic = 25,
+
+			// R-4: what does the engine's relationship rank MEAN? formID and setID
+			// (decimal) are two actors; the bridge traces rank both ways, family and
+			// parent ties into Rapport.log. A measurement tool, not a feature.
+			kRelation = 26
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

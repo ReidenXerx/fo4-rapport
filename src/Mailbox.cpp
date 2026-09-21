@@ -1,5 +1,7 @@
 #include "Mailbox.h"
 
+#include "Ledger.h"
+
 #include "Config.h"
 #include "ActorScan.h"
 
@@ -310,6 +312,38 @@ namespace RP
 					row.loaded ? "" : "  [no 3D]", row.busy ? "  [AAF busy]" : "");
 			}
 			return out;
+		}
+
+		if (verb == "rank" || verb == "bond") {
+			// rank <a> <b>          the ENGINE's relationship, traced to the log (R-4)
+			// bond <a> <b> [add x]  Rapport's store: read, or change by x (reason: addon)
+			const auto sp = rest.find(' ');
+			bool       okA = false, okB = false;
+			const auto a = ParseFormID(sp == std::string::npos ? rest : rest.substr(0, sp), okA);
+			auto       tail = sp == std::string::npos ? std::string{} : rest.substr(sp + 1);
+			const auto sp2 = tail.find(' ');
+			const auto b = ParseFormID(sp2 == std::string::npos ? tail : tail.substr(0, sp2), okB);
+			if (!okA || !okB) {
+				return std::format("ERR {} <formid> <formid>{}", verb, verb == "bond" ? " [add <amount>]" : "");
+			}
+			if (verb == "rank") {
+				link.QueueOrder(Order{ Order::Kind::kRelation, a, std::to_string(b), "" });
+				return std::format("OK queued - the engine's relationship between {:08X} and {:08X} lands in Rapport.log next poll", a, b);
+			}
+			auto& ledger = Ledger::GetSingleton();
+			if (sp2 != std::string::npos) {
+				const auto op = tail.substr(sp2 + 1);
+				if (op.rfind("add ", 0) == 0) {
+					try {
+						ledger.AddBond(a, b, std::stof(op.substr(4)), Ledger::BondReason::kAddon);
+					} catch (const std::exception&) {
+						return "ERR bond <a> <b> add <amount>";
+					}
+				}
+			}
+			return std::format("OK {:08X} + {:08X}: bond {:+.3f}, {} scene(s) together, incest {}, partner {}, last reason {}", a, b,
+				ledger.Bond(a, b), ledger.PairScenes(a, b), ledger.IsIncest(a, b), ledger.IsPartner(a, b),
+				static_cast<int>(ledger.LastBondReason(a, b)));
 		}
 
 		if (verb == "who") {

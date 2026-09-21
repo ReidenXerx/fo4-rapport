@@ -25,6 +25,32 @@ namespace
 	constexpr auto kPairRecord = FourCC("PAIR");
 	constexpr std::uint32_t kVersion = 1;
 
+	// The pair table has its OWN version. kVersion is shared by every record and a
+	// mismatch refuses the record outright, so bumping it for the relationship
+	// store would have wiped every existing save's whole ledger. v1 still loads.
+	constexpr std::uint32_t kPairVersion = 2;
+
+	// What one completed scene is worth: the fraction of the remaining distance to
+	// +1. 0.15 is the size of Chemistry's old per-scene C-3 bonus, so the first
+	// scene means what it meant before - and the fortieth means far less.
+	constexpr float kBondPerScene = 0.15f;
+
+	// Below this a pair has no relationship worth keeping past its scene history.
+	constexpr float kBondFloor = 0.01f;
+
+	// The engine's relationship rank as a starting bond, logged on every seed.
+	//
+	// MEASURED (R-4, 2026-09-21) for the positive half: strangers 0, a barmaid and
+	// her employers 1, brothers 3, a mother and son 3, a married couple (the
+	// Codmans) 4 - Skyrim's scale (Friend 1, Ally 3, Lover 4). No negative pair was
+	// at hand, so the negative side assumes the same symmetry. A partner starts
+	// closer on top: a spouse is not just an ally. Blood adds nothing either way.
+	[[nodiscard]] float VanillaSeed(std::int32_t a_rank, bool a_partner) noexcept
+	{
+		const auto rank = std::clamp(static_cast<float>(a_rank) * 0.15f, -0.6f, 0.6f);
+		return std::clamp(rank + (a_partner ? 0.20f : 0.0f), -1.0f, 1.0f);
+	}
+
 	// A corrupt length could otherwise ask for an enormous allocation before the
 	// arithmetic below catches it. The real world is a few hundred.
 	constexpr std::uint32_t kMaxEntries = 100000;
@@ -92,10 +118,108 @@ namespace RP
 		auto& pair = _pairs[PairKey(a_first, a_second)];
 		pair.lastSceneAt = now;
 		++pair.scenes;
+		// R-10: a completed scene raises the relationship, with diminishing returns.
+		pair.bond += kBondPerScene * (1.0f - pair.bond);
+		pair.lastTouchedAt = now;
+		pair.lastReason = BondReason::kScene;
 
 		logger::info(
-			"ledger: {:08X} and {:08X} have now had {} and {} scene(s), at hour {:.1f}",
-			a_first, a_second, first.scenes, second.scenes, now);
+			"ledger: {:08X} and {:08X} have now had {} and {} scene(s), at hour {:.1f}; together {} - bond {:+.3f}",
+			a_first, a_second, first.scenes, second.scenes, now, pair.scenes, pair.bond);
+	}
+
+	float Ledger::Bond(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		return it == _pairs.end() ? 0.0f : it->second.bond;
+	}
+
+	Ledger::BondReason Ledger::LastBondReason(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		return it == _pairs.end() ? BondReason::kNone : it->second.lastReason;
+	}
+
+	float Ledger::AddBond(std::uint32_t a_first, std::uint32_t a_second, float a_amount, BondReason a_reason)
+	{
+		if (a_first == 0 || a_second == 0 || a_first == a_second || a_amount == 0.0f) {
+			return Bond(a_first, a_second);
+		}
+		const auto amount = std::clamp(a_amount, -1.0f, 1.0f);
+		const auto now = GameHours();
+		NamedLock lock{ _lock, "ledger" };
+		// R-5: THIS is the interaction that creates the record, never mere proximity.
+		auto&      pair = _pairs[PairKey(a_first, a_second)];
+		const auto before = pair.bond;
+		// Toward +1 or -1 by that fraction of the distance left: bounded, and
+		// diminishing for every source alike.
+		pair.bond += amount > 0.0f ? amount * (1.0f - pair.bond) : amount * (1.0f + pair.bond);
+		pair.bond = std::clamp(pair.bond, -1.0f, 1.0f);
+		pair.lastTouchedAt = now;
+		pair.lastReason = a_reason;
+		logger::info("relationship: {:08X} + {:08X} bond {:+.3f} -> {:+.3f} (asked {:+.3f}, reason {})",
+			a_first, a_second, before, pair.bond, amount, static_cast<int>(a_reason));
+		return pair.bond;
+	}
+
+	void Ledger::SeedFromVanilla(std::uint32_t a_first, std::uint32_t a_second, std::int32_t a_rank, bool a_blood,
+		bool a_partner)
+	{
+		if (a_first == 0 || a_second == 0 || a_first == a_second) {
+			return;
+		}
+		const auto now = GameHours();
+		NamedLock lock{ _lock, "ledger" };
+		auto& pair = _pairs[PairKey(a_first, a_second)];
+		if (pair.seeded) {
+			return;   // imported once; from then on our own arithmetic runs (R-2)
+		}
+		pair.seeded = true;
+		pair.incest = a_blood;
+		pair.partner = a_partner;
+		// The engine's rank on the scale MEASURED in game (R-4) - see VanillaSeed.
+		const auto seed = VanillaSeed(a_rank, a_partner);
+		if (seed != 0.0f) {
+			pair.bond = std::clamp(pair.bond + seed, -1.0f, 1.0f);
+			pair.lastTouchedAt = now;
+			pair.lastReason = BondReason::kVanilla;
+		}
+		logger::info("relationship: {:08X} + {:08X} seeded from vanilla - rank {}, blood {}, partner {} -> bond {:+.3f}",
+			a_first, a_second, a_rank, a_blood, a_partner, pair.bond);
+	}
+
+	bool Ledger::IsIncest(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		return it != _pairs.end() && it->second.incest;
+	}
+
+	bool Ledger::IsPartner(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		return it != _pairs.end() && it->second.partner;
+	}
+
+	void Ledger::ForgetActor(std::uint32_t a_formID)
+	{
+		if (a_formID == 0) {
+			return;
+		}
+		NamedLock lock{ _lock, "ledger" };
+		const auto actorRows = _records.erase(a_formID);
+		const auto before = _pairs.size();
+		std::erase_if(_pairs, [&](const auto& a_entry) {
+			return static_cast<std::uint32_t>(a_entry.first >> 32) == a_formID ||
+			       static_cast<std::uint32_t>(a_entry.first & 0xFFFFFFFFu) == a_formID;
+		});
+		if (actorRows || before != _pairs.size()) {
+			logger::info("relationship: {:08X} died - {} actor row and {} pair row(s) forgotten", a_formID,
+				actorRows, before - _pairs.size());
+		}
 	}
 
 	float Ledger::HoursSincePair(std::uint32_t a_first, std::uint32_t a_second) const
@@ -189,16 +313,52 @@ namespace RP
 		_pairs.clear();
 	}
 
+	namespace
+	{
+		// R-6. One sink on the engine's global death event covers every NPC, and
+		// costs nothing in the save - a per-actor Papyrus registration would have
+		// meant up to 2000 of them, persisted.
+		class DeathSink final : public RE::BSTEventSink<RE::TESDeathEvent>
+		{
+		public:
+			RE::BSEventNotifyControl ProcessEvent(const RE::TESDeathEvent& a_event,
+				RE::BSTEventSource<RE::TESDeathEvent>*) override
+			{
+				// The event fires as the actor starts dying and again once dead; the
+				// second is the one that is final. The player's death ends in a load,
+				// which replaces this state anyway - their rows are left alone.
+				const auto* dying = a_event.actorDying.get();
+				if (a_event.dead && dying && dying != RE::PlayerCharacter::GetSingleton()) {
+					Ledger::GetSingleton().ForgetActor(dying->GetFormID());
+				}
+				return RE::BSEventNotifyControl::kContinue;
+			}
+		};
+	}
+
+	void Ledger::RegisterDeathSink()
+	{
+		static DeathSink sink;
+		if (auto* source = RE::TESDeathEvent::GetEventSource()) {
+			source->RegisterSink(&sink);
+			logger::info("relationship: listening for deaths - a dead NPC's rows are forgotten (R-6)");
+		} else {
+			logger::error("relationship: no death event source - dead NPCs' rows will stay until the cap");
+		}
+	}
+
 	void Ledger::LoadPairs(
 		const F4SE::SerializationInterface* a_intfc, std::uint32_t a_version, std::uint32_t a_length)
 	{
-		if (a_version != kVersion) {
+		if (a_version != 1 && a_version != kPairVersion) {
 			logger::warn(
-				"ledger: the save's pair table is version {} and this build writes {} - it is left "
+				"ledger: the save's pair table is version {} and this build reads 1 and {} - it is left "
 				"alone, and no pair has a history",
-				a_version, kVersion);
+				a_version, kPairVersion);
 			return;
 		}
+		// v1 is scene history only; its pairs arrive with no relationship and unseeded.
+		const auto entrySize = a_version == 1 ? sizeof(PairEntryV1) : sizeof(PairEntry);
 
 		std::uint32_t count = 0;
 		if (a_intfc->ReadRecordData(count) != sizeof(count)) {
@@ -211,10 +371,10 @@ namespace RP
 		}
 		// The same length check the other records get: count and size must agree
 		// before a single entry is trusted.
-		if (a_length != sizeof(count) + count * sizeof(PairEntry)) {
+		if (a_length != sizeof(count) + count * entrySize) {
 			logger::error(
 				"ledger: the pair table is {} bytes but {} entries need {} - refusing it",
-				a_length, count, sizeof(count) + count * sizeof(PairEntry));
+				a_length, count, sizeof(count) + count * entrySize);
 			return;
 		}
 
@@ -223,7 +383,14 @@ namespace RP
 		std::uint32_t dropped = 0;
 		for (std::uint32_t i = 0; i < count; ++i) {
 			PairEntry entry{};
-			if (a_intfc->ReadRecordData(entry) != sizeof(entry)) {
+			if (a_version == 1) {
+				PairEntryV1 old{};
+				if (a_intfc->ReadRecordData(old) != sizeof(old)) {
+					logger::error("ledger: the pair table ended early at {} of {}", i, count);
+					return;
+				}
+				entry = PairEntry{ old.first, old.second, old.lastSceneAt, old.scenes, 0.0f, old.lastSceneAt, 0u };
+			} else if (a_intfc->ReadRecordData(entry) != sizeof(entry)) {
 				logger::error("ledger: the pair table ended early at {} of {}", i, count);
 				return;
 			}
@@ -246,7 +413,10 @@ namespace RP
 				++dropped;
 				continue;
 			}
-			_pairs[PairKey(*first, *second)] = PairRecord{ entry.lastSceneAt, entry.scenes };
+			_pairs[PairKey(*first, *second)] = PairRecord{ entry.lastSceneAt, entry.scenes,
+				std::clamp(entry.bond, -1.0f, 1.0f), entry.lastTouchedAt, (entry.flags & 1u) != 0,
+				(entry.flags & 2u) != 0, (entry.flags & 4u) != 0,
+				static_cast<BondReason>((entry.flags >> 8) & 0xFFu) };
 		}
 		logger::info(
 			"ledger: read {} pair(s) from the save, {} dropped because a plugin is gone",
@@ -344,7 +514,7 @@ namespace RP
 		// existed simply has none and the table starts empty -- and an older build
 		// reading a newer save skips it with the unknown-record warning rather than
 		// misreading it as something else.
-		if (a_intfc->OpenRecord(kPairRecord, kVersion)) {
+		if (a_intfc->OpenRecord(kPairRecord, kPairVersion)) {
 			const auto pairCount = static_cast<std::uint32_t>(_pairs.size());
 			a_intfc->WriteRecordData(pairCount);
 			for (const auto& [key, record] : _pairs) {
@@ -352,7 +522,11 @@ namespace RP
 					static_cast<std::uint32_t>(key >> 32),
 					static_cast<std::uint32_t>(key & 0xFFFFFFFFu),
 					record.lastSceneAt,
-					record.scenes
+					record.scenes,
+					record.bond,
+					record.lastTouchedAt,
+					(record.seeded ? 1u : 0u) | (record.incest ? 2u : 0u) | (record.partner ? 4u : 0u) |
+						(static_cast<std::uint32_t>(record.lastReason) << 8)
 				};
 				a_intfc->WriteRecordData(entry);
 			}
@@ -445,7 +619,10 @@ namespace RP
 		const auto pairsBefore = _pairs.size();
 		std::erase_if(_pairs, [&](const auto& entry) {
 			const auto& record = entry.second;
-			return record.lastSceneAt >= 0.0f && (now - record.lastSceneAt) > hours;
+			// R-6: a relationship is cleaned on death, never on a timer. Age still
+			// clears scene HISTORY - but only for pairs with no bond to lose.
+			return record.lastSceneAt >= 0.0f && (now - record.lastSceneAt) > hours &&
+			       std::fabs(record.bond) < kBondFloor;
 		});
 		if (const auto dropped = pairsBefore - _pairs.size(); dropped > 0) {
 			logger::info(
@@ -467,7 +644,7 @@ namespace RP
 			return (std::max)(a_record.lastSceneAt, a_record.lastRefusedAt);
 		});
 		Cap(_pairs, kMaxPairRecords, "pair", [](const PairRecord& a_record) {
-			return a_record.lastSceneAt;
+			return (std::max)(a_record.lastSceneAt, a_record.lastTouchedAt);
 		});
 	}
 

@@ -72,6 +72,7 @@ namespace
 			RP::Expressions::GetSingleton().Load();
 			RP::Voices::GetSingleton().Load();
 			RP::Barks::GetSingleton().Load();
+			RP::Ledger::RegisterDeathSink();
 			RP::Watchers::GetSingleton().Load();
 			RP::Expressions::GetSingleton().LoadOverrides();
 			RP::Scenarios::GetSingleton().Load();

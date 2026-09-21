@@ -655,6 +655,48 @@ namespace
 			static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second)));
 	}
 
+	// ---- the relationship store (R-1): the API every consumer reads and writes ----
+	// Rapport keeps the number; what it is WORTH is the consumer's curve (R-10).
+	float Papyrus_PairBond(std::monostate, std::int32_t a_first, std::int32_t a_second)
+	{
+		return RP::Ledger::GetSingleton().Bond(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+	}
+
+	// Returns the new bond. a_reason: 3 dialogue, 4 gift, 5 any other addon (1 and 2
+	// are Rapport's own - scenes and the vanilla import - and are not accepted here).
+	float Papyrus_AddBond(std::monostate, std::int32_t a_first, std::int32_t a_second, float a_amount, std::int32_t a_reason)
+	{
+		using Reason = RP::Ledger::BondReason;
+		const auto reason = a_reason == 3 ? Reason::kDialogue : a_reason == 4 ? Reason::kGift : Reason::kAddon;
+		return RP::Ledger::GetSingleton().AddBond(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second),
+			a_amount, reason);
+	}
+
+	bool Papyrus_IsIncestPair(std::monostate, std::int32_t a_first, std::int32_t a_second)
+	{
+		return RP::Ledger::GetSingleton().IsIncest(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+	}
+
+	// Called by the bridge when it starts a request, while it holds both Actors: the
+	// engine's rank, blood tie and partnership, imported once per pair (R-2).
+	void Papyrus_NoteVanillaRelationship(std::monostate, std::int32_t a_first, std::int32_t a_second, std::int32_t a_rank,
+		bool a_blood, bool a_partner)
+	{
+		RP::Ledger::GetSingleton().SeedFromVanilla(static_cast<std::uint32_t>(a_first),
+			static_cast<std::uint32_t>(a_second), a_rank, a_blood, a_partner);
+	}
+
+	bool Papyrus_IsPartnerPair(std::monostate, std::int32_t a_first, std::int32_t a_second)
+	{
+		return RP::Ledger::GetSingleton().IsPartner(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+	}
+
+	// The persona (R-7) - derived from the form id, or the owner's override.
+	RE::BSFixedString Papyrus_PersonaOf(std::monostate, std::int32_t a_formID)
+	{
+		return std::string{ RP::Barks::GetSingleton().PersonaOf(static_cast<std::uint32_t>(a_formID)) };
+	}
+
 	// An addon's own number per actor, kept in the save on its behalf so it does
 	// not have to build a second co-save for one float. Rapport never reads it.
 	float Papyrus_GetNeed(std::monostate, std::int32_t a_formID)
@@ -856,6 +898,12 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "RefusalCount"sv, Papyrus_RefusalCount, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "HoursSincePair"sv, Papyrus_HoursSincePair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PairSceneCount"sv, Papyrus_PairSceneCount, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "PairBond"sv, Papyrus_PairBond, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "AddBond"sv, Papyrus_AddBond, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "IsIncestPair"sv, Papyrus_IsIncestPair, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "IsPartnerPair"sv, Papyrus_IsPartnerPair, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteVanillaRelationship"sv, Papyrus_NoteVanillaRelationship, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "PersonaOf"sv, Papyrus_PersonaOf, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "GetNeed"sv, Papyrus_GetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SetNeed"sv, Papyrus_SetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverDecisions"sv, Papyrus_TakeOverDecisions, std::nullopt, false);
