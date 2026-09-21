@@ -300,7 +300,9 @@ namespace RP
 		if (headline.empty() && a_before > -0.25f && a_after <= -0.25f) {
 			headline = std::format("{} and {} have fallen out.", a, b);
 		}
-		if (headline.empty() && a_scenes == 1) {
+		// Not for a couple: a married pair's first scene in Rapport's books is not
+		// their first time, and saying so read as a joke (2026-09-22, the Longs).
+		if (headline.empty() && a_scenes == 1 && !Ledger::GetSingleton().IsPartner(a_first, a_second)) {
 			headline = std::format("A first time for {} and {}.", a, b);
 		}
 		if (headline.empty()) {
