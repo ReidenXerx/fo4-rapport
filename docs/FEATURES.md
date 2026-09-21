@@ -610,6 +610,120 @@ that AAF is being removed from this save — which nothing here can see and the 
 
 ---
 
+## 7b. Voice and reactions
+
+The people in a scene talk, and the people who notice it talk about it. All of it was built and heard
+in game on 2026-09-21; the rules are `docs/VOICE-GUIDELINES.md` (V-#) and
+`docs/relationship-and-personas.md` (R-#).
+
+### Voiced scene barks — VERIFIED IN GAME (by ear)
+
+**What.** When a scene starts, the first actor opens with a line and the second answers about 4.5
+seconds later. The line is chosen by **persona**, **scenario** (`quickie`, `athome`, `tender`), **role**
+(opens or answers) and the speaker's **sex** — a gendered line names the speaker's own body, and an
+actor of unknown sex only ever gets the ungendered ones. The same NPC never opens the same scenario
+with the same sentence twice in a row. A reply still waiting when the scene ends is dropped: a line
+about a scene that is over is about nothing. `src/Barks.cpp`.
+
+**Why.** R-9: the decision that starts a scene already knows what kind of scene it is, so the line
+costs no new measurement.
+
+**Evidence.** Diamond City Security opened with *"I've got five minutes and you're what I'm spending
+them on."*; the owner heard the audio. Every one of the 48 persona × scenario × role × sex cells has at
+least six lines, checked by the generator.
+
+### Real dialogue, not sound effects — VERIFIED IN GAME
+
+**What.** Every line is a genuine Topic + TopicInfo in `Rapport.esp`, spoken with the engine's own
+`Say`, so it gets a **subtitle** and plays through the dialogue system like vanilla speech. The records
+are generated (`tools/make_dialogue.py`), numbered by an append-only registry
+(`scripts/formids.py`) so adding or removing a line never renumbers another, and resolved by
+file-relative id so they work at any load order.
+
+**Why.** Owner poll: a half-whispered line under combat or a radio is easy to miss; a subtitle is not.
+
+**Evidence.** V-23. A hand-built Topic resolved and stayed silent until it got a Dialogue Branch —
+found by diffing a line the game does speak through `Say`. CI fails the build if the FormID registry
+or the line table drifts from the bank.
+
+### Four personas, stable forever — VERIFIED IN GAME
+
+**What.** Every NPC is `mercantile`, `romantic`, `vulgar` or `reticent`, **derived from their form id**
+(R-7): the same person, the same character, on every machine, at zero save cost. The four read as
+four people reacting to the same event.
+
+**Evidence, including the bug it avoided.** Measured on 25,000 ids: the obvious `id % 4` would have
+tied persona to the face-style parity — an odd-styled face could **never** be mercantile or vulgar
+(0.0%). The id is mixed first; each persona is 24.6–26.0% inside both face groups.
+
+### The voice bank — VERIFIED IN GAME (by ear)
+
+**What.** 211 lines (147 pair + 64 bystander) in **32 generic voice types**: **6,656 voice files**,
+rendered with ElevenLabs Pro, packaged as the game's own FUZ/xWMA format under
+`Sound/Voice/Rapport.esp/<VoiceType>/`.
+
+**Why it is trustworthy, which is the part that is hard.** Neither text-to-speech model says a line
+verbatim every time — measured 28/36 and 16/36, failing on *different* lines (V-1). So **every single
+render is transcribed back** with speech-to-text and compared to the script; a take that drifts is
+re-rolled, then tried on the other model, and a line no model will say correctly **writes nothing**
+rather than ship audio that disagrees with its own subtitle.
+
+### Crowd voices: the same person, projecting — VERIFIED IN GAME (by ear)
+
+**What.** A bystander in a crowd plays to the room; one alone is furtive. Crowd lines use a
+**sibling** of each voice — the same character description with only the delivery clause changed
+(V-21) — so the NPC sounds like themselves, raised. The owner picked every voice by ear (V-9).
+
+### Unique voices borrow the closest one we have — VERIFIED IN GAME (by ear)
+
+**What.** A companion or named NPC (Piper, Hancock, Geneva...) has a unique voice type we could never
+render. Instead of silence, they **borrow the most similar voice we did render, for that one line**,
+and have their own back the instant it is said (`SetOverrideVoiceType` → `Say` → clear, on one Papyrus
+stack). `src/Voices.cpp`, a framework service every speaker goes through.
+
+**How "most similar" is decided — measured, not guessed.** A speaker-recognition model (ECAPA-TDNN)
+turns each voice into a fingerprint from the **game's own recordings**; 629 voice types were
+fingerprinted, and each unique one maps to the nearest of our 32 **of the same sex**. Rules that are
+not scores:
+
+- **who may borrow is decided by race**, from the NPC records — a threshold could not work, Piper and
+  Mr Handy scored the same (0.29 vs 0.25);
+- **children never**: a voice any child NPC uses is always silent (22 voice types);
+- **sex must be agreed by every witness** (the voice's flag, its name, the NPCs that use it), or the
+  voice stays silent — the flag is missing on Proctor Ingram, and a holotape dummy is flagged female;
+- the owner can override any pairing by ear (`voice/fallback/overrides.json`).
+
+Result: **462 voices borrow, 135 stay silent, 0 cross sex.** Voices added by other mods borrow a sex
+default, but only for a human or ghoul actor. `python scripts/rebuild-voices.py` re-runs the whole
+pipeline incrementally and prints what changed.
+
+**Evidence.** Geneva (unique voice) spoke audibly as FemaleEvenToned and was in her own voice again
+when the owner talked to her afterwards — the proof that borrowing cannot leak into quest dialogue.
+Ivy (a mod-added voice) spoke through the default.
+
+### The female takes AAF's slot 0 — VERIFIED IN GAME
+
+**What.** For a male + female pair, Rapport always hands AAF the female first (owner poll). Every
+array given to AAF goes through one function, `ForAAF`, so a query and a start agree.
+
+**Why.** AAF sorts gendered positions itself, which hid this; a gender-neutral one (`2P`) gives the
+receiving slot to whoever is listed first — a male receiver, with the receiver's moans. After the fix
+AAF reported `[Geneva, guard]` for a request that listed the guard first.
+
+### Bystanders notice, then react — VERIFIED IN GAME (by ear)
+
+**What.** R-12, the owner's design: people near a running scene **turn their heads to it** (they
+noticed), and a moment later, if they **see it** — a clear line from their eyes to the pair — or are
+close enough to **hear it** through a wall, they may comment. One roll per bystander per scene, a
+per-person cooldown, and reactions **queue** so two bystanders speak in turn rather than over each
+other. Alone or in a crowd changes the line; someone who only heard it is never given a line about
+seeing. Never a child, the dead, anyone fighting, or anyone who could not be voiced. Heads are
+released when the scene ends. `src/Watchers.cpp`.
+
+**Evidence.** Ivy saw a scene and said *"There is a business in this somewhere, I am certain of it."*;
+McDonough, facing a wall, heard one; Cathy's reaction queued behind another bystander's and came nine
+seconds later. Two line-of-sight methods were measured and rejected — see §8b.
+
 ## 8. Findings about AAF that any AAF mod author can use
 
 These are why `docs/aaf-under-the-hood.md` exists. All 21 were measured against a running game or read
@@ -645,6 +759,30 @@ The rest — `GetAAFStatus`'s three states, `<defaults>` inheritance inverting a
 declared-versus-actual tree time ratio (1.50× and 1.89× on two samples, so there is no calibration
 factor), branch names promising an orgasm 27 times out of 61, and `startEquipmentSet` replacing AAF's
 undressing — are in the same file.
+
+---
+
+## 8b. Findings about voice and sight that any Fallout 4 modder can use
+
+Measured in the running game on 2026-09-21; none of this is documented.
+
+1. **A generated dialogue Topic needs a Dialogue Branch** (`DLBR`, via `BNAM`), or it resolves, its
+   quest runs, `Say` is called — and nothing is ever spoken. Found by diffing a working follower `Say`
+   line field by field after four wrong hypotheses.
+2. **`Say` works while AAF has the actor mid-scene**, and **`IsInScene()` cannot see an AAF scene** —
+   never use it to ask whether an actor is in one.
+3. **A voice type with no audio file still shows the subtitle**, silently. A named NPC with a unique
+   voice is not broken; they are unrendered.
+4. **The audio is resolved at `Say` time**, so `SetOverrideVoiceType` can be set, used and cleared on
+   one stack and the line still plays in the borrowed voice. That is what makes a voice fallback safe.
+5. **"Allow Default Dialog" is NOT what gates an unconditioned line** — two voice types with it off
+   both spoke ours.
+6. **`HasDetectionLOS` is the stealth system**: it returned false for a whole scene to two friendly
+   NPCs whose heads were turned to it. **`HasDirectLOS` with empty node names runs root to root, along
+   the floor**, and the furniture the pair lay on blocked it on every sweep. **Head → Pelvis** is the
+   ray that answers "can this person see them".
+7. **The VTYP female flag is unreliable** (missing on real female voices), and so is any single NPC
+   record's sex — agree several sources before treating either as a hard rule.
 
 ---
 
@@ -735,3 +873,21 @@ reading of the format, producing 65 bytes where the working file has 63 — shif
 them. It still passed a "round-trip test" that scanned the result for plausible strings, **which is a
 test that cannot fail**. The honest test is to rebuild a material the engine already loads and compare
 bytes, which is what the tool does now.
+
+**The voice toolchain.** Everything that makes the voice features repeatable is a command:
+
+- `scripts/render-barks.py` — renders the bank per voice type, and **transcribes every take back**
+  before it may be written (V-1). `scripts/pcm-to-fuz.py` builds the game's FUZ/xWMA from the PCM.
+- `scripts/formids.py` (append-only ids), `tools/make_dialogue.py` (the records),
+  `scripts/package-voice.py` (line id → the path the engine reads), `scripts/build-barks-table.py`
+  (the table the plugin picks from). CI runs every `--check`.
+- `scripts/rebuild-voices.py` — the unique-voice fallback end to end (inventory → races and sexes →
+  fingerprints → map → runtime table), incremental, and it prints what changed.
+- `fo4-mcp/tools/host/saystrip.py` — the way speech is TESTED: make actors speak, photograph each
+  subtitle, and stack the attempts into one image. Timed from the bridge's own "called Say" answer,
+  because timing the photo from the command read four good lines in ten as failures (V-24).
+
+**Proving the DLL is not malware.** The source is public; every push builds `Rapport.dll` on a clean
+GitHub runner and prints its SHA256, and a live VirusTotal badge on the page is refreshed from the
+scan (`scripts/vt-scan.py`, `.github/workflows/build.yml`). The CI hash and the shipped hash are not
+yet the same build, and the page says so rather than implying it.
