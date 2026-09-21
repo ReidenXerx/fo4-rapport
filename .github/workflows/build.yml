@@ -53,7 +53,8 @@ jobs:
           } else {
             git -C $vcpkg fetch --quiet origin
           }
-          git -C $vcpkg cat-file -e 386d7c478221b7ee0c97bfe6ea61dcf65121d564^{commit}
+          # Quote it: PowerShell reads an unquoted {...} as a script block.
+          $null = git -C $vcpkg cat-file -t "386d7c478221b7ee0c97bfe6ea61dcf65121d564"
           if ($LASTEXITCODE -ne 0) { throw 'baseline 386d7c478221b7ee0c97bfe6ea61dcf65121d564 is still unreachable' }
           Write-Host 'baseline 386d7c478221b7ee0c97bfe6ea61dcf65121d564 is reachable'
 
