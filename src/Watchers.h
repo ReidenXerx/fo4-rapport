@@ -86,6 +86,17 @@ namespace RP
 		std::vector<std::pair<std::uint32_t, bool>>           _sweep;      // this poll
 		Clock::time_point                                     _lastLine{};
 		std::unordered_map<std::uint32_t, Clock::time_point> _spokeAt;    // across scenes
+
+		// Winners waiting their turn. Two bystanders who both react are BOTH heard,
+		// one after the other, gapSeconds apart - not one of them dropped. Cleared
+		// with the scene: a reaction to a scene that is over is about nothing.
+		struct Pending
+		{
+			std::uint32_t id{ 0 };
+			bool          heard{ false };
+			std::string   audience;
+		};
+		std::deque<Pending> _pending;
 		std::mt19937                                          _rng{ std::random_device{}() };
 	};
 }

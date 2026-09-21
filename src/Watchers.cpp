@@ -69,6 +69,7 @@ namespace RP
 		_rolled.clear();
 		_sweep.clear();
 		_noticed.clear();
+		_pending.clear();
 		_sweeps = 0;
 	}
 
@@ -94,6 +95,7 @@ namespace RP
 		_rolled.clear();
 		_sweep.clear();
 		_noticed.clear();
+		_pending.clear();
 	}
 
 	float Watchers::SweepRadius() const
@@ -152,7 +154,7 @@ namespace RP
 			request = _request;
 			first = _first;
 		}
-		if (request == 0 || sweep.empty()) {
+		if (request == 0) {
 			return;
 		}
 
@@ -188,69 +190,64 @@ namespace RP
 				}
 			}
 		}
-		if (seeing.empty()) {
-			NamedLock lock{ _lock, "watchers" };
-			++_sweeps;   // a sweep with no one in sight still moves "earlier" on
-			return;
-		}
-		const std::string_view audience = seeing.size() >= 2 ? "crowd" : "alone";
+		const std::string audience = seeing.size() >= 2 ? "crowd" : "alone";
 
 		// 3. Commit under the lock: who is rolled now, and who (if anyone) speaks.
-		std::uint32_t speaker = 0;
+		Pending next;
 		{
 			NamedLock lock{ _lock, "watchers" };
 			if (_request != request) {
 				return;   // the scene ended while we were judging
 			}
 			const auto now = Clock::now();
-			const bool gapOK = std::chrono::duration<float>{ now - _lastLine }.count() >= _gap;
 			const auto thisSweep = _sweeps++;
 			for (const auto id : seeing) {
-				// Seen only counts once the head has turned: noticed on an EARLIER
-				// sweep. Someone noticed this sweep is rolled next time, if they see.
+				// Seen or heard only counts once the head has turned: noticed on an
+				// EARLIER sweep. Someone noticed this sweep is rolled next time.
 				if (const auto n = _noticed.find(id); n == _noticed.end() || n->second >= thisSweep) {
 					continue;
 				}
 				if (!_rolled.insert(id).second) {
 					continue;   // already had their one roll this scene
 				}
+				const bool heard = heardOnly.contains(id);
 				if (const auto spoke = _spokeAt.find(id);
 					spoke != _spokeAt.end() && std::chrono::duration<float>{ now - spoke->second }.count() < _cooldown) {
-					logger::info("request {}: watcher {:08X} sees it - on cooldown, no roll", request, id);
+					logger::info("request {}: watcher {:08X} {} it - on cooldown, no roll", request, id,
+						heard ? "hears" : "sees");
 					continue;
 				}
 				const bool wins = std::uniform_real_distribution<float>{ 0.0f, 1.0f }(_rng) < _chance;
 				logger::info("request {}: watcher {:08X} {} it ({}) - rolled {}", request, id,
-					heardOnly.contains(id) ? "hears" : "sees", audience, wins ? "a line" : "silence");
-				// One line per sweep, and none inside the gap. A second winner in the
-				// same sweep has still spent their roll: the rule is one roll per
-				// scene, and a win that could not be voiced is a roll like any other.
-				if (wins && speaker == 0 && gapOK) {
-					speaker = id;
+					heard ? "hears" : "sees", audience, wins ? "a line" : "silence");
+				if (wins) {
+					_pending.push_back(Pending{ id, heard, audience });
 				}
 			}
-			if (speaker != 0) {
-				_lastLine = now;
-				_spokeAt[speaker] = now;
+			// One line per sweep, and none inside the gap - the rest wait their turn.
+			if (_pending.empty() || std::chrono::duration<float>{ now - _lastLine }.count() < _gap) {
+				return;
 			}
+			next = std::move(_pending.front());
+			_pending.pop_front();
+			_lastLine = now;
+			_spokeAt[next.id] = now;
 		}
-		if (speaker == 0) {
-			return;
-		}
+		const auto speaker = next.id;
 
 		// 4. Speak, outside every lock. The persona is the watcher's own.
 		const auto* actor = RE::TESForm::GetFormByID<RE::Actor>(speaker);
 		auto*       npc = actor ? actor->GetNPC() : nullptr;
 		const auto  sex = npc ? static_cast<std::int32_t>(npc->GetSex()) : -1;
 		const auto  persona = std::string{ Barks::GetSingleton().PersonaOf(speaker) };
-		const bool heard = heardOnly.contains(speaker);
-		const auto [topic, id] = Barks::GetSingleton().PickObserver(persona, audience, sex, heard);
+		const bool heard = next.heard;
+		const auto [topic, id] = Barks::GetSingleton().PickObserver(persona, next.audience, sex, heard);
 		if (topic == 0) {
 			logger::warn("request {}: watcher {:08X} won a line but the bank has none for {} / {}", request,
-				speaker, persona, audience);
+				speaker, persona, next.audience);
 			return;
 		}
-		logger::info("request {}: watcher {:08X} ({}, {}, {}) says {}", request, speaker, persona, audience,
+		logger::info("request {}: watcher {:08X} ({}, {}, {}) says {}", request, speaker, persona, next.audience,
 			heard ? "heard it" : "saw it", id);
 		Voices::GetSingleton().Speak(speaker, first, topic);
 	}
