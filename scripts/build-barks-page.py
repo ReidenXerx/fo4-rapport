@@ -4,10 +4,12 @@ Build voice/barks.html - the bark browser.
 
     python scripts/build-barks-page.py
 
-Two views. "By persona" walks one voice through all four personas. "Same
+Three views. "By persona" walks one voice through all four personas. "Same
 situation, all four" puts the four personas' takes on ONE situation next to each
 other in the same voice, which is the only way to actually hear the mechanic:
-four characters meeting the same moment differently.
+four characters meeting the same moment differently. "Overture" is the dialogue
+mod, grouped by stage, and is only offered for voice types whose Overture files
+are actually on disk - currently the six core settler voices.
 
 The page's script is syntax-checked before it is written. A page whose script
 throws renders its header and nothing else, which looks almost fine - barks.html
@@ -63,12 +65,13 @@ margin-right:4px}
 .sitl{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.09em;
 margin-bottom:4px}
 .loud{color:var(--van);font-size:9px;letter-spacing:.08em;margin-left:7px}
+.ov{color:var(--dim);font-size:9.5px;letter-spacing:.07em;width:112px;flex-shrink:0;text-transform:uppercase}
 p.note{color:var(--dim);font-size:12px;margin:0 0 12px;max-width:700px}
 kbd{background:#241f19;border:1px solid var(--line);border-radius:3px;padding:1px 5px;font-size:11px}
 """
 
 JS = """
-var TYPES = __TYPES__, LINES = __LINES__, PERS = __PERS__;
+var TYPES = __TYPES__, LINES = __LINES__, PERS = __PERS__, OVER = __OVER__;
 var a = new Audio(), cur = null, queue = [], qi = 0, mode = "persona", vt = TYPES[0];
 
 function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
@@ -152,12 +155,44 @@ function bySituation() {
   return h;
 }
 
+function overture() {
+  if (!vt.ov) {
+    return '<p class="note">Overture is voiced for the six core settler voices only '
+      + '(MaleEvenToned, FemaleEvenToned, MaleBoston, FemaleBoston, MaleRough, '
+      + 'FemaleRough). The other twenty-six are authored and waiting on next month '
+      + 'credits - pick one of the six on the left.</p>';
+  }
+  var h = '<p class="note">The dialogue mod. The player picks a REGISTER; the NPC has a '
+    + 'PERSONA; matching decides land or miss - and the player is never told which. '
+    + 'An intimate register in a public room recoils even on the persona it would '
+    + 'otherwise land with.</p>';
+  var stages = [[0,'frame'],[1,'approach'],[2,'escalate'],[3,'propose']];
+  stages.forEach(function (st) {
+    h += '<h3>stage ' + st[0] + ' &mdash; ' + st[1] + '</h3>';
+    PERS.forEach(function (p) {
+      var set = OVER.filter(function (l) { return l.stage === st[0] && l.p === p; });
+      if (!set.length) { return; }
+      set.forEach(function (l, i) {
+        var tag = l.o === 'land' ? 'LAND' : (l.o === 'recoil' ? 'RECOIL'
+                : (l.o ? l.o.toUpperCase() : l.k));
+        h += '<div class="row">' + btn('play/' + vt.vt + '/' + l.id + '.wav',
+              p.slice(0, 4), p)
+          + '<span class="rl">' + (i === 0 ? p : '') + '</span>'
+          + '<span class="ov">' + (l.reg ? l.reg + ' ' : '') + tag + '</span>'
+          + '<span class="tx">' + esc(l.t) + '</span></div>';
+      });
+    });
+  });
+  return h;
+}
+
 function render() {
   var m = document.getElementById("main");
   var h = "<h2>" + vt.vt + "</h2><div class=\\"row\\">";
   vt.van.forEach(function (v, i) { h += btn("vanilla/" + v, "vanilla " + (i + 1), "van"); });
   h += "</div>";
-  m.innerHTML = h + (mode === "persona" ? byPersona() : bySituation());
+  m.innerHTML = h + (mode === "persona" ? byPersona()
+                   : (mode === "situation" ? bySituation() : overture()));
   queue = [].slice.call(m.querySelectorAll(".pb"));
   queue.forEach(function (b) { b.onclick = function () { play(b); }; });
   m.scrollTop = 0;
@@ -205,7 +240,8 @@ HTML = """<!doctype html><meta charset="utf-8"><title>Rapport barks</title>
 <style>__CSS__</style>
 <header><h1>Rapport &mdash; barks</h1>
 <div class="seg" id="mode"><button class="on" data-m="persona">By persona</button><button
- data-m="situation">Same situation, all four</button></div>
+ data-m="situation">Same situation, all four</button><button
+ data-m="overture">Overture (dialogue)</button></div>
 <span class="sub">__NV__ voices &times; __NL__ lines &middot; <kbd>space</kbd> plays the next</span>
 </header>
 <div id="wrap"><div id="side"><input id="q" placeholder="filter voices..."><div id="list"></div></div>
@@ -226,7 +262,15 @@ def main() -> int:
               "van": sorted(p.name for p in (ROOT / "voice/vanilla").glob(f"{vt}-vanilla*.wav"))}
              for vt, d in types]
 
-    js = (JS.replace("__TYPES__", json.dumps(tdata))
+    O = json.loads((ROOT / "voice/overture-lines.json").read_text(encoding="utf-8"))
+    over = [{"id": l["id"], "p": l["persona"], "k": l["kind"], "stage": l["stage"],
+             "reg": l.get("register", ""), "o": l.get("outcome", ""), "t": l["text"]}
+            for l in O["lines"]]
+    # A voice type only gets the Overture tab if its files are actually on disk.
+    for d in tdata:
+        d["ov"] = (ROOT / "voice/out" / d["vt"] / (O["lines"][0]["id"] + ".fuz")).exists()
+
+    js = (JS.replace("__OVER__", json.dumps(over)).replace("__TYPES__", json.dumps(tdata))
             .replace("__LINES__", json.dumps(lines))
             .replace("__PERS__", json.dumps(PERS)))
     doc = (HTML.replace("__CSS__", CSS).replace("__JS__", js)
@@ -243,10 +287,12 @@ def main() -> int:
             print("   " + line)
         return 1
 
+    n_ov = sum(1 for d in tdata if d.get("ov"))
     out = ROOT / "voice/barks.html"
     out.write_text(doc, encoding="utf-8")
     print(f"{out.relative_to(ROOT)}  {out.stat().st_size // 1024} KB  "
-          f"{len(types)} voices, {len(lines)} lines  (script parses)")
+          f"{len(types)} voices, {len(lines)} bark + {len(over)} Overture lines  "
+          f"({n_ov} voices have Overture)")
     return 0
 
 
