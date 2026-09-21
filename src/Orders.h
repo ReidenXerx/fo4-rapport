@@ -147,7 +147,10 @@ namespace RP
 			// R-4: what does the engine's relationship rank MEAN? formID and setID
 			// (decimal) are two actors; the bridge traces rank both ways, family and
 			// parent ties into Rapport.log. A measurement tool, not a feature.
-			kRelation = 26
+			kRelation = 26,
+
+			// The Narrator: extra is one line of text for Debug.Notification.
+			kNarrate = 27
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

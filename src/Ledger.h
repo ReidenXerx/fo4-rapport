@@ -109,6 +109,9 @@ namespace RP
 		void SeedFromVanilla(std::uint32_t a_first, std::uint32_t a_second, std::int32_t a_rank, bool a_blood,
 			bool a_partner);
 		[[nodiscard]] bool IsSeeded(std::uint32_t a_first, std::uint32_t a_second) const;
+		// Chemistry, when it asks for a pair with a member partnered elsewhere.
+		void NoteAffair(std::uint32_t a_first, std::uint32_t a_second);
+		[[nodiscard]] bool IsAffair(std::uint32_t a_first, std::uint32_t a_second) const;
 		// What SeedFromVanilla would store, without storing it (a consumer ranking a
 		// pair that has not interacted yet, R-5).
 		[[nodiscard]] static float SeedValue(std::int32_t a_rank, bool a_partner) noexcept;
@@ -131,6 +134,8 @@ namespace RP
 		void Clear();
 
 	private:
+		void RecordSceneLocked(std::uint32_t a_first, std::uint32_t a_second, float& a_before, float& a_after,
+			std::uint32_t& a_together);
 		// Exactly what goes in the save, one per actor. Every field is four bytes
 		// so the struct has no padding and its size is the record's arithmetic --
 		// which is what makes the length check on load meaningful.
@@ -202,6 +207,9 @@ namespace RP
 			bool          incest{ false };
 			bool          partner{ false };   // spouse or courting, per the engine
 			BondReason    lastReason{ BondReason::kNone };
+			// One of them was partnered to someone ELSE when these two had a scene
+			// (owner: cheating is a future "bad thing"). Set, never cleared.
+			bool          affair{ false };
 		};
 
 		// (lower << 32) | higher, so the two orders are one key.

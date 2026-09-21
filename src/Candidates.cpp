@@ -33,6 +33,17 @@ namespace RP
 		_offers.clear();
 	}
 
+	std::optional<Candidates::Offer> Candidates::Find(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "candidates" };
+		for (const auto& offer : _offers) {
+			if ((offer.first == a_first && offer.second == a_second) || (offer.first == a_second && offer.second == a_first)) {
+				return offer;
+			}
+		}
+		return std::nullopt;
+	}
+
 	std::size_t Candidates::Count() const
 	{
 		NamedLock lock{ _lock, "candidates" };

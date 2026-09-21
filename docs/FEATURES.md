@@ -762,6 +762,29 @@ and *Voices* (pair lines, bystander comments, radii, chance, timing). The menu's
 generated from `scoring.json` and `barks.json` (`scripts/build-mcm.py`), so the menu and the files
 cannot disagree. A changed slider applies within one 20 s pass, with no restart. MCM is optional.
 
+### The Narrator: who, why, and the numbers — VERIFIED IN GAME (scene starts)
+
+An optional line on the HUD when a scene is about to start, written as a storyteller would say it,
+with the real reasons, followed by the score part by part:
+
+> Jun Long and Marcy Long slip away together - they're a couple, 5 people are watching and they
+> don't care, and it's late.
+> quickie - score 0.97 = near +1.01, same faction +0.60, night +0.25, 5 watching -1.04, bond +0.45,
+> personas -0.30
+
+The parts are the ones that decided: Rapport's come from the same function that ranks pairs, and each
+addon reports its own share (Chemistry's bond, place, personas and faithfulness). Every mod built on
+Rapport is narrated at once. Four moments, each an MCM checkbox: scene starts (on by default), why
+nothing happened, relationship turns and bystanders. There is also an MCM button that shows the
+recent history. MCM page *Narrator*.
+
+### Faithfulness — VERIFIED IN GAME (trait and partner test)
+
+Every NPC has a fixed faithfulness from 0 to 1, derived from its form id, so it never changes and
+costs nothing to save. Someone married or courting pays for pairing with anybody else, in proportion
+to how faithful they are. A pair that strays anyway is recorded as an affair, for the attitude layer
+to come. Marcy Long measures 0.003, and she strays.
+
 ### Only the part of the world you are in — VERIFIED IN GAME
 
 Fallout keeps the interior you just left loaded, but detached. Rapport only considers people in your

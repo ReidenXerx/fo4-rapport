@@ -3,6 +3,7 @@
 #include "Mailbox.h"
 #include "Aftermath.h"
 #include "Barks.h"
+#include "Narrator.h"
 #include "Voices.h"
 #include "Watchers.h"
 #include "Expressions.h"
@@ -72,6 +73,7 @@ namespace
 			RP::Expressions::GetSingleton().Load();
 			RP::Voices::GetSingleton().Load();
 			RP::Barks::GetSingleton().Load();
+			RP::Narrator::GetSingleton().Load();
 			RP::Ledger::RegisterDeathSink();
 			RP::Watchers::GetSingleton().Load();
 			RP::Expressions::GetSingleton().LoadOverrides();

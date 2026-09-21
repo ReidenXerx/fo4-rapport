@@ -361,6 +361,17 @@ Float Function AddBond(Int aiFirst, Int aiSecond, Float afAmount, Int aiReason) 
 Bool Function IsIncestPair(Int aiFirst, Int aiSecond) Global Native
 ; Spouse or courting, per the engine.
 Bool Function IsPartnerPair(Int aiFirst, Int aiSecond) Global Native
+; Set when one of the two was partnered to someone ELSE at their scene (a future "bad thing").
+Bool Function IsAffairPair(Int aiFirst, Int aiSecond) Global Native
+Function NoteAffair(Int aiFirst, Int aiSecond) Global Native
+; 0 (strays freely) .. 1 (never looks elsewhere): derived from the form id, the same forever.
+Float Function FaithfulnessOf(Int aiFormID) Global Native
+; The Narrator. NarrateBonus: your addon's share of a pair's score, reported just BEFORE
+; RequestScene ("bond", 0.45). NarrateNearMiss: you passed on a likely pair - asWhy is a
+; clause with no names ("too many people are watching"); Rapport rate-limits it.
+Function NarrateBonus(Int aiFirst, Int aiSecond, String asLabel, Float afValue) Global Native
+Function NarrateNearMiss(Int aiFirst, Int aiSecond, String asWhy, Float afScore, Float afBar) Global Native
+String Function NarratorHistory() Global Native
 ; True once the engine's relationship has been imported for this pair (its first interaction).
 Bool Function IsPairSeeded(Int aiFirst, Int aiSecond) Global Native
 ; The bond a pair WOULD start at, written nowhere. Rapport:Relations.BondBetween wraps it.

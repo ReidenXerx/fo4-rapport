@@ -1,0 +1,12 @@
+{
+  "_": "The Narrator (roadmap 11): a HUD line saying who is about to have a scene and why, then the numbers. Every mod built on Rapport is narrated. The player's MCM [Narrator] section overrides these; scripts/build-mcm.py makes the MCM defaults from this file.",
+  "enabled": true,
+  "sceneStarts": true,
+  "nearMisses": false,
+  "relationshipTurns": false,
+  "bystanders": false,
+  "numbers": true,
+  "nearMissCooldownSeconds": 300,
+  "pairMissCooldownSeconds": 1800,
+  "historySize": 12
+}

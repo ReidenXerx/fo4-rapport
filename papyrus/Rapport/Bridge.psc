@@ -1067,6 +1067,12 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 		Return
 	EndIf
 
+	If aiKind == 27
+		; The Narrator: one line, top-left, fading on its own - never a box to click.
+		Debug.Notification(asExtra)
+		Return
+	EndIf
+
 	If aiKind == 26
 		Actor a = Game.GetForm(aiFormID) as Actor
 		Actor b = Game.GetForm(asSetID as Int) as Actor
@@ -1074,7 +1080,7 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 			Rapport:Core.Trace("relation: an id does not resolve to an actor")
 			Return
 		EndIf
-		Rapport:Core.Trace("relation: " + Rapport:Core.FormIdText(aiFormID) + " -> " + Rapport:Core.FormIdText(b.GetFormID()) + " rank " + a.GetRelationshipRank(b) + " | back " + b.GetRelationshipRank(a) + " | family " + a.HasFamilyRelationship(b) + " | blood " + Rapport:Relations.AreBloodRelated(a, b) + " | partner " + Rapport:Relations.ArePartners(a, b) + " | stored " + Rapport:Core.IsPairSeeded(aiFormID, b.GetFormID()) + " | bondBetween " + Rapport:Relations.BondBetween(a, b))
+		Rapport:Core.Trace("relation: " + Rapport:Core.FormIdText(aiFormID) + " -> " + Rapport:Core.FormIdText(b.GetFormID()) + " rank " + a.GetRelationshipRank(b) + " | back " + b.GetRelationshipRank(a) + " | family " + a.HasFamilyRelationship(b) + " | blood " + Rapport:Relations.AreBloodRelated(a, b) + " | partner " + Rapport:Relations.ArePartners(a, b) + " | stored " + Rapport:Core.IsPairSeeded(aiFormID, b.GetFormID()) + " | bondBetween " + Rapport:Relations.BondBetween(a, b) + " | partnered " + Rapport:Relations.HasPartner(a) + "/" + Rapport:Relations.HasPartner(b) + " | faithful " + Rapport:Core.FaithfulnessOf(aiFormID) + "/" + Rapport:Core.FaithfulnessOf(b.GetFormID()) + " | affair " + Rapport:Core.IsAffairPair(aiFormID, b.GetFormID()))
 		Return
 	EndIf
 

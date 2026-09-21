@@ -273,6 +273,120 @@
           }
         }
       ]
+    },
+    {
+      "pageDisplayName": "Narrator",
+      "content": [
+        {
+          "type": "text",
+          "text": "A line on the HUD saying who is about to have a scene and why, then the numbers behind it. It covers every mod that uses Rapport, anywhere in the loaded area."
+        },
+        {
+          "type": "section",
+          "text": "Narrator"
+        },
+        {
+          "type": "switcher",
+          "id": "enabled:Narrator",
+          "text": "Narrator",
+          "help": "Show narration at all.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "switcher",
+          "id": "numbers:Narrator",
+          "text": "Show the numbers",
+          "help": "A second line with the score, part by part.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "section",
+          "text": "What to narrate"
+        },
+        {
+          "type": "switcher",
+          "id": "sceneStarts:Narrator",
+          "text": "A scene starts",
+          "help": "Who, and why now.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "switcher",
+          "id": "nearMisses:Narrator",
+          "text": "Why nothing happened",
+          "help": "Now and then, a likely pair that was passed over and why. Rate-limited.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "switcher",
+          "id": "relationshipTurns:Narrator",
+          "text": "Relationship turns",
+          "help": "A first time together, or a bond crossing a line: getting close, close, inseparable, fallen out.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "switcher",
+          "id": "bystanders:Narrator",
+          "text": "Bystanders react",
+          "help": "Someone noticed, or heard.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "section",
+          "text": "History"
+        },
+        {
+          "type": "button",
+          "text": "Show recent narration",
+          "help": "The last entries, with the time in the world.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:Narrator",
+            "function": "ShowHistory",
+            "params": []
+          }
+        },
+        {
+          "type": "section",
+          "text": "Pacing"
+        },
+        {
+          "type": "slider",
+          "id": "nearMissCooldownSeconds:Narrator",
+          "text": "Between 'why not' lines (s)",
+          "help": "At most one near miss this often, across all pairs.",
+          "valueOptions": {
+            "min": 30,
+            "max": 1800,
+            "step": 30,
+            "sourceType": "ModSettingInt"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "pairMissCooldownSeconds:Narrator",
+          "text": "Same pair again after (s)",
+          "help": "How long before the same two are narrated as a near miss again.",
+          "valueOptions": {
+            "min": 60,
+            "max": 7200,
+            "step": 60,
+            "sourceType": "ModSettingInt"
+          }
+        }
+      ]
     }
   ]
 }

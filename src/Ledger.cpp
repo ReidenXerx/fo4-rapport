@@ -1,5 +1,7 @@
 #include "Ledger.h"
 
+#include "Narrator.h"
+
 #include "Aftermath.h"
 #include "Config.h"
 #include "Expressions.h"
@@ -100,6 +102,17 @@ namespace RP
 
 	void Ledger::RecordScene(std::uint32_t a_first, std::uint32_t a_second)
 	{
+		float         before = 0.0f;
+		float         after = 0.0f;
+		std::uint32_t together = 0;
+		RecordSceneLocked(a_first, a_second, before, after, together);
+		// Outside the ledger lock: the Narrator takes its own and reads the ledger.
+		Narrator::GetSingleton().OnBondChanged(a_first, a_second, before, after, together);
+	}
+
+	void Ledger::RecordSceneLocked(std::uint32_t a_first, std::uint32_t a_second, float& a_before, float& a_after,
+		std::uint32_t& a_together)
+	{
 		const auto now = GameHours();
 		NamedLock lock{ _lock, "ledger" };
 
@@ -119,7 +132,10 @@ namespace RP
 		pair.lastSceneAt = now;
 		++pair.scenes;
 		// R-10: a completed scene raises the relationship, with diminishing returns.
+		a_before = pair.bond;
 		pair.bond += kBondPerScene * (1.0f - pair.bond);
+		a_after = pair.bond;
+		a_together = pair.scenes;
 		pair.lastTouchedAt = now;
 		pair.lastReason = BondReason::kScene;
 
@@ -147,21 +163,50 @@ namespace RP
 		if (a_first == 0 || a_second == 0 || a_first == a_second || a_amount == 0.0f) {
 			return Bond(a_first, a_second);
 		}
-		const auto amount = std::clamp(a_amount, -1.0f, 1.0f);
-		const auto now = GameHours();
-		NamedLock lock{ _lock, "ledger" };
-		// R-5: THIS is the interaction that creates the record, never mere proximity.
-		auto&      pair = _pairs[PairKey(a_first, a_second)];
-		const auto before = pair.bond;
-		// Toward +1 or -1 by that fraction of the distance left: bounded, and
-		// diminishing for every source alike.
-		pair.bond += amount > 0.0f ? amount * (1.0f - pair.bond) : amount * (1.0f + pair.bond);
-		pair.bond = std::clamp(pair.bond, -1.0f, 1.0f);
-		pair.lastTouchedAt = now;
-		pair.lastReason = a_reason;
+		const auto    amount = std::clamp(a_amount, -1.0f, 1.0f);
+		const auto    now = GameHours();
+		float         before = 0.0f;
+		float         after = 0.0f;
+		std::uint32_t scenes = 0;
+		{
+			NamedLock lock{ _lock, "ledger" };
+			// R-5: THIS is the interaction that creates the record, never mere proximity.
+			auto& pair = _pairs[PairKey(a_first, a_second)];
+			before = pair.bond;
+			// Toward +1 or -1 by that fraction of the distance left: bounded, and
+			// diminishing for every source alike.
+			pair.bond += amount > 0.0f ? amount * (1.0f - pair.bond) : amount * (1.0f + pair.bond);
+			pair.bond = std::clamp(pair.bond, -1.0f, 1.0f);
+			pair.lastTouchedAt = now;
+			pair.lastReason = a_reason;
+			after = pair.bond;
+			scenes = pair.scenes;
+		}
 		logger::info("relationship: {:08X} + {:08X} bond {:+.3f} -> {:+.3f} (asked {:+.3f}, reason {})",
-			a_first, a_second, before, pair.bond, amount, static_cast<int>(a_reason));
-		return pair.bond;
+			a_first, a_second, before, after, amount, static_cast<int>(a_reason));
+		// Outside the ledger lock: the Narrator takes its own and reads the ledger.
+		Narrator::GetSingleton().OnBondChanged(a_first, a_second, before, after, scenes);
+		return after;
+	}
+
+	void Ledger::NoteAffair(std::uint32_t a_first, std::uint32_t a_second)
+	{
+		if (a_first == 0 || a_second == 0 || a_first == a_second) {
+			return;
+		}
+		NamedLock lock{ _lock, "ledger" };
+		auto& pair = _pairs[PairKey(a_first, a_second)];
+		if (!pair.affair) {
+			pair.affair = true;
+			logger::info("relationship: {:08X} + {:08X} - an affair: one of them is partnered elsewhere", a_first, a_second);
+		}
+	}
+
+	bool Ledger::IsAffair(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		return it != _pairs.end() && it->second.affair;
 	}
 
 	void Ledger::SeedFromVanilla(std::uint32_t a_first, std::uint32_t a_second, std::int32_t a_rank, bool a_blood,
@@ -429,6 +474,7 @@ namespace RP
 				std::clamp(entry.bond, -1.0f, 1.0f), entry.lastTouchedAt, (entry.flags & 1u) != 0,
 				(entry.flags & 2u) != 0, (entry.flags & 4u) != 0,
 				static_cast<BondReason>((entry.flags >> 8) & 0xFFu) };
+			_pairs[PairKey(*first, *second)].affair = (entry.flags & 8u) != 0;
 		}
 		logger::info(
 			"ledger: read {} pair(s) from the save, {} dropped because a plugin is gone",
@@ -537,7 +583,7 @@ namespace RP
 					record.scenes,
 					record.bond,
 					record.lastTouchedAt,
-					(record.seeded ? 1u : 0u) | (record.incest ? 2u : 0u) | (record.partner ? 4u : 0u) |
+					(record.seeded ? 1u : 0u) | (record.incest ? 2u : 0u) | (record.partner ? 4u : 0u) | (record.affair ? 8u : 0u) |
 						(static_cast<std::uint32_t>(record.lastReason) << 8)
 				};
 				a_intfc->WriteRecordData(entry);

@@ -5,7 +5,6 @@ namespace RP::McmSettings
 	namespace
 	{
 		// Scheduler thread only.
-		bool                            g_seen{ false };
 		std::filesystem::file_time_type g_stamp{};
 
 		std::filesystem::path PlayerIni()
@@ -73,12 +72,11 @@ namespace RP::McmSettings
 		std::error_code ec;
 		const auto      stamp = std::filesystem::last_write_time(PlayerIni(), ec);
 		const auto      now = ec ? std::filesystem::file_time_type{} : stamp;
-		if (!g_seen) {
-			// The first look is the state the loaders already read at data ready.
-			g_seen = true;
-			g_stamp = now;
-			return false;
-		}
+		// No priming on the first look. It used to take the first pass's view as the
+		// baseline, so an ini written between data ready (when the loaders read) and
+		// that first pass was never applied - seen 2026-09-22. Starting from "no file"
+		// costs one redundant reload when the player has settings; missing one costs
+		// the player's settings.
 		if (now == g_stamp) {
 			return false;
 		}

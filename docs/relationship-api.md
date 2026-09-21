@@ -30,6 +30,9 @@ it cannot overshoot, and a large bond grows slowly. `reason`: 3 dialogue, 4 gift
 | `Bool IsPartnerPair(Int a, Int b)` | Stored flag: spouse or courting |
 | `Float SeedBond(Int rank, Bool partner)` | The starting-bond formula on its own, stores nothing |
 | `Int PairSceneCount(Int a, Int b)` | Scenes the pair has had together |
+| `Bool IsAffairPair(Int a, Int b)` / `NoteAffair(Int a, Int b)` | One of them was partnered elsewhere when they had a scene. A future "bad thing". |
+| `Float FaithfulnessOf(Int formID)` | 0 (strays freely) to 1 (never), derived from the form id |
+| `Bool Rapport:Relations.HasPartner(Actor a)` | Married or courting anyone |
 | `String PersonaOf(Int formID)` | `mercantile`, `romantic`, `vulgar` or `reticent`, or the owner's pin from `personas.json` |
 
 ## What the numbers are
@@ -72,3 +75,18 @@ Chemistry's persona rules (who pairs, which story) are its DESIGN.md C-8.
 `rank <a> <b>` on Rapport's command channel traces the engine's rank both ways, blood, partner,
 whether the pair is stored, and `BondBetween`, into `Rapport.log`. `bond <a> <b> [add x]` reads or
 moves the stored bond.
+
+## Being narrated
+
+If your addon decides scenes, tell the Narrator your share just before `RequestScene`, and it will
+appear in the numbers line after Rapport's own parts:
+
+```papyrus
+Rapport:Core.NarrateBonus(first, second, "bond", 0.45)      ; labels are lower-cased
+Rapport:Core.NarrateBonus(first, second, "couple", 0.0)     ; a zero is a marker, not printed
+Rapport:Core.RequestScene(akFirst, akSecond, "athome")
+```
+
+When you pass on a likely pair, `NarrateNearMiss(first, second, "too many people are watching",
+score, bar)` gives the "why nothing happened" line. Rapport rate-limits it and adds the names.
+

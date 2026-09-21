@@ -47,6 +47,26 @@ namespace
 
 namespace RP
 {
+	ScoreParts Breakdown(const PairSignals& a_signals, const PairWeights& a_weights)
+	{
+		ScoreParts parts;
+		// Squared by default: 200 units apart is worth far more than twice what 400
+		// is, which is what "they were standing together" means.
+		const auto nearness = (std::max)(0.0f, 1.0f - (a_signals.distance / a_weights.maxPairDistance));
+		parts.proximity = a_weights.proximity * std::pow(nearness, a_weights.proximityFalloff);
+		parts.faction = a_signals.sharedFaction ? a_weights.sharedFaction : 0.0f;
+		parts.interior = a_signals.interior ? a_weights.interior : 0.0f;
+		parts.night = a_signals.night ? a_weights.night : 0.0f;
+		// The first few onlookers are free. Past that it climbs steeply, so a crowd
+		// is prohibitive without ever being a hard veto.
+		if (a_signals.observers > a_weights.observerTolerance) {
+			const auto excess = static_cast<float>(a_signals.observers - a_weights.observerTolerance);
+			parts.crowd = -a_weights.perObserver * std::pow(excess, a_weights.observerFalloff);
+		}
+		parts.player = a_signals.playerNear ? -a_weights.playerNear : 0.0f;
+		return parts;
+	}
+
 	void PairWeights::LoadFrom(const nlohmann::json& a_json)
 	{
 		const auto read = [&a_json](const char* a_key, float& a_target) {
@@ -138,30 +158,7 @@ namespace RP
 					signals.playerNear = Distance(playerPos, midpoint) <= a_weights.observerRadius;
 				}
 
-				// Squared by default: 200 units apart is worth far more than twice
-				// what 400 is, which is what "they were standing together" means.
-				const auto nearness = 1.0f - (distance / a_weights.maxPairDistance);
-				const auto proximity = std::pow(nearness, a_weights.proximityFalloff);
-
-				float score = a_weights.proximity * proximity;
-				if (signals.sharedFaction) {
-					score += a_weights.sharedFaction;
-				}
-				if (signals.interior) {
-					score += a_weights.interior;
-				}
-				if (signals.night) {
-					score += a_weights.night;
-				}
-				// The first few onlookers are free. Past that it climbs steeply, so a
-				// crowd is prohibitive without ever being a hard veto.
-				if (signals.observers > a_weights.observerTolerance) {
-					const auto excess = static_cast<float>(signals.observers - a_weights.observerTolerance);
-					score -= a_weights.perObserver * std::pow(excess, a_weights.observerFalloff);
-				}
-				if (signals.playerNear) {
-					score -= a_weights.playerNear;
-				}
+				const float score = Breakdown(signals, a_weights).Total();
 
 				ranked.push_back(ScoredPair{ first, second, score, signals });
 			}

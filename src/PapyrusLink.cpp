@@ -1,5 +1,8 @@
 #include "PapyrusLink.h"
 
+#include "Narrator.h"
+#include "Traits.h"
+
 #include "Candidates.h"
 #include "Config.h"
 #include "DebugHub.h"
@@ -690,6 +693,44 @@ namespace
 		return RP::Ledger::SeedValue(a_rank, a_partner);
 	}
 
+	// ---- the Narrator (roadmap 11) and the faithfulness trait -------------------
+
+	// An addon's own share of a pair's score, just before it asks for the scene.
+	void Papyrus_NarrateBonus(std::monostate, std::int32_t a_first, std::int32_t a_second, RE::BSFixedString a_label,
+		float a_value)
+	{
+		RP::Narrator::GetSingleton().AddBonus(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second),
+			a_label.empty() ? "" : a_label.c_str(), a_value);
+	}
+
+	// An addon passed on a likely pair; a_why is a clause with no names in it.
+	void Papyrus_NarrateNearMiss(std::monostate, std::int32_t a_first, std::int32_t a_second, RE::BSFixedString a_why,
+		float a_score, float a_bar)
+	{
+		RP::Narrator::GetSingleton().OnNearMiss(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second),
+			a_why.empty() ? "" : a_why.c_str(), a_score, a_bar);
+	}
+
+	RE::BSFixedString Papyrus_NarratorHistory(std::monostate)
+	{
+		return RP::Narrator::GetSingleton().History();
+	}
+
+	float Papyrus_FaithfulnessOf(std::monostate, std::int32_t a_formID)
+	{
+		return RP::Traits::Faithfulness(static_cast<std::uint32_t>(a_formID));
+	}
+
+	void Papyrus_NoteAffair(std::monostate, std::int32_t a_first, std::int32_t a_second)
+	{
+		RP::Ledger::GetSingleton().NoteAffair(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+	}
+
+	bool Papyrus_IsAffairPair(std::monostate, std::int32_t a_first, std::int32_t a_second)
+	{
+		return RP::Ledger::GetSingleton().IsAffair(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+	}
+
 	bool Papyrus_IsIncestPair(std::monostate, std::int32_t a_first, std::int32_t a_second)
 	{
 		return RP::Ledger::GetSingleton().IsIncest(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
@@ -920,6 +961,12 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "PairBond"sv, Papyrus_PairBond, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "AddBond"sv, Papyrus_AddBond, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "IsIncestPair"sv, Papyrus_IsIncestPair, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NarrateBonus"sv, Papyrus_NarrateBonus, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NarrateNearMiss"sv, Papyrus_NarrateNearMiss, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NarratorHistory"sv, Papyrus_NarratorHistory, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "FaithfulnessOf"sv, Papyrus_FaithfulnessOf, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteAffair"sv, Papyrus_NoteAffair, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "IsAffairPair"sv, Papyrus_IsAffairPair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "IsPairSeeded"sv, Papyrus_IsPairSeeded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SeedBond"sv, Papyrus_SeedBond, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "IsPartnerPair"sv, Papyrus_IsPartnerPair, std::nullopt, false);
@@ -932,7 +979,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
-		logger::info("papyrus: bound 49 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 55 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -1001,6 +1048,9 @@ namespace RP
 			"request {}: queued {} ({:08X}) and {} ({:08X}) for {:.0f}s",
 			request, a_first->GetDisplayFullName(), a_first->GetFormID(),
 			a_second->GetDisplayFullName(), a_second->GetFormID(), a_duration);
+		// Every door leads here - Rapport's own stand-in, every addon, the dev
+		// channel - so this is the one place the Narrator has to listen.
+		Narrator::GetSingleton().OnSceneRequested(a_first->GetFormID(), a_second->GetFormID(), a_scenario);
 		return true;
 	}
 

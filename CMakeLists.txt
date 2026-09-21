@@ -22,6 +22,7 @@ set(SOURCES
 	"src/Barks.h"
 	"src/Barks.cpp"
 	"src/McmSettings.cpp"
+	"src/Narrator.cpp"
 	"src/Watchers.h"
 	"src/Watchers.cpp"
 	"src/Voices.h"

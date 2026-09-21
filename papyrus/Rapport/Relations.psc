@@ -24,6 +24,16 @@ Bool Function ArePartners(Actor akFirst, Actor akSecond) Global
 	Return Rapport:Relations.HasAssociationID(akFirst, akSecond, 104813) || Rapport:Relations.HasAssociationID(akFirst, akSecond, 104802)
 EndFunction
 
+; Married or courting ANYONE. HasAssociation with None asks "with anybody" - the
+; engine's own convention, checked in game on a spouse and a bachelor before this was
+; relied on (Chemistry's faithfulness cost depends on it).
+Bool Function HasPartner(Actor akActor) Global
+	If akActor == None
+		Return False
+	EndIf
+	Return Rapport:Relations.HasAssociationID(akActor, None, 104813) || Rapport:Relations.HasAssociationID(akActor, None, 104802)
+EndFunction
+
 ; The bond a consumer should rank this pair by, -1..+1. Rapport's stored bond once
 ; the pair has a record; before that, what the engine's relationship WOULD seed -
 ; without writing a record, because a pair is recorded on interaction, never on

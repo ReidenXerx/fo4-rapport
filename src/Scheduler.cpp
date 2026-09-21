@@ -4,6 +4,7 @@
 #include "Aftermath.h"
 #include "Barks.h"
 #include "McmSettings.h"
+#include "Narrator.h"
 #include "Watchers.h"
 #include "Config.h"
 #include "Expressions.h"
@@ -138,6 +139,7 @@ namespace RP
 			Config::GetSingleton().LoadScoring();
 			Barks::GetSingleton().Load();
 			Watchers::GetSingleton().Load();
+			Narrator::GetSingleton().Load();
 		}
 
 		const auto& counters = _scan.Counters();

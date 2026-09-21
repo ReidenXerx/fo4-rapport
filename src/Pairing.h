@@ -42,6 +42,22 @@ namespace RP
 		void LoadFrom(const nlohmann::json& a_json);
 	};
 
+	// Rapport's score, part by part. RankPairs sums exactly these, and the Narrator
+	// prints them, so the numbers a player reads are the numbers that decided.
+	struct ScoreParts
+	{
+		float proximity{ 0.0f };
+		float faction{ 0.0f };
+		float interior{ 0.0f };
+		float night{ 0.0f };
+		float crowd{ 0.0f };    // <= 0
+		float player{ 0.0f };   // <= 0
+
+		[[nodiscard]] float Total() const noexcept { return proximity + faction + interior + night + crowd + player; }
+	};
+
+	[[nodiscard]] ScoreParts Breakdown(const PairSignals& a_signals, const PairWeights& a_weights);
+
 	struct ScoredPair
 	{
 		RE::Actor*  first{ nullptr };

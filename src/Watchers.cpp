@@ -2,6 +2,7 @@
 
 #include "Barks.h"
 #include "McmSettings.h"
+#include "Narrator.h"
 #include "Voices.h"
 
 namespace RP
@@ -252,5 +253,6 @@ namespace RP
 		logger::info("request {}: watcher {:08X} ({}, {}, {}) says {}", request, speaker, persona, next.audience,
 			heard ? "heard it" : "saw it", id);
 		Voices::GetSingleton().Speak(speaker, first, topic);
+		Narrator::GetSingleton().OnBystander(speaker, heard);
 	}
 }

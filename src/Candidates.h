@@ -47,6 +47,9 @@ namespace RP
 		// Empty when the index is out of range, which is the normal way a Papyrus
 		// loop finds the end rather than an error.
 		[[nodiscard]] std::optional<Offer> At(std::size_t a_index) const;
+		// The published offer for these two, either order - what the Narrator
+		// explains a request with.
+		[[nodiscard]] std::optional<Offer> Find(std::uint32_t a_first, std::uint32_t a_second) const;
 
 		// An addon has taken over the decision, so Rapport's stand-in stops making
 		// it. One-way for the session, and deliberately not a config setting: two
