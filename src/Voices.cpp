@@ -1,5 +1,7 @@
 #include "Voices.h"
 
+#include "PapyrusLink.h"
+
 namespace RP
 {
 	namespace
@@ -127,5 +129,36 @@ namespace RP
 			return 0;
 		}
 		return npc->GetSex() == RE::SEX::kFemale ? _unmappedFemale : _unmappedMale;
+	}
+
+	bool Voices::CanSpeak(std::uint32_t a_speaker) const
+	{
+		const auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_speaker);
+		auto*       npc = actor ? actor->GetNPC() : nullptr;
+		const auto* voice = npc ? npc->voiceType : nullptr;
+		if (!voice) {
+			return false;
+		}
+		{
+			NamedLock lock{ _lock, "voices" };
+			if (_own.contains(voice->GetFormID())) {
+				return true;
+			}
+		}
+		return BorrowFor(a_speaker) != 0;
+	}
+
+	void Voices::Speak(std::uint32_t a_speaker, std::uint32_t a_target, std::uint32_t a_topic) const
+	{
+		Order order{ Order::Kind::kSayTopic, a_speaker, std::to_string(a_topic),
+			a_target ? std::to_string(a_target) : std::string{} };
+		order.voice = BorrowFor(a_speaker);
+		if (order.voice != 0) {
+			logger::info("voices: {:08X} has a voice we did not render - borrowing {:08X} for this line",
+				a_speaker, order.voice);
+		}
+		// Not under _lock: QueueOrder takes the order lock, and a lock taken while
+		// holding another is the cycle this codebase keeps its lock rules for.
+		PapyrusLink::GetSingleton().QueueOrder(std::move(order));
 	}
 }

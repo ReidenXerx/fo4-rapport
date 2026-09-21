@@ -170,6 +170,11 @@ String Function OrderSetID() Global Native
 ; include tags come through OrderSetID.
 String Function OrderExtra() Global Native
 Int Function OrderVoice() Global Native
+Float Function WatchRadius() Global Native
+Int Function WatchFirstID() Global Native
+Int Function WatchSecondID() Global Native
+Function NoteWatcher(Int aiFormID, Bool abSees) Global Native
+Function EndWatchSweep() Global Native
 
 ; An order the bridge collected but could not carry out -- an actor who turned
 ; out not to be loaded. Puts the mark back to "not asked for yet" so the next

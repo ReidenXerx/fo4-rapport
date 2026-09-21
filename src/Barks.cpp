@@ -51,20 +51,25 @@ namespace RP
 
 		if (const auto lines = document.find("lines"); lines != document.end() && lines->is_array()) {
 			for (const auto& entry : *lines) {
-				// Observer lines are in the same table for R-12 and are skipped here
-				// until that lands: they carry an audience, not a scenario and role.
-				if (entry.value("kind", std::string{}) != "pair") {
+				// Both kinds: pair lines carry a scenario and a role, observer lines
+				// (R-12) an audience. Each must have its own fields or it is skipped.
+				const auto kind = entry.value("kind", std::string{});
+				if (kind != "pair" && kind != "observer") {
 					continue;
 				}
 				Line line;
 				line.id = entry.value("id", std::string{});
+				line.observer = kind == "observer";
 				line.persona = entry.value("persona", std::string{});
 				line.scenario = entry.value("scenario", std::string{});
 				line.role = entry.value("role", std::string{});
+				line.audience = entry.value("audience", std::string{});
 				line.topic = entry.value("topic", 0u);
 				const auto gender = entry.value("gender", std::string{});
 				line.gender = gender.empty() ? 0 : gender.front();
-				if (line.topic == 0 || line.persona.empty() || line.scenario.empty() || line.role.empty()) {
+				const bool shaped = line.observer ? !line.audience.empty()
+				                                  : !line.scenario.empty() && !line.role.empty();
+				if (line.topic == 0 || line.persona.empty() || !shaped) {
 					logger::warn("barks: line \"{}\" is missing a field - skipped", line.id);
 					continue;
 				}
@@ -80,8 +85,10 @@ namespace RP
 		}
 
 		_enabled = document.value("enabled", true);
-		logger::info("barks: {} pair lines across {} personas, responder answers after {:.1f}s{}",
-			_lines.size(), _personas.size(), _responderDelay, _enabled ? "" : " - but switched OFF in barks.json");
+		const auto observers = std::ranges::count_if(_lines, [](const Line& a_line) { return a_line.observer; });
+		logger::info("barks: {} pair + {} observer lines across {} personas, responder answers after {:.1f}s{}",
+			_lines.size() - observers, observers, _personas.size(), _responderDelay,
+			_enabled ? "" : " - but switched OFF in barks.json");
 	}
 
 	std::string_view Barks::PersonaOf(std::uint32_t a_formID) const
@@ -107,7 +114,7 @@ namespace RP
 
 		std::vector<const Line*> fits;
 		for (const auto& line : _lines) {
-			if (line.persona != a_persona || line.scenario != a_scenario || line.role != a_role) {
+			if (line.observer || line.persona != a_persona || line.scenario != a_scenario || line.role != a_role) {
 				continue;
 			}
 			// A gendered line names the speaker's own body. An unknown sex gets
@@ -117,34 +124,40 @@ namespace RP
 			}
 			fits.push_back(&line);
 		}
-		if (fits.empty()) {
+		return Choose(std::move(fits), std::format("{}|{}|{}", a_persona, a_scenario, a_role));
+	}
+
+	const Barks::Line* Barks::Choose(std::vector<const Line*> a_fits, const std::string& a_key)
+	{
+		if (a_fits.empty()) {
 			return nullptr;
 		}
-
-		const auto key = std::format("{}|{}|{}", a_persona, a_scenario, a_role);
-		const auto& last = _lastPicked[key];
-		if (fits.size() > 1 && !last.empty()) {
-			std::erase_if(fits, [&](const Line* a_line) { return a_line->id == last; });
+		const auto& last = _lastPicked[a_key];
+		if (a_fits.size() > 1 && !last.empty()) {
+			std::erase_if(a_fits, [&](const Line* a_line) { return a_line->id == last; });
 		}
-
-		const auto* chosen = fits[std::uniform_int_distribution<std::size_t>{ 0, fits.size() - 1 }(_rng)];
-		_lastPicked[key] = chosen->id;
+		const auto* chosen = a_fits[std::uniform_int_distribution<std::size_t>{ 0, a_fits.size() - 1 }(_rng)];
+		_lastPicked[a_key] = chosen->id;
 		return chosen;
 	}
 
-	void Barks::Say(std::uint32_t a_speaker, std::uint32_t a_target, std::uint32_t a_topic)
+	std::pair<std::uint32_t, std::string> Barks::PickObserver(
+		std::string_view a_persona, std::string_view a_audience, std::int32_t a_sex)
 	{
-		// Not under _lock: QueueOrder takes the order lock, and a lock taken while
-		// holding another is the cycle this codebase keeps its lock rules for.
-		Order order{ Order::Kind::kSayTopic, a_speaker, std::to_string(a_topic), std::to_string(a_target) };
-		// Which VOICE says it is not a bark decision -- it is the framework's, and
-		// every speaker of a Rapport line gets the same answer (V-25).
-		order.voice = Voices::GetSingleton().BorrowFor(a_speaker);
-		if (order.voice != 0) {
-			logger::info("bark: {:08X} has a voice we did not render - borrowing {:08X} for this line",
-				a_speaker, order.voice);
+		NamedLock lock{ _lock, "barks" };
+		if (!_enabled) {
+			return {};
 		}
-		PapyrusLink::GetSingleton().QueueOrder(std::move(order));
+		const char               sex = a_sex == 0 ? 'm' : a_sex == 1 ? 'f' : 0;
+		std::vector<const Line*> fits;
+		for (const auto& line : _lines) {
+			if (line.observer && line.persona == a_persona && line.audience == a_audience &&
+				(line.gender == 0 || line.gender == sex)) {
+				fits.push_back(&line);
+			}
+		}
+		const auto* chosen = Choose(std::move(fits), std::format("observer|{}|{}", a_persona, a_audience));
+		return chosen ? std::pair{ chosen->topic, chosen->id } : std::pair<std::uint32_t, std::string>{};
 	}
 
 	void Barks::OnSceneStarted(
@@ -203,7 +216,7 @@ namespace RP
 			a_initiator, initiatorPersona, openingID.empty() ? "nothing" : openingID,
 			a_responder, responderPersona, answers ? "after a beat" : "with nothing");
 		if (opening != 0) {
-			Say(a_initiator, a_responder, opening);
+			Voices::GetSingleton().Speak(a_initiator, a_responder, opening);
 		}
 	}
 
@@ -239,6 +252,6 @@ namespace RP
 		}
 
 		logger::info("request {}: bark - {:08X} answers with {}", due->request, due->speaker, due->id);
-		Say(due->speaker, due->target, due->topic);
+		Voices::GetSingleton().Speak(due->speaker, due->target, due->topic);
 	}
 }

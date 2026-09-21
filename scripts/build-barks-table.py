@@ -67,6 +67,10 @@ def table():
         # lines run 3-4 seconds; the bridge polls every PollSeconds, so the real
         # gap is this rounded up to the next poll.
         "responderDelaySeconds": 4.5,
+        # R-12 bystanders. Chance is per watcher per scene (one roll, when they
+        # first both stand near AND see it); the rest keep lines from colliding.
+        "observers": {"enabled": True, "radius": 900, "chance": 0.33, "startAfterSeconds": 10,
+                      "gapSeconds": 6, "cooldownSeconds": 300},
         "plugin": make_dialogue.PLUGIN,
         "personas": PERSONA_ORDER,
         "lines": lines,
@@ -82,7 +86,7 @@ def main() -> int:
     if OUT.exists():
         old = json.loads(OUT.read_text(encoding="utf-8"))
         # The settings are the owner's to tune; only the generated half must match.
-        for key in ("enabled", "responderDelaySeconds"):
+        for key in ("enabled", "responderDelaySeconds", "observers"):
             fresh[key] = old.get(key, fresh[key])
     text = json.dumps(fresh, indent=1) + "\n"
 

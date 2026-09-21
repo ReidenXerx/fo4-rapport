@@ -5,6 +5,7 @@
 #include "DebugHub.h"
 #include "Aftermath.h"
 #include "Barks.h"
+#include "Watchers.h"
 #include "Expressions.h"
 #include "AAFHealth.h"
 #include "Ledger.h"
@@ -256,6 +257,38 @@ namespace
 	std::int32_t Papyrus_OrderVoice(std::monostate)
 	{
 		return RP::PapyrusLink::GetSingleton().OrderVoice();
+	}
+
+	// ---- the watcher sweep (R-12) ----------------------------------------------
+	// The bridge finds who is near and who can SEE (HasDetectionLOS is Papyrus
+	// only); Watchers decides everything else.
+	float Papyrus_WatchRadius(std::monostate)
+	{
+		return RP::Watchers::GetSingleton().SweepRadius();
+	}
+
+	std::int32_t Papyrus_WatchFirstID(std::monostate)
+	{
+		return static_cast<std::int32_t>(RP::Watchers::GetSingleton().SweepFirst());
+	}
+
+	std::int32_t Papyrus_WatchSecondID(std::monostate)
+	{
+		return static_cast<std::int32_t>(RP::Watchers::GetSingleton().SweepSecond());
+	}
+
+	void Papyrus_NoteWatcher(std::monostate, std::int32_t a_formID, bool a_sees)
+	{
+		RP::Watchers::GetSingleton().Note(static_cast<std::uint32_t>(a_formID), a_sees);
+	}
+
+	void Papyrus_EndWatchSweep(std::monostate)
+	{
+		try {
+			RP::Watchers::GetSingleton().EndSweep();
+		} catch (const std::exception& e) {
+			logger::critical("EndWatchSweep threw: {} - the poll would have died here silently", e.what());
+		}
 	}
 
 	// ---- the optional Commonwealth Moisturizer plugin ------------------------
@@ -771,6 +804,11 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "OrderSetID"sv, Papyrus_OrderSetID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderExtra"sv, Papyrus_OrderExtra, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrderVoice"sv, Papyrus_OrderVoice, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "WatchRadius"sv, Papyrus_WatchRadius, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "WatchFirstID"sv, Papyrus_WatchFirstID, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "WatchSecondID"sv, Papyrus_WatchSecondID, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteWatcher"sv, Papyrus_NoteWatcher, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "EndWatchSweep"sv, Papyrus_EndWatchSweep, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeMoisturizerOrder"sv, Papyrus_TakeMoisturizerOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerActorID"sv, Papyrus_MoisturizerActorID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerRegions"sv, Papyrus_MoisturizerRegions, std::nullopt, false);
@@ -956,6 +994,7 @@ namespace RP
 		// have to come off.
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();
+		Watchers::GetSingleton().OnSceneEnded();
 
 		// And the scenario. Without this it keeps its stage clock running against a
 		// scene that is gone, advancing through the rest of its stages and asking a
@@ -1131,6 +1170,9 @@ namespace RP
 
 		// R-9. Last, so nothing above waits on it. The first actor is the one the
 		// addon's decision started from, so they open and the second answers.
+		Watchers::GetSingleton().OnSceneStarted(a_request,
+			static_cast<std::uint32_t>(_inFlightFirst),
+			static_cast<std::uint32_t>(_inFlightSecond));
 		Barks::GetSingleton().OnSceneStarted(a_request,
 			static_cast<std::uint32_t>(_inFlightFirst),
 			static_cast<std::uint32_t>(_inFlightSecond),
@@ -1645,6 +1687,7 @@ namespace RP
 		}
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();
+		Watchers::GetSingleton().OnSceneEnded();
 		Scenarios::GetSingleton().End();
 		_sceneInFlight.store(false);
 	}
@@ -1741,6 +1784,7 @@ namespace RP
 		}
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();
+		Watchers::GetSingleton().OnSceneEnded();
 
 		ClearInFlight();
 		_sceneInFlight.store(false);

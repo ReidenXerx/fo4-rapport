@@ -38,6 +38,18 @@ namespace RP
 		// map says nothing we have is close enough).
 		[[nodiscard]] std::uint32_t BorrowFor(std::uint32_t a_speaker) const;
 
+		// Whether this actor would be HEARD saying a Rapport line: their own voice
+		// is rendered, or they have one to borrow. A caller choosing WHO speaks
+		// (observers pick among bystanders) asks this first, so it never spends a
+		// line on someone who would only produce a subtitle.
+		[[nodiscard]] bool CanSpeak(std::uint32_t a_speaker) const;
+
+		// THE one path a Rapport line takes to the game. Queues a kSayTopic order:
+		// a_topic is the Topic's FILE-RELATIVE id in Rapport.esp, a_target who it is
+		// said to (0 for no one), and the borrowed voice is decided here, never by
+		// the caller. Barks, observers, and every later speaker come through it.
+		void Speak(std::uint32_t a_speaker, std::uint32_t a_target, std::uint32_t a_topic) const;
+
 	private:
 		[[nodiscard]] static std::uint32_t Resolve(const nlohmann::json& a_ref, std::string_view a_what);
 

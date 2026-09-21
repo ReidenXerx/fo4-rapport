@@ -4,6 +4,7 @@
 #include "Aftermath.h"
 #include "Barks.h"
 #include "Voices.h"
+#include "Watchers.h"
 #include "Expressions.h"
 #include "Ledger.h"
 #include "Scenarios.h"
@@ -71,6 +72,7 @@ namespace
 			RP::Expressions::GetSingleton().Load();
 			RP::Voices::GetSingleton().Load();
 			RP::Barks::GetSingleton().Load();
+			RP::Watchers::GetSingleton().Load();
 			RP::Expressions::GetSingleton().LoadOverrides();
 			RP::Scenarios::GetSingleton().Load();
 

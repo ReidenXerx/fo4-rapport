@@ -40,13 +40,22 @@ namespace RP
 		// persona forever, on every machine, at zero save cost.
 		[[nodiscard]] std::string_view PersonaOf(std::uint32_t a_formID) const;
 
+		// The bank also holds OBSERVER lines (R-12). Watchers decides WHO speaks
+		// and WHEN; this only says WHAT: a line for this persona, audience ("alone"
+		// or "crowd") and sex. Returns the Topic's file-relative id (0 when nothing
+		// fits, or barks are off) and the line id for the log.
+		[[nodiscard]] std::pair<std::uint32_t, std::string> PickObserver(
+			std::string_view a_persona, std::string_view a_audience, std::int32_t a_sex);
+
 	private:
 		struct Line
 		{
 			std::string   id;
+			bool          observer{ false };
 			std::string   persona;
-			std::string   scenario;
-			std::string   role;
+			std::string   scenario;   // pair lines
+			std::string   role;       // pair lines
+			std::string   audience;   // observer lines
 			char          gender{ 0 };   // 'm', 'f', or 0 for either
 			std::uint32_t topic{ 0 };    // FILE-RELATIVE; the bridge adds the load order
 		};
@@ -67,7 +76,9 @@ namespace RP
 			std::string_view a_persona, std::string_view a_scenario, std::string_view a_role,
 			std::int32_t a_sex);
 
-		static void Say(std::uint32_t a_speaker, std::uint32_t a_target, std::uint32_t a_topic);
+		// Shared by both pickers: a random line from the fits, never the one this
+		// key played last time. Caller holds _lock.
+		[[nodiscard]] const Line* Choose(std::vector<const Line*> a_fits, const std::string& a_key);
 
 		mutable std::timed_mutex _lock;
 		bool                     _enabled{ false };

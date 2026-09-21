@@ -214,9 +214,46 @@ Event OnTimer(Int aiTimerID)
 			Self.BeginRequest(request, Rapport:Core.TakenFirstID(), Rapport:Core.TakenSecondID(), Rapport:Core.TakenDuration())
 		EndIf
 
+		; Before the drain, so a line a watcher wins is spoken on this same poll.
+		Self.SweepWatchers()
 		Self.DrainOverlayOrders()
 	EndIf
 EndEvent
+
+; Who is near a running scene, and who can SEE it (R-12). Reports only: the
+; plugin decides who is rolled, who speaks and what they say. HasDetectionLOS
+; is the reason this half lives here - the C++ side has no line-of-sight call.
+;
+; No AAF call anywhere in this function, so it cannot wedge the poll's stack.
+Function SweepWatchers()
+	Float radius = Rapport:Core.WatchRadius()
+	If radius <= 0.0
+		Return
+	EndIf
+	Actor a = Game.GetForm(Rapport:Core.WatchFirstID()) as Actor
+	Actor b = Game.GetForm(Rapport:Core.WatchSecondID()) as Actor
+	If a == None || b == None || !a.Is3DLoaded()
+		Return
+	EndIf
+	; ActorTypeNPC, Fallout4.esm 00013794 (79764), read from the master.
+	Keyword npc = Game.GetFormFromFile(79764, "Fallout4.esm") as Keyword
+	If npc == None
+		Return
+	EndIf
+	ObjectReference[] near = a.FindAllReferencesWithKeyword(npc, radius)
+	Actor player = Game.GetPlayer()
+	Int i = 0
+	While i < near.Length
+		; The counter moves FIRST: a failed cast assigns None, and a loop whose
+		; counter depends on a cast can spin forever (CLAUDE.md rule 3).
+		Actor who = near[i] as Actor
+		i += 1
+		If who && who != a && who != b && who != player && !who.IsDead()
+			Rapport:Core.NoteWatcher(who.GetFormID(), who.HasDetectionLOS(a) || who.HasDetectionLOS(b))
+		EndIf
+	EndWhile
+	Rapport:Core.EndWatchSweep()
+EndFunction
 
 Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDuration)
 	; Never assume the array exists. It lives in the save, and a save written
