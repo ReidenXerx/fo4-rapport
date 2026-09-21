@@ -474,6 +474,35 @@ nothing plays.
 **Not Chemistry's.** Any second mod that wants bystander reactions wants this
 identically, which by R-1 puts it in the framework.
 
+### R-12 as built and verified in game (2026-09-21)
+
+`src/Watchers.cpp` (framework service) + `SweepWatchers` in `Bridge.psc`. Heard in game: Ivy saw a
+scene and spoke; McDonough, behind a wall, heard it; Cathy's line queued behind another's and came
+nine seconds later.
+
+1. **Notice.** From 10s into a scene, each poll the bridge finds NPCs within 900 units
+   (`FindAllReferencesWithKeyword`, ActorTypeNPC). The first time an adult who is alive and not
+   fighting is found, their HEAD turns to the scene (`SetLookAt(a, False)`, no walking) - owner's
+   design. Heads are released when no scene is running, which also covers a save loaded mid-scene.
+2. **See or hear, on a LATER sweep.** Sees = `HasDirectLOS` from the watcher's `Head` node to a
+   participant's `Pelvis` (else `Head`). Hears = within 600 units, walls or not (owner: someone next
+   door hears it and would comment). A hearing-only watcher never gets one of the 16 lines that talk
+   about seeing (tagged by `build-barks-table.py`).
+3. **One roll per watcher per scene**, 33%; per-actor cooldown 300s; winners QUEUE and speak one
+   per sweep, 6s apart - two reactions are both heard, in turn. Persona is the watcher's own (R-7);
+   voice through Voices (V-25). Settings: the `observers` block of `barks.json`.
+
+**Measured dead ends, so nobody re-tries them:**
+- `HasDetectionLOS` is the STEALTH system: friendly townsfolk do not detect friendly NPCs, and it
+  said no for a whole scene to two watchers whose heads were turned to it.
+- `HasDirectLOS(x, "", "")` runs root to root, along the floor: the furniture the pair lies on
+  blocked it on every sweep. Head->Pelvis found a gap past a wall on 3 of 5 sweeps.
+- The first queue-less version dropped a second winner on the same sweep; queueing fixed it.
+
+A watcher who noticed but never saw or heard is named in the log when the scene ends, so a silent
+bystander in a test explains themselves.
+
+
 ---
 
 ## N-1 - The new mod is downstream, and does not own anything (2026-09-21)
