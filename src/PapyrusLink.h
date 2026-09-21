@@ -156,6 +156,10 @@ namespace RP
 		// like the scene one so the two follow-up calls cannot see a different
 		// order from the one handed out.
 		void         QueueOrder(Order a_order);
+
+		// The request whose scene is running now, or 0. For a caller holding
+		// something to do LATER about a scene, to ask whether it still exists.
+		[[nodiscard]] std::int32_t RunningRequest() const;
 		void         QueueOrders(const std::vector<Order>& a_orders);
 		std::int32_t TakeOverlayOrder();
 		[[nodiscard]] std::size_t PendingOrders() const;

@@ -941,6 +941,32 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra)
 		Return
 	EndIf
 
+	If aiKind == 25
+		; A scene bark (R-9). Above the _api check on purpose: Say is not an AAF
+		; call, and a bark must not go quiet because AAF's API reference did.
+		;
+		; GetFormFromFile, never GetForm. setID is the Topic's FILE-RELATIVE id
+		; and the load-order byte is added back here, because Rapport.esp sits at
+		; a different index on every machine.
+		Actor speaker = Game.GetForm(aiFormID) as Actor
+		Topic line = Game.GetFormFromFile(asSetID as Int, "Rapport.esp") as Topic
+		If speaker == None || line == None
+			Rapport:Core.Trace("bark: speaker " + Rapport:Core.FormIdText(aiFormID) + " or topic " + asSetID + " does not resolve - not said")
+			Return
+		EndIf
+		; Dropped, not deferred. A line is about THIS moment of the scene, and
+		; saying it when they come back into the cell would be about nothing.
+		If !speaker.Is3DLoaded()
+			Rapport:Core.Trace("bark: " + Rapport:Core.FormIdText(aiFormID) + " is not loaded - line dropped")
+			Return
+		EndIf
+		ObjectReference listener = Game.GetForm(asExtra as Int) as ObjectReference
+		; Four arguments: the decompiled base sources carry no defaults.
+		speaker.Say(line, None, False, listener)
+		Rapport:Core.Trace("bark: " + Rapport:Core.FormIdText(aiFormID) + " says topic " + asSetID)
+		Return
+	EndIf
+
 	If _api == None
 		Return
 	EndIf

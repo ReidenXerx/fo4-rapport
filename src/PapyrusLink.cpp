@@ -4,6 +4,7 @@
 #include "Config.h"
 #include "DebugHub.h"
 #include "Aftermath.h"
+#include "Barks.h"
 #include "Expressions.h"
 #include "AAFHealth.h"
 #include "Ledger.h"
@@ -166,6 +167,7 @@ namespace
 			RP::AAFHealth::GetSingleton().Pump();
 			RP::Scenarios::GetSingleton().Pump();
 			RP::Expressions::GetSingleton().Pump();
+			RP::Barks::GetSingleton().Pump();
 			if (watching) {
 				logger::info("pump: returned normally");
 			}
@@ -945,6 +947,7 @@ namespace RP
 		// we put on somebody, and not knowing what happened is exactly when they
 		// have to come off.
 		Expressions::GetSingleton().OnSceneEnded();
+		Barks::GetSingleton().OnSceneEnded();
 
 		// And the scenario. Without this it keeps its stage clock running against a
 		// scene that is gone, advancing through the rest of its stages and asking a
@@ -1117,6 +1120,19 @@ namespace RP
 				_inFlightDuration);
 			Expressions::GetSingleton().StandDown();
 		}
+
+		// R-9. Last, so nothing above waits on it. The first actor is the one the
+		// addon's decision started from, so they open and the second answers.
+		Barks::GetSingleton().OnSceneStarted(a_request,
+			static_cast<std::uint32_t>(_inFlightFirst),
+			static_cast<std::uint32_t>(_inFlightSecond),
+			_inFlightScenario);
+	}
+
+	std::int32_t PapyrusLink::RunningRequest() const
+	{
+		NamedLock lock{ _counter, "request counter" };
+		return _sceneRunning ? _inFlightRequest : 0;
 	}
 
 	void PapyrusLink::NoteEvent(std::string_view a_name)
@@ -1618,6 +1634,7 @@ namespace RP
 			Aftermath::GetSingleton().OnSceneEnded(first, second);
 		}
 		Expressions::GetSingleton().OnSceneEnded();
+		Barks::GetSingleton().OnSceneEnded();
 		Scenarios::GetSingleton().End();
 		_sceneInFlight.store(false);
 	}
@@ -1713,6 +1730,7 @@ namespace RP
 			Ledger::GetSingleton().RecordRefusal(first, second);
 		}
 		Expressions::GetSingleton().OnSceneEnded();
+		Barks::GetSingleton().OnSceneEnded();
 
 		ClearInFlight();
 		_sceneInFlight.store(false);

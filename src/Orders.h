@@ -136,7 +136,13 @@ namespace RP
 			// the loading art. MoveTo never performs the transition the engine is
 			// waiting for. FastTravel does, and then MoveTo is for precision once
 			// the right worldspace is loaded. Two operations, like the cell split.
-			kFastTravel = 24
+			kFastTravel = 24,
+
+			// Say a dialogue Topic (R-9). formID speaks, setID is the Topic's
+			// FILE-RELATIVE id in decimal, extra is who they say it to. The bridge
+			// resolves it with GetFormFromFile, never GetForm: Rapport.esp's load
+			// order differs on every machine, and a runtime id works on one.
+			kSayTopic = 25
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

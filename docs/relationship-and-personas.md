@@ -384,6 +384,33 @@ Four things established getting there, each of which would have produced a wrong
   hung game. And `CopyFromScreen` photographs whatever is ON the screen, so an overlapping
   window replaced four mid-scene frames. The owner caught the first by ear.
 
+### R-9 wired (2026-09-21) - built, awaiting an in-game run
+
+- **Choosing is C++, speaking is Papyrus.** `src/Barks.cpp` picks the line and
+  queues `Order::kSayTopic` (25); the bridge calls `Say` on its own thread
+  (rule 1). The handler sits ABOVE the `_api` check - Say is not an AAF call -
+  and DROPS a line whose speaker is unloaded instead of deferring it.
+- **The table is generated**: `scripts/build-barks-table.py` writes
+  `data/F4SE/Plugins/Rapport/barks.json` from `make_dialogue.load()`, the same
+  function that numbers the ESP. Topic ids are FILE-RELATIVE; the bridge uses
+  `GetFormFromFile(id, "Rapport.esp")`. CI runs `formids.py --check` and
+  `build-barks-table.py --check` before the build; the latter was proven to fail
+  on a one-id drift.
+- **Who speaks:** the first actor opens on `scene started`; the second answers
+  `responderDelaySeconds` (4.5) later, rounded up to the next poll. The reply is
+  cancelled on every scene-end path, and dropped as a backstop if its request is
+  no longer the running one. No scenario -> no bark (the bank is per scenario).
+  Assumption, not measured: the addon's FIRST actor is the initiator.
+- **Sex** comes from the bridge's `NoteActorSex` (already reported at request
+  time). Unknown sex gets only the ungendered lines. Coverage: all 48
+  persona x scenario x role x sex cells have >= 6 lines.
+- **Persona (R-7) is hashed before the modulo**, `(id * 2654435761) >> 16 % 4`.
+  Measured on 25,000 simulated ids: a plain `id % 4` would have locked persona to
+  the face style's parity - an odd-styled face could NEVER be mercantile or
+  vulgar (0.0%). Hashed, every persona is 24.6-26.0% inside both. The persona list
+  order is save-facing: append only (PERSONA_ORDER in the generator).
+- The same NPC never repeats the previous line for the same persona/scenario/role.
+
 **The ESP generator will need to emit Sound records.** `tools/make_esp.py` already emits
 quests, so the machinery exists; SNDR is new work but small.
 

@@ -27,6 +27,10 @@ $ErrorActionPreference = 'Stop'
 $root    = Split-Path -Parent $PSScriptRoot
 $sources = Join-Path $root 'papyrus'
 $out     = Join-Path $root 'build\papyrus'
+# Import-only declarations the reconstructed base lacks (Topic, TopicInfo,
+# VoiceType). An import path, never a source: compiled, they would ship .pex
+# files that shadow the game's own types.
+$stubs   = Join-Path $root 'papyrus-stubs'
 
 if (-not (Test-Path $Compiler)) {
     throw "No Papyrus compiler at $Compiler."
@@ -52,7 +56,7 @@ Write-Host "Compiling $($scripts.Count) script(s) against $Base"
 # Batch mode, not file by file. A namespaced script (Rapport:Bridge) compiled by
 # path fails with "filename does not match script name": the namespace has to come
 # from the import paths, which -all does and a single file path cannot.
-$output = & $Compiler $sources -all -f="Institute_Papyrus_Flags.flg" -i="$Base;$sources" -o="$out" 2>&1
+$output = & $Compiler $sources -all -f="Institute_Papyrus_Flags.flg" -i="$Base;$sources;$stubs" -o="$out" 2>&1
 
 # Print everything the compiler said. An earlier version filtered this to lines
 # matching "error", which hid the only message that explained a failure.

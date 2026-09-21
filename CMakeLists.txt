@@ -19,6 +19,8 @@ add_subdirectory("extern/CommonLibF4/CommonLibF4" "CommonLibF4")
 
 set(SOURCES
 	"src/PCH.h"
+	"src/Barks.h"
+	"src/Barks.cpp"
 	"src/Config.h"
 	"src/Config.cpp"
 	"src/Mailbox.h"
