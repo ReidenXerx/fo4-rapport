@@ -45,6 +45,10 @@ def main() -> int:
 
     wanted, missing_src = {}, []
     for vt_dir in sorted((ROOT / "voice/out").iterdir()):
+        # voice/out is its own git repository now: .git (and any dot-folder) is not a
+        # voice type, and walking it reported 205 "unrendered" lines that hid real ones.
+        if not vt_dir.is_dir() or vt_dir.name.startswith("."):
+            continue
         if not vt_dir.is_dir():
             continue
         for lid, info in by_id.items():
@@ -92,7 +96,9 @@ def main() -> int:
     have = set(voice_root.rglob("*.fuz"))
     wrong = [d for d in wanted if d not in have or not same(d, wanted[d])]
     print(f"\nin place      : {len(have):,}   wrong or missing: {len(wrong)}")
-    return 1 if wrong else 0
+    # Unrendered lines fail the WRITE mode too: the release gate relies on this exit
+    # code, and a line with no audio is exactly what it exists to stop.
+    return 1 if (wrong or missing_src) else 0
 
 
 if __name__ == "__main__":

@@ -316,6 +316,17 @@ namespace RP
 		}
 	}
 
+	void Ledger::NoteAlive(const std::vector<std::uint32_t>& a_loaded)
+	{
+		NamedLock lock{ _lock, "ledger" };
+		if (_dead.empty()) {
+			return;
+		}
+		for (const auto id : a_loaded) {
+			_dead.erase(id);
+		}
+	}
+
 	float Ledger::HoursSincePair(std::uint32_t a_first, std::uint32_t a_second) const
 	{
 		const auto now = GameHours();
@@ -364,6 +375,9 @@ namespace RP
 
 	void Ledger::SetNeed(std::uint32_t a_formID, float a_need)
 	{
+		if (!std::isfinite(a_need)) {
+			return;
+		}
 		NamedLock lock{ _lock, "ledger" };
 		_records[a_formID].need = a_need;
 	}
@@ -729,7 +743,10 @@ namespace RP
 			// A row holding NOTHING goes whatever its age - the hole the actor prune
 			// above already closed: a stranger seeded at 0 whose scene was refused has
 			// no scene and no touch, so the age test below could never fire for it.
-			if (record.scenes == 0 && std::fabs(record.bond) < kBondFloor && !record.affair) {
+			// Kept if it carries a FACT: a blood tie, an affair, or movement from dialogue,
+			// a gift or an addon (re-seeding would erase that and break the one-shot seed).
+			const bool moved = record.lastReason != BondReason::kNone && record.lastReason != BondReason::kVanilla;
+			if (record.scenes == 0 && std::fabs(record.bond) < kBondFloor && !record.affair && !record.incest && !moved) {
 				return true;
 			}
 			// R-6: a relationship is cleaned on death, never on a timer. Age still
@@ -869,7 +886,7 @@ namespace RP
 				record.lastRefusedAt = entry.lastRefusedAt;
 				record.scenes = entry.scenes;
 				record.refusals = entry.refusals;
-				record.need = entry.need;
+				record.need = std::isfinite(entry.need) ? entry.need : 0.0f;
 
 				// The partner is a form id too, and it can rot independently.
 				// A partner we cannot resolve becomes nobody, not a wrong somebody.

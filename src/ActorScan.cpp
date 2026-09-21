@@ -147,8 +147,11 @@ namespace RP
 				// mod ignores them entirely, as witnesses too.
 				if (config.IsRaceAllowed(actor->race)) {
 					_observerPositions.push_back(actor->GetPosition());
-					_loadedIDs.push_back(actor->GetFormID());
 				}
+				// Every loaded actor, whatever their race: overlays are re-applied and
+				// stranded orders re-issued from this list, and a custom-race NPC an
+				// addon put in a scene must not be left carrying AAF's busy flag.
+				_loadedIDs.push_back(actor->GetFormID());
 
 				if (actor->IsInCombat()) {
 					++_counters.inCombat;

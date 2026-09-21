@@ -264,6 +264,8 @@ namespace RP
 				Ledger::GetSingleton().Clear();
 			}
 
+			// A tombstone ends when the actor is seen alive (respawn, resurrection).
+			Ledger::GetSingleton().NoteAlive(_scan.LoadedIDs());
 			Aftermath::GetSingleton().Tick(_scan.LoadedIDs());
 
 			// Cleanup the bridge refused because its actor was not loaded. Same

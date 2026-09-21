@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Candidates.h"
 #include "NamedLock.h"
 
 namespace RP
@@ -27,11 +28,14 @@ namespace RP
 		void Load();
 
 		// An addon's own share of a pair's score, reported just before it asks for
-		// the scene ("bond", +0.45). Printed after Rapport's own parts. Kept for two
+		// the scene ("bond", +0.45). Printed after Rapport's own parts. Kept for five
 		// minutes, and used by the next request for the same two.
 		void AddBonus(std::uint32_t a_first, std::uint32_t a_second, std::string_view a_label, float a_value);
 
-		// Every successful request, whoever made it. Composes and shows the line.
+		// A request was accepted: keep the offer it was decided from.
+		void OnRequestAccepted(std::uint32_t a_first, std::uint32_t a_second);
+
+		// The scene STARTED, whoever asked for it. Composes and shows the line.
 		void OnSceneRequested(std::uint32_t a_first, std::uint32_t a_second, std::string_view a_scenario);
 
 		// An addon passed on a likely pair and says why (a clause, no names:
@@ -59,6 +63,10 @@ namespace RP
 		struct Pending
 		{
 			std::vector<Bonus>                    bonuses;
+			// The published offer AS IT WAS when the scene was requested. The line is
+			// spoken at the start, after AAF's walk, and by then Rapport has usually
+			// republished - a later Find() lost the crowd, the time and the parts.
+			std::optional<Candidates::Offer>      offer;
 			std::chrono::steady_clock::time_point at{};
 		};
 

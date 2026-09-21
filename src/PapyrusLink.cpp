@@ -1072,6 +1072,7 @@ namespace RP
 			"request {}: queued {} ({:08X}) and {} ({:08X}) for {:.0f}s",
 			request, a_first->GetDisplayFullName(), a_first->GetFormID(),
 			a_second->GetDisplayFullName(), a_second->GetFormID(), a_duration);
+		Narrator::GetSingleton().OnRequestAccepted(a_first->GetFormID(), a_second->GetFormID());
 		return true;
 	}
 

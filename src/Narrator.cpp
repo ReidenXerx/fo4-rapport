@@ -113,7 +113,7 @@ namespace RP
 		NamedLock lock{ _lock, "narrator" };
 		auto& pending = _pending[Key(a_first, a_second)];
 		// A report older than two minutes belongs to a decision that was never acted on.
-		if (Clock::now() - pending.at > std::chrono::minutes{ 2 }) {
+		if (Clock::now() - pending.at > std::chrono::minutes{ 5 }) {
 			pending.bonuses.clear();
 		}
 		pending.at = Clock::now();
@@ -132,17 +132,28 @@ namespace RP
 		}
 	}
 
+	void Narrator::OnRequestAccepted(std::uint32_t a_first, std::uint32_t a_second)
+	{
+		const auto offer = Candidates::GetSingleton().Find(a_first, a_second);
+		NamedLock  lock{ _lock, "narrator" };
+		auto&      pending = _pending[Key(a_first, a_second)];
+		pending.offer = offer;
+		pending.at = Clock::now();
+	}
+
 	void Narrator::OnSceneRequested(std::uint32_t a_first, std::uint32_t a_second, std::string_view a_scenario)
 	{
-		std::vector<Bonus> bonuses;
+		std::vector<Bonus>              bonuses;
+		std::optional<Candidates::Offer> kept;
 		bool               speak = false;
 		bool               numbers = false;
 		{
 			NamedLock lock{ _lock, "narrator" };
 			_lastScene = { a_first, a_second };
 			if (const auto it = _pending.find(Key(a_first, a_second)); it != _pending.end()) {
-				if (Clock::now() - it->second.at <= std::chrono::minutes{ 2 }) {
+				if (Clock::now() - it->second.at <= std::chrono::minutes{ 5 }) {
 					bonuses = std::move(it->second.bonuses);
+					kept = it->second.offer;
 				}
 				_pending.erase(it);
 			}
@@ -153,14 +164,13 @@ namespace RP
 			return;
 		}
 
-		const auto  offer = Candidates::GetSingleton().Find(a_first, a_second);
+		const auto  offer = kept ? kept : Candidates::GetSingleton().Find(a_first, a_second);
 		const auto& weights = Config::GetSingleton().Weights();
 		auto&       ledger = Ledger::GetSingleton();
 		const auto  persona = std::string{ Barks::GetSingleton().PersonaOf(a_first) };
-		// The store is seeded when the bridge STARTS the scene, which is after this
-		// request - so on a pair's first scene the ledger still reads 0 and "not
-		// partners". What the addon reported at decision time fills that in: its
-		// "bond" share, and a zero-valued "couple" marker (skipped in the numbers).
+		// Narrated at scene START, after the bridge has seeded the store, so the
+		// ledger is usually current here. The addon's markers still win: they are
+		// what it decided on.
 		float bond = ledger.Bond(a_first, a_second);
 		bool  married = ledger.IsPartner(a_first, a_second);
 		// Markers (a leading '_') carry facts for the WORDS and are never printed:

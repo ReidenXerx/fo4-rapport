@@ -1116,18 +1116,21 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 		If aiVoice != 0
 			borrowed = Game.GetForm(aiVoice) as VoiceType
 		EndIf
-		; Whatever they wear NOW is put back afterwards - not None. Clearing to None
-		; wiped any override another mod had set, and if an AAF voice line interleaved
-		; on another stack it could restore OUR borrowed voice for good. AAF's own
-		; sayTopic saves and restores exactly like this.
+		; AAF's own sayTopic order, exactly: note what they wear, borrow, say, CLEAR,
+		; and only if clearing did not bring back what they wore (another mod had an
+		; override on them), put that back. Comparing while our borrowed voice was
+		; still on either left it on for good or pinned a pointless override.
 		VoiceType prior = speaker.GetVoiceType()
 		If borrowed
 			speaker.SetOverrideVoiceType(borrowed)
 		EndIf
 		; Four arguments: the decompiled base sources carry no defaults.
 		speaker.Say(line, None, False, listener)
-		If borrowed && speaker.GetVoiceType() != prior
-			speaker.SetOverrideVoiceType(prior)
+		If borrowed
+			speaker.SetOverrideVoiceType(None)
+			If prior && speaker.GetVoiceType() != prior
+				speaker.SetOverrideVoiceType(prior)
+			EndIf
 		EndIf
 		Rapport:Core.Trace("bark: " + Rapport:Core.FormIdText(aiFormID) + " says topic " + asSetID)
 		Return

@@ -131,6 +131,9 @@ namespace RP
 		// R-6: a dead NPC's rows are waste against a hard ceiling. Called by the
 		// engine's death event, never by a timer.
 		void ForgetActor(std::uint32_t a_formID);
+		// The scan saw these alive: a respawned or resurrected actor is not dead any
+		// more, and may be recorded again. Main thread, once a pass.
+		void NoteAlive(const std::vector<std::uint32_t>& a_loaded);
 
 		// One sink on the engine's global death event, registered at data ready.
 		static void RegisterDeathSink();

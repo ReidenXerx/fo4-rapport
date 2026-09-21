@@ -32,6 +32,7 @@ namespace RP
 	{
 		NamedLock lock{ _lock, "candidates" };
 		_offers.clear();
+		_generation.fetch_add(1);
 	}
 
 	std::optional<Candidates::Offer> Candidates::Find(std::uint32_t a_first, std::uint32_t a_second) const
