@@ -37,6 +37,26 @@ jobs:
           path: ${{ github.workspace }}/vcpkg_installed
           key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
+      - name: Make the pinned vcpkg baseline reachable
+        shell: pwsh
+        run: |
+          # The runner ships vcpkg as a SHALLOW clone, so the baseline pinned in
+          # vcpkg.json is not in its history and every dependency fails to
+          # resolve. Removing the pin would fix the build and destroy the point
+          # of it: an unpinned baseline means the next run builds against
+          # different library versions, and a hash nobody can reproduce proves
+          # nothing. So deepen the clone instead.
+          $vcpkg = $env:VCPKG_INSTALLATION_ROOT
+          Write-Host "vcpkg at $vcpkg"
+          if (Test-Path "$vcpkg/.git/shallow") {
+            git -C $vcpkg fetch --unshallow --quiet
+          } else {
+            git -C $vcpkg fetch --quiet origin
+          }
+          git -C $vcpkg cat-file -e 386d7c478221b7ee0c97bfe6ea61dcf65121d564^{commit}
+          if ($LASTEXITCODE -ne 0) { throw 'baseline 386d7c478221b7ee0c97bfe6ea61dcf65121d564 is still unreachable' }
+          Write-Host 'baseline 386d7c478221b7ee0c97bfe6ea61dcf65121d564 is reachable'
+
       - name: Configure
         shell: pwsh
         run: |
