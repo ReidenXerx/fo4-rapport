@@ -270,6 +270,77 @@ as if they were new:
 - **`eleven_v3_conversational`, Flash and Turbo** - lower latency, which is worthless for an
   offline batch that is rendered once and shipped as files.
 
+### V-21 — Delivery lives in the BRIEF. To change register, make a sibling voice.
+
+The reusable result of this project, and the one worth reaching for first next
+time.
+
+**The problem.** Every voice here was designed with *"Speaks low and close,
+half-whispered, as if avoiding being overheard"* in its brief. Correct for two
+people in a corner. Then the observer lines arrived and one of them was
+*"Louder, would you! Some of us are standing at the back!"* — a heckle thrown
+across a settlement, in a voice that had been built to confide.
+
+**What does NOT fix it.** Dropping the `[whispers]` tag, raising `style`,
+raising `stability`, raising `speed`. Those shape a performance; they do not
+replace a timbre. The intimacy was designed IN, and it stays.
+
+**What does.** Make a **second voice from the same character brief with only the
+delivery clause swapped.**
+
+    character clause   (IDENTICAL, never touched)
+      "A neutral middle-aged American man, around forty, even and level and
+       completely unremarkable - the plain voice of an ordinary working settler..."
+
+    delivery clause    (the ONLY thing that changes)
+      intimate:  "Speaks low and close, half-whispered, as if avoiding being
+                  overheard."
+      projecting:"Speaks up so the whole room hears it, pitched to carry across a
+                  crowd, with the easy volume of somebody who does not mind at all
+                  being overheard."
+
+Voice Design reads the whole prose brief as one identity, so holding the
+character half fixed and varying only the delivery half yields a **sibling** -
+recognisably the same person in a different register - rather than a stranger.
+That is what makes it safe to swap between them mid-scene.
+
+**The recipe, in order:**
+
+1. **Find the line that breaks hardest** and make it the test text. Not a typical
+   line - the one the current voice is worst at. If that one works, the rest do.
+2. **Pilot three or four types, never all of them.** Designing four costs about
+   550 credits and turns an unanswerable question into an A/B. Designing
+   thirty-two before anybody has listened is a spend on an assumption.
+3. **Hold everything else constant** in the comparison: same text, same
+   `voice_settings`, same seed. Only the brief varies.
+4. **Let the owner pick by ear** (V-9). An agent cannot hear a register.
+5. **Scale only after the pilot lands**, then wire the renderer to choose a voice
+   **per line**, not per voice type.
+
+**Costs, so the shape is known in advance.** Designing is cheap - roughly 137
+credits per voice, so 32 siblings is about 4,400. Creating them from previews
+costs a voice slot and a voice add/edit each (160 and 290 respectively; this
+project is at 64 of each after two sets). **Re-rendering is the real spend** -
+1,024 crowd lines came to about 51,000 credits. Design freely; render once.
+
+**Two honest limits on how this one was validated.**
+
+- The A/B was not perfectly controlled. The current-voice side was rendered with
+  the crowd `voice_settings` applied, while the projecting side was a Voice
+  Design preview at its own defaults. So it compared *knobs-only* against
+  *new brief plus defaults*, not the brief alone. The preference was clear, but
+  a cleaner test would render both through the same settings.
+- **Twenty-eight of the thirty-two siblings were never auditioned.** The owner
+  heard four and chose preview 2; that choice was applied to the rest by pattern.
+  Per V-16 a pattern is not evidence. All 96 previews are kept in
+  `voice/audition-loud/` so any type can be swapped with one field in
+  `voices.json` and a single `--only` re-render.
+
+**Where this goes next.** The dialogue mod will want more registers than two -
+angry, flirtatious, formal, frightened. This is the method for all of them: one
+character brief, N delivery clauses, N sibling voices, chosen per line. The
+character stays the same person throughout, which is the entire point.
+
 ---
 
 ## Settled numbers
@@ -277,6 +348,7 @@ as if they were new:
 | | |
 | --- | --- |
 | model | per line, whichever measures better first; EVERY render gated by STT (V-1) |
+| voice | per line: intimate (preview 3) for pairs and lone observers, projecting (preview 2) for crowd lines (V-21) |
 | output format | `pcm_44100` |
 | voice settings | `similarity_boost 0.75`, `style 0.3`, `use_speaker_boost true` |
 | stability / speed | per scenario: quickie 0.30 / 1.10 &middot; tender 0.35 / 0.92 &middot; athome 0.40 / 0.95 |
