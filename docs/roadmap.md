@@ -127,3 +127,21 @@ and nothing but memory would have turned it off again.
     Sex with companions is its own module in the next mod, with a standalone relationship system
     bound to the same relationship store and carrying companion-only modifiers. Until then
     companions stay out of autonomy: they are deliberately not on `ambientQuests`.
+
+11. **Narrator** (owner idea + poll, 2026-09-21). An optional Rapport module that says, in a line,
+    what is about to happen and WHY, so a player can see the machinery if they want to. Because
+    every mod on Rapport goes through it (Chemistry, Overture, Player Proposals), one module
+    narrates all of them. Settled by poll:
+    - **Surface:** a HUD notification, plus a readable history of recent entries (an MCM page or a
+      holotape, to decide when built).
+    - **Voice:** a wry one-sentence storyteller line carrying the real reasons (place, time, crowd,
+      bond, persona), then a second line with the actual score parts, e.g.
+      `Marcy and Sturges slip away - late, quiet, and they get along.`
+      `[score 1.20 = near +1.4, night +.25, 5 watching -.9]`
+    - **Moments:** scene starts, why nothing happened (a likely pair passed over), relationship
+      turns (a bond crossing a threshold, a first time), bystanders reacting. **Each is an MCM
+      checkbox**, so players choose.
+    - **Scope:** every scene in the loaded area, not only ones the player could notice.
+    Needs from the core: the score breakdown per pair (Rapport has the parts in `PairSignals`; an
+    addon's own bonuses must be reportable too, so Chemistry can say "+0.45 bond"), and an event
+    for each moment. Not designed further yet.
