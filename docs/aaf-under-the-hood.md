@@ -1,5 +1,29 @@
 # AAF under the hood
 
+> **Reviewed by AAF's author, 2026-09-21.** Dagobaking answered every finding in
+> [issue #1](https://github.com/ReidenXerx/fo4-rapport/issues/1). Read his notes alongside this
+> file, because where he corrects us, **he is right and this file is wrong**:
+>
+> - **Confirmed:** §1 (fixed in AAF 1.7.8, but "roughly half of all loads" was our dev loop, not
+>   normal play), §2, §3, §5, §6, §7 (except its last sentence: do NOT strip the busy keyword
+>   yourself; wait for OnSceneEnd), §9, §11, §13, §14, §17, §19, §21.
+> - **Corrected, not AAF:** §8 is backwards (a timed scene without a tree ends on its timer). §10
+>   is wrong (`includeTags` is ANY, `combinedTags` is ALL). §22's thirteen-minute lock was our
+>   in-flight request flag. §23 and §24 are wrong: AAF calls return at once, and the wedge was our
+>   native code touching an unloaded actor's 3D.
+> - **Probably our input:** §15. An empty tag field means a tag named "", so pass "NONE".
+> - **Not framework rules:** §4 (the pack's choice), §12 (engine; tags are case-insensitive), §18
+>   (our classifier's grading), §20 (use the comma form "unEquip,yourSet").
+> - **Coming in 1.7.8:** GetSceneData, RemoveMFGSet/ClearMFG, starting a tree at a branch, and a
+>   test of the walk-in fast-travel crash.
+>
+> Rapport's own follow-ups:
+> - Stop calling AAF's init functions once 1.7.8 ships, and never at `GetAAFStatus() == 1`.
+> - Stop stripping busy keywords.
+> - Re-check every `includeTags` use against its any-of meaning.
+> - Retry ChangePosition with "NONE".
+
+
 Everything here was measured against a running game or read out of AAF's own decompiled sources.
 None of it is documented by AAF, and several items contradict what its API looks like it promises.
 `docs/aaf-api.md` covers the call shapes; this file covers the behaviour underneath them.

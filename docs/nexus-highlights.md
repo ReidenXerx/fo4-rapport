@@ -62,8 +62,9 @@ market: children stand around there.
 
 ## Under the hood (worth a section, not a headline)
 
-- **It fixes AAF going deaf.** Roughly half of all save loads leave AAF silently unable to start
-  anything, with no error anywhere. Rapport detects it and repairs it (FEATURES "The AAF watchdog").
+- **AAF's load race** (rare in normal play; confirmed by AAF's author and fixed in AAF 1.7.8, issue #1).
+  Rapport notices and recovers it until then. Do NOT claim AAF bugs the author attributed to our own
+  bridge (issue #1: §22-24).
 - **Faces that match the moment**, and are always taken off afterwards (FEATURES §4).
 - **Aftermath that lasts in game hours**, on the right person, from the last act (FEATURES §5).
 - **Roles are right.** In a mixed pair the woman is placed in the receiving role even when an
