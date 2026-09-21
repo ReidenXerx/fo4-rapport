@@ -113,3 +113,12 @@ and nothing but memory would have turned it off again.
    archives / loose `Sound/Voice/<plugin>/` folders would give them measured matches too.
    `rebuild-voices.py` is already incremental, so it is the inputs that grow, not the pipeline.
    Mind that the map becomes per-install then, and the shipped table cannot contain it.
+
+9. **Use the fingerprints to find the ROSTER'S GAPS** (owner idea, 2026-09-21). The voice
+   embeddings (V-25) already measure how close every unique voice - vanilla, and with item 8 every
+   MODDED one - is to the 32 voices we render. Turned around, the same numbers say which kinds of
+   voice we are MISSING: cluster the unique voices that sit far from all 32 (low best-match score,
+   many NPCs using them) and each dense far-away cluster is a voice archetype worth rendering next.
+   That turns "which voice types should we add?" from taste into a measured list, ranked by how many
+   characters each new voice would cover. The owner still picks by ear (V-9); the list only says
+   where to listen. Ties naturally to item 8 (mod voices make the gaps real on a given install).
