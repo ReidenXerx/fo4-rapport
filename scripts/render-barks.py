@@ -178,9 +178,23 @@ def main() -> int:
                 return loud, True
         return chosen[vt], False
 
-    jobs = []
+    def gender_of(vt):
+        # "Female" contains "male", so test female FIRST. All 32 types encode it
+        # in the name; anything that does not is treated as neutral and gets no
+        # gendered lines at all rather than being guessed at.
+        low = vt.lower()
+        return "f" if "female" in low else ("m" if "male" in low else None)
+
+    jobs, skipped = [], 0
     for vt in sorted(chosen):
+        g = gender_of(vt)
         for ln in lines:
+            # A line with explicit self-reference exists in an m and an f variant;
+            # a voice renders only its own. Neutral lines have no gender and are
+            # rendered by everybody.
+            if ln.get("gender") and ln["gender"] != g:
+                skipped += 1
+                continue
             fuz = ROOT / "voice/out" / vt / f"{ln['id']}.fuz"
             if fuz.exists() and not a.force:
                 continue
@@ -193,6 +207,8 @@ def main() -> int:
     print(f"voices chosen : {len(chosen)} of {len(types)}"
           f"   ({sum(1 for d in types.values() if d.get('chosen_loud'))} have a loud variant)")
     print(f"projecting    : {loud_n} crowd lines on the loud voice")
+    if skipped:
+        print(f"gender-skipped: {skipped} (lines belonging to the other voice gender)")
     print(f"to render     : {len(jobs)}   ({expr} trying {EXPR} first, "
           f"{len(jobs)-expr} trying {SAFE} first)")
     print(f"characters    : {chars:,}  (every render is transcribed and re-rolled on drift)")

@@ -670,8 +670,8 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "Bend over that crate and let's not waste the daylight.",
-      "chars": 54
+      "text": "Get your mouth on me before somebody comes around that corner.",
+      "chars": 62
     },
     {
       "id": "vulgar_quickie_init_02",
@@ -679,17 +679,28 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "I've been hard since you walked past me. Do something about it.",
-      "chars": 63
+      "text": "Bend over that crate and get your pants out of the way.",
+      "chars": 55
     },
     {
-      "id": "vulgar_quickie_init_03",
+      "id": "vulgar_quickie_init_03_m",
       "kind": "pair",
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "Get your hands on me before somebody needs something.",
-      "chars": 53
+      "text": "I have been hard since you walked past me. Do something about it.",
+      "chars": 65,
+      "gender": "m"
+    },
+    {
+      "id": "vulgar_quickie_init_03_f",
+      "kind": "pair",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I have been wet since you walked past me. Do something about it.",
+      "chars": 64,
+      "gender": "f"
     },
     {
       "id": "vulgar_quickie_init_04",
@@ -697,8 +708,8 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "No more talking. Just get your clothes out of the way.",
-      "chars": 54
+      "text": "Put your hand down my pants and be quick about it.",
+      "chars": 50
     },
     {
       "id": "vulgar_quickie_init_05",
@@ -706,8 +717,8 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "I want you filthy and I want you right now.",
-      "chars": 43
+      "text": "I want to fuck you against this wall in the next minute.",
+      "chars": 56
     },
     {
       "id": "vulgar_quickie_init_06",
@@ -715,8 +726,8 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "Hands on the wall. We've got about a minute.",
-      "chars": 44
+      "text": "Spread your legs and stop worrying about who is watching.",
+      "chars": 57
     },
     {
       "id": "vulgar_quickie_resp_01",
@@ -724,7 +735,7 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
-      "text": "Then stop describing it and get on with it.",
+      "text": "Then stop talking and put your hands on me.",
       "chars": 43
     },
     {
@@ -733,8 +744,8 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
-      "text": "You talk a lot for somebody with his hands that full.",
-      "chars": 53
+      "text": "Fuck me quickly and I will not say a word about it.",
+      "chars": 51
     },
     {
       "id": "vulgar_quickie_resp_03",
@@ -742,8 +753,8 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
-      "text": "Filthy is what I came over here for. Go on.",
-      "chars": 43
+      "text": "Get your fingers in me before I change my mind.",
+      "chars": 47
     },
     {
       "id": "vulgar_quickie_resp_04",
@@ -751,8 +762,8 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
-      "text": "About time. Hurry up and ruin me properly.",
-      "chars": 42
+      "text": "Use your mouth on me now, because we do not have long.",
+      "chars": 54
     },
     {
       "id": "vulgar_quickie_resp_05",
@@ -760,8 +771,8 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
-      "text": "Quit narrating the thing and start doing it.",
-      "chars": 44
+      "text": "Bend me over it, then, and do not be gentle about it.",
+      "chars": 53
     },
     {
       "id": "vulgar_quickie_resp_06",
@@ -769,8 +780,8 @@
       "persona": "vulgar",
       "scenario": "quickie",
       "role": "responder",
-      "text": "The wall it is, then. Make it count.",
-      "chars": 36
+      "text": "I want to taste you before somebody interrupts us.",
+      "chars": 50
     },
     {
       "id": "vulgar_athome_init_01",
@@ -778,8 +789,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
-      "text": "Door's shut, and I'm going to take my time wrecking you.",
-      "chars": 56
+      "text": "The door is shut and I am going to fuck you all night.",
+      "chars": 54
     },
     {
       "id": "vulgar_athome_init_02",
@@ -787,17 +798,28 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
-      "text": "Get on the bed. I've got plans and none of them are polite.",
-      "chars": 59
+      "text": "Get on the bed and open your legs for me.",
+      "chars": 41
     },
     {
-      "id": "vulgar_athome_init_03",
+      "id": "vulgar_athome_init_03_m",
       "kind": "pair",
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
-      "text": "I want to hear you all night and there's nobody around to complain.",
-      "chars": 67
+      "text": "I want your mouth on my cock and your hands in my hair.",
+      "chars": 55,
+      "gender": "m"
+    },
+    {
+      "id": "vulgar_athome_init_03_f",
+      "kind": "pair",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "I want your mouth on my cunt and your hands in my hair.",
+      "chars": 55,
+      "gender": "f"
     },
     {
       "id": "vulgar_athome_init_04",
@@ -805,8 +827,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
-      "text": "Clothes off. We are not leaving this room until morning.",
-      "chars": 56
+      "text": "Take everything off, because I want to see all of you.",
+      "chars": 54
     },
     {
       "id": "vulgar_athome_init_05",
@@ -814,8 +836,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
-      "text": "I've thought filthy things about you all week. Let's work through them.",
-      "chars": 71
+      "text": "I am going to have you on every surface in this room.",
+      "chars": 53
     },
     {
       "id": "vulgar_athome_init_06",
@@ -823,8 +845,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "initiator",
-      "text": "Lie down and let me be extremely thorough about this.",
-      "chars": 53
+      "text": "Get your ass over here, because I am not asking twice.",
+      "chars": 54
     },
     {
       "id": "vulgar_athome_resp_01",
@@ -832,8 +854,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
-      "text": "Thorough sounds about right. Get over here.",
-      "chars": 43
+      "text": "Then fuck me properly, because nobody is listening tonight.",
+      "chars": 59
     },
     {
       "id": "vulgar_athome_resp_02",
@@ -841,8 +863,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
-      "text": "Then be loud about it, because nobody is listening.",
-      "chars": 51
+      "text": "My legs are open, so do something about it.",
+      "chars": 43
     },
     {
       "id": "vulgar_athome_resp_03",
@@ -850,8 +872,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
-      "text": "Plans, is it. Go ahead and show me the plans.",
-      "chars": 45
+      "text": "I want your tongue on me until I cannot think straight.",
+      "chars": 55
     },
     {
       "id": "vulgar_athome_resp_04",
@@ -859,8 +881,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
-      "text": "Wreck away. I've been waiting on this all week.",
-      "chars": 47
+      "text": "Everything comes off, and that includes yours.",
+      "chars": 46
     },
     {
       "id": "vulgar_athome_resp_05",
@@ -868,8 +890,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
-      "text": "Off they come, and don't you dare be gentle.",
-      "chars": 44
+      "text": "Every surface, you said. I am holding you to that.",
+      "chars": 50
     },
     {
       "id": "vulgar_athome_resp_06",
@@ -877,8 +899,8 @@
       "persona": "vulgar",
       "scenario": "athome",
       "role": "responder",
-      "text": "All night, you said. Go on and prove it.",
-      "chars": 40
+      "text": "Get over here and put your hands on my ass.",
+      "chars": 43
     },
     {
       "id": "vulgar_tender_init_01",
@@ -895,8 +917,8 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
-      "text": "I want you slow tonight. Filthy, but slow with it.",
-      "chars": 50
+      "text": "I want to take my time and taste every part of you.",
+      "chars": 51
     },
     {
       "id": "vulgar_tender_init_03",
@@ -904,8 +926,8 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
-      "text": "Nobody for a mile in any direction. Scream if you feel like it.",
-      "chars": 63
+      "text": "Let me get these off you slowly, out where there is room.",
+      "chars": 57
     },
     {
       "id": "vulgar_tender_init_04",
@@ -913,17 +935,28 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
-      "text": "Let me take my time with you out here where there's room.",
-      "chars": 57
+      "text": "Nobody for a mile, so you can be as loud as you want.",
+      "chars": 53
     },
     {
-      "id": "vulgar_tender_init_05",
+      "id": "vulgar_tender_init_05_m",
       "kind": "pair",
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
-      "text": "I've wanted you like this since the sun was still up.",
-      "chars": 53
+      "text": "I have been hard thinking about this since the sun was up.",
+      "chars": 58,
+      "gender": "m"
+    },
+    {
+      "id": "vulgar_tender_init_05_f",
+      "kind": "pair",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "I have been aching for this since the sun was up.",
+      "chars": 49,
+      "gender": "f"
     },
     {
       "id": "vulgar_tender_init_06",
@@ -931,8 +964,8 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "initiator",
-      "text": "Come here. I intend to enjoy this properly.",
-      "chars": 43
+      "text": "Lie back in the grass and let me look at you first.",
+      "chars": 51
     },
     {
       "id": "vulgar_tender_resp_01",
@@ -940,8 +973,8 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
-      "text": "Slow and filthy. I can absolutely work with that.",
-      "chars": 49
+      "text": "Slow and filthy, then. Take all the time you want with me.",
+      "chars": 58
     },
     {
       "id": "vulgar_tender_resp_02",
@@ -949,8 +982,8 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
-      "text": "Take all the time you want with me.",
-      "chars": 35
+      "text": "Then get your mouth on me, and do not rush any of it.",
+      "chars": 53
     },
     {
       "id": "vulgar_tender_resp_03",
@@ -958,8 +991,8 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
-      "text": "A mile in any direction, you said. That'll do nicely.",
-      "chars": 53
+      "text": "A mile, you said. Good, because I intend to be loud.",
+      "chars": 52
     },
     {
       "id": "vulgar_tender_resp_04",
@@ -967,8 +1000,8 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
-      "text": "Then enjoy it, because I fully intend to.",
-      "chars": 41
+      "text": "Take them off me, and do it as slowly as you like.",
+      "chars": 50
     },
     {
       "id": "vulgar_tender_resp_05",
@@ -976,8 +1009,8 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
-      "text": "Come here and start, before I start without you.",
-      "chars": 48
+      "text": "Look all you want, and then put your hands on me.",
+      "chars": 49
     },
     {
       "id": "vulgar_tender_resp_06",
@@ -985,8 +1018,8 @@
       "persona": "vulgar",
       "scenario": "tender",
       "role": "responder",
-      "text": "Clothes on the ground, then. Go on.",
-      "chars": 35
+      "text": "I want to feel you for hours out here.",
+      "chars": 38
     },
     {
       "id": "reticent_quickie_init_01",
@@ -1573,72 +1606,72 @@
       "kind": "observer",
       "persona": "vulgar",
       "audience": "alone",
-      "text": "Well now. That is a hell of a way to spend an afternoon.",
-      "chars": 56
+      "text": "Well now. Somebody is getting properly fucked over there.",
+      "chars": 57
     },
     {
       "id": "vulgar_observer_alone_02",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "alone",
-      "text": "Do not mind me. I am just going to stand right here.",
-      "chars": 52
+      "text": "Do not mind me. I am going to stand right here and watch.",
+      "chars": 57
     },
     {
       "id": "vulgar_observer_alone_03",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "alone",
-      "text": "Somebody is having a considerably better day than I am.",
-      "chars": 55
+      "text": "That is a considerably better afternoon than I am having.",
+      "chars": 57
     },
     {
       "id": "vulgar_observer_alone_04",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "alone",
-      "text": "That is going to stay with me for quite a while.",
-      "chars": 48
+      "text": "Listen to the noise those two are making. Good for them.",
+      "chars": 56
     },
     {
       "id": "vulgar_observer_alone_05",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "alone",
-      "text": "They are not even trying to be quiet about it.",
-      "chars": 46
+      "text": "I have paid caps for a worse view than this one.",
+      "chars": 48
     },
     {
       "id": "vulgar_observer_alone_06",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "alone",
-      "text": "I have paid good caps for less of a show than this.",
-      "chars": 51
+      "text": "They are not even trying to keep their clothes on.",
+      "chars": 50
     },
     {
       "id": "vulgar_observer_alone_07",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "alone",
-      "text": "Good for them. Filthy, but genuinely good for them.",
-      "chars": 51
+      "text": "I would climb into that myself if they asked me nicely.",
+      "chars": 55
     },
     {
       "id": "vulgar_observer_alone_08",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "alone",
-      "text": "I would offer to join in, if I thought they would have me.",
-      "chars": 58
+      "text": "That is going to be in my head for the rest of the week.",
+      "chars": 56
     },
     {
       "id": "vulgar_observer_crowd_01",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "crowd",
-      "text": "Is anybody else seeing this, or is it only me?",
-      "chars": 46
+      "text": "Is anybody else watching this, or is it only me?",
+      "chars": 48
     },
     {
       "id": "vulgar_observer_crowd_02",
@@ -1653,27 +1686,11 @@
       "kind": "observer",
       "persona": "vulgar",
       "audience": "crowd",
-      "text": "That is the loudest thing here and I am including the generator.",
-      "chars": 64
+      "text": "Somebody is getting fucked senseless and we are all just standing here!",
+      "chars": 71
     },
     {
       "id": "vulgar_observer_crowd_04",
-      "kind": "observer",
-      "persona": "vulgar",
-      "audience": "crowd",
-      "text": "We are all watching. Nobody is pretending otherwise.",
-      "chars": 52
-    },
-    {
-      "id": "vulgar_observer_crowd_05",
-      "kind": "observer",
-      "persona": "vulgar",
-      "audience": "crowd",
-      "text": "Somebody get them a room. Or do not. I am enjoying this.",
-      "chars": 56
-    },
-    {
-      "id": "vulgar_observer_crowd_06",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "crowd",
@@ -1681,19 +1698,35 @@
       "chars": 55
     },
     {
+      "id": "vulgar_observer_crowd_05",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "Get your hand under there, you are very nearly done!",
+      "chars": 52
+    },
+    {
+      "id": "vulgar_observer_crowd_06",
+      "kind": "observer",
+      "persona": "vulgar",
+      "audience": "crowd",
+      "text": "That is the best thing to happen in this settlement all month!",
+      "chars": 62
+    },
+    {
       "id": "vulgar_observer_crowd_07",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "crowd",
-      "text": "That is going straight into the story I tell tonight.",
-      "chars": 53
+      "text": "We are all watching, and nobody is pretending otherwise!",
+      "chars": 56
     },
     {
       "id": "vulgar_observer_crowd_08",
       "kind": "observer",
       "persona": "vulgar",
       "audience": "crowd",
-      "text": "Half this crowd is taking notes, and I am one of them.",
+      "text": "Half this crowd is taking notes, and I am one of them!",
       "chars": 54
     },
     {

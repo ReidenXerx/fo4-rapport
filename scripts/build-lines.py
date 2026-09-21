@@ -118,44 +118,47 @@ BANK = {
 
  "vulgar": {
   "quickie": {
-   "initiator": ["Bend over that crate and let's not waste the daylight.",
-                 "I've been hard since you walked past me. Do something about it.",
-                 "Get your hands on me before somebody needs something.",
-                 "No more talking. Just get your clothes out of the way.",
-                 "I want you filthy and I want you right now.",
-                 "Hands on the wall. We've got about a minute."],
-   "responder": ["Then stop describing it and get on with it.",
-                 "You talk a lot for somebody with his hands that full.",
-                 "Filthy is what I came over here for. Go on.",
-                 "About time. Hurry up and ruin me properly.",
-                 "Quit narrating the thing and start doing it.",
-                 "The wall it is, then. Make it count."]},
+   "initiator": ["Get your mouth on me before somebody comes around that corner.",
+                 "Bend over that crate and get your pants out of the way.",
+                 {"m": "I have been hard since you walked past me. Do something about it.",
+                  "f": "I have been wet since you walked past me. Do something about it."},
+                 "Put your hand down my pants and be quick about it.",
+                 "I want to fuck you against this wall in the next minute.",
+                 "Spread your legs and stop worrying about who is watching."],
+   "responder": ["Then stop talking and put your hands on me.",
+                 "Fuck me quickly and I will not say a word about it.",
+                 "Get your fingers in me before I change my mind.",
+                 "Use your mouth on me now, because we do not have long.",
+                 "Bend me over it, then, and do not be gentle about it.",
+                 "I want to taste you before somebody interrupts us."]},
   "athome": {
-   "initiator": ["Door's shut, and I'm going to take my time wrecking you.",
-                 "Get on the bed. I've got plans and none of them are polite.",
-                 "I want to hear you all night and there's nobody around to complain.",
-                 "Clothes off. We are not leaving this room until morning.",
-                 "I've thought filthy things about you all week. Let's work through them.",
-                 "Lie down and let me be extremely thorough about this."],
-   "responder": ["Thorough sounds about right. Get over here.",
-                 "Then be loud about it, because nobody is listening.",
-                 "Plans, is it. Go ahead and show me the plans.",
-                 "Wreck away. I've been waiting on this all week.",
-                 "Off they come, and don't you dare be gentle.",
-                 "All night, you said. Go on and prove it."]},
+   "initiator": ["The door is shut and I am going to fuck you all night.",
+                 "Get on the bed and open your legs for me.",
+                 {"m": "I want your mouth on my cock and your hands in my hair.",
+                  "f": "I want your mouth on my cunt and your hands in my hair."},
+                 "Take everything off, because I want to see all of you.",
+                 "I am going to have you on every surface in this room.",
+                 "Get your ass over here, because I am not asking twice."],
+   "responder": ["Then fuck me properly, because nobody is listening tonight.",
+                 "My legs are open, so do something about it.",
+                 "I want your tongue on me until I cannot think straight.",
+                 "Everything comes off, and that includes yours.",
+                 "Every surface, you said. I am holding you to that.",
+                 "Get over here and put your hands on my ass."]},
   "tender": {
    "initiator": ["Out here under the sky, with your clothes on the ground.",
-                 "I want you slow tonight. Filthy, but slow with it.",
-                 "Nobody for a mile in any direction. Scream if you feel like it.",
-                 "Let me take my time with you out here where there's room.",
-                 "I've wanted you like this since the sun was still up.",
-                 "Come here. I intend to enjoy this properly."],
-   "responder": ["Slow and filthy. I can absolutely work with that.",
-                 "Take all the time you want with me.",
-                 "A mile in any direction, you said. That'll do nicely.",
-                 "Then enjoy it, because I fully intend to.",
-                 "Come here and start, before I start without you.",
-                 "Clothes on the ground, then. Go on."]}},
+                 "I want to take my time and taste every part of you.",
+                 "Let me get these off you slowly, out where there is room.",
+                 "Nobody for a mile, so you can be as loud as you want.",
+                 {"m": "I have been hard thinking about this since the sun was up.",
+                  "f": "I have been aching for this since the sun was up."},
+                 "Lie back in the grass and let me look at you first."],
+   "responder": ["Slow and filthy, then. Take all the time you want with me.",
+                 "Then get your mouth on me, and do not rush any of it.",
+                 "A mile, you said. Good, because I intend to be loud.",
+                 "Take them off me, and do it as slowly as you like.",
+                 "Look all you want, and then put your hands on me.",
+                 "I want to feel you for hours out here."]}},
 
  "reticent": {
   "quickie": {
@@ -235,22 +238,22 @@ OBSERVER = {
             "I would applaud, but that does seem like rather a lot.",
             "Look at this lot all pretending they are not watching."]},
  "vulgar": {
-  "alone": ["Well now. That is a hell of a way to spend an afternoon.",
-            "Do not mind me. I am just going to stand right here.",
-            "Somebody is having a considerably better day than I am.",
-            "That is going to stay with me for quite a while.",
-            "They are not even trying to be quiet about it.",
-            "I have paid good caps for less of a show than this.",
-            "Good for them. Filthy, but genuinely good for them.",
-            "I would offer to join in, if I thought they would have me."],
-  "crowd": ["Is anybody else seeing this, or is it only me?",
+  "alone": ["Well now. Somebody is getting properly fucked over there.",
+            "Do not mind me. I am going to stand right here and watch.",
+            "That is a considerably better afternoon than I am having.",
+            "Listen to the noise those two are making. Good for them.",
+            "I have paid caps for a worse view than this one.",
+            "They are not even trying to keep their clothes on.",
+            "I would climb into that myself if they asked me nicely.",
+            "That is going to be in my head for the rest of the week."],
+  "crowd": ["Is anybody else watching this, or is it only me?",
             "Go on then, do not stop on our account!",
-            "That is the loudest thing here and I am including the generator.",
-            "We are all watching. Nobody is pretending otherwise.",
-            "Somebody get them a room. Or do not. I am enjoying this.",
+            "Somebody is getting fucked senseless and we are all just standing here!",
             "Louder, would you! Some of us are standing at the back!",
-            "That is going straight into the story I tell tonight.",
-            "Half this crowd is taking notes, and I am one of them."]},
+            "Get your hand under there, you are very nearly done!",
+            "That is the best thing to happen in this settlement all month!",
+            "We are all watching, and nobody is pretending otherwise!",
+            "Half this crowd is taking notes, and I am one of them!"]},
  "reticent": {
   "alone": ["Oh. I should not be standing here right now.",
             "I will simply pretend that I did not see any of that.",
@@ -311,22 +314,39 @@ def lint_text(lid: str, text: str) -> list:
     return bad
 
 
+def variants(text):
+    """A line is either one string for everybody, or {"m":..., "f":...}.
+
+    Explicit anatomy forces this. A female voice cannot say "my cock", and the
+    PARTNER is unknown at authoring time - so self-reference is gendered by the
+    speaking voice type (which we always know) and partner-reference stays
+    anatomically neutral. Returns [(suffix, gender, text), ...].
+    """
+    if isinstance(text, str):
+        return [("", None, text)]
+    return [("_" + g, g, text[g]) for g in ("m", "f")]
+
+
 def main() -> int:
     lines, seen, problems = [], set(), []
     for persona, scenarios in BANK.items():
         for scenario, roles in scenarios.items():
             for role, texts in roles.items():
-                for n, text in enumerate(texts, 1):
-                    lid = f"{persona}_{scenario}_{role[:4]}_{n:02d}"
-                    if text in seen:
-                        raise SystemExit(f"duplicate line text: {text!r}")
-                    seen.add(text)
-                    if len(text) < 20:
-                        raise SystemExit(f"too short, will drift: {lid} {text!r}")
-                    problems.extend(lint_text(lid, text))
-                    lines.append({"id": lid, "kind": "pair", "persona": persona,
-                                  "scenario": scenario, "role": role,
-                                  "text": text, "chars": len(text)})
+                for n, raw in enumerate(texts, 1):
+                    for suffix, gender, text in variants(raw):
+                        lid = f"{persona}_{scenario}_{role[:4]}_{n:02d}{suffix}"
+                        if text in seen:
+                            raise SystemExit(f"duplicate line text: {text!r}")
+                        seen.add(text)
+                        if len(text) < 20:
+                            raise SystemExit(f"too short, will drift: {lid} {text!r}")
+                        problems.extend(lint_text(lid, text))
+                        rec = {"id": lid, "kind": "pair", "persona": persona,
+                               "scenario": scenario, "role": role,
+                               "text": text, "chars": len(text)}
+                        if gender:
+                            rec["gender"] = gender
+                        lines.append(rec)
 
     if problems:
         for pr in problems:
@@ -335,20 +355,25 @@ def main() -> int:
 
     for persona, aud in OBSERVER.items():
         for audience, texts in aud.items():
-            for n, text in enumerate(texts, 1):
-                lid = f"{persona}_observer_{audience}_{n:02d}"
-                if text in seen:
-                    raise SystemExit(f"duplicate line text: {text!r}")
-                seen.add(text)
-                if len(text) < 20:
-                    raise SystemExit(f"too short, will drift: {lid} {text!r}")
-                problems.extend(lint_text(lid, text))
-                lines.append({"id": lid, "kind": "observer", "persona": persona,
-                              "audience": audience, "text": text, "chars": len(text)})
+            for n, raw in enumerate(texts, 1):
+                for suffix, gender, text in variants(raw):
+                    lid = f"{persona}_observer_{audience}_{n:02d}{suffix}"
+                    if text in seen:
+                        raise SystemExit(f"duplicate line text: {text!r}")
+                    seen.add(text)
+                    if len(text) < 20:
+                        raise SystemExit(f"too short, will drift: {lid} {text!r}")
+                    problems.extend(lint_text(lid, text))
+                    rec = {"id": lid, "kind": "observer", "persona": persona,
+                           "audience": audience, "text": text, "chars": len(text)}
+                    if gender:
+                        rec["gender"] = gender
+                    lines.append(rec)
 
-    want = len(PERSONAS) * len(NOTES) * 2 * 6 + len(PERSONAS) * len(AUDIENCE) * 8
-    if len(lines) != want:
-        raise SystemExit(f"expected {want} lines, built {len(lines)}")
+    slots = len(PERSONAS) * len(NOTES) * 2 * 6 + len(PERSONAS) * len(AUDIENCE) * 8
+    gendered = sum(1 for l in lines if l.get("gender"))
+    if len(lines) != slots + gendered // 2:
+        raise SystemExit(f"expected {slots + gendered // 2} lines, built {len(lines)}")
 
     doc = {"_": "Voice lines, built by scripts/build-lines.py - edit the bank there, "
                 "never this file. kind=pair are R-9 scene barks spoken by the two "
@@ -363,6 +388,9 @@ def main() -> int:
 
     tot = sum(l["chars"] for l in lines)
     print(f"{len(lines)} lines, {tot:,} characters, all unique")
+    gl = [l for l in lines if l.get("gender")]
+    print(f"  gendered   {len(gl):3} lines ({len(gl)//2} slots split m/f for explicit "
+          f"self-reference)")
     for kind in ("pair", "observer"):
         k = [l for l in lines if l["kind"] == kind]
         print(f"  {kind:9} {len(k):3} lines  {sum(x['chars'] for x in k):,} chars")
