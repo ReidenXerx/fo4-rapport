@@ -489,3 +489,22 @@ Two findings it produced, both of which reversed a confident reading:
 - **"Allow Default Dialog" is NOT what gates our lines.** Both of those voice
   types have that flag OFF and both speak our unconditioned lines. Checked in the
   ESM and in the game, so nobody re-derives it from memory.
+
+### V-25 - A unique voice BORROWS the closest rendered one, for one line only (2026-09-21)
+
+Owner's idea: rather than silence (V-8), a named NPC with a unique voice type
+speaks our line in the most similar voice we rendered. Proven in game:
+
+    who.SetOverrideVoiceType(borrowed)
+    who.Say(line, None, False, None)
+    who.SetOverrideVoiceType(None)
+
+Geneva (`NPCFGeneva`, unrendered) spoke *"Hurry up, and mean every second of
+it."* audibly as `FemaleEvenToned`, set-say-clear on ONE Papyrus stack. The audio
+is resolved at Say time, so clearing immediately does not cut the line - which
+is what makes this safe: the borrowed voice exists for one call and no save can
+ever be written while an actor wears it. Zero disk cost, and it covers voice
+types added by other mods.
+
+Never cross sex. The pairing itself is measured (speaker embeddings of the
+game's own recordings), and the owner can veto any pair by ear (V-9).
