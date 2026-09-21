@@ -44,7 +44,22 @@ SCENARIO = {
     "athome":  {"tag": "[whispers] ", "speed": 0.95, "stability": 0.40},
     "tender":  {"tag": "[whispers] ", "speed": 0.92, "stability": 0.35},
 }
-BASE = {"similarity_boost": 0.75, "style": 0.3, "use_speaker_boost": True}
+
+# Observers are not talking to a partner, so they are not half-whispering to one.
+# Alone: muttering to themselves, which is close to the pair setting. Crowd: they
+# are talking PAST the pair to other people, sometimes across a settlement, so the
+# whisper tag comes off entirely and the style goes up to push projection.
+#
+# CAVEAT worth knowing: every voice in this project was DESIGNED with "speaks low
+# and close, half-whispered" in its brief, so intimacy is baked into the timbre
+# and no per-render setting fully removes it. Dropping the tag gets most of the
+# way; if crowd lines still sound too confiding, the fix is a second voice per
+# type briefed to project, not a knob here.
+AUDIENCE = {
+    "alone": {"tag": "[whispers] ", "speed": 0.95, "stability": 0.35, "style": 0.3},
+    "crowd": {"tag": "",            "speed": 1.00, "stability": 0.45, "style": 0.5},
+}
+BASE = {"similarity_boost": 0.75, "use_speaker_boost": True}
 
 
 def api_key() -> str:
@@ -174,7 +189,9 @@ def main() -> int:
 
     def one(job):
         vt, vid, ln, fuz = job
-        sc = SCENARIO[ln["scenario"]]
+        # Pair barks are keyed by scenario; observer reactions by audience size.
+        sc = (AUDIENCE[ln["audience"]] if ln.get("kind") == "observer"
+              else SCENARIO[ln["scenario"]])
         pcm = ROOT / "voice/pcm" / vt / f"{ln['id']}.pcm"
         pcm.parent.mkdir(parents=True, exist_ok=True)
         fuz.parent.mkdir(parents=True, exist_ok=True)
@@ -193,7 +210,8 @@ def main() -> int:
                 stab = sc["stability"] if model == EXPR else 0.4
                 for t in range(a.tries):
                     cand = tts(key, vid, tag + ln["text"], model, base + t * 977,
-                               {**BASE, "stability": stab, "speed": sc["speed"]})
+                               {**BASE, "stability": stab, "speed": sc["speed"],
+                                "style": sc.get("style", 0.3)})
                     # EVERY render is verified, not just the expressive ones.
                     # The previous version trusted v2 blind and shipped drifted
                     # audio under a subtitle that disagreed with it.
@@ -211,8 +229,10 @@ def main() -> int:
             if used != order[0]:
                 fellback.append((vt, ln["id"], used))
             pcm.write_bytes(audio)
+            # --pcm: we asked the API for pcm_44100, so the format is not in
+            # doubt and a sniff can only produce a false rejection.
             r = subprocess.run([sys.executable, str(ROOT / "scripts/pcm-to-fuz.py"),
-                                str(pcm), str(fuz)], capture_output=True, text=True)
+                                str(pcm), str(fuz), "--pcm"], capture_output=True, text=True)
             # Check the artifact, not the exit code - xwmaencode has been seen
             # reporting success while writing nothing.
             if not fuz.exists() or fuz.stat().st_size == 0:
