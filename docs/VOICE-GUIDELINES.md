@@ -341,6 +341,47 @@ angry, flirtatious, formal, frightened. This is the method for all of them: one
 character brief, N delivery clauses, N sibling voices, chosen per line. The
 character stays the same person throughout, which is the entire point.
 
+### V-22 — Explicit anatomy splits a line by SPEAKER gender, never by partner.
+
+Writing a persona that is genuinely crude rather than merely gruff forces a
+structural decision, and it is easy to get expensively wrong.
+
+**The asymmetry:** the speaking voice type tells you the speaker's gender for
+free (all 32 here encode it in the name). **The partner is unknown at authoring
+time** - Rapport pairs any two eligible actors, so a line cannot assume who is on
+the other end.
+
+So split by what the line refers to:
+
+| refers to | handling |
+| --- | --- |
+| the speaker's own body | **gendered variant**, keyed off the voice type |
+| the partner's body | **anatomically neutral**: mouth, hands, tongue, ass, fingers, throat |
+| the act itself | neutral - "fuck me", "get your hands on me" work for anybody |
+
+A bank line is therefore either one string or `{"m": ..., "f": ...}`, which emits
+two lines plus a `gender` tag; the renderer skips lines belonging to the other
+gender (`scripts/render-barks.py`, `gender_of`).
+
+**It is much cheaper than it looks.** Only **3 of 55** vulgar lines needed
+splitting. Most explicit writing is about what one person is doing *to* another,
+and that is already neutral. Do not pre-split a whole bank by gender - write
+neutral by default and gender only the lines that genuinely cannot be.
+
+**Two traps:**
+
+- **`"Female"` contains `"male"`.** Test for female first or every female voice
+  is classified male and says the wrong line. Silent, and wrong on 12 of 32.
+- **A type matching neither is treated as NEUTRAL, not guessed.** It then renders
+  no gendered line at all, which is a gap rather than a wrong body part. Prefer
+  the gap: a missing line degrades to silence with a subtitle (V-8), while a wrong
+  one is jarring and unfixable in play.
+
+**Overture will hit this far harder.** Dialogue is second-person and continuous,
+where a bark is a moment. Budget for a higher split rate there, and settle the
+convention before authoring rather than retrofitting it - the retrofit here was
+cheap only because the bank was small.
+
 ---
 
 ## Settled numbers
