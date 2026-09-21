@@ -81,6 +81,28 @@ namespace
 		auto* b = a_player->GetParentCell();
 		return a != nullptr && a == b;
 	}
+
+	// LOCAL means a move needs no load: the same cell, or both in the open in the
+	// SAME worldspace within a short walk. An exterior is a grid, so two people
+	// ten metres apart in Diamond City can be in ADJACENT cells - and treating that
+	// as 'another cell' sent a demo reframe down the MoveTo path mid-scene, which
+	// wedged the loading screen for good (2026-09-21). SetPosition crosses an
+	// exterior cell border the way walking does.
+	[[nodiscard]] bool LocalToPlayer(RE::Actor* a_actor, RE::PlayerCharacter* a_player)
+	{
+		if (SameCellAsPlayer(a_actor, a_player)) {
+			return true;
+		}
+		auto* a = a_actor ? a_actor->GetParentCell() : nullptr;
+		auto* b = a_player ? a_player->GetParentCell() : nullptr;
+		if (!a || !b || a->IsInterior() || b->IsInterior() || !a->worldSpace || a->worldSpace != b->worldSpace) {
+			return false;
+		}
+		const auto here = a_player->GetPosition();
+		const auto there = a_actor->GetPosition();
+		const auto dx = here.x - there.x, dy = here.y - there.y;
+		return dx * dx + dy * dy <= 3000.0f * 3000.0f;
+	}
 }
 
 namespace RP
@@ -323,7 +345,7 @@ namespace RP
 			// SAME CELL: do it here and now, no load, no poll. Stand a little short
 			// of them rather than inside them -- landing in somebody is the one
 			// position from which they cannot be seen.
-			if (verb == "goto" && actor && player && SameCellAsPlayer(actor, player)) {
+			if (verb == "goto" && actor && player && LocalToPlayer(actor, player)) {
 				const auto here = player->GetPosition();
 				const auto there = actor->GetPosition();
 				auto       bx = here.x - there.x;
@@ -586,12 +608,27 @@ namespace RP
 			if (!ok) {
 				return "ERR watch <formid> [distance]   (default 250 units, about 3.5m)";
 			}
+			// watch <formid> [distance] [move]. 'move' is the camera operator's mode:
+			// ALWAYS reposition to exactly this framing, and NEVER by MoveTo - if the
+			// target is not local it refuses instead. A demo reframes while a scene
+			// is running, which is exactly when a MoveTo is not survivable.
 			float distance = 250.0f;
+			bool  move = false;
 			if (space != std::string::npos) {
+				auto tail = rest.substr(space + 1);
+				if (const auto m = tail.find(" move"); m != std::string::npos) {
+					move = true;
+					tail = tail.substr(0, m);
+				} else if (tail == "move") {
+					move = true;
+					tail.clear();
+				}
 				try {
-					distance = std::stof(rest.substr(space + 1));
+					if (!tail.empty()) {
+						distance = std::stof(tail);
+					}
 				} catch (const std::exception&) {
-					return "ERR watch <formid> [distance]";
+					return "ERR watch <formid> [distance] [move]";
 				}
 			}
 
@@ -621,7 +658,7 @@ namespace RP
 				const auto already = std::sqrt(ddx * ddx + ddy * ddy);
 				constexpr float kCloseEnough = 700.0f;
 				constexpr float kTooClose = 90.0f;
-				if (already >= kTooClose && already <= kCloseEnough) {
+				if (!move && already >= kTooClose && already <= kCloseEnough) {
 					constexpr float kRad2 = 57.2957795f;
 					const auto      dz2 = there.z - here.z;
 					const auto      yaw2 = std::atan2(-ddx, -ddy) * kRad2;
@@ -651,7 +688,7 @@ namespace RP
 			constexpr float kRad = 57.2957795f;
 			const auto      yaw = std::atan2(-ox, -oy) * kRad;
 
-			if (SameCellAsPlayer(actor, player)) {
+			if (LocalToPlayer(actor, player)) {
 				const RE::NiPoint3 dest{ there.x + ox, there.y + oy, here.z };
 				player->SetPosition(dest, true);
 				link.QueueOrder(Order{ Order::Kind::kLookAt, formID, "0.00", std::format("{:.2f}", yaw) });
@@ -660,6 +697,11 @@ namespace RP
 					distance, formID, yaw);
 			}
 
+			if (move) {
+				return std::format("ERR {:08X} is not local to the player (another cell or worldspace) - "
+					"'move' never uses MoveTo, which wedges the loading screen mid-scene; travel first",
+					formID);
+			}
 			link.QueueOrder(Order{ Order::Kind::kMovePlayerTo, formID,
 				std::format("{:.1f}", ox), std::format("{:.1f}", oy) });
 			link.QueueOrder(Order{ Order::Kind::kLookAt, formID, "0.00", std::format("{:.2f}", yaw) });

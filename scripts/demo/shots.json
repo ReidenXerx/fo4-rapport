@@ -1,0 +1,45 @@
+{
+ "_": "The demo, one shot per location. Every id is a placed reference in Fallout4.esm, found with the ESM and confirmed in game. No location has children nearby - the watchers skip children, but a demo of this mod is not filmed where kids stand around (Diamond City's market is out for that reason).",
+ "shots": [
+  {
+   "name": "city-hall",
+   "where": "Diamond City, City Hall (Mayor's office)",
+   "shows": "a pair's opener and answer, subtitled; Geneva's unique voice borrowed; McDonough behind a wall HEARS it",
+   "travel": "00002F0B",
+   "frame": {"ref": "00002F0B", "distance": 380},
+   "pair": ["000F61B6", "00002F0B"],
+   "scenario": "quickie",
+   "expect": ["Diamond City Security (000F61B6) opens", "Geneva answers in a borrowed voice", "McDonough (00002F09) turns his head, hears it"]
+  },
+  {
+   "name": "dugout-inn",
+   "where": "Diamond City, the Dugout Inn",
+   "shows": "a bar crowd: heads turn, patrons comment in turn, crowd lines",
+   "travel": "00002EFD",
+   "frame": {"ref": "0004B242", "distance": 420},
+   "pair": ["00002EFD", "0004B242"],
+   "scenario": "athome",
+   "expect": ["Vadim (00002EFD) and Scarlett (0004B242) - the inn is Vadim's own", "Yefim (00002EFF) and patrons watch"]
+  },
+  {
+   "name": "third-rail",
+   "where": "Goodneighbor, the Third Rail",
+   "shows": "another worldspace, a crowd, a tender scene",
+   "travel": "0002268B",
+   "frame": {"ref": "0002268B", "distance": 420},
+   "pair": ["0002268E", "0002268B"],
+   "scenario": "tender",
+   "expect": ["Ham (0002268E) and Magnolia (0002268B)", "Third Rail patrons watch"]
+  },
+  {
+   "name": "state-house",
+   "where": "Goodneighbor, the Old State House",
+   "shows": "two UNIQUE voices (Hancock, Fahrenheit) speaking through the voice fallback",
+   "travel": "00022615",
+   "frame": {"ref": "00022615", "distance": 400},
+   "pair": ["00022615", "00022618"],
+   "scenario": "quickie",
+   "expect": ["Hancock borrows DLC04GangPackMale01", "Fahrenheit borrows the nearest female voice", "his guards watch"]
+  }
+ ]
+}
