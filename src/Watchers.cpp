@@ -79,12 +79,14 @@ namespace RP
 			logger::info("request {}: watchers - {} noticed, {} rolled this scene", _request, _noticed.size(),
 				_rolled.size());
 		}
-		// Noticed but never rolled means never a clear line of sight after the head
-		// turned (or never eligible to speak). Named, so a silent bystander in a test
-		// explains themselves instead of looking like a bug.
+		// Noticed but never rolled means they never saw it (no clear line from their
+		// eyes) and were never close enough to hear it - or could not be voiced.
+		// Named, so a silent bystander in a test explains themselves instead of
+		// looking like a bug.
 		for (const auto& [id, _] : _noticed) {
 			if (!_rolled.contains(id)) {
-				logger::info("request {}: watcher {:08X} noticed it but never had a clear line of sight", _request, id);
+				logger::info("request {}: watcher {:08X} noticed it but never saw it or came close enough to hear it",
+					_request, id);
 			}
 		}
 		_request = 0;
