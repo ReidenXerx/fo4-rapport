@@ -72,7 +72,13 @@ namespace RP
 			// "as": null is a deliberate silence -- measured too far from anything
 			// we have, or vetoed by the owner. Recorded, so it is not treated as
 			// unmapped and handed the sex default below.
-			const auto as = entry.contains("as") ? Resolve(entry["as"], "borrowed voice") : 0u;
+			const bool vetoed = entry.contains("as") && entry["as"].is_null();
+			const auto as = entry.contains("as") && !vetoed ? Resolve(entry["as"], "borrowed voice") : 0u;
+			if (as == 0 && !vetoed) {
+				// The voice it borrows is from a DLC this player does not own. That is
+				// not the owner's silence: leave it unmapped so the sex default speaks.
+				continue;
+			}
 			_borrow[from] = as;
 			silent += as == 0 ? 1 : 0;
 		}
@@ -151,7 +157,9 @@ namespace RP
 	void Voices::Speak(std::uint32_t a_speaker, std::uint32_t a_target, std::uint32_t a_topic) const
 	{
 		Order order{ Order::Kind::kSayTopic, a_speaker, std::to_string(a_topic),
-			a_target ? std::to_string(a_target) : std::string{} };
+			// As a SIGNED int: the bridge reads it with `as Int`, and an FE/FF id above
+			// 0x7FFFFFFF would not survive an unsigned decimal.
+			a_target ? std::to_string(static_cast<std::int32_t>(a_target)) : std::string{} };
 		order.voice = BorrowFor(a_speaker);
 		if (order.voice != 0) {
 			logger::info("voices: {:08X} has a voice we did not render - borrowing {:08X} for this line",

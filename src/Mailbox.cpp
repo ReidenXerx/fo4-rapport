@@ -328,7 +328,7 @@ namespace RP
 				return std::format("ERR {} <formid> <formid>{}", verb, verb == "bond" ? " [add <amount>]" : "");
 			}
 			if (verb == "rank") {
-				link.QueueOrder(Order{ Order::Kind::kRelation, a, std::to_string(b), "" });
+				link.QueueOrder(Order{ Order::Kind::kRelation, a, std::to_string(static_cast<std::int32_t>(b)), "" });
 				return std::format("OK queued - the engine's relationship between {:08X} and {:08X} lands in Rapport.log next poll", a, b);
 			}
 			auto& ledger = Ledger::GetSingleton();

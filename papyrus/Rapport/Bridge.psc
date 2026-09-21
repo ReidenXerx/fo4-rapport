@@ -350,7 +350,7 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 	Rapport:Core.NoteActorSex(akSecond.GetFormID(), akSecond.GetLeveledActorBase().GetSex())
 	; And the engine's own relationship between them, while we hold real Actors -
 	; imported into Rapport's store the first time this pair interacts (R-2, R-5).
-	Rapport:Core.NoteVanillaRelationship(akFirst.GetFormID(), akSecond.GetFormID(), akFirst.GetRelationshipRank(akSecond), Rapport:Relations.AreBloodRelated(akFirst, akSecond), Rapport:Relations.ArePartners(akFirst, akSecond))
+	Rapport:Core.NoteVanillaRelationship(akFirst.GetFormID(), akSecond.GetFormID(), Rapport:Relations.RankBetween(akFirst, akSecond), Rapport:Relations.AreBloodRelated(akFirst, akSecond), Rapport:Relations.ArePartners(akFirst, akSecond))
 
 	Request entry = new Request
 	entry.id = aiRequest
@@ -1068,8 +1068,12 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 	EndIf
 
 	If aiKind == 27
-		; The Narrator: one line, top-left, fading on its own - never a box to click.
-		Debug.Notification(asExtra)
+		; The Narrator: headline then numbers, top-left, fading on their own - never a
+		; box to click. One stack, so the two lines cannot swap.
+		Debug.Notification(asSetID)
+		If asExtra != ""
+			Debug.Notification(asExtra)
+		EndIf
 		Return
 	EndIf
 
@@ -1112,13 +1116,18 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 		If aiVoice != 0
 			borrowed = Game.GetForm(aiVoice) as VoiceType
 		EndIf
+		; Whatever they wear NOW is put back afterwards - not None. Clearing to None
+		; wiped any override another mod had set, and if an AAF voice line interleaved
+		; on another stack it could restore OUR borrowed voice for good. AAF's own
+		; sayTopic saves and restores exactly like this.
+		VoiceType prior = speaker.GetVoiceType()
 		If borrowed
 			speaker.SetOverrideVoiceType(borrowed)
 		EndIf
 		; Four arguments: the decompiled base sources carry no defaults.
 		speaker.Say(line, None, False, listener)
-		If borrowed
-			speaker.SetOverrideVoiceType(None)
+		If borrowed && speaker.GetVoiceType() != prior
+			speaker.SetOverrideVoiceType(prior)
 		EndIf
 		Rapport:Core.Trace("bark: " + Rapport:Core.FormIdText(aiFormID) + " says topic " + asSetID)
 		Return

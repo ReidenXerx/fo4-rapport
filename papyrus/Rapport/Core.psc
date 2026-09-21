@@ -363,7 +363,15 @@ Bool Function IsIncestPair(Int aiFirst, Int aiSecond) Global Native
 Bool Function IsPartnerPair(Int aiFirst, Int aiSecond) Global Native
 ; Set when one of the two was partnered to someone ELSE at their scene (a future "bad thing").
 Bool Function IsAffairPair(Int aiFirst, Int aiSecond) Global Native
+; Staged: recorded only if the requested scene actually starts.
 Function NoteAffair(Int aiFirst, Int aiSecond) Global Native
+; Internal - use Rapport:Relations.BondBetween.
+Float Function PreviewBond(Int aiFirst, Int aiSecond, Int aiRank, Bool abPartner) Global Native
+; Bumped every time the candidate list is republished (every 20s). Read it before and after
+; reading the list across several calls; if it moved, read again.
+Int Function CandidateGeneration() Global Native
+; major*10000 + minor*100 + patch - check it on connect.
+Int Function ApiVersion() Global Native
 ; 0 (strays freely) .. 1 (never looks elsewhere): derived from the form id, the same forever.
 Float Function FaithfulnessOf(Int aiFormID) Global Native
 ; The Narrator. NarrateBonus: your addon's share of a pair's score, reported just BEFORE

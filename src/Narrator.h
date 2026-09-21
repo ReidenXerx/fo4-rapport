@@ -40,8 +40,9 @@ namespace RP
 
 		// The ledger, after it changed a bond. Speaks only on a threshold crossed or a
 		// first scene together.
+		// a_fromScene: RecordScene, the only source that may say "a first time".
 		void OnBondChanged(std::uint32_t a_first, std::uint32_t a_second, float a_before, float a_after,
-			std::uint32_t a_scenes);
+			std::uint32_t a_scenes, bool a_fromScene);
 
 		// A bystander rolled a comment on the scene in progress.
 		void OnBystander(std::uint32_t a_watcher, bool a_heardOnly);

@@ -115,6 +115,12 @@ namespace RP
 		// What SeedFromVanilla would store, without storing it (a consumer ranking a
 		// pair that has not interacted yet, R-5).
 		[[nodiscard]] static float SeedValue(std::int32_t a_rank, bool a_partner) noexcept;
+		[[nodiscard]] static float ComposeSeed(float a_seed, float a_moved) noexcept;
+		// What a consumer should rank a pair by: the stored bond once seeded, else the
+		// seed composed with any movement already recorded - exactly what
+		// SeedFromVanilla would store. Writes nothing (R-5).
+		[[nodiscard]] float PreviewBond(std::uint32_t a_first, std::uint32_t a_second, std::int32_t a_rank,
+			bool a_partner) const;
 		// BLOOD relatives (siblings, parent/child, grandparents, aunts/uncles, cousins).
 		// A FLAG, never a refusal (owner, R-14): nothing in Rapport or Chemistry blocks
 		// on it; a later attitude layer reads it as a 'bad thing' others react to.
@@ -221,6 +227,8 @@ namespace RP
 		}
 
 		mutable std::unordered_map<std::uint64_t, PairRecord> _pairs;
+		// ForgetActor's dead, for this session: nothing may record them again.
+		std::unordered_set<std::uint32_t> _dead;
 
 		static void F4SEAPI OnSave(const F4SE::SerializationInterface* a_intfc);
 		static void F4SEAPI OnLoad(const F4SE::SerializationInterface* a_intfc);

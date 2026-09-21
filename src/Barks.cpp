@@ -2,6 +2,7 @@
 
 #include "Aftermath.h"
 #include "McmSettings.h"
+#include "Traits.h"
 #include "PapyrusLink.h"
 #include "Voices.h"
 
@@ -96,7 +97,7 @@ namespace RP
 			return;
 		}
 
-		_enabled = document.value("enabled", true);
+		_enabled = McmSettings::ReadBool(document, "enabled", true);
 		const auto observers = std::ranges::count_if(_lines, [](const Line& a_line) { return a_line.observer; });
 		logger::info("barks: {} pair + {} observer lines across {} personas, responder answers after {:.1f}s{}",
 			_lines.size() - observers, observers, _personas.size(), _responderDelay,
@@ -127,6 +128,9 @@ namespace RP
 			return;
 		}
 		for (const auto& entry : *list) {
+			// One bad entry is skipped, never thrown: this file is hand-edited, and an
+			// exception here would cross into F4SE at data ready and take the game down.
+			try {
 			const auto plugin = entry.value("plugin", std::string{});
 			const auto persona = entry.value("persona", std::string{});
 			std::uint32_t id = 0;
@@ -155,10 +159,13 @@ namespace RP
 			}
 			_overrides[form->GetFormID()] = persona;
 			logger::info("barks: {:08X} ({} {:06X}) is pinned to the {} persona", form->GetFormID(), plugin, id, persona);
+			} catch (const std::exception& e) {
+				logger::warn("barks: a persona pin in personas.json is malformed ({}) - skipped", e.what());
+			}
 		}
 	}
 
-	std::string_view Barks::PersonaOf(std::uint32_t a_formID) const
+	std::string Barks::PersonaOf(std::uint32_t a_formID) const
 	{
 		NamedLock lock{ _lock, "barks" };
 		if (_personas.empty()) {
@@ -181,7 +188,7 @@ namespace RP
 		// every even-styled face would lean toward two of the four personas. A
 		// multiplicative hash keeps the two derivations independent while staying
 		// just as stable: same id, same persona, forever.
-		const auto mixed = static_cast<std::uint32_t>(a_formID * 2654435761u) >> 16;
+		const auto mixed = static_cast<std::uint32_t>(Traits::StableID(a_formID) * 2654435761u) >> 16;
 		return _personas[mixed % _personas.size()];
 	}
 

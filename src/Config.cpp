@@ -218,17 +218,19 @@ namespace RP
 	{
 		const auto path = ScoringPath();
 		std::ifstream file{ path };
+		nlohmann::json document = nlohmann::json::object();
 		if (!file) {
+			// Still through the MCM overlay below: the player's settings do not
+			// depend on the shipped file being there.
 			logger::info("no {} — using built-in weights", path.string());
-			return;
 		}
-
-		nlohmann::json document;
-		try {
-			file >> document;
-		} catch (const std::exception& e) {
-			logger::error("{} is not valid json ({}) — using built-in weights", path.string(), e.what());
-			return;
+		if (file) {
+			try {
+				file >> document;
+			} catch (const std::exception& e) {
+				logger::error("{} is not valid json ({}) - using built-in weights", path.string(), e.what());
+				document = nlohmann::json::object();
+			}
 		}
 
 		McmSettings::Overlay("Scoring", document);

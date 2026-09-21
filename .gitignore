@@ -51,3 +51,8 @@ voice/play/
 /voice/audition/ivy/today_*.wav
 /voice/audition/ivy/today_*.wav
 /voice/retired/
+
+# The rendered voice bank is its OWN private repository (ReidenXerx/fo4-rapport-voice),
+# nested here so package-voice.py reads it where it always has. Paid renders do
+# not belong in a public repo; releases package from the private one.
+/voice/out/

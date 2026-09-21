@@ -22,7 +22,7 @@ namespace
 
 		const auto& config = RP::Config::GetSingleton();
 		for (const auto& instance : aliases->aliasArray) {
-			if (!instance.instancedPackages || instance.instancedPackages->empty()) {
+			if (!instance.instancedPackages || instance.instancedPackages->empty() || !instance.quest) {
 				continue;
 			}
 			// Owner, 2026-09-21: settlement life is not a quest directing someone.
@@ -140,8 +140,15 @@ namespace RP
 				// Past this point the actor is loaded and alive, so they can witness
 				// a scene even when they could never take part in one. Privacy is
 				// about who can see, not about who is eligible.
-				_observerPositions.push_back(actor->GetPosition());
-				_loadedIDs.push_back(actor->GetFormID());
+				//
+				// PEOPLE only (owner, 2026-09-22): brahmin, dogs, turrets and robots are
+				// in the process lists too, and a turret-ringed settlement charged every
+				// pair a crowd penalty for its machines. Children never reach here - the
+				// mod ignores them entirely, as witnesses too.
+				if (config.IsRaceAllowed(actor->race)) {
+					_observerPositions.push_back(actor->GetPosition());
+					_loadedIDs.push_back(actor->GetFormID());
+				}
 
 				if (actor->IsInCombat()) {
 					++_counters.inCombat;

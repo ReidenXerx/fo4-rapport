@@ -92,6 +92,10 @@ namespace
 			RP::Mailbox::GetSingleton().Start();
 			break;
 		case F4SE::MessagingInterface::kNewGame:
+			// New Game from the main menu never sends kPreLoadGame, and the scene
+			// that was running in the last world would otherwise still be "in flight".
+			RP::PapyrusLink::GetSingleton().OnGameLoading();
+			[[fallthrough]];
 		case F4SE::MessagingInterface::kPostLoadGame:
 			// Said out loud on every load, including when it is nothing. F4SE only
 			// calls the load callback when the save HAS data for us, so a save
@@ -122,7 +126,8 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a
 	// and a refusal below is recorded in f4se.log by F4SE itself.
 	a_info->infoVersion = F4SE::PluginInfo::kVersion;
 	a_info->name = RP_PROJECT_NAME;
-	a_info->version = RP_VERSION_MAJOR;
+	// The FULL version (0.x would otherwise all read as 0 to anything checking).
+	a_info->version = RP_VERSION_MAJOR * 10000 + RP_VERSION_MINOR * 100 + RP_VERSION_PATCH;
 
 	if (a_f4se->IsEditor()) {
 		return false;

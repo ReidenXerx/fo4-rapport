@@ -19,6 +19,10 @@
 [CmdletBinding()]
 param(
     [string] $Base     = 'D:\F4CustomMods\PapyrusBase\Source\Base',
+    # F4SE's own script sources (it ships the vanilla scripts it EXTENDS, whole).
+    # First on the import path, so ObjectReference.GetVoiceType and friends resolve.
+    # Rapport requires F4SE at runtime anyway; compiling against its surface is honest.
+    [string] $F4SE     = 'D:\GOGGames\Fallout 4 GOTY\Data\Scripts\Source',
     [string] $Compiler = 'D:\GOGGames\Fallout 4 GOTY\Papyrus Compiler\PapyrusCompiler.exe',
     [switch] $Quiet
 )
@@ -35,6 +39,17 @@ $stubs   = Join-Path $root 'papyrus-stubs'
 if (-not (Test-Path $Compiler)) {
     throw "No Papyrus compiler at $Compiler."
 }
+if (-not (Test-Path (Join-Path $F4SE 'F4SE.psc'))) {
+    throw "No F4SE.psc in $F4SE. Point -F4SE at F4SE's Data\Scripts\Source (it ships with F4SE)."
+}
+# ONLY ObjectReference.psc from F4SE, copied fresh into build/ every run (never
+# committed, never shipped). Taking F4SE's whole folder also took its ScriptObject,
+# whose RegisterForCustomEvent rejects the mangled AAF event names the bridge must
+# register with - see Bridge.psc Connect.
+$f4seImports = Join-Path $root 'build\f4se-imports'
+New-Item -ItemType Directory -Force -Path $f4seImports | Out-Null
+Copy-Item (Join-Path $F4SE 'ObjectReference.psc') $f4seImports -Force
+
 if (-not (Test-Path (Join-Path $Base 'Institute_Papyrus_Flags.flg'))) {
     throw "No Institute_Papyrus_Flags.flg in $Base. Run tools/papyrus_setup.py first."
 }
@@ -56,7 +71,7 @@ Write-Host "Compiling $($scripts.Count) script(s) against $Base"
 # Batch mode, not file by file. A namespaced script (Rapport:Bridge) compiled by
 # path fails with "filename does not match script name": the namespace has to come
 # from the import paths, which -all does and a single file path cannot.
-$output = & $Compiler $sources -all -f="Institute_Papyrus_Flags.flg" -i="$Base;$sources;$stubs" -o="$out" 2>&1
+$output = & $Compiler $sources -all -f="Institute_Papyrus_Flags.flg" -i="$f4seImports;$Base;$sources;$stubs" -o="$out" 2>&1
 
 # Print everything the compiler said. An earlier version filtered this to lines
 # matching "error", which hid the only message that explained a failure.

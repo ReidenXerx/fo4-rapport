@@ -38,7 +38,9 @@ namespace RP
 
 		// R-7: derived from the form id, never stored. The same NPC is the same
 		// persona forever, on every machine, at zero save cost.
-		[[nodiscard]] std::string_view PersonaOf(std::uint32_t a_formID) const;
+		// A COPY, not a view: Load (an MCM change) clears the containers a view
+		// would point into while another thread still holds it.
+		[[nodiscard]] std::string PersonaOf(std::uint32_t a_formID) const;
 
 		// The bank also holds OBSERVER lines (R-12). Watchers decides WHO speaks
 		// and WHEN; this only says WHAT: a line for this persona, audience ("alone"

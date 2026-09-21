@@ -92,12 +92,12 @@ namespace RP
 		McmSettings::Overlay("Narrator", document);
 
 		NamedLock lock{ _lock, "narrator" };
-		_enabled = document.value("enabled", true);
-		_sceneStarts = document.value("sceneStarts", true);
-		_nearMisses = document.value("nearMisses", false);
-		_relationshipTurns = document.value("relationshipTurns", false);
-		_bystanders = document.value("bystanders", false);
-		_numbers = document.value("numbers", true);
+		_enabled = McmSettings::ReadBool(document, "enabled", true);
+		_sceneStarts = McmSettings::ReadBool(document, "sceneStarts", true);
+		_nearMisses = McmSettings::ReadBool(document, "nearMisses", false);
+		_relationshipTurns = McmSettings::ReadBool(document, "relationshipTurns", false);
+		_bystanders = McmSettings::ReadBool(document, "bystanders", false);
+		_numbers = McmSettings::ReadBool(document, "numbers", true);
 		_nearMissCooldown = document.value("nearMissCooldownSeconds", 300.0f);
 		_pairMissCooldown = document.value("pairMissCooldownSeconds", 1800.0f);
 		_historySize = (std::max)(std::size_t{ 1 }, document.value("historySize", std::size_t{ 12 }));
@@ -122,7 +122,14 @@ namespace RP
 		// first narration, 2026-09-22 - and every comparison below would miss it.
 		std::string label{ a_label };
 		std::ranges::transform(label, label.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-		pending.bonuses.push_back(Bonus{ std::move(label), a_value });
+		// A label REPLACES its earlier report: a request that was declined and asked
+		// again next poll used to list every part twice and double the total.
+		const auto same = std::ranges::find(pending.bonuses, label, &Bonus::label);
+		if (same != pending.bonuses.end()) {
+			same->value = a_value;
+		} else {
+			pending.bonuses.push_back(Bonus{ std::move(label), a_value });
+		}
 	}
 
 	void Narrator::OnSceneRequested(std::uint32_t a_first, std::uint32_t a_second, std::string_view a_scenario)
@@ -156,11 +163,18 @@ namespace RP
 		// "bond" share, and a zero-valued "couple" marker (skipped in the numbers).
 		float bond = ledger.Bond(a_first, a_second);
 		bool  married = ledger.IsPartner(a_first, a_second);
+		// Markers (a leading '_') carry facts for the WORDS and are never printed:
+		// "_bond" is the raw bond (the "bond" part is a capped score share, not a
+		// bond), "_couple" says they are partners, "_score" is the base score the
+		// addon decided on.
+		std::optional<float> decidedOn;
 		for (const auto& bonus : bonuses) {
-			if (bonus.label == "bond") {
-				bond = (std::max)(bond, bonus.value);
-			} else if (bonus.label == "couple") {
+			if (bonus.label == "_bond") {
+				bond = bonus.value;
+			} else if (bonus.label == "_couple" || bonus.label == "couple") {
 				married = true;
+			} else if (bonus.label == "_score") {
+				decidedOn = bonus.value;
 			}
 		}
 
@@ -189,6 +203,8 @@ namespace RP
 				reasons.emplace_back("nobody's watching");
 			} else if (s.observers <= weights.observerTolerance) {
 				reasons.emplace_back("hardly anyone's around");
+			} else if (s.observers == 1) {
+				reasons.emplace_back("someone's watching and they don't care");
 			} else {
 				reasons.emplace_back(std::format("{} people are watching and they don't care", s.observers));
 			}
@@ -215,7 +231,15 @@ namespace RP
 		if (numbers) {
 			std::vector<std::string> parts;
 			float                    total = 0.0f;
-			if (offer) {
+			// The breakdown only when the published offer is the one the addon decided
+			// on: Rapport republishes every 20s, and a stale or missing offer printed a
+			// total that was never compared with the bar.
+			const bool same = offer && (!decidedOn || std::abs(offer->score - *decidedOn) < 0.005f);
+			if (!same && decidedOn) {
+				parts.push_back(std::format("rapport {}", Signed(*decidedOn)));
+				total = *decidedOn;
+			}
+			if (same) {
 				const auto p = Breakdown(offer->signals, weights);
 				const auto add = [&](std::string_view a_label, float a_value) {
 					if (std::abs(a_value) >= 0.005f) {
@@ -231,7 +255,7 @@ namespace RP
 				total = offer->score;
 			}
 			for (const auto& bonus : bonuses) {
-				if (std::abs(bonus.value) >= 0.005f) {
+				if (!bonus.label.empty() && bonus.label.front() != '_' && bonus.label != "couple" && std::abs(bonus.value) >= 0.005f) {
 					parts.push_back(std::format("{} {}", bonus.label, Signed(bonus.value)));
 					total += bonus.value;
 				}
@@ -242,7 +266,7 @@ namespace RP
 			for (const auto& part : parts) {
 				sum += sum.empty() ? part : ", " + part;
 			}
-			line = offer || !bonuses.empty()
+			line = same || decidedOn || !bonuses.empty()
 			           ? std::format("{} - score {:.2f} = {}", a_scenario.empty() ? "scene" : a_scenario, total,
 			                 sum.empty() ? std::string{ "0" } : sum)
 			           : std::format("{} - asked for directly", a_scenario.empty() ? "scene" : a_scenario);
@@ -277,7 +301,7 @@ namespace RP
 	}
 
 	void Narrator::OnBondChanged(std::uint32_t a_first, std::uint32_t a_second, float a_before, float a_after,
-		std::uint32_t a_scenes)
+		std::uint32_t a_scenes, bool a_fromScene)
 	{
 		{
 			NamedLock lock{ _lock, "narrator" };
@@ -302,7 +326,7 @@ namespace RP
 		}
 		// Not for a couple: a married pair's first scene in Rapport's books is not
 		// their first time, and saying so read as a joke (2026-09-22, the Longs).
-		if (headline.empty() && a_scenes == 1 && !Ledger::GetSingleton().IsPartner(a_first, a_second)) {
+		if (headline.empty() && a_fromScene && a_scenes == 1 && !Ledger::GetSingleton().IsPartner(a_first, a_second)) {
 			headline = std::format("A first time for {} and {}.", a, b);
 		}
 		if (headline.empty()) {
@@ -360,10 +384,8 @@ namespace RP
 			}
 		}
 		logger::info("narrator: {}{}{}", a_headline, a_numbers.empty() ? "" : " ", a_numbers);
-		auto& link = PapyrusLink::GetSingleton();
-		link.QueueOrder(Order{ Order::Kind::kNarrate, 0, "", a_headline });
-		if (!a_numbers.empty()) {
-			link.QueueOrder(Order{ Order::Kind::kNarrate, 0, "", a_numbers });
-		}
+		// ONE order, both lines: two orders ran on two CallFunctionNoWait stacks and
+		// were not guaranteed to arrive in order, and cost two of the drain budget.
+		PapyrusLink::GetSingleton().QueueOrder(Order{ Order::Kind::kNarrate, 0, a_headline, a_numbers });
 	}
 }

@@ -43,6 +43,9 @@ namespace RP
 		void Clear();
 
 		[[nodiscard]] std::size_t Count() const;
+		// Bumped on every Publish. An addon reading the list across several calls
+		// reads it before and after, and starts over if it moved.
+		[[nodiscard]] std::uint32_t Generation() const noexcept { return _generation.load(); }
 
 		// Empty when the index is out of range, which is the normal way a Papyrus
 		// loop finds the end rather than an error.
@@ -61,6 +64,7 @@ namespace RP
 	private:
 		mutable std::timed_mutex _lock;
 		std::vector<Offer>       _offers;
+		std::atomic_uint32_t     _generation{ 0 };
 		bool                     _stoodDown{ false };
 	};
 }

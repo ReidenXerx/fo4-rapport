@@ -84,6 +84,10 @@ namespace RP
 		// left. Forget them - state only, nothing is sent to AAF.
 		void OnGameLoading();
 
+		// An addon says this request is an affair (one of them is partnered
+		// elsewhere). Held until the scene STARTS; dropped with the request.
+		void StageAffair(std::uint32_t a_first, std::uint32_t a_second);
+
 		// AAF refused the scene we asked for. Fails the request in flight instead
 		// of leaving it to time out thirteen minutes later. False when there was
 		// nothing in flight for the refusal to be about.
@@ -265,6 +269,8 @@ namespace RP
 		std::int32_t _inFlightSecond{ 0 };
 		float        _inFlightDuration{ 0.0f };
 		std::string  _inFlightScenario;
+		// NoteAffair for the in-flight pair, committed only if the scene starts.
+		std::uint64_t _stagedAffair{ 0 };
 		std::int32_t _inFlightRequest{ 0 };
 		std::chrono::steady_clock::time_point _sceneStartedAt{};
 		bool         _sceneRunning{ false };

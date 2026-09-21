@@ -58,7 +58,7 @@ namespace
 	constexpr std::uint32_t kMaxEntries = 100000;
 
 	// Runtime ceilings, enforced whatever PruneHours says. Far above any real save:
-	// 2000 actor records is 56 KB and 4000 pairs is 64 KB.
+	// 2000 actor records is 56 KB and 4000 pairs is 112 KB (28-byte entries).
 	constexpr std::size_t kMaxActorRecords = 2000;
 	constexpr std::size_t kMaxPairRecords = 4000;
 }
@@ -107,7 +107,7 @@ namespace RP
 		std::uint32_t together = 0;
 		RecordSceneLocked(a_first, a_second, before, after, together);
 		// Outside the ledger lock: the Narrator takes its own and reads the ledger.
-		Narrator::GetSingleton().OnBondChanged(a_first, a_second, before, after, together);
+		Narrator::GetSingleton().OnBondChanged(a_first, a_second, before, after, together, true);
 	}
 
 	void Ledger::RecordSceneLocked(std::uint32_t a_first, std::uint32_t a_second, float& a_before, float& a_after,
@@ -115,6 +115,10 @@ namespace RP
 	{
 		const auto now = GameHours();
 		NamedLock lock{ _lock, "ledger" };
+		if (_dead.contains(a_first) || _dead.contains(a_second)) {
+			logger::info("ledger: {:08X} + {:08X} - one of them died during the scene, nothing recorded", a_first, a_second);
+			return;
+		}
 
 		auto& first = _records[a_first];
 		first.lastSceneAt = now;
@@ -160,7 +164,8 @@ namespace RP
 
 	float Ledger::AddBond(std::uint32_t a_first, std::uint32_t a_second, float a_amount, BondReason a_reason)
 	{
-		if (a_first == 0 || a_second == 0 || a_first == a_second || a_amount == 0.0f) {
+		// !isfinite: NaN passes "== 0" and clamp, and would sit in the save forever.
+		if (a_first == 0 || a_second == 0 || a_first == a_second || a_amount == 0.0f || !std::isfinite(a_amount)) {
 			return Bond(a_first, a_second);
 		}
 		const auto    amount = std::clamp(a_amount, -1.0f, 1.0f);
@@ -170,6 +175,9 @@ namespace RP
 		std::uint32_t scenes = 0;
 		{
 			NamedLock lock{ _lock, "ledger" };
+			if (_dead.contains(a_first) || _dead.contains(a_second)) {
+				return 0.0f;
+			}
 			// R-5: THIS is the interaction that creates the record, never mere proximity.
 			auto& pair = _pairs[PairKey(a_first, a_second)];
 			before = pair.bond;
@@ -185,7 +193,7 @@ namespace RP
 		logger::info("relationship: {:08X} + {:08X} bond {:+.3f} -> {:+.3f} (asked {:+.3f}, reason {})",
 			a_first, a_second, before, after, amount, static_cast<int>(a_reason));
 		// Outside the ledger lock: the Narrator takes its own and reads the ledger.
-		Narrator::GetSingleton().OnBondChanged(a_first, a_second, before, after, scenes);
+		Narrator::GetSingleton().OnBondChanged(a_first, a_second, before, after, scenes, false);
 		return after;
 	}
 
@@ -198,6 +206,7 @@ namespace RP
 		auto& pair = _pairs[PairKey(a_first, a_second)];
 		if (!pair.affair) {
 			pair.affair = true;
+			pair.lastTouchedAt = GameHours();
 			logger::info("relationship: {:08X} + {:08X} - an affair: one of them is partnered elsewhere", a_first, a_second);
 		}
 	}
@@ -218,16 +227,20 @@ namespace RP
 		const auto now = GameHours();
 		NamedLock lock{ _lock, "ledger" };
 		auto& pair = _pairs[PairKey(a_first, a_second)];
+		// The FLAGS follow the engine every time: people marry after they meet, and
+		// a store frozen at the first interaction called that couple strangers
+		// forever while Chemistry's live HasPartner disagreed. Only the BOND seed is
+		// one-shot (R-2).
+		pair.incest = a_blood;
+		pair.partner = a_partner;
 		if (pair.seeded) {
 			return;   // imported once; from then on our own arithmetic runs (R-2)
 		}
 		pair.seeded = true;
-		pair.incest = a_blood;
-		pair.partner = a_partner;
 		// The engine's rank on the scale MEASURED in game (R-4) - see VanillaSeed.
 		const auto seed = VanillaSeed(a_rank, a_partner);
 		if (seed != 0.0f) {
-			pair.bond = std::clamp(pair.bond + seed, -1.0f, 1.0f);
+			pair.bond = ComposeSeed(seed, pair.bond);
 			pair.lastTouchedAt = now;
 			pair.lastReason = BondReason::kVanilla;
 		}
@@ -238,6 +251,27 @@ namespace RP
 	float Ledger::SeedValue(std::int32_t a_rank, bool a_partner) noexcept
 	{
 		return VanillaSeed(a_rank, a_partner);
+	}
+
+	float Ledger::ComposeSeed(float a_seed, float a_moved) noexcept
+	{
+		// The seed is the BASE, and earlier movement is applied on top of it with the
+		// same distance-left rule every source uses (R-10). Plain addition made the
+		// result depend on which call landed first: a spouse (+0.80) and a -0.5 gave
+		// -0.10 one way round and +0.30 the other. For a one-signed history the
+		// distance-left steps multiply, so this is exact.
+		const auto bond = a_moved >= 0.0f ? a_seed + a_moved * (1.0f - a_seed) : a_seed + a_moved * (1.0f + a_seed);
+		return std::clamp(bond, -1.0f, 1.0f);
+	}
+
+	float Ledger::PreviewBond(std::uint32_t a_first, std::uint32_t a_second, std::int32_t a_rank, bool a_partner) const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		if (it != _pairs.end() && it->second.seeded) {
+			return it->second.bond;
+		}
+		return ComposeSeed(VanillaSeed(a_rank, a_partner), it == _pairs.end() ? 0.0f : it->second.bond);
 	}
 
 	bool Ledger::IsSeeded(std::uint32_t a_first, std::uint32_t a_second) const
@@ -267,6 +301,9 @@ namespace RP
 			return;
 		}
 		NamedLock lock{ _lock, "ledger" };
+		// Remembered for the session: a scene that was running when they died ends
+		// AFTER this, and its RecordScene would otherwise write them straight back.
+		_dead.insert(a_formID);
 		const auto actorRows = _records.erase(a_formID);
 		const auto before = _pairs.size();
 		std::erase_if(_pairs, [&](const auto& a_entry) {
@@ -368,6 +405,7 @@ namespace RP
 		NamedLock lock{ _lock, "ledger" };
 		_records.clear();
 		_pairs.clear();
+		_dead.clear();
 	}
 
 	namespace
@@ -470,11 +508,22 @@ namespace RP
 				++dropped;
 				continue;
 			}
-			_pairs[PairKey(*first, *second)] = PairRecord{ entry.lastSceneAt, entry.scenes,
-				std::clamp(entry.bond, -1.0f, 1.0f), entry.lastTouchedAt, (entry.flags & 1u) != 0,
-				(entry.flags & 2u) != 0, (entry.flags & 4u) != 0,
-				static_cast<BondReason>((entry.flags >> 8) & 0xFFu) };
-			_pairs[PairKey(*first, *second)].affair = (entry.flags & 8u) != 0;
+			// Named fields, one lookup: a positional initializer silently reorders when
+			// a field is added. Non-finite values from a damaged save become the
+			// "never" sentinels rather than poisoning a sort or a bond forever.
+			const auto finiteOr = [](float a_value, float a_fallback) { return std::isfinite(a_value) ? a_value : a_fallback; };
+			const auto reason = (entry.flags >> 8) & 0xFFu;
+			auto&      pair = _pairs[PairKey(*first, *second)];
+			pair = PairRecord{};
+			pair.lastSceneAt = finiteOr(entry.lastSceneAt, -1.0f);
+			pair.scenes = entry.scenes;
+			pair.bond = std::clamp(finiteOr(entry.bond, 0.0f), -1.0f, 1.0f);
+			pair.lastTouchedAt = finiteOr(entry.lastTouchedAt, -1.0f);
+			pair.seeded = (entry.flags & 1u) != 0;
+			pair.incest = (entry.flags & 2u) != 0;
+			pair.partner = (entry.flags & 4u) != 0;
+			pair.lastReason = reason <= static_cast<std::uint32_t>(BondReason::kAddon) ? static_cast<BondReason>(reason) : BondReason::kNone;
+			pair.affair = (entry.flags & 8u) != 0;
 		}
 		logger::info(
 			"ledger: read {} pair(s) from the save, {} dropped because a plugin is gone",
@@ -677,6 +726,12 @@ namespace RP
 		const auto pairsBefore = _pairs.size();
 		std::erase_if(_pairs, [&](const auto& entry) {
 			const auto& record = entry.second;
+			// A row holding NOTHING goes whatever its age - the hole the actor prune
+			// above already closed: a stranger seeded at 0 whose scene was refused has
+			// no scene and no touch, so the age test below could never fire for it.
+			if (record.scenes == 0 && std::fabs(record.bond) < kBondFloor && !record.affair) {
+				return true;
+			}
 			// R-6: a relationship is cleaned on death, never on a timer. Age still
 			// clears scene HISTORY - but only for pairs with no bond to lose.
 			return record.lastSceneAt >= 0.0f && (now - record.lastSceneAt) > hours &&
@@ -695,7 +750,7 @@ namespace RP
 		// first. kMaxEntries guards the LOAD against a corrupt count; nothing
 		// guarded runtime growth.
 		//
-		// The numbers are deliberately far above any real save: 4000 pairs is 64 KB
+		// The numbers are deliberately far above any real save: 4000 pairs is 112 KB (28-byte entries)
 		// and 2000 actors is 56 KB, and reaching either means something is wrong
 		// rather than that somebody played a long game.
 		Cap(_records, kMaxActorRecords, "actor", [](const ActorRecord& a_record) {

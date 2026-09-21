@@ -149,7 +149,8 @@ namespace RP
 			// parent ties into Rapport.log. A measurement tool, not a feature.
 			kRelation = 26,
 
-			// The Narrator: extra is one line of text for Debug.Notification.
+			// The Narrator: setID is the headline, extra the numbers line (may be
+			// empty). Both go to Debug.Notification on one stack, in that order.
 			kNarrate = 27
 		};
 

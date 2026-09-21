@@ -25,6 +25,7 @@ namespace RP
 
 		NamedLock lock{ _lock, "candidates" };
 		_offers = std::move(built);
+		_generation.fetch_add(1);
 	}
 
 	void Candidates::Clear()

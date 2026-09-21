@@ -151,8 +151,13 @@ namespace RP
 						++signals.observers;
 					}
 				}
-				// The pair stand at their own midpoint, so they count themselves.
-				signals.observers -= (std::min)(signals.observers, 2u);
+				// Each of the pair stands distance/2 from the midpoint, so they counted
+				// themselves - but only if that is inside the radius. With the MCM radius
+				// shrunk below half the pair distance, subtracting 2 regardless removed
+				// two REAL bystanders instead.
+				if (distance * 0.5f <= a_weights.observerRadius) {
+					signals.observers -= (std::min)(signals.observers, 2u);
+				}
 
 				if (player) {
 					signals.playerNear = Distance(playerPos, midpoint) <= a_weights.observerRadius;

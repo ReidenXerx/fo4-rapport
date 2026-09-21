@@ -721,9 +721,30 @@ namespace
 		return RP::Traits::Faithfulness(static_cast<std::uint32_t>(a_formID));
 	}
 
+	// Staged, not written: it becomes true only when the scene starts.
 	void Papyrus_NoteAffair(std::monostate, std::int32_t a_first, std::int32_t a_second)
 	{
-		RP::Ledger::GetSingleton().NoteAffair(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+		RP::PapyrusLink::GetSingleton().StageAffair(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+	}
+
+	// The bond a consumer should rank a pair by (Rapport:Relations.BondBetween).
+	float Papyrus_PreviewBond(std::monostate, std::int32_t a_first, std::int32_t a_second, std::int32_t a_rank, bool a_partner)
+	{
+		return RP::Ledger::GetSingleton().PreviewBond(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second),
+			a_rank, a_partner);
+	}
+
+	// Read before and after a multi-call snapshot of the candidate list.
+	std::int32_t Papyrus_CandidateGeneration(std::monostate)
+	{
+		return static_cast<std::int32_t>(RP::Candidates::GetSingleton().Generation());
+	}
+
+	// major*10000 + minor*100 + patch. An addon checks this on connect and says so
+	// plainly when Rapport is too old, instead of failing native by native.
+	std::int32_t Papyrus_ApiVersion(std::monostate)
+	{
+		return RP_VERSION_MAJOR * 10000 + RP_VERSION_MINOR * 100 + RP_VERSION_PATCH;
 	}
 
 	bool Papyrus_IsAffairPair(std::monostate, std::int32_t a_first, std::int32_t a_second)
@@ -966,6 +987,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NarratorHistory"sv, Papyrus_NarratorHistory, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "FaithfulnessOf"sv, Papyrus_FaithfulnessOf, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteAffair"sv, Papyrus_NoteAffair, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "PreviewBond"sv, Papyrus_PreviewBond, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CandidateGeneration"sv, Papyrus_CandidateGeneration, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ApiVersion"sv, Papyrus_ApiVersion, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "IsAffairPair"sv, Papyrus_IsAffairPair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "IsPairSeeded"sv, Papyrus_IsPairSeeded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SeedBond"sv, Papyrus_SeedBond, std::nullopt, false);
@@ -979,7 +1003,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
-		logger::info("papyrus: bound 55 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 58 native functions on {}", kCoreScript);
 		return true;
 	}
 
@@ -1048,9 +1072,6 @@ namespace RP
 			"request {}: queued {} ({:08X}) and {} ({:08X}) for {:.0f}s",
 			request, a_first->GetDisplayFullName(), a_first->GetFormID(),
 			a_second->GetDisplayFullName(), a_second->GetFormID(), a_duration);
-		// Every door leads here - Rapport's own stand-in, every addon, the dev
-		// channel - so this is the one place the Narrator has to listen.
-		Narrator::GetSingleton().OnSceneRequested(a_first->GetFormID(), a_second->GetFormID(), a_scenario);
 		return true;
 	}
 
@@ -1094,6 +1115,19 @@ namespace RP
 
 		AbandonInFlight(std::format(
 			"nothing has been heard about the running scene for {}s", limit.count()));
+	}
+
+	void PapyrusLink::StageAffair(std::uint32_t a_first, std::uint32_t a_second)
+	{
+		NamedLock lock{ _counter, "request counter" };
+		const auto f = static_cast<std::uint32_t>(_inFlightFirst);
+		const auto s = static_cast<std::uint32_t>(_inFlightSecond);
+		if ((f == a_first && s == a_second) || (f == a_second && s == a_first)) {
+			_stagedAffair = 1;
+		} else {
+			logger::info("relationship: an affair was noted for {:08X} + {:08X}, who are not the pair in flight - ignored",
+				a_first, a_second);
+		}
 	}
 
 	void PapyrusLink::OnGameLoading()
@@ -1294,6 +1328,27 @@ namespace RP
 		}
 
 		logger::info("request {}: scene started", a_request);
+
+		// What only a scene that PLAYED may record or say. The request was a wish: the
+		// bridge and AAF can still refuse it, and an affair or a narration for a scene
+		// that never happened is a lie the attitude layer would one day believe.
+		// Every door leads here - Rapport's stand-in, every addon, the dev channel.
+		{
+			std::uint32_t first = 0, second = 0;
+			std::uint64_t affair = 0;
+			std::string   scenario;
+			{
+				NamedLock lock{ _counter, "request counter" };
+				first = static_cast<std::uint32_t>(_inFlightFirst);
+				second = static_cast<std::uint32_t>(_inFlightSecond);
+				scenario = _inFlightScenario;
+				affair = std::exchange(_stagedAffair, 0);
+			}
+			if (affair != 0) {
+				Ledger::GetSingleton().NoteAffair(first, second);
+			}
+			Narrator::GetSingleton().OnSceneRequested(first, second, scenario);
+		}
 
 		// Below the guard, not above it. A stale start clearing this would let the
 		// next scene ask for furniture the room has already refused once.
@@ -1861,6 +1916,7 @@ namespace RP
 	void PapyrusLink::ClearInFlight()
 	{
 		NamedLock lock{ _counter, "request counter" };
+		_stagedAffair = 0;
 		_inFlightFirst = 0;
 		_inFlightSecond = 0;
 		_inFlightRequest = 0;

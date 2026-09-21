@@ -25,5 +25,23 @@ namespace RP
 		// MCM's change event is an F4SE ScriptObject extension this build does not
 		// compile against. Costs one stat per 20s pass.
 		[[nodiscard]] bool ChangedSinceLastCheck();
+
+		// A switch read from an overlaid document: true/false OR a number (MCM's 0/1
+		// for a key the json lacked). nlohmann's value<bool> throws on a number, and a
+		// throw at data ready crosses into F4SE and takes the game with it.
+		[[nodiscard]] inline bool ReadBool(const nlohmann::json& a_doc, const char* a_key, bool a_default) noexcept
+		{
+			const auto it = a_doc.find(a_key);
+			if (it == a_doc.end()) {
+				return a_default;
+			}
+			if (it->is_boolean()) {
+				return it->get<bool>();
+			}
+			if (it->is_number()) {
+				return it->get<double>() != 0.0;
+			}
+			return a_default;
+		}
 	}
 }

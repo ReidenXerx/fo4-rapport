@@ -34,6 +34,17 @@ Bool Function HasPartner(Actor akActor) Global
 	Return Rapport:Relations.HasAssociationID(akActor, None, 104813) || Rapport:Relations.HasAssociationID(akActor, None, 104802)
 EndFunction
 
+; The engine's rank between two people, the higher of the two directions: the store's
+; key ignores order, so the seed must too, or it would depend on who came first.
+Int Function RankBetween(Actor akFirst, Actor akSecond) Global
+	Int ab = akFirst.GetRelationshipRank(akSecond)
+	Int ba = akSecond.GetRelationshipRank(akFirst)
+	If ba > ab
+		Return ba
+	EndIf
+	Return ab
+EndFunction
+
 ; The bond a consumer should rank this pair by, -1..+1. Rapport's stored bond once
 ; the pair has a record; before that, what the engine's relationship WOULD seed -
 ; without writing a record, because a pair is recorded on interaction, never on
@@ -50,13 +61,7 @@ Float Function BondBetween(Actor akFirst, Actor akSecond) Global
 	EndIf
 	; Not seeded, but an addon may already have moved it by id (Rapport:Core.AddBond):
 	; that movement sits on top of what the engine would have seeded.
-	Float bond = Rapport:Core.SeedBond(akFirst.GetRelationshipRank(akSecond), Rapport:Relations.ArePartners(akFirst, akSecond)) + Rapport:Core.PairBond(first, second)
-	If bond > 1.0
-		Return 1.0
-	ElseIf bond < -1.0
-		Return -1.0
-	EndIf
-	Return bond
+	Return Rapport:Core.PreviewBond(first, second, Rapport:Relations.RankBetween(akFirst, akSecond), Rapport:Relations.ArePartners(akFirst, akSecond))
 EndFunction
 
 ; The way an ADDON should change a bond when it holds both Actors (dialogue, a gift):
@@ -70,7 +75,7 @@ Float Function AddBondBetween(Actor akFirst, Actor akSecond, Float afAmount, Int
 	Int first = akFirst.GetFormID()
 	Int second = akSecond.GetFormID()
 	If !Rapport:Core.IsPairSeeded(first, second)
-		Rapport:Core.NoteVanillaRelationship(first, second, akFirst.GetRelationshipRank(akSecond), Rapport:Relations.AreBloodRelated(akFirst, akSecond), Rapport:Relations.ArePartners(akFirst, akSecond))
+		Rapport:Core.NoteVanillaRelationship(first, second, Rapport:Relations.RankBetween(akFirst, akSecond), Rapport:Relations.AreBloodRelated(akFirst, akSecond), Rapport:Relations.ArePartners(akFirst, akSecond))
 	EndIf
 	Return Rapport:Core.AddBond(first, second, afAmount, aiReason)
 EndFunction

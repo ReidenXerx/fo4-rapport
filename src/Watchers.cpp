@@ -49,7 +49,7 @@ namespace RP
 		}
 		auto settings = document.value("observers", nlohmann::json::object());
 		McmSettings::Overlay("Observers", settings);
-		_enabled = settings.value("enabled", false);
+		_enabled = McmSettings::ReadBool(settings, "enabled", false);
 		_radius = settings.value("radius", 900.0f);
 		_hearRadius = (std::min)(settings.value("hearRadius", 600.0f), _radius);
 		_chance = std::clamp(settings.value("chance", 0.33f), 0.0f, 1.0f);
@@ -240,6 +240,12 @@ namespace RP
 
 		// 4. Speak, outside every lock. The persona is the watcher's own.
 		const auto* actor = RE::TESForm::GetFormByID<RE::Actor>(speaker);
+		// Re-checked: a winner can wait several sweeps in the queue, and by now may
+		// be gone, dead or fighting - a line about the scene from them is wrong.
+		if (!actor || !actor->Get3D() || actor->IsDead(true) || actor->IsInCombat()) {
+			logger::info("request {}: watcher {:08X} won a line but is no longer able to say it - dropped", request, speaker);
+			return;
+		}
 		auto*       npc = actor ? actor->GetNPC() : nullptr;
 		const auto  sex = npc ? static_cast<std::int32_t>(npc->GetSex()) : -1;
 		const auto  persona = std::string{ Barks::GetSingleton().PersonaOf(speaker) };
