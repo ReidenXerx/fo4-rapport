@@ -6190,6 +6190,17 @@
     "id": 868284
    },
    "score": 0.271
+  },
+  {
+   "voice": "_NPC_IVY",
+   "master": "CompanionIvy.esm",
+   "id": 2049,
+   "owner": true,
+   "as": {
+    "voice": "FemaleEvenToned",
+    "master": "Fallout4.esm",
+    "id": 80605
+   }
   }
  ],
  "speakingRaces": [

@@ -1,4 +1,13 @@
 {
  "_": "OWNER decisions, by ear (V-9). They win over the measurement. voice -> one of our 32, or null to keep it silent.",
- "NPCFGeneva": "FemaleEvenToned"
+ "NPCFGeneva": "FemaleEvenToned",
+ "_mods": [
+  {
+   "voice": "_NPC_IVY",
+   "master": "CompanionIvy.esm",
+   "id": "0x000801",
+   "as": "FemaleEvenToned",
+   "note": "Owner by ear, 2026-09-21: of her real voice, today's borrow and six designed candidates, FemaleEvenToned is the closest vibe. Measured too: +0.18 vs the best design +0.20 (V-26)."
+  }
+ ]
 }

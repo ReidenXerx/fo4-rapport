@@ -48,6 +48,10 @@ def main() -> int:
         if (FB / "inventory.json").exists() else None
     over_path = FB / "overrides.json"
     overrides = json.loads(over_path.read_text(encoding="utf-8")) if over_path.exists() else {}
+    # MOD voices the owner has placed by ear. The measured map covers the official
+    # masters only; a mod's voice type is named by its own plugin and record id.
+    # A plugin the player does not have simply never resolves at runtime.
+    mod_overrides = overrides.get("_mods", [])
     overrides = {k: v for k, v in overrides.items() if not k.startswith("_")}
 
     # Our 32, with ids. From the committed map's own records where possible, so
@@ -83,6 +87,18 @@ def main() -> int:
             # not hand the voice the unmapped sex default instead.
             entry["as"] = None
             entry["why"] = "owner" if name in overrides else row.get("silent")
+        borrow.append(entry)
+
+    for m in mod_overrides:
+        as_voice = m.get("as")
+        if as_voice is not None and as_voice not in own_by:
+            errors.append(f"mod override {m.get('voice')} -> {as_voice}: not a voice we rendered")
+            continue
+        entry = {"voice": m["voice"], "master": m["master"], "id": int(str(m["id"]), 16), "owner": True}
+        entry["as"] = ({"voice": as_voice, "master": own_by[as_voice]["master"], "id": own_by[as_voice]["id"]}
+                       if as_voice else None)
+        if not as_voice:
+            entry["why"] = "owner"
         borrow.append(entry)
 
     unknown = [k for k in overrides if k not in mapping]
