@@ -1,262 +1,1168 @@
 {
-  "_": "R-9 scene barks. Spoken at OnSceneStarted, selected by scenario + role. Text is gender-neutral on purpose: one line, every voice type. Per-line eleven_v3 verbatim rates are in v3-safety.json; a line below 100 renders on v2 rather than being rewritten to suit the model.",
+  "_": "R-9 scene barks, spoken at OnSceneStarted. Selected by the SPEAKER's persona (R-7/R-8), the scenario, and their role in it. Built by scripts/build-lines.py - edit the bank there, never this file.",
+  "personas": {
+    "mercantile": "Thinks in trade, value and accounts. Offering themselves IS how they show interest - it is the one thing they will not price.",
+    "romantic": "Fancy words, patience, setting. Wants the moment to be worth remembering and will say so out loud.",
+    "vulgar": "Crude, direct and explicit. Says exactly what they want in the plainest words available, and is not embarrassed by any of it.",
+    "reticent": "Guarded. Struggles to ask, and the struggle is the character - but always in whole sentences, because fragments do not survive the renderer."
+  },
   "scenario_notes": {
-    "quickie": "More than two watching. One stage, ~30s, no guaranteed ending. Hurried, aware of the audience, past caring.",
-    "athome": "Their own place, or indoors with at most two watching. Five stages, unhurried, ends in a climax. Warm, private, no hurry at all.",
-    "tender": "Out in the open, at most two watching. Three slow stages opening with kissing. Nothing rough or dominant - this is the affectionate one."
+    "quickie": "More than two watching. One stage, about thirty seconds, no guaranteed ending. Hurried, aware of the audience, past caring.",
+    "athome": "Their own place, or indoors with at most two watching. Five stages, unhurried, ends in a climax. Private, and in no hurry at all.",
+    "tender": "Out in the open with at most two watching. Three slow stages opening with kissing. Nothing rough or dominant - this is the affectionate one."
   },
   "lines": [
     {
-      "id": "quickie_init_01",
+      "id": "mercantile_quickie_init_01",
+      "persona": "mercantile",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "We gotta make this quick.",
-      "chars": 25
+      "text": "I've got five minutes and you're what I'm spending them on.",
+      "chars": 59
     },
     {
-      "id": "quickie_init_02",
+      "id": "mercantile_quickie_init_02",
+      "persona": "mercantile",
       "scenario": "quickie",
       "role": "initiator",
-      "text": "Someone's gonna come through here any second.",
-      "chars": 45
-    },
-    {
-      "id": "quickie_init_03",
-      "scenario": "quickie",
-      "role": "initiator",
-      "text": "Don't think about it. Just - here. Now.",
-      "chars": 39
-    },
-    {
-      "id": "quickie_init_04",
-      "scenario": "quickie",
-      "role": "initiator",
-      "text": "Quick, before somebody needs something from me.",
-      "chars": 47
-    },
-    {
-      "id": "quickie_init_05",
-      "scenario": "quickie",
-      "role": "initiator",
-      "text": "I've got about five minutes and I'm spending them on you.",
-      "chars": 57
-    },
-    {
-      "id": "quickie_init_06",
-      "scenario": "quickie",
-      "role": "initiator",
-      "text": "Not here, somebody will see us. ...Fine. Here.",
-      "chars": 46
-    },
-    {
-      "id": "quickie_resp_01",
-      "scenario": "quickie",
-      "role": "responder",
-      "text": "Then stop talking.",
-      "chars": 18
-    },
-    {
-      "id": "quickie_resp_02",
-      "scenario": "quickie",
-      "role": "responder",
-      "text": "Fast, then. I mean it.",
-      "chars": 22
-    },
-    {
-      "id": "quickie_resp_03",
-      "scenario": "quickie",
-      "role": "responder",
-      "text": "Let them look. I stopped caring a long time ago.",
-      "chars": 48
-    },
-    {
-      "id": "quickie_resp_04",
-      "scenario": "quickie",
-      "role": "responder",
-      "text": "Five minutes. Use them.",
-      "chars": 23
-    },
-    {
-      "id": "quickie_resp_05",
-      "scenario": "quickie",
-      "role": "responder",
-      "text": "Keep your voice down and I'm in.",
-      "chars": 32
-    },
-    {
-      "id": "quickie_resp_06",
-      "scenario": "quickie",
-      "role": "responder",
-      "text": "Yeah. Yeah, I'm in.",
-      "chars": 19
-    },
-    {
-      "id": "athome_init_01",
-      "scenario": "athome",
-      "role": "initiator",
-      "text": "Door's shut. Nobody needs us for a while.",
-      "chars": 41
-    },
-    {
-      "id": "athome_init_02",
-      "scenario": "athome",
-      "role": "initiator",
-      "text": "Stay. Just for a while.",
-      "chars": 23
-    },
-    {
-      "id": "athome_init_03",
-      "scenario": "athome",
-      "role": "initiator",
-      "text": "No one's coming. We've got all the time we want.",
-      "chars": 48
-    },
-    {
-      "id": "athome_init_04",
-      "scenario": "athome",
-      "role": "initiator",
-      "text": "Come here. I've been thinking about this all day.",
-      "chars": 49
-    },
-    {
-      "id": "athome_init_05",
-      "scenario": "athome",
-      "role": "initiator",
-      "text": "Let me look at you a second.",
-      "chars": 28
-    },
-    {
-      "id": "athome_init_06",
-      "scenario": "athome",
-      "role": "initiator",
-      "text": "We're not going anywhere.",
-      "chars": 25
-    },
-    {
-      "id": "athome_resp_01",
-      "scenario": "athome",
-      "role": "responder",
-      "text": "Good. I wasn't planning on leaving.",
-      "chars": 35
-    },
-    {
-      "id": "athome_resp_02",
-      "scenario": "athome",
-      "role": "responder",
-      "text": "As long as you want.",
-      "chars": 20
-    },
-    {
-      "id": "athome_resp_03",
-      "scenario": "athome",
-      "role": "responder",
-      "text": "Then take your time.",
-      "chars": 20
-    },
-    {
-      "id": "athome_resp_04",
-      "scenario": "athome",
-      "role": "responder",
-      "text": "Lock the door, because I don't want to hear anybody.",
+      "text": "Name your price. Whatever it is, we settle up after.",
       "chars": 52
     },
     {
-      "id": "athome_resp_05",
-      "scenario": "athome",
+      "id": "mercantile_quickie_init_03",
+      "persona": "mercantile",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Best offer you'll get all week, and it expires in about a minute.",
+      "chars": 65
+    },
+    {
+      "id": "mercantile_quickie_init_04",
+      "persona": "mercantile",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I'll owe you for this. You know I'm good for it.",
+      "chars": 48
+    },
+    {
+      "id": "mercantile_quickie_init_05",
+      "persona": "mercantile",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Quick trade, and you won't regret the terms.",
+      "chars": 44
+    },
+    {
+      "id": "mercantile_quickie_init_06",
+      "persona": "mercantile",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Everything here costs something. This is what I give away free.",
+      "chars": 63
+    },
+    {
+      "id": "mercantile_quickie_resp_01",
+      "persona": "mercantile",
+      "scenario": "quickie",
       "role": "responder",
-      "text": "I've been thinking about it too.",
+      "text": "Then you'd better make it worth the price.",
+      "chars": 42
+    },
+    {
+      "id": "mercantile_quickie_resp_02",
+      "persona": "mercantile",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "I'll take that deal. Hurry up and close it.",
+      "chars": 43
+    },
+    {
+      "id": "mercantile_quickie_resp_03",
+      "persona": "mercantile",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "You're good for it. Go on, then.",
       "chars": 32
     },
     {
-      "id": "athome_resp_06",
-      "scenario": "athome",
+      "id": "mercantile_quickie_resp_04",
+      "persona": "mercantile",
+      "scenario": "quickie",
       "role": "responder",
-      "text": "Come here, then.",
-      "chars": 16
+      "text": "Terms accepted, so stop talking about them.",
+      "chars": 43
     },
     {
-      "id": "tender_init_01",
-      "scenario": "tender",
-      "role": "initiator",
-      "text": "Nobody out here but us.",
-      "chars": 23
+      "id": "mercantile_quickie_resp_05",
+      "persona": "mercantile",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "I want that in caps later. Right now just come here.",
+      "chars": 52
     },
     {
-      "id": "tender_init_02",
-      "scenario": "tender",
-      "role": "initiator",
-      "text": "Stay out here with me a while.",
+      "id": "mercantile_quickie_resp_06",
+      "persona": "mercantile",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Cheap at twice the cost. Move.",
       "chars": 30
     },
     {
-      "id": "tender_init_03",
-      "scenario": "tender",
+      "id": "mercantile_athome_init_01",
+      "persona": "mercantile",
+      "scenario": "athome",
       "role": "initiator",
-      "text": "It's quiet. For once it's actually quiet.",
-      "chars": 41
+      "text": "Door's locked and the whole day is paid for. Come and collect.",
+      "chars": 62
     },
     {
-      "id": "tender_init_04",
-      "scenario": "tender",
+      "id": "mercantile_athome_init_02",
+      "persona": "mercantile",
+      "scenario": "athome",
       "role": "initiator",
-      "text": "Come here. Just - come here.",
+      "text": "I saved this one back for you. Everything else went on the counter.",
+      "chars": 67
+    },
+    {
+      "id": "mercantile_athome_init_03",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "I've been putting something aside all week, and it turns out it's you.",
+      "chars": 70
+    },
+    {
+      "id": "mercantile_athome_init_04",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Whatever this costs me, I decided a while ago it was worth it.",
+      "chars": 62
+    },
+    {
+      "id": "mercantile_athome_init_05",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Nobody's buying and nobody's selling tonight. There's only us.",
+      "chars": 62
+    },
+    {
+      "id": "mercantile_athome_init_06",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Take as long as you like. I'm not charging by the hour.",
+      "chars": 55
+    },
+    {
+      "id": "mercantile_athome_resp_01",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Then I'm going to take my time with you.",
+      "chars": 40
+    },
+    {
+      "id": "mercantile_athome_resp_02",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "You always did know what a thing was worth.",
+      "chars": 43
+    },
+    {
+      "id": "mercantile_athome_resp_03",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Keep that offer open all night and I'll keep saying yes.",
+      "chars": 56
+    },
+    {
+      "id": "mercantile_athome_resp_04",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "That's the first honest deal I've been offered in months.",
+      "chars": 57
+    },
+    {
+      "id": "mercantile_athome_resp_05",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "I'd have paid double for this. Don't tell anybody.",
+      "chars": 50
+    },
+    {
+      "id": "mercantile_athome_resp_06",
+      "persona": "mercantile",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Come here and collect, then.",
       "chars": 28
     },
     {
-      "id": "tender_init_05",
+      "id": "mercantile_tender_init_01",
+      "persona": "mercantile",
       "scenario": "tender",
       "role": "initiator",
-      "text": "I'm not ready to go back inside yet.",
+      "text": "Out here nothing costs anything, and that's why I like it.",
+      "chars": 58
+    },
+    {
+      "id": "mercantile_tender_init_02",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "I'd trade the whole stash for another hour of this.",
+      "chars": 51
+    },
+    {
+      "id": "mercantile_tender_init_03",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "You're the only thing out here I'd call valuable.",
+      "chars": 49
+    },
+    {
+      "id": "mercantile_tender_init_04",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "No caps and no counting tonight. Just stay a while.",
+      "chars": 51
+    },
+    {
+      "id": "mercantile_tender_init_05",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "I've got nothing to offer you except this, and I'm offering it.",
+      "chars": 63
+    },
+    {
+      "id": "mercantile_tender_init_06",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Everything I own looks like junk next to you.",
+      "chars": 45
+    },
+    {
+      "id": "mercantile_tender_resp_01",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Then keep it all. This is the part I wanted.",
+      "chars": 44
+    },
+    {
+      "id": "mercantile_tender_resp_02",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "You've got nothing left to trade and I'm still standing here.",
+      "chars": 61
+    },
+    {
+      "id": "mercantile_tender_resp_03",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "That's worth more than anything in your pack.",
+      "chars": 45
+    },
+    {
+      "id": "mercantile_tender_resp_04",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "I'd take this over caps on any day you care to name.",
+      "chars": 52
+    },
+    {
+      "id": "mercantile_tender_resp_05",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Don't offer me anything. Just stay.",
+      "chars": 35
+    },
+    {
+      "id": "mercantile_tender_resp_06",
+      "persona": "mercantile",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Come closer. That's the whole price.",
       "chars": 36
     },
     {
-      "id": "tender_init_06",
+      "id": "romantic_quickie_init_01",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I wanted to do this properly. I'll settle for doing it now.",
+      "chars": 59
+    },
+    {
+      "id": "romantic_quickie_init_02",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "This deserves candles and a locked door, and it's getting neither.",
+      "chars": 66
+    },
+    {
+      "id": "romantic_quickie_init_03",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Forgive the hurry. I've been thinking about you since morning.",
+      "chars": 62
+    },
+    {
+      "id": "romantic_quickie_init_04",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Not how I pictured it, but it's still you, so it'll do.",
+      "chars": 55
+    },
+    {
+      "id": "romantic_quickie_init_05",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I'd make a speech about it if there were time, and there isn't.",
+      "chars": 63
+    },
+    {
+      "id": "romantic_quickie_init_06",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Come here before the whole moment gets away from us.",
+      "chars": 52
+    },
+    {
+      "id": "romantic_quickie_resp_01",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Save the speech for later and come here now.",
+      "chars": 44
+    },
+    {
+      "id": "romantic_quickie_resp_02",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "The moment is enough on its own. Take it.",
+      "chars": 41
+    },
+    {
+      "id": "romantic_quickie_resp_03",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "You always wanted it perfect. This is better than perfect.",
+      "chars": 58
+    },
+    {
+      "id": "romantic_quickie_resp_04",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "I don't need the candles. I need you.",
+      "chars": 37
+    },
+    {
+      "id": "romantic_quickie_resp_05",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Then be quick about it, and still be sweet.",
+      "chars": 43
+    },
+    {
+      "id": "romantic_quickie_resp_06",
+      "persona": "romantic",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Hurry up, and mean every second of it.",
+      "chars": 38
+    },
+    {
+      "id": "romantic_athome_init_01",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "The door is shut and the whole evening belongs to the two of us.",
+      "chars": 64
+    },
+    {
+      "id": "romantic_athome_init_02",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "I've thought about this every single night this week.",
+      "chars": 53
+    },
+    {
+      "id": "romantic_athome_init_03",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Let me look at you properly for once, without anybody watching.",
+      "chars": 63
+    },
+    {
+      "id": "romantic_athome_init_04",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "There is nowhere I would rather be than in this room with you.",
+      "chars": 62
+    },
+    {
+      "id": "romantic_athome_init_05",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Stay tonight, and let the rest of the world get on without us.",
+      "chars": 62
+    },
+    {
+      "id": "romantic_athome_init_06",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "You make this ruin feel like somewhere worth living in.",
+      "chars": 55
+    },
+    {
+      "id": "romantic_athome_resp_01",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Then don't waste a minute of it on talking.",
+      "chars": 43
+    },
+    {
+      "id": "romantic_athome_resp_02",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "I've thought about it too, every night, exactly the same.",
+      "chars": 57
+    },
+    {
+      "id": "romantic_athome_resp_03",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Look all you like. I'm not going anywhere tonight.",
+      "chars": 50
+    },
+    {
+      "id": "romantic_athome_resp_04",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "You say the loveliest things once the door is locked.",
+      "chars": 53
+    },
+    {
+      "id": "romantic_athome_resp_05",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Let the world get on without us. Come to bed.",
+      "chars": 45
+    },
+    {
+      "id": "romantic_athome_resp_06",
+      "persona": "romantic",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Come here and say that again, closer this time.",
+      "chars": 47
+    },
+    {
+      "id": "romantic_tender_init_01",
+      "persona": "romantic",
       "scenario": "tender",
       "role": "initiator",
-      "text": "Look at me. ...There you are.",
-      "chars": 29
+      "text": "Look at that sky, and then look at you standing under it.",
+      "chars": 57
     },
     {
-      "id": "tender_resp_01",
+      "id": "romantic_tender_init_02",
+      "persona": "romantic",
       "scenario": "tender",
-      "role": "responder",
-      "text": "It is quiet, isn't it.",
-      "chars": 22
+      "role": "initiator",
+      "text": "The world ended and it still left us something like this.",
+      "chars": 57
     },
     {
-      "id": "tender_resp_02",
+      "id": "romantic_tender_init_03",
+      "persona": "romantic",
       "scenario": "tender",
-      "role": "responder",
-      "text": "I'm not going anywhere.",
-      "chars": 23
+      "role": "initiator",
+      "text": "Stay out here. Nothing waiting inside is better than this.",
+      "chars": 58
     },
     {
-      "id": "tender_resp_03",
+      "id": "romantic_tender_init_04",
+      "persona": "romantic",
       "scenario": "tender",
-      "role": "responder",
-      "text": "Then don't go back in.",
-      "chars": 22
+      "role": "initiator",
+      "text": "I want to remember you exactly the way you look right now.",
+      "chars": 58
     },
     {
-      "id": "tender_resp_04",
+      "id": "romantic_tender_init_05",
+      "persona": "romantic",
       "scenario": "tender",
-      "role": "responder",
-      "text": "Slow. Let's go slow.",
-      "chars": 20
+      "role": "initiator",
+      "text": "There's nobody out here but us and the wind moving the grass.",
+      "chars": 61
     },
     {
-      "id": "tender_resp_05",
+      "id": "romantic_tender_init_06",
+      "persona": "romantic",
       "scenario": "tender",
-      "role": "responder",
-      "text": "...I like this. Being out here.",
-      "chars": 31
+      "role": "initiator",
+      "text": "Come here, and let this one be slow.",
+      "chars": 36
     },
     {
-      "id": "tender_resp_06",
+      "id": "romantic_tender_resp_01",
+      "persona": "romantic",
       "scenario": "tender",
       "role": "responder",
-      "text": "Come closer, then.",
-      "chars": 18
+      "text": "Slow, then. We've got all the dark there is.",
+      "chars": 44
+    },
+    {
+      "id": "romantic_tender_resp_02",
+      "persona": "romantic",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "I would stay out here all night with you and not complain once.",
+      "chars": 63
+    },
+    {
+      "id": "romantic_tender_resp_03",
+      "persona": "romantic",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Remember it, then, and I'll remember it too.",
+      "chars": 44
+    },
+    {
+      "id": "romantic_tender_resp_04",
+      "persona": "romantic",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "The wind out here is very good at keeping secrets.",
+      "chars": 50
+    },
+    {
+      "id": "romantic_tender_resp_05",
+      "persona": "romantic",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Nothing inside is better than this. You're right about that.",
+      "chars": 60
+    },
+    {
+      "id": "romantic_tender_resp_06",
+      "persona": "romantic",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Come closer and say the whole thing again.",
+      "chars": 42
+    },
+    {
+      "id": "vulgar_quickie_init_01",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Bend over that crate and let's not waste the daylight.",
+      "chars": 54
+    },
+    {
+      "id": "vulgar_quickie_init_02",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I've been hard since you walked past me. Do something about it.",
+      "chars": 63
+    },
+    {
+      "id": "vulgar_quickie_init_03",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Get your hands on me before somebody needs something.",
+      "chars": 53
+    },
+    {
+      "id": "vulgar_quickie_init_04",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "No more talking. Just get your clothes out of the way.",
+      "chars": 54
+    },
+    {
+      "id": "vulgar_quickie_init_05",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I want you filthy and I want you right now.",
+      "chars": 43
+    },
+    {
+      "id": "vulgar_quickie_init_06",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Hands on the wall. We've got about a minute.",
+      "chars": 44
+    },
+    {
+      "id": "vulgar_quickie_resp_01",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Then stop describing it and get on with it.",
+      "chars": 43
+    },
+    {
+      "id": "vulgar_quickie_resp_02",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "You talk a lot for somebody with his hands that full.",
+      "chars": 53
+    },
+    {
+      "id": "vulgar_quickie_resp_03",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Filthy is what I came over here for. Go on.",
+      "chars": 43
+    },
+    {
+      "id": "vulgar_quickie_resp_04",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "About time. Hurry up and ruin me properly.",
+      "chars": 42
+    },
+    {
+      "id": "vulgar_quickie_resp_05",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Quit narrating the thing and start doing it.",
+      "chars": 44
+    },
+    {
+      "id": "vulgar_quickie_resp_06",
+      "persona": "vulgar",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "The wall it is, then. Make it count.",
+      "chars": 36
+    },
+    {
+      "id": "vulgar_athome_init_01",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Door's shut, and I'm going to take my time wrecking you.",
+      "chars": 56
+    },
+    {
+      "id": "vulgar_athome_init_02",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Get on the bed. I've got plans and none of them are polite.",
+      "chars": 59
+    },
+    {
+      "id": "vulgar_athome_init_03",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "I want to hear you all night and there's nobody around to complain.",
+      "chars": 67
+    },
+    {
+      "id": "vulgar_athome_init_04",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Clothes off. We are not leaving this room until morning.",
+      "chars": 56
+    },
+    {
+      "id": "vulgar_athome_init_05",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "I've thought filthy things about you all week. Let's work through them.",
+      "chars": 71
+    },
+    {
+      "id": "vulgar_athome_init_06",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Lie down and let me be extremely thorough about this.",
+      "chars": 53
+    },
+    {
+      "id": "vulgar_athome_resp_01",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Thorough sounds about right. Get over here.",
+      "chars": 43
+    },
+    {
+      "id": "vulgar_athome_resp_02",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Then be loud about it, because nobody is listening.",
+      "chars": 51
+    },
+    {
+      "id": "vulgar_athome_resp_03",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Plans, is it. Go ahead and show me the plans.",
+      "chars": 45
+    },
+    {
+      "id": "vulgar_athome_resp_04",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Wreck away. I've been waiting on this all week.",
+      "chars": 47
+    },
+    {
+      "id": "vulgar_athome_resp_05",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Off they come, and don't you dare be gentle.",
+      "chars": 44
+    },
+    {
+      "id": "vulgar_athome_resp_06",
+      "persona": "vulgar",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "All night, you said. Go on and prove it.",
+      "chars": 40
+    },
+    {
+      "id": "vulgar_tender_init_01",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Out here under the sky, with your clothes on the ground.",
+      "chars": 56
+    },
+    {
+      "id": "vulgar_tender_init_02",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "I want you slow tonight. Filthy, but slow with it.",
+      "chars": 50
+    },
+    {
+      "id": "vulgar_tender_init_03",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Nobody for a mile in any direction. Scream if you feel like it.",
+      "chars": 63
+    },
+    {
+      "id": "vulgar_tender_init_04",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Let me take my time with you out here where there's room.",
+      "chars": 57
+    },
+    {
+      "id": "vulgar_tender_init_05",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "I've wanted you like this since the sun was still up.",
+      "chars": 53
+    },
+    {
+      "id": "vulgar_tender_init_06",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Come here. I intend to enjoy this properly.",
+      "chars": 43
+    },
+    {
+      "id": "vulgar_tender_resp_01",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Slow and filthy. I can absolutely work with that.",
+      "chars": 49
+    },
+    {
+      "id": "vulgar_tender_resp_02",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Take all the time you want with me.",
+      "chars": 35
+    },
+    {
+      "id": "vulgar_tender_resp_03",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "A mile in any direction, you said. That'll do nicely.",
+      "chars": 53
+    },
+    {
+      "id": "vulgar_tender_resp_04",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Then enjoy it, because I fully intend to.",
+      "chars": 41
+    },
+    {
+      "id": "vulgar_tender_resp_05",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Come here and start, before I start without you.",
+      "chars": 48
+    },
+    {
+      "id": "vulgar_tender_resp_06",
+      "persona": "vulgar",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Clothes on the ground, then. Go on.",
+      "chars": 35
+    },
+    {
+      "id": "reticent_quickie_init_01",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I'm not good at asking for this, so I'm just going to ask.",
+      "chars": 58
+    },
+    {
+      "id": "reticent_quickie_init_02",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I don't usually do this, but I'd like to, with you.",
+      "chars": 51
+    },
+    {
+      "id": "reticent_quickie_init_03",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Somebody could walk past right now and I find I don't care.",
+      "chars": 59
+    },
+    {
+      "id": "reticent_quickie_init_04",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "This is the part where I normally talk myself out of it.",
+      "chars": 56
+    },
+    {
+      "id": "reticent_quickie_init_05",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "I've wanted to say something for weeks. That was the something.",
+      "chars": 63
+    },
+    {
+      "id": "reticent_quickie_init_06",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "initiator",
+      "text": "Don't make me explain it any further. Just say yes.",
+      "chars": 51
+    },
+    {
+      "id": "reticent_quickie_resp_01",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "You don't have to explain a thing. The answer is yes.",
+      "chars": 53
+    },
+    {
+      "id": "reticent_quickie_resp_02",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "I was starting to hope you'd finally ask me that.",
+      "chars": 49
+    },
+    {
+      "id": "reticent_quickie_resp_03",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "It took you long enough to get the words out.",
+      "chars": 45
+    },
+    {
+      "id": "reticent_quickie_resp_04",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Then stop talking yourself out of it and come here.",
+      "chars": 51
+    },
+    {
+      "id": "reticent_quickie_resp_05",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "Yes. That's all I've got for you, but it is a yes.",
+      "chars": 50
+    },
+    {
+      "id": "reticent_quickie_resp_06",
+      "persona": "reticent",
+      "scenario": "quickie",
+      "role": "responder",
+      "text": "I don't need the explanation either. Come here.",
+      "chars": 47
+    },
+    {
+      "id": "reticent_athome_init_01",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "The door is shut, which makes this considerably easier to say.",
+      "chars": 62
+    },
+    {
+      "id": "reticent_athome_init_02",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "I'm much better at this than I am at talking about it.",
+      "chars": 54
+    },
+    {
+      "id": "reticent_athome_init_03",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "I've had this conversation in my head about a hundred times.",
+      "chars": 60
+    },
+    {
+      "id": "reticent_athome_init_04",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "Stay tonight. I'm not going to say it any better than that.",
+      "chars": 59
+    },
+    {
+      "id": "reticent_athome_init_05",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "It's quieter in here, and I can manage it when it's quiet.",
+      "chars": 58
+    },
+    {
+      "id": "reticent_athome_init_06",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "initiator",
+      "text": "I don't let people in. I'm letting you in.",
+      "chars": 42
+    },
+    {
+      "id": "reticent_athome_resp_01",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Then let me in, and stop apologizing for it.",
+      "chars": 44
+    },
+    {
+      "id": "reticent_athome_resp_02",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "You said that just fine. Come here.",
+      "chars": 35
+    },
+    {
+      "id": "reticent_athome_resp_03",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "A hundred times in your head, and I only needed the once.",
+      "chars": 57
+    },
+    {
+      "id": "reticent_athome_resp_04",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "I'm staying. You don't have to ask me twice.",
+      "chars": 44
+    },
+    {
+      "id": "reticent_athome_resp_05",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "Quiet suits you, and so does this.",
+      "chars": 34
+    },
+    {
+      "id": "reticent_athome_resp_06",
+      "persona": "reticent",
+      "scenario": "athome",
+      "role": "responder",
+      "text": "I know exactly what it cost you to say that.",
+      "chars": 44
+    },
+    {
+      "id": "reticent_tender_init_01",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "It's easier out here. I don't know why, but it is.",
+      "chars": 50
+    },
+    {
+      "id": "reticent_tender_init_02",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "I don't say very much. I'd far rather show you.",
+      "chars": 47
+    },
+    {
+      "id": "reticent_tender_init_03",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "There's nobody out here to hear me get the words wrong.",
+      "chars": 55
+    },
+    {
+      "id": "reticent_tender_init_04",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "I've been working up to this for longer than you know.",
+      "chars": 54
+    },
+    {
+      "id": "reticent_tender_init_05",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Out here I can almost manage to say what I mean.",
+      "chars": 48
+    },
+    {
+      "id": "reticent_tender_init_06",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "initiator",
+      "text": "Stay a while and I might get the words out yet.",
+      "chars": 47
+    },
+    {
+      "id": "reticent_tender_resp_01",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Then take your time with the words. I'll wait.",
+      "chars": 46
+    },
+    {
+      "id": "reticent_tender_resp_02",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "You don't have to say it. I worked it out a while ago.",
+      "chars": 54
+    },
+    {
+      "id": "reticent_tender_resp_03",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Show me, then, if that's the easier one.",
+      "chars": 40
+    },
+    {
+      "id": "reticent_tender_resp_04",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Nobody out here but me, and I don't mind if you get it wrong.",
+      "chars": 61
+    },
+    {
+      "id": "reticent_tender_resp_05",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "Longer than I know? You can tell me about it later.",
+      "chars": 51
+    },
+    {
+      "id": "reticent_tender_resp_06",
+      "persona": "reticent",
+      "scenario": "tender",
+      "role": "responder",
+      "text": "I'll wait. I've been waiting anyway.",
+      "chars": 36
     }
   ]
 }
