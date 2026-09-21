@@ -786,6 +786,22 @@ Function DrainOverlayOrders()
 		Return
 	EndIf
 
+	; NOTHING DRAINS DURING A LOADING SCREEN. Every order below ends in an AAF call,
+	; and every AAF call is a ui.Invoke into AAF's Flash interface - which the
+	; loading screen has torn down. 2026-09-21: a scene ended at 20:20:05, the
+	; player fast travelled at 20:20:24, and at 20:20:27 - the moment the
+	; aftermath's heat-overlay removal came due, 22s after the scene as it always
+	; does - the game died in Scaleform (GFx::AS3::Traits::GetVT) reading freed
+	; memory. Orders are not dropped: they wait in the queue for the first poll
+	; after the load, which is exactly when they can be carried out.
+	If UI.IsMenuOpen("LoadingMenu")
+		Int waiting = Rapport:Core.PendingOrders()
+		If waiting > 0
+			Rapport:Core.Trace("orders: loading screen up - " + waiting + " order(s) wait for it to finish")
+		EndIf
+		Return
+	EndIf
+
 	; Bounded per poll on purpose. A reload can queue one order per standing
 	; overlay at once, and the point of this framework is not to be the mod that
 	; puts forty Papyrus calls in one frame.

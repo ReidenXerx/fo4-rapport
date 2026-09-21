@@ -135,7 +135,7 @@ def narrate(line):
     return None
 
 
-def run_shot(shot, max_scene, record=True):
+def run_shot(shot, max_scene, record=True, cameraman=False):
     say(f"== {shot['name']}: {shot['where']}")
     say(f"   shows: {shot['shows']}")
     reply = send("pause")
@@ -143,6 +143,10 @@ def run_shot(shot, max_scene, record=True):
 
     first, second = shot["pair"]
     here = send(f"who {first}")
+    if cameraman and not (here and "loaded=yes" in here):
+        # The owner moves and films; nothing here moves them.
+        say(f"   go to {shot['where']} first - {first} is not loaded near you. Nothing was started.")
+        return False
     if not (here and "loaded=yes" in here):
         say(f"   travelling to {shot['travel']} (fast travel - never a plain move across cells)")
         say(f"   {send('travel ' + shot['travel'], timeout=20)}")
@@ -157,7 +161,8 @@ def run_shot(shot, max_scene, record=True):
             say(f"   STOPPED: {who} is not here ({r}) - nothing was started")
             return False
 
-    frame(shot["frame"]["ref"], shot["frame"]["distance"], "framing")
+    if not cameraman:
+        frame(shot["frame"]["ref"], shot["frame"]["distance"], "framing")
     if record:
         import record as rec
         rec.start(shot["name"])
@@ -180,8 +185,9 @@ def run_shot(shot, max_scene, record=True):
                 # AAF walked the pair to the animation spot, so the first frame is
                 # stale. Wait out AAF's scene-init window before moving the player
                 # (travel inside it crashed the game), then frame where they ARE.
-                time.sleep(3)
-                frame(first, shot["frame"]["distance"], "reframing on the scene")
+                if not cameraman:
+                    time.sleep(3)
+                    frame(first, shot["frame"]["distance"], "reframing on the scene")
             if "refused" in l.lower() and "request" in l:
                 say(f"REFUSED  {l.split('] ', 2)[-1][:140]}")
             ev = narrate(l)
@@ -199,7 +205,7 @@ def run_shot(shot, max_scene, record=True):
         seen = len(new)
         # FOLLOW: if the pair has moved off the framing, frame them again -
         # locally, never by MoveTo (watch ... move refuses rather than wedge).
-        if started and time.time() - last_follow >= 3.0:
+        if started and not cameraman and time.time() - last_follow >= 3.0:
             last_follow = time.time()
             d = distance_to(first)
             if d is not None and abs(d - shot["frame"]["distance"]) > 150:
@@ -259,6 +265,8 @@ def main():
     ap.add_argument("shot", nargs="?")
     ap.add_argument("--max-scene", type=float, default=330.0, help="seconds to wait for a scene to end")
     ap.add_argument("--no-record", action="store_true", help="do not drive OBS")
+    ap.add_argument("--cameraman", action="store_true",
+                    help="only trigger events: no travel, framing, camera lock or follow - the owner films")
     a = ap.parse_args()
 
     if a.what == "list":
@@ -280,7 +288,7 @@ def main():
     if not todo:
         sys.exit(f"no shot called {a.shot!r} - try: list")
     for shot in todo:
-        if not run_shot(shot, a.max_scene, record=not a.no_record):
+        if not run_shot(shot, a.max_scene, record=not a.no_record, cameraman=a.cameraman):
             say(f"== {shot['name']} did not complete - stopping here")
             return 1
     say("== demo complete")

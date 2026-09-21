@@ -14,7 +14,8 @@ are the mod's own choices, which is the point of showing it.
 python scripts/demo/record.py setup     # launches OBS if needed; scene, Game Capture, desktop audio, 1080p60, MKV
 ```
 
-OBS's websocket password lives in `~/.obs-websocket/password` and is never printed. On a fresh OBS,
+OBS's websocket password lives in `~/.obs-websocket/password` and is never printed. Setup mutes every
+microphone input: the first clips carried room noise under the voice lines. On a fresh OBS,
 close its first-run **Auto-Configuration Wizard** (and any update prompt) once — while either is open,
 OBS accepts "start recording" and silently records nothing.
 
@@ -45,7 +46,18 @@ named by shot. `--no-record` runs a shot without OBS.
 No location has children nearby. The watchers skip children anyway; a demo of this mod is still not
 filmed where they stand around, which is why Diamond City's market is not a shot.
 
-## The camera
+## Cameraman mode - the owner films
+
+```
+python scripts/demo/demo.py run dugout-inn --cameraman
+```
+
+Only triggers the events: pauses autonomy, starts the scene, narrates it, records it. No travel, no
+framing, no camera lock, no follow - the owner walks there and holds the camera. Standing still
+while the script pinned the view let Fallout 4's idle camera start orbiting the player, which is
+why this mode exists. If the pair is not near the player it says where to go and starts nothing.
+
+## The camera (scripted mode)
 
 - **Framing** is `watch <actor> <distance> move`: always repositions, always facing them, and only
   ever locally.
@@ -63,5 +75,8 @@ filmed where they stand around, which is why Diamond City's market is not a shot
   75% of the time. A shot waits for its scene to END before the next travel, and re-frames only 3
   seconds after the scene has started.
 - **Across cells and worldspaces, `travel`** (fast travel), never a plain move.
+- **No AAF call during a loading screen** (fixed in the bridge, not the demo): a fast travel 22s after
+  a scene met the aftermath's overlay removal, a `ui.Invoke` into AAF's torn-down Flash interface, and
+  the game crashed in Scaleform. The bridge now holds every order until the load is over.
 - **A loading screen is timed by the channel's silence**, because the game answers nothing while it
   loads.

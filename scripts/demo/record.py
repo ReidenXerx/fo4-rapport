@@ -77,6 +77,12 @@ def setup():
     # Record what the game draws, not a downscale of it.
     c.set_video_settings(numerator=60, denominator=1, base_width=1920, base_height=1080,
                          out_width=1920, out_height=1080)
+    # GAME AUDIO ONLY. OBS captures the default microphone out of the box, and the
+    # first clips carried room noise under the voice lines. Every mic input muted.
+    mics = [i["inputName"] for i in c.get_input_list("wasapi_input_capture").inputs]
+    for m in mics:
+        c.set_input_mute(m, True)
+    print(f"microphones muted: {mics or 'none found'}")
     audio = [i["inputName"] for i in c.get_input_list("wasapi_output_capture").inputs]
     print(f"OBS ready: scene '{SCENE}', capture '{CAPTURE}', desktop audio {audio or 'NOT FOUND'}, "
           f"recording MKV to {FOLDER}")
