@@ -293,6 +293,32 @@ EndFunction
 
 ; Runs on its own stack, courtesy of CallFunctionNoWait. Everything here may
 ; block forever without costing anything but this one stack.
+; The pair in the order AAF should SLOT them. For a male + female pair the
+; female goes first, always (owner, 2026-09-21).
+;
+; AAF slots actors in array order. For a GENDERED position (F_M) it sorts them
+; itself, which is why this went unnoticed; for a gender-neutral one ("2P",
+; "NULLTOSELF") slot 0 simply goes to whoever is first - and slot 0 is the
+; receiving role in 559 of the 562 two-actor animations that name both
+; genders. The first real miss: the guard listed first, "DR Fist Anal 02"
+; chosen, and a male receiver moaning with the receiver's sounds.
+;
+; Same-sex pairs keep the caller's order: there is no convention to follow.
+; Used by EVERY array handed to AAF, so a query and a start never disagree
+; about who is who.
+Actor[] Function ForAAF(Actor akFirst, Actor akSecond)
+	Actor[] actors = new Actor[2]
+	actors[0] = akFirst
+	actors[1] = akSecond
+	; GetSex: 0 male, 1 female, -1 none. Swap only on a clear male-first pair.
+	If akFirst.GetLeveledActorBase().GetSex() == 0 && akSecond.GetLeveledActorBase().GetSex() == 1
+		actors[0] = akSecond
+		actors[1] = akFirst
+		Rapport:Core.Trace("bridge: female first for AAF's slots - " + Rapport:Core.FormIdText(akSecond.GetFormID()) + " takes slot 0")
+	EndIf
+	Return actors
+EndFunction
+
 Function DoStartScene(Int aiRequest)
 	Int index = Self.FindRequest(aiRequest)
 	If index < 0
@@ -323,9 +349,7 @@ Function DoStartScene(Int aiRequest)
 		Return
 	EndIf
 
-	Actor[] actors = new Actor[2]
-	actors[0] = akFirst
-	actors[1] = akSecond
+	Actor[] actors = Self.ForAAF(akFirst, akSecond)
 
 	AAF:AAF_API:SceneSettings settings = _api.GetSceneSettings()
 	settings.duration = _inFlight[index].duration
@@ -1263,9 +1287,7 @@ Function QueryAnimationsFor(Int aiFirstID, String asIncludeTags, String asExclud
 		Return
 	EndIf
 
-	Actor[] actors = new Actor[2]
-	actors[0] = akFirst
-	actors[1] = akSecond
+	Actor[] actors = Self.ForAAF(akFirst, akSecond)
 
 	; Five arguments, all of them. The decompiled base sources carry no defaults.
 	String label = asIncludeTags
