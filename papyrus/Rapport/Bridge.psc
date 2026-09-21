@@ -255,13 +255,20 @@ Function SweepWatchers()
 		Actor who = near[i] as Actor
 		i += 1
 		If who && who != a && who != b && who != player && !who.IsDead()
-			; HasDirectLOS, not HasDetectionLOS. Detection LOS is the STEALTH system:
-			; friendly townsfolk do not actively detect friendly NPCs, and it answered
-			; no for a whole scene to two watchers with their heads turned to it. Direct
-			; LOS is a ray between the two, blocked by walls - the obstacle test. Facing
-			; is the head turn's job. Empty node names, exactly as vanilla calls it for an
-			; NPC-to-reference check (RefCollectionAliasManager).
-			If Rapport:Core.NoteWatcher(who.GetFormID(), who.HasDirectLOS(a, "", "") || who.HasDirectLOS(b, "", ""))
+			; HasDirectLOS, not HasDetectionLOS: detection LOS is the STEALTH system,
+			; and friendly townsfolk do not detect friendly NPCs - it answered no for a
+			; whole scene to two watchers whose heads were turned to it. Facing is the
+			; head turn's job; this is only the obstacle test.
+			; EYE LEVEL TO THE BODY - measured, 2026-09-21. From the watcher's Head
+			; node to a participant's Pelvis, or Head to Head. The empty-node ray runs
+			; root to root, along the floor, and the furniture the pair lies on blocked
+			; it on every sweep; head-to-body found McDonough's gap past a wall on 3 of 5.
+			; Walls still block it, which is why hearing (the plugin's side) exists.
+			Bool sees = who.HasDirectLOS(a, "Head", "Pelvis") || who.HasDirectLOS(b, "Head", "Pelvis")
+			If !sees
+				sees = who.HasDirectLOS(a, "Head", "Head") || who.HasDirectLOS(b, "Head", "Head")
+			EndIf
+			If Rapport:Core.NoteWatcher(who.GetFormID(), sees)
 				; They noticed: the HEAD turns (pathing False = no walking over).
 				; Two arguments - the decompiled base carries no defaults.
 				who.SetLookAt(a, False)

@@ -48,14 +48,15 @@ namespace RP
 		const auto settings = document.value("observers", nlohmann::json::object());
 		_enabled = settings.value("enabled", false);
 		_radius = settings.value("radius", 900.0f);
+		_hearRadius = (std::min)(settings.value("hearRadius", 600.0f), _radius);
 		_chance = std::clamp(settings.value("chance", 0.33f), 0.0f, 1.0f);
 		_startAfter = settings.value("startAfterSeconds", 10.0f);
 		_gap = settings.value("gapSeconds", 6.0f);
 		_cooldown = settings.value("cooldownSeconds", 300.0f);
 		logger::info(
-			"watchers: {} - radius {:.0f}, chance {:.0f}%, from {:.0f}s into a scene, {:.0f}s between lines, "
-			"{:.0f}s per-actor cooldown",
-			_enabled ? "on" : "OFF", _radius, _chance * 100.0f, _startAfter, _gap, _cooldown);
+			"watchers: {} - sees within {:.0f}, hears within {:.0f}, chance {:.0f}%, from {:.0f}s into a scene, "
+			"{:.0f}s between lines, {:.0f}s per-actor cooldown",
+			_enabled ? "on" : "OFF", _radius, _hearRadius, _chance * 100.0f, _startAfter, _gap, _cooldown);
 	}
 
 	void Watchers::OnSceneStarted(std::int32_t a_request, std::uint32_t a_first, std::uint32_t a_second)
@@ -154,11 +155,35 @@ namespace RP
 		}
 
 		// 2. Judge outside it: these ask Voices and the engine, and Voices has its
-		// own lock. Only watchers who SEE are eligible to be rolled at all.
-		std::vector<std::uint32_t> seeing;
+		// own lock. A watcher counts if they SEE it, or are close enough to HEAR it.
+		float hearRadius = 0.0f;
+		std::uint32_t second = 0;
+		{
+			NamedLock lock{ _lock, "watchers" };
+			hearRadius = _hearRadius;
+			second = _second;
+		}
+		const auto* a = RE::TESForm::GetFormByID<RE::Actor>(first);
+		const auto* b = RE::TESForm::GetFormByID<RE::Actor>(second);
+		const auto  within = [&](const RE::Actor* a_who, const RE::Actor* a_of) {
+			if (!a_who || !a_of) {
+				return false;
+			}
+			const auto p = a_who->GetPosition();
+			const auto q = a_of->GetPosition();
+			const auto dx = p.x - q.x, dy = p.y - q.y, dz = p.z - q.z;
+			return dx * dx + dy * dy + dz * dz <= hearRadius * hearRadius;
+		};
+		std::vector<std::uint32_t>        seeing;
+		std::unordered_set<std::uint32_t> heardOnly;
 		for (const auto& [id, sees] : sweep) {
-			if (sees && Eligible(id)) {
+			const auto* who = RE::TESForm::GetFormByID<RE::Actor>(id);
+			const bool  hears = !sees && (within(who, a) || within(who, b));
+			if ((sees || hears) && Eligible(id)) {
 				seeing.push_back(id);
+				if (!sees) {
+					heardOnly.insert(id);
+				}
 			}
 		}
 		if (seeing.empty()) {
@@ -193,8 +218,8 @@ namespace RP
 					continue;
 				}
 				const bool wins = std::uniform_real_distribution<float>{ 0.0f, 1.0f }(_rng) < _chance;
-				logger::info("request {}: watcher {:08X} sees it ({}) - rolled {}", request, id, audience,
-					wins ? "a line" : "silence");
+				logger::info("request {}: watcher {:08X} {} it ({}) - rolled {}", request, id,
+					heardOnly.contains(id) ? "hears" : "sees", audience, wins ? "a line" : "silence");
 				// One line per sweep, and none inside the gap. A second winner in the
 				// same sweep has still spent their roll: the rule is one roll per
 				// scene, and a win that could not be voiced is a roll like any other.
@@ -216,13 +241,15 @@ namespace RP
 		auto*       npc = actor ? actor->GetNPC() : nullptr;
 		const auto  sex = npc ? static_cast<std::int32_t>(npc->GetSex()) : -1;
 		const auto  persona = std::string{ Barks::GetSingleton().PersonaOf(speaker) };
-		const auto [topic, id] = Barks::GetSingleton().PickObserver(persona, audience, sex);
+		const bool heard = heardOnly.contains(speaker);
+		const auto [topic, id] = Barks::GetSingleton().PickObserver(persona, audience, sex, heard);
 		if (topic == 0) {
 			logger::warn("request {}: watcher {:08X} won a line but the bank has none for {} / {}", request,
 				speaker, persona, audience);
 			return;
 		}
-		logger::info("request {}: watcher {:08X} ({}, {}) says {}", request, speaker, persona, audience, id);
+		logger::info("request {}: watcher {:08X} ({}, {}, {}) says {}", request, speaker, persona, audience,
+			heard ? "heard it" : "saw it", id);
 		Voices::GetSingleton().Speak(speaker, first, topic);
 	}
 }

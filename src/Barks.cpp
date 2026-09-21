@@ -64,6 +64,7 @@ namespace RP
 				line.scenario = entry.value("scenario", std::string{});
 				line.role = entry.value("role", std::string{});
 				line.audience = entry.value("audience", std::string{});
+				line.sight = entry.value("sight", false);
 				line.topic = entry.value("topic", 0u);
 				const auto gender = entry.value("gender", std::string{});
 				line.gender = gender.empty() ? 0 : gender.front();
@@ -142,7 +143,7 @@ namespace RP
 	}
 
 	std::pair<std::uint32_t, std::string> Barks::PickObserver(
-		std::string_view a_persona, std::string_view a_audience, std::int32_t a_sex)
+		std::string_view a_persona, std::string_view a_audience, std::int32_t a_sex, bool a_heardOnly)
 	{
 		NamedLock lock{ _lock, "barks" };
 		if (!_enabled) {
@@ -152,11 +153,12 @@ namespace RP
 		std::vector<const Line*> fits;
 		for (const auto& line : _lines) {
 			if (line.observer && line.persona == a_persona && line.audience == a_audience &&
-				(line.gender == 0 || line.gender == sex)) {
+				(line.gender == 0 || line.gender == sex) && !(a_heardOnly && line.sight)) {
 				fits.push_back(&line);
 			}
 		}
-		const auto* chosen = Choose(std::move(fits), std::format("observer|{}|{}", a_persona, a_audience));
+		const auto* chosen = Choose(std::move(fits),
+			std::format("observer|{}|{}|{}", a_persona, a_audience, a_heardOnly ? "heard" : "seen"));
 		return chosen ? std::pair{ chosen->topic, chosen->id } : std::pair<std::uint32_t, std::string>{};
 	}
 

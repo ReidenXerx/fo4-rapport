@@ -5,6 +5,7 @@
  "observers": {
   "enabled": true,
   "radius": 900,
+  "hearRadius": 600,
   "chance": 0.33,
   "startAfterSeconds": 10,
   "gapSeconds": 6,
@@ -1205,448 +1206,512 @@
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052819,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "mercantile_observer_alone_02",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052820,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "mercantile_observer_alone_03",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052821,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "mercantile_observer_alone_04",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052822,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "mercantile_observer_alone_05",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052823,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "mercantile_observer_alone_06",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052824,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "mercantile_observer_alone_07",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052825,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "mercantile_observer_alone_08",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052826,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "mercantile_observer_crowd_01",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052827,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "mercantile_observer_crowd_02",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052828,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "mercantile_observer_crowd_03",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052829,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "mercantile_observer_crowd_04",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052830,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "mercantile_observer_crowd_05",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052831,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "mercantile_observer_crowd_06",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052832,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "mercantile_observer_crowd_07",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052833,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "mercantile_observer_crowd_08",
    "kind": "observer",
    "persona": "mercantile",
    "topic": 1052834,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "romantic_observer_alone_01",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052835,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "romantic_observer_alone_02",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052836,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "romantic_observer_alone_03",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052837,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "romantic_observer_alone_04",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052838,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "romantic_observer_alone_05",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052839,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "romantic_observer_alone_06",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052840,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "romantic_observer_alone_07",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052841,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "romantic_observer_alone_08",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052842,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "romantic_observer_crowd_01",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052843,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": true
   },
   {
    "id": "romantic_observer_crowd_02",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052844,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": true
   },
   {
    "id": "romantic_observer_crowd_03",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052845,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "romantic_observer_crowd_04",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052846,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "romantic_observer_crowd_05",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052847,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "romantic_observer_crowd_06",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052848,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "romantic_observer_crowd_07",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052849,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "romantic_observer_crowd_08",
    "kind": "observer",
    "persona": "romantic",
    "topic": 1052850,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": true
   },
   {
    "id": "vulgar_observer_alone_01",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052851,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "vulgar_observer_alone_02",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052852,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "vulgar_observer_alone_03",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052853,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "vulgar_observer_alone_04",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052854,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "vulgar_observer_alone_05",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052855,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "vulgar_observer_alone_06",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052856,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "vulgar_observer_alone_07",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052857,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "vulgar_observer_alone_08",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052858,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "vulgar_observer_crowd_01",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052859,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": true
   },
   {
    "id": "vulgar_observer_crowd_02",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052860,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "vulgar_observer_crowd_03",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052861,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "vulgar_observer_crowd_04",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052862,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "vulgar_observer_crowd_05",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052863,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "vulgar_observer_crowd_06",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052864,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "vulgar_observer_crowd_07",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052865,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": true
   },
   {
    "id": "vulgar_observer_crowd_08",
    "kind": "observer",
    "persona": "vulgar",
    "topic": 1052866,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "reticent_observer_alone_01",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052867,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "reticent_observer_alone_02",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052868,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "reticent_observer_alone_03",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052869,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "reticent_observer_alone_04",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052870,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "reticent_observer_alone_05",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052871,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "reticent_observer_alone_06",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052872,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "reticent_observer_alone_07",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052873,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": true
   },
   {
    "id": "reticent_observer_alone_08",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052874,
-   "audience": "alone"
+   "audience": "alone",
+   "sight": false
   },
   {
    "id": "reticent_observer_crowd_01",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052875,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "reticent_observer_crowd_02",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052876,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "reticent_observer_crowd_03",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052877,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "reticent_observer_crowd_04",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052878,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "reticent_observer_crowd_05",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052879,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "reticent_observer_crowd_06",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052880,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": true
   },
   {
    "id": "reticent_observer_crowd_07",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052881,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   },
   {
    "id": "reticent_observer_crowd_08",
    "kind": "observer",
    "persona": "reticent",
    "topic": 1052882,
-   "audience": "crowd"
+   "audience": "crowd",
+   "sight": false
   }
  ]
 }

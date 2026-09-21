@@ -44,8 +44,10 @@ namespace RP
 		// and WHEN; this only says WHAT: a line for this persona, audience ("alone"
 		// or "crowd") and sex. Returns the Topic's file-relative id (0 when nothing
 		// fits, or barks are off) and the line id for the log.
+		// a_heardOnly: the watcher heard it through a wall and did not see it, so
+		// no line that talks about seeing ("look at that") is eligible.
 		[[nodiscard]] std::pair<std::uint32_t, std::string> PickObserver(
-			std::string_view a_persona, std::string_view a_audience, std::int32_t a_sex);
+			std::string_view a_persona, std::string_view a_audience, std::int32_t a_sex, bool a_heardOnly);
 
 	private:
 		struct Line
@@ -56,6 +58,7 @@ namespace RP
 			std::string   scenario;   // pair lines
 			std::string   role;       // pair lines
 			std::string   audience;   // observer lines
+			bool          sight{ false };   // observer line that only makes sense if SEEN
 			char          gender{ 0 };   // 'm', 'f', or 0 for either
 			std::uint32_t topic{ 0 };    // FILE-RELATIVE; the bridge adds the load order
 		};

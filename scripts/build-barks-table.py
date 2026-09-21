@@ -23,6 +23,7 @@ never from the bank's dict order, and a persona added later goes on the END.
 import argparse
 import json
 import pathlib
+import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -30,6 +31,10 @@ sys.path.insert(0, str(ROOT / "tools"))
 import make_dialogue  # noqa: E402
 
 OUT = ROOT / "data/F4SE/Plugins/Rapport/barks.json"
+
+# An observer line that only makes sense if you SAW it. A watcher who only HEARD
+# the scene through a wall (R-12) is never given one of these.
+SIGHT = re.compile(r"\b(see|seen|saw|look|looking|watch|watching|eyes|sight|view|show)\b", re.I)
 
 # Append-only, for the reason in the docstring.
 PERSONA_ORDER = ["mercantile", "romantic", "vulgar", "reticent"]
@@ -55,6 +60,7 @@ def table():
             entry["role"] = ln["role"]
         else:
             entry["audience"] = ln["audience"]
+            entry["sight"] = bool(SIGHT.search(ln["text"]))
         if "gender" in ln:
             entry["gender"] = ln["gender"]
         lines.append(entry)
@@ -69,8 +75,10 @@ def table():
         "responderDelaySeconds": 4.5,
         # R-12 bystanders. Chance is per watcher per scene (one roll, when they
         # first both stand near AND see it); the rest keep lines from colliding.
-        "observers": {"enabled": True, "radius": 900, "chance": 0.33, "startAfterSeconds": 10,
-                      "gapSeconds": 6, "cooldownSeconds": 300},
+        # radius: how far a watcher may SEE it from (with line of sight);
+        # hearRadius: how close counts as HEARING it, walls or not.
+        "observers": {"enabled": True, "radius": 900, "hearRadius": 600, "chance": 0.33,
+                      "startAfterSeconds": 10, "gapSeconds": 6, "cooldownSeconds": 300},
         "plugin": make_dialogue.PLUGIN,
         "personas": PERSONA_ORDER,
         "lines": lines,
@@ -86,8 +94,11 @@ def main() -> int:
     if OUT.exists():
         old = json.loads(OUT.read_text(encoding="utf-8"))
         # The settings are the owner's to tune; only the generated half must match.
-        for key in ("enabled", "responderDelaySeconds", "observers"):
+        for key in ("enabled", "responderDelaySeconds"):
             fresh[key] = old.get(key, fresh[key])
+        # Merged, not replaced: the owner's values win, and a setting added since
+        # their file was written still arrives with its default.
+        fresh["observers"] = {**fresh["observers"], **old.get("observers", {})}
     text = json.dumps(fresh, indent=1) + "\n"
 
     if a.check:

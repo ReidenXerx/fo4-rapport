@@ -25,6 +25,11 @@ namespace RP
 	//   - "alone" or "crowd" from how many eligible watchers see it this sweep;
 	//   - persona is the WATCHER'S own (R-7), and the voice is Voices' decision.
 	//
+	// SEE OR HEAR (owner, 2026-09-21): someone in the next room, facing the scene
+	// but behind a wall, HEARS it and would comment. So within hearRadius a
+	// watcher counts without line of sight - and is only ever given a line that
+	// does not talk about seeing it.
+	//
 	// NOTICE, THEN SEE, THEN SPEAK (owner, 2026-09-21). The first sweep that finds
 	// an adult nearby tells the bridge to turn their HEAD to the scene - they have
 	// noticed it. Only on a LATER sweep, with the head turned, does line of sight
@@ -63,7 +68,8 @@ namespace RP
 
 		// Settings: the "observers" block of barks.json.
 		bool  _enabled{ false };
-		float _radius{ 900.0f };
+		float _radius{ 900.0f };       // may SEE it from here, with line of sight
+		float _hearRadius{ 600.0f };   // HEARS it from here, walls or not
 		float _chance{ 0.33f };
 		float _startAfter{ 10.0f };    // seconds after scene start: the pair speaks first
 		float _gap{ 6.0f };            // seconds between two observer lines
