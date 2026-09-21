@@ -22,7 +22,9 @@ renders were designed to match those types, and comparing vanilla speech with
 whispered intimate delivery would measure delivery, not voice.
 
 HARD RULES, not scores:
-  - same sex only (VTYP flag 0x02). A score never crosses it.
+  - same sex only, and the sex must be AGREED by every witness (VTYP flag,
+    name, the NPC records that use the voice) or the voice stays silent - see
+    female() in build_map for the two records that broke each single source.
   - WHO may borrow is decided by RACE, read from the NPC records that use the
     voice (voice/fallback/vt-races.json), never by a similarity threshold. The
     first version used a threshold of 0.35 and it could not work: speaker
@@ -103,7 +105,23 @@ def decode_all(inv, per_voice):
     print(f"decoded {ok}/{len(staged)}")
 
 
-def embed_all(inv, per_voice):
+def embed_all(inv, per_voice, full=False):
+    """Fingerprint every voice type not already in the cache (all of them with full=True).
+
+    Incremental by default: a voice's fingerprint depends only on its own vanilla
+    recordings, so adding content never changes an existing one - only new voice
+    types need the model. The first run is ~4 minutes; a rerun is seconds.
+    """
+    names, vecs, counts = [], [], []
+    if CACHE.exists() and not full:
+        z = np.load(CACHE)
+        names, vecs, counts = list(z["names"]), list(z["vecs"]), list(z["counts"])
+    known = set(names)
+    todo = [row for row in inv if row["edid"] not in known]
+    if not todo:
+        print(f"fingerprints: all {len(names)} cached, none new")
+        return
+
     import torch
     import torchaudio
     from speechbrain.inference.speaker import EncoderClassifier
@@ -111,8 +129,7 @@ def embed_all(inv, per_voice):
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     model = EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb",
                                            savedir=str(FB / "models/ecapa"), run_opts={"device": dev})
-    names, vecs, counts = [], [], []
-    for row in inv:
+    for row in todo:
         clips = []
         for i in range(per_voice):
             p = WAV / row["edid"] / f"{i}.wav"
@@ -130,7 +147,7 @@ def embed_all(inv, per_voice):
         vecs.append(torch.nn.functional.normalize(e, dim=-1).cpu().numpy())
         counts.append(len(clips))
     np.savez(CACHE, names=np.array(names), vecs=np.stack(vecs), counts=np.array(counts))
-    print(f"fingerprinted {len(names)} voice types on {dev}")
+    print(f"fingerprinted {len(todo)} new voice type(s) on {dev} ({len(names)} in the cache)")
 
 
 # Nick and DiMA: synth bodies with human voices.
@@ -156,8 +173,11 @@ def eligibility(races):
 def build_map(inv, floor):
     races = json.loads((FB / "vt-races.json").read_text(encoding="utf-8"))
     z = np.load(CACHE)
-    names, vecs = list(z["names"]), z["vecs"]
     by = {r["edid"]: r for r in inv}
+    # The cache can hold a voice the current inventory no longer has (content
+    # removed); it is simply not mapped, rather than a KeyError.
+    keep = [i for i, n in enumerate(z["names"]) if str(n) in by]
+    names, vecs = [str(z["names"][i]) for i in keep], z["vecs"][keep]
     idx = {n: i for i, n in enumerate(names)}
     ours = [n for n in names if by[n]["rendered"]]
     def female(n):
@@ -217,12 +237,13 @@ def main():
     ap.add_argument("--per-voice", type=int, default=6)
     ap.add_argument("--floor", type=float, default=0.12)
     ap.add_argument("--map-only", action="store_true")
+    ap.add_argument("--full", action="store_true", help="re-fingerprint every voice, ignoring the cache")
     a = ap.parse_args()
 
     inv = json.loads((FB / "inventory.json").read_text(encoding="utf-8"))
     if not a.map_only:
         decode_all(inv, a.per_voice)
-        embed_all(inv, a.per_voice)
+        embed_all(inv, a.per_voice, a.full)
 
     mapping, scores = build_map(inv, a.floor)
     (FB / "map.json").write_text(json.dumps(mapping, indent=1), encoding="utf-8")

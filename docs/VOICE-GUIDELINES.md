@@ -508,3 +508,12 @@ types added by other mods.
 
 Never cross sex. The pairing itself is measured (speaker embeddings of the
 game's own recordings), and the owner can veto any pair by ear (V-9).
+
+**Rebuilding it: one command.** `python scripts/rebuild-voices.py` runs the whole
+pipeline (inventory -> races/sexes -> fingerprints + map -> runtime table) and
+prints WHAT CHANGED against the table it replaced. Incremental: only new voice
+types are fingerprinted. `--dry-run` reports without writing; `--full` redoes
+every fingerprint. Run it when a voice type is RENDERED, when voice archives or
+masters change, or after editing `voice/fallback/overrides.json` - not when lines
+are added (a new line is spoken by whichever voice the map already chose). CI runs
+`build-voices-table.py --check` so the committed table cannot drift from the map.
