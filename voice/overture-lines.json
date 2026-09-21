@@ -1,0 +1,433 @@
+{
+  "_": "Overture stage one: the first approach. NPC side only - the player's half is an open question (N-5) and does not block this. Selected by the NPC's persona (R-7), the register the player chose, and whether the room is public (N-3).",
+  "registers": {
+    "offer": "caps, a gift, something material",
+    "charm": "fancy words, patience, a compliment",
+    "blunt": "crude, direct, explicit",
+    "linger": "say little, stay, simply be present"
+  },
+  "lands_on": {
+    "mercantile": "offer",
+    "romantic": "charm",
+    "vulgar": "blunt",
+    "reticent": "linger"
+  },
+  "lines": [
+    {
+      "id": "ov_mercantile_greet_01",
+      "kind": "greeting",
+      "persona": "mercantile",
+      "text": "Something you need, or are you just browsing?",
+      "chars": 45
+    },
+    {
+      "id": "ov_mercantile_greet_02",
+      "kind": "greeting",
+      "persona": "mercantile",
+      "text": "If you are buying, then I am listening.",
+      "chars": 39
+    },
+    {
+      "id": "ov_romantic_greet_01",
+      "kind": "greeting",
+      "persona": "romantic",
+      "text": "Well now. Look who found their way over here.",
+      "chars": 45
+    },
+    {
+      "id": "ov_romantic_greet_02",
+      "kind": "greeting",
+      "persona": "romantic",
+      "text": "I was hoping somebody interesting would walk past.",
+      "chars": 50
+    },
+    {
+      "id": "ov_vulgar_greet_01",
+      "kind": "greeting",
+      "persona": "vulgar",
+      "text": "You want something, or do you just like the view?",
+      "chars": 49
+    },
+    {
+      "id": "ov_vulgar_greet_02",
+      "kind": "greeting",
+      "persona": "vulgar",
+      "text": "Come to talk, or come to do something about it?",
+      "chars": 47
+    },
+    {
+      "id": "ov_reticent_greet_01",
+      "kind": "greeting",
+      "persona": "reticent",
+      "text": "Oh. Hello. Did you need something from me?",
+      "chars": 42
+    },
+    {
+      "id": "ov_reticent_greet_02",
+      "kind": "greeting",
+      "persona": "reticent",
+      "text": "I did not see you standing there. Sorry.",
+      "chars": 40
+    },
+    {
+      "id": "ov_mercantile_offer_land_01",
+      "kind": "response",
+      "persona": "mercantile",
+      "register": "offer",
+      "outcome": "land",
+      "text": "Now that is how you open a conversation.",
+      "chars": 40
+    },
+    {
+      "id": "ov_mercantile_offer_land_02",
+      "kind": "response",
+      "persona": "mercantile",
+      "register": "offer",
+      "outcome": "land",
+      "text": "You have my attention, and that does not come cheap.",
+      "chars": 52
+    },
+    {
+      "id": "ov_mercantile_charm_miss_01",
+      "kind": "response",
+      "persona": "mercantile",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "Pretty words. What are they going to cost me?",
+      "chars": 45
+    },
+    {
+      "id": "ov_mercantile_charm_miss_02",
+      "kind": "response",
+      "persona": "mercantile",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "That is very nice. Now tell me what you actually want.",
+      "chars": 54
+    },
+    {
+      "id": "ov_mercantile_blunt_miss_01",
+      "kind": "response",
+      "persona": "mercantile",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "Direct. I respect it. I am still not moved.",
+      "chars": 43
+    },
+    {
+      "id": "ov_mercantile_blunt_miss_02",
+      "kind": "response",
+      "persona": "mercantile",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "You could have led with an offer instead of that.",
+      "chars": 49
+    },
+    {
+      "id": "ov_mercantile_linger_miss_01",
+      "kind": "response",
+      "persona": "mercantile",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "You can stand there all day if you like. It is free.",
+      "chars": 52
+    },
+    {
+      "id": "ov_mercantile_linger_miss_02",
+      "kind": "response",
+      "persona": "mercantile",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "Are you waiting for me to name you a price?",
+      "chars": 43
+    },
+    {
+      "id": "ov_romantic_offer_miss_01",
+      "kind": "response",
+      "persona": "romantic",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "You think I can be bought? That is almost insulting.",
+      "chars": 52
+    },
+    {
+      "id": "ov_romantic_offer_miss_02",
+      "kind": "response",
+      "persona": "romantic",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "Keep your caps and say something worth hearing.",
+      "chars": 47
+    },
+    {
+      "id": "ov_romantic_charm_land_01",
+      "kind": "response",
+      "persona": "romantic",
+      "register": "charm",
+      "outcome": "land",
+      "text": "Say that again, and slower this time.",
+      "chars": 37
+    },
+    {
+      "id": "ov_romantic_charm_land_02",
+      "kind": "response",
+      "persona": "romantic",
+      "register": "charm",
+      "outcome": "land",
+      "text": "Nobody has talked to me like that in years.",
+      "chars": 43
+    },
+    {
+      "id": "ov_romantic_blunt_miss_01",
+      "kind": "response",
+      "persona": "romantic",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "That is certainly one way to ruin a moment.",
+      "chars": 43
+    },
+    {
+      "id": "ov_romantic_blunt_miss_02",
+      "kind": "response",
+      "persona": "romantic",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "You could at least have worked up to it.",
+      "chars": 40
+    },
+    {
+      "id": "ov_romantic_linger_miss_01",
+      "kind": "response",
+      "persona": "romantic",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "You are very quiet. Say something to me.",
+      "chars": 40
+    },
+    {
+      "id": "ov_romantic_linger_miss_02",
+      "kind": "response",
+      "persona": "romantic",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "I would much rather you used actual words.",
+      "chars": 42
+    },
+    {
+      "id": "ov_vulgar_offer_miss_01",
+      "kind": "response",
+      "persona": "vulgar",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "Caps? I was hoping for something more interesting.",
+      "chars": 50
+    },
+    {
+      "id": "ov_vulgar_offer_miss_02",
+      "kind": "response",
+      "persona": "vulgar",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "Put your money away and try that again.",
+      "chars": 39
+    },
+    {
+      "id": "ov_vulgar_charm_miss_01",
+      "kind": "response",
+      "persona": "vulgar",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "All that talking and you still have not said it.",
+      "chars": 48
+    },
+    {
+      "id": "ov_vulgar_charm_miss_02",
+      "kind": "response",
+      "persona": "vulgar",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "Very poetic. Now say what you actually mean.",
+      "chars": 44
+    },
+    {
+      "id": "ov_vulgar_blunt_land_01",
+      "kind": "response",
+      "persona": "vulgar",
+      "register": "blunt",
+      "outcome": "land",
+      "text": "Finally. Somebody who says it out loud.",
+      "chars": 39
+    },
+    {
+      "id": "ov_vulgar_blunt_land_02",
+      "kind": "response",
+      "persona": "vulgar",
+      "register": "blunt",
+      "outcome": "land",
+      "text": "That is exactly the right thing to say to me.",
+      "chars": 45
+    },
+    {
+      "id": "ov_vulgar_linger_miss_01",
+      "kind": "response",
+      "persona": "vulgar",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "Standing there is not going to get it done.",
+      "chars": 43
+    },
+    {
+      "id": "ov_vulgar_linger_miss_02",
+      "kind": "response",
+      "persona": "vulgar",
+      "register": "linger",
+      "outcome": "miss",
+      "text": "You could be using your mouth for something.",
+      "chars": 44
+    },
+    {
+      "id": "ov_reticent_offer_miss_01",
+      "kind": "response",
+      "persona": "reticent",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "I do not want anything. Thank you, though.",
+      "chars": 42
+    },
+    {
+      "id": "ov_reticent_offer_miss_02",
+      "kind": "response",
+      "persona": "reticent",
+      "register": "offer",
+      "outcome": "miss",
+      "text": "Please do not. I would not know what to say.",
+      "chars": 44
+    },
+    {
+      "id": "ov_reticent_charm_miss_01",
+      "kind": "response",
+      "persona": "reticent",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "That is a great many words and I have none back.",
+      "chars": 48
+    },
+    {
+      "id": "ov_reticent_charm_miss_02",
+      "kind": "response",
+      "persona": "reticent",
+      "register": "charm",
+      "outcome": "miss",
+      "text": "You really should not say things like that to me.",
+      "chars": 49
+    },
+    {
+      "id": "ov_reticent_blunt_miss_01",
+      "kind": "response",
+      "persona": "reticent",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "I am going to pretend that I did not hear that.",
+      "chars": 47
+    },
+    {
+      "id": "ov_reticent_blunt_miss_02",
+      "kind": "response",
+      "persona": "reticent",
+      "register": "blunt",
+      "outcome": "miss",
+      "text": "That is... no. Not like that, please.",
+      "chars": 37
+    },
+    {
+      "id": "ov_reticent_linger_land_01",
+      "kind": "response",
+      "persona": "reticent",
+      "register": "linger",
+      "outcome": "land",
+      "text": "You are still here. Most people are not.",
+      "chars": 40
+    },
+    {
+      "id": "ov_reticent_linger_land_02",
+      "kind": "response",
+      "persona": "reticent",
+      "register": "linger",
+      "outcome": "land",
+      "text": "I do not mind you standing there. That is new.",
+      "chars": 46
+    },
+    {
+      "id": "ov_mercantile_recoil_01",
+      "kind": "recoil",
+      "persona": "mercantile",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Not in front of the stall. Have some sense.",
+      "chars": 43
+    },
+    {
+      "id": "ov_mercantile_recoil_02",
+      "kind": "recoil",
+      "persona": "mercantile",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Say that somewhere nobody is counting my caps.",
+      "chars": 46
+    },
+    {
+      "id": "ov_romantic_recoil_01",
+      "kind": "recoil",
+      "persona": "romantic",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Here? With all these people? Absolutely not.",
+      "chars": 44
+    },
+    {
+      "id": "ov_romantic_recoil_02",
+      "kind": "recoil",
+      "persona": "romantic",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "You have picked the worst possible room for that.",
+      "chars": 49
+    },
+    {
+      "id": "ov_vulgar_recoil_01",
+      "kind": "recoil",
+      "persona": "vulgar",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "I like it, but half the settlement is listening.",
+      "chars": 48
+    },
+    {
+      "id": "ov_vulgar_recoil_02",
+      "kind": "recoil",
+      "persona": "vulgar",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Find me somewhere with a door and ask me again.",
+      "chars": 47
+    },
+    {
+      "id": "ov_reticent_recoil_01",
+      "kind": "recoil",
+      "persona": "reticent",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "People can hear you. Please stop talking.",
+      "chars": 41
+    },
+    {
+      "id": "ov_reticent_recoil_02",
+      "kind": "recoil",
+      "persona": "reticent",
+      "register": "blunt",
+      "outcome": "recoil",
+      "text": "Not here. Not with everybody watching us.",
+      "chars": 41
+    }
+  ]
+}

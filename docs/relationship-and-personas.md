@@ -568,6 +568,60 @@ assuming the test verbs are the right vocabulary.
   wants this built as a stub with no consumer. Keep it that way: an unused system with one
   hook is cheap; an unused system with a policy layer is a maintenance cost.
 
+## N-6 - The counting exercise, answered: Overture fits (2026-09-21)
+
+N-2 asked the only question that decides whether this mod is real: **how many
+authored lines does one persona-driven exchange actually need**, and is that
+number fifty or five thousand. It is now measured rather than guessed.
+
+**Stage one, written in full** (`scripts/build-overture-lines.py`,
+`voice/overture-lines.json`): the first approach, four personas, four registers,
+plus the place-recoil N-3 demands. **48 lines, 2,143 characters.**
+
+The model it encodes: the player picks a **register** to approach with, the NPC
+has a **persona** (R-7), and whether they match decides land or miss. The player
+is never told the persona - reading it is the game.
+
+| register | appeals to | it is |
+| --- | --- | --- |
+| `offer` | mercantile | caps, a gift, something material |
+| `charm` | romantic | fancy words, patience, a compliment |
+| `blunt` | vulgar | crude, direct, explicit |
+| `linger` | reticent | say little, stay, simply be present |
+
+**Place overrides both**, which is what makes N-3 load-bearing rather than
+decorative: an intimate register in a public room **recoils even on the persona
+it would otherwise land with**. The vulgar NPC likes being propositioned and
+still does not want it shouted across a market.
+
+**The extrapolation.** Assume a real exchange escalates over three stages and
+wants three variants rather than two - about **9,644 characters per voice type**:
+
+| coverage | characters | of a Pro month |
+| --- | --- | --- |
+| 6 core settler voices | 57,861 | **9%** |
+| all 32 voice types | 308,592 | **51%** |
+
+**So the answer to N-2 is: it fits.** Full coverage of every voice type costs
+about half a month's allowance, and the cautious version costs under a tenth.
+Generation was never going to be the constraint; this confirms it with a number
+instead of a hope. **Authoring is the constraint** - somebody writes the lines
+and decides which situation each belongs to - exactly as N-2 predicted.
+
+**Two things this does NOT settle.**
+
+- **The player's half.** FO4 player dialogue is voiced by the protagonist, and we
+  cannot match that actor. Whether the player's side is silent, text-only, or
+  scavenged from vanilla is open (N-5, open question 5) - and it does not block
+  authoring the NPC side, which is why stage one exists without it.
+- **`.lip` files.** V-5 established that `lip: 0` is correct for scene barks,
+  because Rapport blocks the face for the length of a scene. **That reasoning does
+  not carry to dialogue**: an actor in conversation is not in an AAF scene, nothing
+  is blocking their face, and a talking head with a still mouth is conspicuous.
+  Open question 6 stands, and it stands harder for Overture than it did for R-9.
+
+---
+
 ## Open questions — measure, do not assume
 
 1. **The rank integer scale** (R-4). Unmeasured. Blocks the curve.
@@ -587,8 +641,9 @@ assuming the test verbs are the right vocabulary.
    route carries subtitles and lip sync, dialogue gets much more flexible.
 6. **Whether `.lip` can be generated outside the Creation Kit** (N-5). No fuz/lip tooling in
    the toolchain yet.
-7. **How many voice types the mod covers** (N-5). This is the number that decides the size of
-   the whole job.
+7. ~~**How many voice types the mod covers** (N-5).~~ **Sized by N-6**: 32 types exist and
+   are rendered. Full coverage is ~51% of a Pro month, six core settler voices ~9%. The
+   number is no longer unknown - it is a scope choice.
 8. **Persona bias inputs.** Faction and class are available; whether they should bias the
    derivation at all is a taste question nobody has answered.
 
