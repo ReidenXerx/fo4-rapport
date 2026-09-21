@@ -27,6 +27,8 @@ EndStruct
 
 AAF:AAF_API _api
 Request[] _inFlight
+; Heads a watcher sweep turned to a scene (R-12), released when it ends.
+Actor[] _lookers
 Bool _ready = false
 String _allMorphIDs = ""
 
@@ -228,6 +230,10 @@ EndEvent
 Function SweepWatchers()
 	Float radius = Rapport:Core.WatchRadius()
 	If radius <= 0.0
+		; No scene to watch (ended, or a new one inside its opening window):
+		; every head this bridge turned is let go. Also what cleans up after a
+		; save loaded mid-scene - the array lives in the save, the scene does not.
+		Self.ReleaseLookers()
 		Return
 	EndIf
 	Actor a = Game.GetForm(Rapport:Core.WatchFirstID()) as Actor
@@ -249,10 +255,36 @@ Function SweepWatchers()
 		Actor who = near[i] as Actor
 		i += 1
 		If who && who != a && who != b && who != player && !who.IsDead()
-			Rapport:Core.NoteWatcher(who.GetFormID(), who.HasDetectionLOS(a) || who.HasDetectionLOS(b))
+			If Rapport:Core.NoteWatcher(who.GetFormID(), who.HasDetectionLOS(a) || who.HasDetectionLOS(b))
+				; They noticed: the HEAD turns (pathing False = no walking over).
+				; Two arguments - the decompiled base carries no defaults.
+				who.SetLookAt(a, False)
+				If _lookers == None
+					_lookers = new Actor[0]
+				EndIf
+				_lookers.Add(who)
+			EndIf
 		EndIf
 	EndWhile
 	Rapport:Core.EndWatchSweep()
+EndFunction
+
+; Let go of every head a sweep turned. Never assume the array: it lives in the
+; save, and a save from before it existed hands back None (CLAUDE.md rule 4).
+Function ReleaseLookers()
+	If _lookers == None || _lookers.Length == 0
+		Return
+	EndIf
+	Int i = 0
+	While i < _lookers.Length
+		Actor who = _lookers[i]
+		i += 1
+		If who
+			who.ClearLookAt()
+		EndIf
+	EndWhile
+	Rapport:Core.Trace("watchers: released " + _lookers.Length + " head(s)")
+	_lookers.Clear()
 EndFunction
 
 Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDuration)

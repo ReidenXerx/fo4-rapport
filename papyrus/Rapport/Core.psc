@@ -173,7 +173,7 @@ Int Function OrderVoice() Global Native
 Float Function WatchRadius() Global Native
 Int Function WatchFirstID() Global Native
 Int Function WatchSecondID() Global Native
-Function NoteWatcher(Int aiFormID, Bool abSees) Global Native
+Bool Function NoteWatcher(Int aiFormID, Bool abSees) Global Native
 Function EndWatchSweep() Global Native
 
 ; An order the bridge collected but could not carry out -- an actor who turned

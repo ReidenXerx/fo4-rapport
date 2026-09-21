@@ -24,6 +24,13 @@ namespace RP
 	//   - "alone" or "crowd" from how many eligible watchers see it this sweep;
 	//   - persona is the WATCHER'S own (R-7), and the voice is Voices' decision.
 	//
+	// NOTICE, THEN SEE, THEN SPEAK (owner, 2026-09-21). The first sweep that finds
+	// an adult nearby tells the bridge to turn their HEAD to the scene - they have
+	// noticed it. Only on a LATER sweep, with the head turned, does line of sight
+	// count: that is when they are rolled. It is what made McDonough, staring out
+	// of his window, a watcher at all; it also means a line never comes from
+	// someone who visibly was not looking. Heads are released when the scene ends.
+	//
 	// Never a child, never the dead, never anyone in combat, never the player, and
 	// never someone Voices cannot voice - a line nobody hears is not spent.
 	class Watchers
@@ -42,8 +49,10 @@ namespace RP
 		[[nodiscard]] std::uint32_t SweepFirst() const;
 		[[nodiscard]] std::uint32_t SweepSecond() const;
 
-		// One per NPC the sweep found, then one EndSweep that decides.
-		void Note(std::uint32_t a_actor, bool a_sees);
+		// One per NPC the sweep found, then one EndSweep that decides. True means
+		// "turn this actor's head to the scene now": the first time an adult who
+		// is not fighting is found near it, once per scene.
+		[[nodiscard]] bool Note(std::uint32_t a_actor, bool a_sees);
 		void EndSweep();
 
 	private:
@@ -65,6 +74,8 @@ namespace RP
 		std::uint32_t                                         _second{ 0 };
 		Clock::time_point                                     _startedAt{};
 		std::unordered_set<std::uint32_t>                     _rolled;     // this scene
+		std::unordered_map<std::uint32_t, std::uint32_t>      _noticed;    // id -> sweep it turned
+		std::uint32_t                                         _sweeps{ 0 };
 		std::vector<std::pair<std::uint32_t, bool>>           _sweep;      // this poll
 		Clock::time_point                                     _lastLine{};
 		std::unordered_map<std::uint32_t, Clock::time_point> _spokeAt;    // across scenes

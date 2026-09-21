@@ -277,9 +277,10 @@ namespace
 		return static_cast<std::int32_t>(RP::Watchers::GetSingleton().SweepSecond());
 	}
 
-	void Papyrus_NoteWatcher(std::monostate, std::int32_t a_formID, bool a_sees)
+	// True: turn this actor's head to the scene (they noticed it).
+	bool Papyrus_NoteWatcher(std::monostate, std::int32_t a_formID, bool a_sees)
 	{
-		RP::Watchers::GetSingleton().Note(static_cast<std::uint32_t>(a_formID), a_sees);
+		return RP::Watchers::GetSingleton().Note(static_cast<std::uint32_t>(a_formID), a_sees);
 	}
 
 	void Papyrus_EndWatchSweep(std::monostate)

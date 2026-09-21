@@ -67,18 +67,22 @@ namespace RP
 		_startedAt = Clock::now();
 		_rolled.clear();
 		_sweep.clear();
+		_noticed.clear();
+		_sweeps = 0;
 	}
 
 	void Watchers::OnSceneEnded()
 	{
 		NamedLock lock{ _lock, "watchers" };
 		if (_request != 0) {
-			logger::info("request {}: watchers - {} bystander(s) rolled this scene", _request, _rolled.size());
+			logger::info("request {}: watchers - {} noticed, {} rolled this scene", _request, _noticed.size(),
+				_rolled.size());
 		}
 		_request = 0;
 		_first = _second = 0;
 		_rolled.clear();
 		_sweep.clear();
+		_noticed.clear();
 	}
 
 	float Watchers::SweepRadius() const
@@ -103,12 +107,26 @@ namespace RP
 		return _second;
 	}
 
-	void Watchers::Note(std::uint32_t a_actor, bool a_sees)
+	bool Watchers::Note(std::uint32_t a_actor, bool a_sees)
 	{
+		// Who may NOTICE: any adult who is alive and not fighting. Asked of the
+		// engine before our lock is taken. (Speaking needs more - see Eligible.)
+		const auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_actor);
+		const bool  canNotice = actor && actor != RE::PlayerCharacter::GetSingleton() && !actor->IsChild() &&
+		                       !actor->IsDead(true) && !actor->IsInCombat();
+
 		NamedLock lock{ _lock, "watchers" };
-		if (_request != 0 && a_actor != _first && a_actor != _second) {
-			_sweep.emplace_back(a_actor, a_sees);
+		if (_request == 0 || a_actor == _first || a_actor == _second) {
+			return false;
 		}
+		_sweep.emplace_back(a_actor, a_sees);
+		if (!canNotice || _noticed.contains(a_actor)) {
+			return false;
+		}
+		_noticed.emplace(a_actor, _sweeps);
+		logger::info("request {}: watcher {:08X} noticed it ({}) - turning their head", _request, a_actor,
+			a_sees ? "already in sight" : "was looking away");
+		return true;
 	}
 
 	void Watchers::EndSweep()
@@ -136,6 +154,8 @@ namespace RP
 			}
 		}
 		if (seeing.empty()) {
+			NamedLock lock{ _lock, "watchers" };
+			++_sweeps;   // a sweep with no one in sight still moves "earlier" on
 			return;
 		}
 		const std::string_view audience = seeing.size() >= 2 ? "crowd" : "alone";
@@ -149,7 +169,13 @@ namespace RP
 			}
 			const auto now = Clock::now();
 			const bool gapOK = std::chrono::duration<float>{ now - _lastLine }.count() >= _gap;
+			const auto thisSweep = _sweeps++;
 			for (const auto id : seeing) {
+				// Seen only counts once the head has turned: noticed on an EARLIER
+				// sweep. Someone noticed this sweep is rolled next time, if they see.
+				if (const auto n = _noticed.find(id); n == _noticed.end() || n->second >= thisSweep) {
+					continue;
+				}
 				if (!_rolled.insert(id).second) {
 					continue;   // already had their one roll this scene
 				}
