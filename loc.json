@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
   "label": "code",
-  "message": "12.4k lines",
+  "message": "12.8k lines",
   "color": "informational",
   "_breakdown": {
     "Papyrus": 1044,
-    "Python": 3646,
+    "Python": 4032,
     "PowerShell": 204,
     "JavaScript": 117,
     "C++": 7375
   },
-  "_files": 81,
+  "_files": 83,
   "_top": [
     "7.4k C++",
-    "3.6k Python"
+    "4.0k Python"
   ]
 }
