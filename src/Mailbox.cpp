@@ -788,6 +788,17 @@ namespace RP
 				a, b, parts[2], arm == "empty" ? "\"\" (our old way)" : "\"NONE\" (as documented)");
 		}
 
+		if (verb == "actordata") {
+			// actordata <formid>   TESTING ONLY
+			bool       ok = false;
+			const auto formID = ParseFormID(rest, ok);
+			if (!ok) {
+				return "ERR actordata <formid>";
+			}
+			link.QueueOrder(Order{ Order::Kind::kGetActorData, formID, "", "" });
+			return std::format("OK queued - asked AAF for {:08X}'s data; if it answers, OnActorData lands in Rapport.log", formID);
+		}
+
 		if (verb == "startpos") {
 			// startpos <a> <b> <position id, spaces and all>
 			//

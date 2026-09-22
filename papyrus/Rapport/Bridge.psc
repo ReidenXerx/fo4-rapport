@@ -124,6 +124,12 @@ Function Connect()
 	RegisterForCustomEvent(_api, "aaf:aaf_api_OnStageEvent")
 	RegisterForCustomEvent(_api, "aaf:aaf_api_OnAnimationQueryResult")
 
+	; TESTING. Nothing here acts on actor data; this exists to answer whether
+	; GetActorData ever replies at all. Another mod's AAF addon calls it and
+	; gets nothing back, with the same mangled name and with OnPositionData
+	; answering beside it -- so the question is whether AAF answers ANYBODY.
+	RegisterForCustomEvent(_api, "aaf:aaf_api_OnActorData")
+
 	; From here we hear every scene AAF starts, so from here a busy flag with no
 	; scene behind it can be told apart from one whose scene began before we were
 	; listening. Connect runs more than once per load; restarting the clock each
@@ -699,6 +705,13 @@ Event AAF:AAF_API.OnAnimationQueryResult(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnAnimationQueryResult", akArgs)
 EndEvent
 
+Event AAF:AAF_API.OnActorData(AAF:AAF_API akSender, Var[] akArgs)
+	; TESTING ONLY. Documented to carry the actor, a status string from
+	; $WALKING/$ANIMATING/$LOCKING/$UNLOCKING/$LOCKED/$UNLOCKED/$WAITING, and
+	; that actor's stat names and values as two parallel arrays.
+	Self.TraceArgs("OnActorData", akArgs)
+EndEvent
+
 ;---------------------------------------------------------------------------
 ; Housekeeping
 ;---------------------------------------------------------------------------
@@ -1206,6 +1219,17 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 		Return
 	ElseIf aiKind == 31
 		Self.StartScenePos(aiFormID, asSetID, asExtra)
+		Return
+	ElseIf aiKind == 32
+		If _api != None
+			Actor who = Game.GetForm(aiFormID) as Actor
+			If who == None
+				Rapport:Core.Trace("actordata: " + Rapport:Core.FormIdText(aiFormID) + " is not a form we can resolve")
+			Else
+				Rapport:Core.Trace("actordata: asking AAF about " + Rapport:Core.FormIdText(aiFormID) + " - the answer, if any, arrives as OnActorData")
+				_api.GetActorData(who)
+			EndIf
+		EndIf
 		Return
 	ElseIf aiKind == 28
 		Self.QueryTagsRaw(aiFormID, asSetID, asExtra, "")

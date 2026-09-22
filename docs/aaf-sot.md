@@ -456,6 +456,31 @@ twice. On n=2 that is a hint, not a split. **Do not remove the manual stop on th
 result**: in a tree the branch's `time` governs, `duration` is only the fallback, and the manual stop
 is still what ends the scene. Measure how often Rapport's scenes are trees first.
 
+## Measured here — GetActorData never answers
+
+**2026-09-22, AAF 1741.** `GetActorData` is documented to answer on `OnActorData` with the actor,
+a status string and that actor's stats. It does not answer at all.
+
+| | |
+| --- | --- |
+| idle actor | call sent, **no `OnActorData` in 12s** |
+| same actor mid-scene, scene confirmed by `OnAnimationStart` | **no `OnActorData` in 10s** |
+| `aaf: OnActorData` lines in the entire log | **0** |
+
+**The control is what makes this worth stating.** In the same minutes, on the same actor, Rapport
+received `OnSceneInit`, `OnWalkInit`, `OnAnimationStart`, `OnAnimationStop` and `OnSceneEnd`. The
+registration path, the mangled event names and the plumbing all demonstrably work; this one call is
+ignored. Another mod's AAF addon measured the same silence independently, with its own registration,
+and its neighbouring `GetPositionData` answers normally.
+
+So `GetActorData` joins `ChangePosition` as an entry point that accepts a call and never replies. No
+theory is offered for either.
+
+**A counting trap worth remembering.** `grep -c OnActorData` returned 4 and every one was our own log
+line saying *"the answer, if any, arrives as OnActorData"*. The real count was zero. When grepping a
+log for evidence that something happened, match the line the RECEIVER writes, not the name of the
+thing — the name appears in everything that mentions it, including the code that failed.
+
 ## How to use this file
 
 Cite it the way you would cite the wiki. When our behaviour disagrees with a section here, the

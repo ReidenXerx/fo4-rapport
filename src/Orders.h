@@ -201,7 +201,17 @@ namespace RP
 			//
 			// setID is the position id, taken as the rest of the command line
 			// because real ids contain spaces. extra is the second actor.
-			kStartScenePos = 31
+			kStartScenePos = 31,
+
+			// GetActorData on one actor. TESTING ONLY.
+			//
+			// Another mod's AAF addon calls this and no OnActorData ever comes
+			// back -- twice, ten seconds, with the mangled registration name and
+			// with OnPositionData answering right beside it. Rapport registers
+			// nine AAF events and this was not one of them, so putting the same
+			// call through a bridge whose other nine demonstrably work is the
+			// control that says whether AAF answers anybody.
+			kGetActorData = 32
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };
