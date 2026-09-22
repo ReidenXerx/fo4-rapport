@@ -799,7 +799,9 @@ looks like it promises.
 
 The five that change what somebody else would build:
 
-1. **AAF goes permanently deaf after a load, and it is a race** (§1). Roughly half of all save loads.
+1. **AAF's interface could be lost on a load, and it is a race** (§1). Confirmed by AAF's author and
+   fixed in AAF 1.7.8 (issue #1). "Roughly half of all save loads" was our development loop restarting
+   the quest from outside, not the rate in normal play. From 1.7.8 Rapport only watches.
    No error, no event, no indication anywhere. `getSWFPath()` lives in the **save**, and only the
    updater quest blanks it; whichever of two quests wins the `OnPlayerLoadGame` race decides whether
    AAF loads its interface or reboots a menu instance minted in a previous session that no longer
@@ -859,7 +861,7 @@ Kept because the measurement is the finding.
 
 | | What it was | Why it went |
 | --- | --- | --- |
-| **`ChangePosition` staging** | A stage moved the running scene to its next mood. | Refused 26 times out of 26, including with no filters at all. `FindMatchingAnimations` agreed from the other side: 0 for all 17 tags tried, including `PenisToVagina`, which 2,320 installed positions carry, while the same query with no filter came back non-zero. |
+| **`ChangePosition` staging** | A stage moved the running scene to its next mood. | Refused 26 times out of 26, including with no filters at all. AAF's author cannot reproduce it from a code read (issue #1 §15): an empty tag field means a tag named "", so a retry should pass "NONE", and a position change keeps the scene's furniture. `FindMatchingAnimations` agreed from the other side: 0 for all 17 tags tried, including `PenisToVagina`, which 2,320 installed positions carry, while the same query with no filter came back non-zero. |
 | **Relocation** | Move the pair to better furniture mid-scene: stop, walk, start again. | Built and **proven end to end**, then deleted with `ChangePosition` — with the scene no longer restaging, there is nothing to relocate for. It is in the history if a mid-scene change is ever wanted. |
 | **The slot-0 blush** | Three head-slot overlay templates for a facial flush. | Built, shipped, watched across several scenes: faces unchanged. F4EE does not apply a head overlay. Removed rather than left dormant. |
 | **`startEquipmentSet`** | Take a visible-holstered-weapons rig off for a scene. | Naming a start set **replaces** AAF's automatic undressing: both actors stayed fully dressed through a complete sex scene. Nothing in `Rapport.log` or `Papyrus.0.log` mentioned equipment — visible only on screen, which is the worst shape of failure. `ApplyEquipmentSet` is **untested and left that way deliberately**: it is additive in principle, and "it also breaks undressing" is unknown, not established. |

@@ -91,6 +91,8 @@ Int Function SceneToStop() Global Native
 ; be there already. On a load screen it is not, which is how AAF lost its reboot
 ; to begin with -- and an attempt spent that way is counted without anything
 ; having been tried.
+; AAF_Version as AAF reports it (1741 = 1.7.4.1).
+Function NoteAAFVersion(Int aiVersion) Global Native
 Function NoteAAFStatus(Int aiStatus, Bool abHUDReady) Global Native
 
 ; The player's answer to "AAF's quest is not running - start it?". Recorded so

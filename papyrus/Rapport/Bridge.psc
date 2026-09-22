@@ -194,6 +194,7 @@ Event OnTimer(Int aiTimerID)
 		If _api == None
 			Rapport:Core.NoteAAFStatus(-1, hudReady)
 		Else
+			Rapport:Core.NoteAAFVersion(_api.GetVersion())
 			Rapport:Core.NoteAAFStatus(_api.GetAAFStatus(), hudReady)
 		EndIf
 
@@ -717,12 +718,15 @@ EndFunction
 
 ; Undo what AAF stamped on our behalf. On a scene that ends properly AAF clears
 ; this itself; on one that never started, nothing would.
+; Through AAF's own unlock ONLY. The busy keyword is AAF's: it removes it at unlock,
+; and its interface refuses a new scene for an actor still unlocking whatever the
+; keyword says - so stripping it ourselves gains nothing and can double-book an
+; actor (AAF's author, fo4-rapport issue #1, §7). Every caller already knows no
+; scene of this actor is running: a refusal (AAF has already cleared it), a request
+; left over from another world, or a flag nobody's live scene explains.
 Function ReleaseActor(Actor akActor)
 	If _api == None || akActor == None
 		Return
-	EndIf
-	If _api.AAF_ActorBusy != None && akActor.HasKeyword(_api.AAF_ActorBusy)
-		akActor.RemoveKeyword(_api.AAF_ActorBusy)
 	EndIf
 	_api.SetActorLocked(akActor, false)
 EndFunction

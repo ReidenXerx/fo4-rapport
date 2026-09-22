@@ -62,6 +62,8 @@ namespace RP
 		// reboot in the first place. Firing the cure into the same emptiness does
 		// not fail -- it is counted as an attempt while having tried nothing.
 		void NoteStatus(std::int32_t a_status, bool a_hudReady);
+		// AAF_Version as AAF reports it: 1741 is 1.7.4.1, so 1.7.8 is 1780.
+		void NoteVersion(std::int32_t a_version);
 
 		// Decides, on the same poll as everything else. Queues at most one order.
 		void Pump();
@@ -87,6 +89,11 @@ namespace RP
 		mutable std::timed_mutex _lock;
 
 		std::int32_t  _status{ kUnknown };
+		std::int32_t  _version{ 0 };
+		bool          _saidSelfHealing{ false };
+		// From this version AAF recovers its own interface (issue #1, §1), and its
+		// author asked that nobody calls its init functions any more.
+		static constexpr std::int32_t kSelfHealingVersion = 1780;
 		std::uint32_t _attempts{ 0 };
 		std::uint32_t _revivals{ 0 };   // times it came back after we restarted it
 		bool          _asked{ false };  // the quest-stopped question, asked once

@@ -35,6 +35,15 @@ namespace RP
 		}
 	}
 
+	void AAFHealth::NoteVersion(std::int32_t a_version)
+	{
+		NamedLock lock{ _lock, "aaf health" };
+		if (a_version != _version) {
+			_version = a_version;
+			logger::info("aaf watchdog: AAF reports version {}", a_version);
+		}
+	}
+
 	void AAFHealth::NoteStatus(std::int32_t a_status, bool a_hudReady)
 	{
 		NamedLock lock{ _lock, "aaf health" };
@@ -107,6 +116,17 @@ namespace RP
 		const auto& config = Config::GetSingleton();
 		if (config.aafReviveAttempts == 0) {
 			return std::nullopt;   // turned off
+		}
+		// AAF 1.7.8 probes its remembered interface, checks HUDMenu, retries a failed
+		// load and reports error [107] itself. Its author asked that third parties stop
+		// calling its init functions once that ships (fo4-rapport issue #1, §1) - so
+		// from that version the watchdog only watches.
+		if (_version >= kSelfHealingVersion) {
+			if (!_saidSelfHealing) {
+				_saidSelfHealing = true;
+				logger::info("aaf watchdog: AAF {} recovers its own interface - Rapport watches and never re-initialises it", _version);
+			}
+			return std::nullopt;
 		}
 
 		// Nothing is known yet. An unknown status is not a broken one.

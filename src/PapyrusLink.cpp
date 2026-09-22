@@ -203,6 +203,11 @@ namespace
 	// What AAF says about itself, reported on every poll. The plugin cannot ask
 	// -- GetAAFStatus is Papyrus -- and the number has to arrive on the same poll
 	// that acts on it, or the watchdog would be reasoning about a stale one.
+	void Papyrus_NoteAAFVersion(std::monostate, std::int32_t a_version)
+	{
+		RP::AAFHealth::GetSingleton().NoteVersion(a_version);
+	}
+
 	void Papyrus_NoteAAFStatus(std::monostate, std::int32_t a_status, bool a_hudReady)
 	{
 		RP::AAFHealth::GetSingleton().NoteStatus(a_status, a_hudReady);
@@ -919,6 +924,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneToStop"sv, Papyrus_SceneToStop, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteStopAsked"sv, Papyrus_NoteStopAsked, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteAAFStatus"sv, Papyrus_NoteAAFStatus, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteAAFVersion"sv, Papyrus_NoteAAFVersion, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ScenePosition"sv, Papyrus_ScenePosition, std::nullopt, false);
 		a_vm->BindNativeMethod(
 			kCoreScript, "NoteAAFRevivalChoice"sv, Papyrus_NoteAAFRevivalChoice, std::nullopt, false);
@@ -1003,7 +1009,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
-		logger::info("papyrus: bound 58 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 59 native functions on {}", kCoreScript);
 		return true;
 	}
 

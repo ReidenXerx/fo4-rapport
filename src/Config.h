@@ -98,7 +98,7 @@ namespace RP
 		// A normal load has it answering within a couple of seconds; this is
 		// generous on purpose, because restarting a framework that was merely slow
 		// is worse than waiting.
-		float         aafReviveGraceSeconds{ 15.0f };
+		float         aafReviveGraceSeconds{ 60.0f };
 
 		// Between restarts. The restart is asynchronous -- it ends in a call into a
 		// Scaleform menu and the answer comes back whenever the SWF is ready -- so

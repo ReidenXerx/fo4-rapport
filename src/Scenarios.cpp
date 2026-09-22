@@ -409,7 +409,8 @@ namespace RP
 		}
 	}
 
-	// ONE tag, not the whole list. AAF's includeTags is an AND.
+	// ONE tag at a time. Over-cautious rather than wrong: includeTags is ANY-of
+	// (issue #1 §10), and a single tag means the same either way.
 	void Scenarios::SendCurrentOption(std::vector<Order>& a_out)
 	{
 		if (!_running || _stage >= _running->stages.size()) {

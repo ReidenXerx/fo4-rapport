@@ -29,9 +29,10 @@ namespace RP
 		{
 			std::string id;
 			float       seconds{ 30.0f };
-			// ALTERNATIVES, tried one at a time. AAF's includeTags is an AND: it
-			// wants one animation carrying every tag given, so sending five means
-			// asking for something that is all five at once, which nothing is.
+			// ALTERNATIVES, tried one at a time. (Written believing includeTags was
+			// an AND. It is ANY-of - combinedTags is the all-of one, AAF's author,
+			// issue #1 §10 - so one tag at a time was only over-cautious, never
+			// looser: a single tag means the same under either rule.)
 			std::vector<std::string> options;
 			std::string include;   // the authored list, for the log
 			std::string exclude;   // tags it must avoid
