@@ -25,8 +25,12 @@
 
 
 Everything here was measured against a running game or read out of AAF's own decompiled sources.
-None of it is documented by AAF, and several items contradict what its API looks like it promises.
-`docs/aaf-api.md` covers the call shapes; this file covers the behaviour underneath them.
+Several items contradict what its API looks like it promises. `docs/aaf-api.md` covers the call
+shapes; this file covers the behaviour underneath them.
+
+**Start with [`aaf-sot.md`](aaf-sot.md)**, not with this file. That one is what AAF's own
+documentation says, distilled and cited; this one is what we observed from outside. Where the two
+disagree, the documentation is right and an entry here is a symptom we mis-explained.
 
 Each entry says how it was established, because that is what makes it re-checkable when AAF changes.
 
