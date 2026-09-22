@@ -1204,6 +1204,9 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 	ElseIf aiKind == 30
 		Self.ChangePositionRaw(aiFormID, asSetID, asExtra)
 		Return
+	ElseIf aiKind == 31
+		Self.StartScenePos(aiFormID, asSetID, asExtra)
+		Return
 	ElseIf aiKind == 28
 		Self.QueryTagsRaw(aiFormID, asSetID, asExtra, "")
 		Return
@@ -1440,6 +1443,37 @@ Function QueryAnimationsFor(Int aiFirstID, String asIncludeTags, String asExclud
 
 	_api.FindMatchingAnimations(actors, "Rapport:" + label, asIncludeTags, asExcludeTags, "")
 	Rapport:Core.Trace("query: asked AAF what it matches for [" + label + "] on this pair - the answer comes back as OnAnimationQueryResult")
+EndFunction
+
+; A raw StartScene on a NAMED position. TESTING ONLY, and deliberately outside
+; Rapport's own scene bookkeeping -- the mod will not recognise this scene.
+;
+; This is the control ChangePositionRaw needs. Every scene Rapport starts runs a
+; positionTree, and a tree owns its navigation, so "ChangePosition does not work"
+; and "a tree-driven scene cannot be moved" fit all 26 refusals equally well.
+; Start a scene on a position that is not a tree, move THAT, and they separate.
+;
+; ONE AAF call on this stack; the next poll is already scheduled.
+Function StartScenePos(Int aiFirstID, String asPosition, String asSecondID)
+	If _api == None
+		Rapport:Core.Trace("startpos: no AAF interface")
+		Return
+	EndIf
+
+	Actor akFirst = Game.GetForm(aiFirstID) as Actor
+	Actor akSecond = Game.GetForm(asSecondID as Int) as Actor
+	If akFirst == None || akSecond == None
+		Rapport:Core.Trace("startpos: one of those two is not a form we can resolve")
+		Return
+	EndIf
+
+	AAF:AAF_API:SceneSettings settings = _api.GetSceneSettings()
+	settings.position = asPosition
+	settings.meta = "Rapport,control"
+
+	Actor[] actors = Self.ForAAF(akFirst, akSecond)
+	Rapport:Core.Trace("startpos: starting [" + asPosition + "] for " + Rapport:Core.FormIdText(aiFirstID) + " + " + asSecondID)
+	_api.StartScene(actors, settings)
 EndFunction
 
 ; A raw ChangePosition, three ways. TESTING ONLY -- nothing in the mod moves a

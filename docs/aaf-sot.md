@@ -29,7 +29,7 @@ Everything below is detail. These are the ones that touch code we have already w
 | **E** | Several API calls **do nothing before boot completes** and AAF says so with error `[072]`. `FindMatchingAnimations`, `GetPositionData` and `GetActorTypeList` name this explicitly. | Everything we send must be behind the ready gate, not behind a timer. |
 | **F** | **`AAF_ActorBusy` is AAF's flag**, set when an actor enters a scene and cleared when they are no longer actively in one. `AAF_ActorLocked` is the *courtesy* flag for mod authors and **AAF does not enforce it**. `AAF_ActorBlocked` makes AAF ignore an actor entirely. | Confirms §7: we removed our keyword-stripping. It also means checking `AAF_ActorLocked` before we touch an actor is on us — nothing stops another mod ignoring it. |
 | **G** | A positionTree's auto-created position carries **only the root branch's tags** unless the tree sets `combineTags="true"` (1.7.6). | Tag-based selection can silently never reach a later stage of a tree. Explains selection surprises better than any theory we had. |
-| **H** | A branch's `time` overrides the scene `duration`; with no `time`, the branch uses the `duration` we sent; with neither, the ini's `default_scene_duration`. | Our "duration is ignored" finding was measured on a tree. §8 stands: a timed scene *without* a tree should end itself. **Still untested in game.** |
+| **H** | A branch's `time` overrides the scene `duration`; with no `time`, the branch uses the `duration` we sent; with neither, the ini's `default_scene_duration`. | Our "duration is ignored" finding was measured on a tree. **Confirmed in game 2026-09-22** — a timed non-tree scene ended itself in 29.83s against a `duration` of 30, with no `StopScene` from us. §8 was right and we were wrong. |
 | **I** | The native plugin writes its own log to `Documents\My Games\Fallout4\F4SE\aaf.log`, and the wiki asks for it in bug reports. | Our tester bundle collects `f4se.log` but not this. Cheap to add, and it is the first place to look when AAF does not start at all. |
 | **J** | `ChangeSetting` is **deprecated as of 1.7.5** and slated for removal; per-save MCM overrides replace it. `GetAttraction`, `AssignRole`, `ClearAllRoles`, `RemoveRole` are **legacy — do not use**. | We use none of these. Keep it that way; the attraction layer stays ours. |
 
@@ -415,14 +415,42 @@ AAF distinguishably and **neither changes the outcome** — §15 is not what was
    `FindMatchingAnimations`, same two actors, same `default_excludetags`, tested both idle and while
    this very scene ran, returns **28** for Kissing and **38** for PenisToVagina.
 
-**The explanation we cannot rule out, and the reason this is a question rather than a bug report:**
-every Rapport scene runs a **positionTree**, and the tree owns its navigation. If AAF declines to
-move a tree-driven scene by design, that alone explains all 26 refusals and there is nothing wrong
-with AAF. We have no non-tree scene to test against, which is exactly the control we lack.
+**The tree explanation is ruled out.** That control has now been run. A scene started on a *named*
+position with no tree (`[UAP] BP70 - Standing 69`, via the `startpos` dev verb) is refused exactly
+the same way — same `[034]`, same `filterMulti returned 0`, same status 4. So `ChangePosition` is
+refused whether or not the scene runs a positionTree, and "a tree owns its navigation" explains
+nothing here.
+
+What remains is the plain discrepancy: **`filterMulti` says 0 for a pair that
+`FindMatchingAnimations` says 28-39 for**, same actors, same default excludes, same session.
 
 One correction to our own reading: the `OnAnimationChange` events that follow a refused
 `ChangePosition` (Spooning 02 → Spooning 03) are the **tree advancing on its own**, not our call
 landing late. The call did nothing.
+
+## Measured here — a timed scene without a tree ends itself
+
+The other thing AAF's author corrected us on (§8), and the one we had no way to test until the
+`startpos` dev verb existed.
+
+**2026-09-22.** A scene started on the named position `[UAP] BP70 - Standing 69` — no positionTree —
+with `SceneSettings` straight from `GetSceneSettings()`, so `duration` was the ini default of 30:
+
+```
+21:28:21.931  OnAnimationStart
+21:28:51.761  OnAnimationStop     <- 29.83s later
+21:28:52.378  OnSceneEnd
+```
+
+**Rapport issued no `StopScene`.** The scene was started outside its own bookkeeping precisely so
+that nothing of ours could end it, and the log carries no stop.
+
+So `duration` is honoured, AAF ends the scene itself, and our recorded finding that "duration is
+ignored, the caller must always `StopScene`" was measuring a **tree** — where a branch's `time`
+governs instead. Exactly what the author said.
+
+This is worth more than one corrected line: Rapport currently times every scene itself and stops it
+by hand. On a non-tree scene it does not need to.
 
 ## How to use this file
 

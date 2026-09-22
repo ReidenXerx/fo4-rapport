@@ -788,6 +788,33 @@ namespace RP
 				a, b, parts[2], arm == "empty" ? "\"\" (our old way)" : "\"NONE\" (as documented)");
 		}
 
+		if (verb == "startpos") {
+			// startpos <a> <b> <position id, spaces and all>
+			//
+			// TESTING ONLY, and it starts a scene Rapport's own bookkeeping does not
+			// know about: expect the mod to log it as somebody else's.
+			const auto sp = rest.find(' ');
+			if (sp == std::string::npos) {
+				return "ERR startpos <formid> <formid> <position id>";
+			}
+			const auto tail = rest.substr(sp + 1);
+			const auto sp2 = tail.find(' ');
+			if (sp2 == std::string::npos) {
+				return "ERR startpos <formid> <formid> <position id>";
+			}
+			bool       okA = false, okB = false;
+			const auto a = ParseFormID(rest.substr(0, sp), okA);
+			const auto b = ParseFormID(tail.substr(0, sp2), okB);
+			const auto position = tail.substr(sp2 + 1);
+			if (!okA || !okB || position.empty()) {
+				return "ERR startpos <formid> <formid> <position id>";
+			}
+			link.QueueOrder(Order{ Order::Kind::kStartScenePos, a, position,
+				std::to_string(static_cast<std::int32_t>(b)) });
+			return std::format("OK queued - raw StartScene for {:08X}+{:08X} on position [{}]; AAF's answer lands in Rapport.log",
+				a, b, position);
+		}
+
 		if (verb == "changepos") {
 			// changepos <actorInAScene> <positionID|-> [factory|none|empty]
 			//

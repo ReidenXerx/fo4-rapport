@@ -188,7 +188,20 @@ namespace RP
 			//
 			// setID is the position id, or "-" to let AAF choose. extra is the arm:
 			// "factory" (his own defaults, untouched), "none", or "empty".
-			kChangePositionRaw = 30
+			kChangePositionRaw = 30,
+
+			// A raw StartScene on a NAMED position. TESTING ONLY.
+			//
+			// The control kChangePositionRaw needs. Every scene Rapport starts runs
+			// a positionTree, and a tree owns its own navigation -- so "AAF refuses
+			// ChangePosition" and "AAF refuses to move a TREE-driven scene" explain
+			// all 26 refusals equally well, and only a non-tree scene separates
+			// them. If ChangePosition works on one of these, AAF is fine and the
+			// whole 26/26 was us asking the wrong thing of a tree.
+			//
+			// setID is the position id, taken as the rest of the command line
+			// because real ids contain spaces. extra is the second actor.
+			kStartScenePos = 31
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };
