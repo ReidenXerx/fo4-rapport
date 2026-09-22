@@ -173,7 +173,22 @@ namespace RP
 			// splitting a third needs StringUtil, which is SKSE and absent here.
 			// setID is the includeTags; extra is the second actor's form id.
 			kQueryTagsEmpty = 28,   // combinedTags ""     -- how we have always asked
-			kQueryTagsNone = 29
+			kQueryTagsNone = 29,
+
+			// A RAW ChangePosition at whatever scene this actor is in. TESTING ONLY:
+			// nothing in the mod calls it, and kChangePosition stayed deleted.
+			//
+			// It exists because AAF's author asked us to retry the call with "NONE"
+			// in the tag fields rather than "" (issue #1, §15), and because his API's
+			// own GetPositionSettings() contradicts that: it fills includeTags,
+			// combinedTags and position with None -- "" for a Papyrus String --
+			// while the published signature of FindMatchingAnimations defaults the
+			// same fields to the literal "NONE". Both cannot be the right thing to
+			// send, so all three get sent and the refusals get read.
+			//
+			// setID is the position id, or "-" to let AAF choose. extra is the arm:
+			// "factory" (his own defaults, untouched), "none", or "empty".
+			kChangePositionRaw = 30
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

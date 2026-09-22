@@ -788,6 +788,36 @@ namespace RP
 				a, b, parts[2], arm == "empty" ? "\"\" (our old way)" : "\"NONE\" (as documented)");
 		}
 
+		if (verb == "changepos") {
+			// changepos <actorInAScene> <positionID|-> [factory|none|empty]
+			//
+			// TESTING ONLY. Rapport does not move a running scene; this is here to
+			// answer AAF's author on issue #1 \u00a715 with something better than a guess.
+			std::vector<std::string> parts;
+			auto                     cursor = rest;
+			while (!cursor.empty() && parts.size() < 3) {
+				const auto sp = cursor.find(' ');
+				parts.push_back(sp == std::string::npos ? cursor : cursor.substr(0, sp));
+				cursor = sp == std::string::npos ? std::string{} : cursor.substr(sp + 1);
+			}
+			if (parts.empty()) {
+				return "ERR changepos <formid> <positionID|-> [factory|none|empty]";
+			}
+			bool       ok = false;
+			const auto formID = ParseFormID(parts[0], ok);
+			if (!ok) {
+				return "ERR changepos <formid> <positionID|-> [factory|none|empty]";
+			}
+			const auto position = parts.size() >= 2 ? parts[1] : std::string{ "-" };
+			const auto arm = parts.size() >= 3 ? parts[2] : std::string{ "factory" };
+			if (arm != "factory" && arm != "none" && arm != "empty") {
+				return "ERR the arm is factory, none or empty - which tag values to send";
+			}
+			link.QueueOrder(Order{ Order::Kind::kChangePositionRaw, formID, position, arm });
+			return std::format("OK queued - raw ChangePosition on {:08X}, position [{}], tag fields from the {} arm; AAF's answer lands in Rapport.log",
+				formID, position == "-" ? "AAF chooses" : position, arm);
+		}
+
 		if (verb == "say") {
 			// Proves the channel end to end in the one place the owner is already
 			// looking: their own console.

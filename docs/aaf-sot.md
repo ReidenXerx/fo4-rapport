@@ -382,6 +382,48 @@ different call. Its refusal is now **unexplained** rather than explained — whi
 position, and better than a wrong explanation. Why the original probe measured 0 is also unknown;
 the tags it sent were real, its exclude lists were narrow, and neither control above reproduces it.
 
+## Measured here — ChangePosition, three ways
+
+**2026-09-22, AAF 1741**, same pair, mid-scene, through the `changepos` dev verb. AAF's author asked
+us to retry with `"NONE"` in the tag fields rather than `""` (issue #1 §15). All three arms were
+refused, identically, with `OnSceneInit` status **4** (`noActorAnimations`):
+
+| arm | what went in the tag fields | result |
+| --- | --- | --- |
+| `factory` | `GetPositionSettings()` untouched | refused |
+| `none` | `includeTags`/`combinedTags` = `"NONE"` | refused |
+| `empty` | `includeTags`/`combinedTags` = `""` | refused |
+
+The refusal, verbatim:
+
+```
+[034] Failed to start 'FM' scene because there are no 'FEMALE HUMAN + MALE HUMAN' animations.
+Filters: includeTags (), excludeTags(POSE,UTILITY), combinedTags().
+Install animation pack with this type of animation. [filterMulti returned 0]
+```
+
+with `includeTags (NONE) ... combinedTags(NONE)` in the other two arms. So `"NONE"` and `""` reach
+AAF distinguishably and **neither changes the outcome** — §15 is not what was wrong with our calls.
+
+**Two things worth the author's attention.**
+
+1. **His own factory already sends what §15 recommends.** `GetPositionSettings()` fills `position`,
+   `includeTags` and `combinedTags` with Papyrus `None`, and those arrive rendered as `NONE` in the
+   error text. A caller using the documented factory never sends `""` in the first place.
+2. **Two matchers inside AAF disagree about the same pair.** `filterMulti` returns **0** for
+   `FEMALE HUMAN + MALE HUMAN` with no include filter and only the default excludes — while
+   `FindMatchingAnimations`, same two actors, same `default_excludetags`, tested both idle and while
+   this very scene ran, returns **28** for Kissing and **38** for PenisToVagina.
+
+**The explanation we cannot rule out, and the reason this is a question rather than a bug report:**
+every Rapport scene runs a **positionTree**, and the tree owns its navigation. If AAF declines to
+move a tree-driven scene by design, that alone explains all 26 refusals and there is nothing wrong
+with AAF. We have no non-tree scene to test against, which is exactly the control we lack.
+
+One correction to our own reading: the `OnAnimationChange` events that follow a refused
+`ChangePosition` (Spooning 02 → Spooning 03) are the **tree advancing on its own**, not our call
+landing late. The call did nothing.
+
 ## How to use this file
 
 Cite it the way you would cite the wiki. When our behaviour disagrees with a section here, the

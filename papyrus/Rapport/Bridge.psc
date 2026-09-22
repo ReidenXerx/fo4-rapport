@@ -1201,6 +1201,9 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 	ElseIf aiKind == 15
 		Self.QueryAnimationsFor(aiFormID, asSetID, asExtra)
 		Return
+	ElseIf aiKind == 30
+		Self.ChangePositionRaw(aiFormID, asSetID, asExtra)
+		Return
 	ElseIf aiKind == 28
 		Self.QueryTagsRaw(aiFormID, asSetID, asExtra, "")
 		Return
@@ -1437,6 +1440,50 @@ Function QueryAnimationsFor(Int aiFirstID, String asIncludeTags, String asExclud
 
 	_api.FindMatchingAnimations(actors, "Rapport:" + label, asIncludeTags, asExcludeTags, "")
 	Rapport:Core.Trace("query: asked AAF what it matches for [" + label + "] on this pair - the answer comes back as OnAnimationQueryResult")
+EndFunction
+
+; A raw ChangePosition, three ways. TESTING ONLY -- nothing in the mod moves a
+; running scene, and it is not coming back until this says something.
+;
+; The three arms exist because AAF's documentation disagrees with AAF's own code.
+; GetPositionSettings() fills position, includeTags and combinedTags with None --
+; "" for a Papyrus String -- and that is the factory his docs tell callers to use.
+; The published signature of FindMatchingAnimations defaults those same fields to
+; the literal string "NONE", and his review told us "" is what was wrong with our
+; calls. Both cannot be right, so send all three and read the refusals.
+;
+; ONE AAF call on this stack, and the next poll is already scheduled.
+Function ChangePositionRaw(Int aiFormID, String asPosition, String asArm)
+	If _api == None
+		Rapport:Core.Trace("changepos: no AAF interface")
+		Return
+	EndIf
+
+	Actor target = Game.GetForm(aiFormID) as Actor
+	If target == None
+		Rapport:Core.Trace("changepos: " + Rapport:Core.FormIdText(aiFormID) + " is not a form we can resolve")
+		Return
+	EndIf
+
+	; His factory, untouched: duration from the ini, excludeTags
+	; "default_excludetags", and None in the other three.
+	AAF:AAF_API:PositionSettings settings = _api.GetPositionSettings()
+
+	If asArm == "none"
+		settings.includeTags = "NONE"
+		settings.combinedTags = "NONE"
+	ElseIf asArm == "empty"
+		settings.includeTags = ""
+		settings.combinedTags = ""
+	EndIf
+
+	If asPosition != "-"
+		settings.position = asPosition
+	EndIf
+
+	Rapport:Core.Trace("changepos: arm [" + asArm + "] position [" + asPosition + "] include [" + settings.includeTags + "] exclude [" + settings.excludeTags + "] combined [" + settings.combinedTags + "] duration " + settings.duration)
+	_api.ChangePosition(target, settings)
+	Rapport:Core.Trace("changepos: sent - whatever AAF says arrives as an event or an on-screen error, not as a return value")
 EndFunction
 
 ; The same question QueryAnimationsFor asks, on demand, for any two actors, with
