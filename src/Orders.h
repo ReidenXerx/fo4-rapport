@@ -80,6 +80,11 @@ namespace RP
 			// selectable female+male kissing positions, 273 female+male positions
 			// in all. Counting the XML ourselves says one thing and AAF says
 			// another, and only AAF's answer decides anything.
+			//
+			// Every query through THIS order once came back 0, and that was read as
+			// AAF being unable to see the content. Retracted 2026-09-22: the same
+			// questions through kQueryTagsNone below come back non-zero. Whatever
+			// produced the 0s was about this path, not about AAF.
 			kQueryAnimations = 15,
 
 			// Teleports, and they exist for TESTING rather than for the mod.
@@ -151,7 +156,24 @@ namespace RP
 
 			// The Narrator: setID is the headline, extra the numbers line (may be
 			// empty). Both go to Debug.Notification on one stack, in that order.
-			kNarrate = 27
+			kNarrate = 27,
+
+			// The same question kQueryAnimations asks, but ON DEMAND for any two
+			// actors, and with the COMBINED tag field chosen rather than hardcoded.
+			//
+			// kQueryAnimations sends combinedTags as "" because the decompiled base
+			// sources carry no defaults and "" read like "unset". AAF documents that
+			// field's default as the literal string "NONE", and combinedTags is the
+			// ALL-of filter -- so "" may be asking for every position carrying a tag
+			// named nothing, which is none of them. That would explain every tagged
+			// query coming back 0 while the unfiltered one did not, and it is the
+			// same mistake AAF's author identified in our ChangePosition calls.
+			//
+			// Two kinds, not one packed string: an Order carries two strings and
+			// splitting a third needs StringUtil, which is SKSE and absent here.
+			// setID is the includeTags; extra is the second actor's form id.
+			kQueryTagsEmpty = 28,   // combinedTags ""     -- how we have always asked
+			kQueryTagsNone = 29
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

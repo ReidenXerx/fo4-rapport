@@ -1201,6 +1201,12 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 	ElseIf aiKind == 15
 		Self.QueryAnimationsFor(aiFormID, asSetID, asExtra)
 		Return
+	ElseIf aiKind == 28
+		Self.QueryTagsRaw(aiFormID, asSetID, asExtra, "")
+		Return
+	ElseIf aiKind == 29
+		Self.QueryTagsRaw(aiFormID, asSetID, asExtra, "NONE")
+		Return
 	ElseIf aiKind == 5
 		; Both halves. The zeroed set puts every morph back to nothing; the block
 		; removal is what lets go of them, because every expression Rapport
@@ -1431,6 +1437,37 @@ Function QueryAnimationsFor(Int aiFirstID, String asIncludeTags, String asExclud
 
 	_api.FindMatchingAnimations(actors, "Rapport:" + label, asIncludeTags, asExcludeTags, "")
 	Rapport:Core.Trace("query: asked AAF what it matches for [" + label + "] on this pair - the answer comes back as OnAnimationQueryResult")
+EndFunction
+
+; The same question QueryAnimationsFor asks, on demand, for any two actors, with
+; the combinedTags value supplied by the caller rather than hardcoded to "".
+;
+; Both arms go to AAF verbatim -- that is the entire point. "" is what Rapport
+; has always sent and "NONE" is what AAF's documentation gives as the default,
+; and only asking the identical question both ways tells a content gap apart from
+; a filter we have been getting wrong since the first version.
+Function QueryTagsRaw(Int aiFirstID, String asIncludeTags, String asSecondID, String asCombinedTags)
+	If _api == None
+		Rapport:Core.Trace("query: no AAF interface")
+		Return
+	EndIf
+
+	Actor akFirst = Game.GetForm(aiFirstID) as Actor
+	Actor akSecond = Game.GetForm(asSecondID as Int) as Actor
+	If akFirst == None || akSecond == None
+		Rapport:Core.Trace("query: one of those two is not a form we can resolve")
+		Return
+	EndIf
+
+	Actor[] actors = Self.ForAAF(akFirst, akSecond)
+	String arm = "NONE"
+	If asCombinedTags == ""
+		arm = "EMPTY"
+	EndIf
+	String label = "RAW-" + arm + "-" + asIncludeTags
+
+	_api.FindMatchingAnimations(actors, "Rapport:" + label, asIncludeTags, "default_excludetags", asCombinedTags)
+	Rapport:Core.Trace("query: asked AAF include [" + asIncludeTags + "] exclude [default_excludetags] combined [" + asCombinedTags + "] - the answer arrives as OnAnimationQueryResult labelled " + label)
 EndFunction
 
 ; Every morph id in the engine's facial table, as AAF wants them: one string of

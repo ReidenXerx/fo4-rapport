@@ -23,7 +23,7 @@ Everything below is detail. These are the ones that touch code we have already w
 | # | Rule | Where it bites us |
 | --- | --- | --- |
 | **A** | Empty tag fields are the literal string **`"NONE"`**, not `""`. The published signature of `FindMatchingAnimations` has `includeTags = "NONE"`, `combinedTags = "NONE"`, `excludeTags = "default_excludetags"` as its *defaults*. | Our `ChangePosition` calls pass `""`. This is the author's §15 note, and now it is visible in a signature. |
-| **B** | **`FindMatchingAnimations` exists** (since 1.6.1): ask whether an actor set + tag combination matches anything, **without starting a scene**. Async; the answer arrives on `OnAnimationQueryResult` with your own `queryID` echoed back, carrying `matchCount` and the first matching position id. | Rapport currently learns "nothing matches" by starting a scene and catching `OnSceneInit` reason 4. This is the preflight we hand-rolled around. |
+| **B** | **`FindMatchingAnimations` exists** (since 1.6.1): ask whether an actor set + tag combination matches anything, **without starting a scene**. Async; the answer arrives on `OnAnimationQueryResult` with your own `queryID` echoed back, carrying `matchCount` and the first matching position id. **Verified working here 2026-09-22** — see the measurement below. | Rapport learned "nothing matches" by starting a scene and catching `OnSceneInit` reason 4. This is the preflight we hand-rolled around. |
 | **C** | `includeTags` is **ANY-of**, `combinedTags` is **ALL-of**, `excludeTags` is **any-of-excludes** and defaults to the ini's `pose,utility`. | Confirms §10. Our one-tag-at-a-time loop was over-cautious, never wrong. |
 | **D** | **`OnAAFReady` fires a second time** when a user upgrades AAF inside an existing save — AAF reboots and re-announces. | Our readiness latch must be re-entrant, and the watchdog must not read a second ready as a fault. |
 | **E** | Several API calls **do nothing before boot completes** and AAF says so with error `[072]`. `FindMatchingAnimations`, `GetPositionData` and `GetActorTypeList` name this explicitly. | Everything we send must be behind the ready gate, not behind a timer. |
@@ -344,6 +344,43 @@ Honest gaps, so nobody reads silence as a guarantee:
 - Default minimum and maximum for AAF's own shipped stats.
 - Whether a timed scene with no tree ends itself (§8). Documented as yes by implication; **untested
   by us in game.**
+
+## Measured here — tag matching works
+
+Recorded because this repo asserted the opposite for months, in four places.
+
+**2026-09-22, AAF 1741 (1.7.4.1 Beta)**, through the `query` dev verb, Magnolia `0002268B` +
+Randall Chase `001D1F49`, `excludeTags = "default_excludetags"`:
+
+| include | matches | first position |
+| --- | --- | --- |
+| `Kissing` | **28** | (CHAK) *Staged* Bar Kisses |
+| `PenisToVagina` | **38** | DR wodhorse 01 |
+| `Foreplay` | **39** | (CHAK) *Staged* Bar Kisses |
+| `Hugging` | **5** | (CHAK) *Staged* Hugs |
+| `Aggressive` | **9** | [UAP] BP70 - Kinky Extractor Chair 1 |
+| `Standing` | **1** | [UAP] BP70 - Standing 69 |
+| `Oral` | 0 | — |
+
+Three controls, each returning the identical count:
+
+- **`combinedTags` `""` vs `"NONE"`** — no difference (28 both ways). So passing `""` is a real
+  deviation from the documented contract and is **not** the cause of anything we measured.
+- **idle vs mid-scene** — no difference. Asked while the same two were animating: 28 and 38 again.
+- **`"Kissing"` vs `"KISSING"`** — no difference, confirming the author's note that tags are
+  case-insensitive.
+
+`Oral` returning 0 is most likely a tag name the installed packs do not use, not a failure: the
+other six all answer.
+
+**What this retracts.** "FindMatchingAnimations returned 0 for all 17 tags queried" and "AAF's tag
+matching is what does not work" were load-bearing in `CLAUDE.md`, `src/Config.h`, `src/Orders.h` and
+this project's reasoning about `ChangePosition`. They are wrong. AAF can see this content.
+
+**What it does not settle.** `ChangePosition` was still refused 26 times out of 26, and that is a
+different call. Its refusal is now **unexplained** rather than explained — which is the honest
+position, and better than a wrong explanation. Why the original probe measured 0 is also unknown;
+the tags it sent were real, its exclude lists were narrow, and neither control above reproduces it.
 
 ## How to use this file
 

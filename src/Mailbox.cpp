@@ -754,6 +754,40 @@ namespace RP
 					 : "OK autonomy resumed";
 		}
 
+		if (verb == "query") {
+			// query <a> <b> <includeTags> [empty|none]
+			//
+			// The last word picks which combinedTags value goes to AAF: "none" (the
+			// default) sends the literal "NONE" that AAF documents, "empty" sends
+			// the "" we have always sent. Ask both and the difference is the answer.
+			// The reply lands on OnAnimationQueryResult, in Rapport.log.
+			std::vector<std::string> parts;
+			auto                     cursor = rest;
+			while (!cursor.empty() && parts.size() < 4) {
+				const auto sp = cursor.find(' ');
+				parts.push_back(sp == std::string::npos ? cursor : cursor.substr(0, sp));
+				cursor = sp == std::string::npos ? std::string{} : cursor.substr(sp + 1);
+			}
+			if (parts.size() < 3) {
+				return "ERR query <formid> <formid> <includeTags> [empty|none]";
+			}
+			bool       okA = false, okB = false;
+			const auto a = ParseFormID(parts[0], okA);
+			const auto b = ParseFormID(parts[1], okB);
+			if (!okA || !okB) {
+				return "ERR query <formid> <formid> <includeTags> [empty|none]";
+			}
+			const auto arm = parts.size() >= 4 ? parts[3] : std::string{ "none" };
+			if (arm != "empty" && arm != "none") {
+				return "ERR the last word is empty or none - which combinedTags value to send";
+			}
+			link.QueueOrder(Order{
+				arm == "empty" ? Order::Kind::kQueryTagsEmpty : Order::Kind::kQueryTagsNone,
+				a, parts[2], std::to_string(static_cast<std::int32_t>(b)) });
+			return std::format("OK queued - asked AAF what {:08X}+{:08X} match for include [{}] with combinedTags {}; the answer lands in Rapport.log next poll",
+				a, b, parts[2], arm == "empty" ? "\"\" (our old way)" : "\"NONE\" (as documented)");
+		}
+
 		if (verb == "say") {
 			// Proves the channel end to end in the one place the owner is already
 			// looking: their own console.

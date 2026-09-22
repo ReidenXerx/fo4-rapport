@@ -131,11 +131,12 @@ namespace RP
 		// Asks AAF, per stage, what it thinks it has for that stage's tags, and
 		// once per stage the same question with no filter as a baseline.
 		//
-		// Off by default now: the question it was added for is ANSWERED. Every
-		// tagged query came back 0 -- including PenisToVagina, which 2320
-		// positions carry -- while the unfiltered one came back non-zero, so the
-		// query works and AAF's tag matching is what does not. ChangePosition,
-		// which those numbers were collected to explain, is gone.
+		// Off by default. The answer this once recorded -- "every tagged query came
+		// back 0, so AAF's tag matching is what does not work" -- was RETRACTED on
+		// 2026-09-22: the same questions asked through the `query` dev verb come
+		// back non-zero for six tags of seven, so tag matching works and the 0s
+		// were something about the old probe that nobody has identified.
+		// ChangePosition, which those numbers were collected to explain, is gone.
 		//
 		// Kept rather than deleted because it is the only probe that can tell a
 		// CONTENT gap from a matching failure on an install whose packs are not

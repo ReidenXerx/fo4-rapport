@@ -28,6 +28,12 @@ Everything here was measured against a running game or read out of AAF's own dec
 Several items contradict what its API looks like it promises. `docs/aaf-api.md` covers the call
 shapes; this file covers the behaviour underneath them.
 
+> **Retracted 2026-09-22 — §10/§15 and the tag-matching story.** AAF's tag matching WORKS.
+> `FindMatchingAnimations` answers non-zero for six tags of seven on a female+male pair, idle and
+> mid-scene, with `combinedTags` empty or `"NONE"`. Every entry here that rests on "AAF cannot see
+> this content" rests on nothing. The numbers are in [`aaf-sot.md`](aaf-sot.md#measured-here--tag-matching-works).
+> `ChangePosition`'s 26/26 refusal still stands as a measurement and is now unexplained.
+
 **Start with [`aaf-sot.md`](aaf-sot.md)**, not with this file. That one is what AAF's own
 documentation says, distilled and cited; this one is what we observed from outside. Where the two
 disagree, the documentation is right and an entry here is a symptom we mis-explained.

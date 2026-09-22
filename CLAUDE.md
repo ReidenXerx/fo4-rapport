@@ -44,10 +44,23 @@ API looks like it promises. Read it before integrating anything new. The headlin
 race that leaves it permanently deaf roughly half the time, with no error anywhere, and Rapport
 repairs it.
 
-**Do not reinstate `ChangePosition`.** Measured: refused 26 times out of 26 — with tags, with a
-named position id, and with no filters at all — for content that demonstrably exists, while
-`StartScene` matches the same pair constantly. `FindMatchingAnimations` returned 0 for all 17 tags
-queried. It does not work; the scene's position is chosen at `StartScene` instead.
+**`ChangePosition` stays out until somebody re-tests it.** Measured: refused 26 times out of 26 —
+with tags, with a named position id, and with no filters at all — while `StartScene` matches the
+same pair constantly. That refusal is real and still unexplained. The scene's position is chosen at
+`StartScene` instead.
+
+**But the reason we gave for it was wrong.** This file used to say `FindMatchingAnimations` returned
+0 for all 17 tags queried, and concluded AAF's tag matching does not work. It does work.
+Measured 2026-09-22 on AAF 1741 (1.7.4.1 Beta), Magnolia 0002268B + Randall Chase 001D1F49,
+through the `query` dev verb: Kissing 28, PenisToVagina 38, Foreplay 39, Hugging 5, Aggressive 9,
+Standing 1, Oral 0. Identical with combinedTags "" and "NONE", identical idle and mid-scene, and
+identical for "Kissing" and "KISSING" (so tags are case-insensitive, as AAF's author said).
+
+So AAF can see this content, and "AAF cannot see it" is no longer available as an explanation for
+anything. Why the original probe measured 0 is UNKNOWN — the tags it sent were real, its exclude
+lists were narrow, and neither the combined field nor scene state changes the answer today. Do not
+put a new explanation here without measuring it. Two candidates nobody has tested: a different AAF
+build at the time, and a malformed actor array built from the in-flight pair.
 
 **Do not modify AAF's XML to work around it.** Rejected: it fights another mod's deliberate design
 and changes behaviour for every AAF mod on the install.
@@ -135,3 +148,49 @@ move is wrong:
   only at zero detections, and renew it per release: every build has a new hash.
 - **`T-1` — public source is necessary and not sufficient.** Nobody can tell by reading a
   repo whether the binary on the page came from it.
+
+<!-- gitnexus:start -->
+# GitNexus — Code Intelligence
+
+This project is indexed by GitNexus as **fo4-rapport** (31649 symbols, 42058 relationships, 174 execution flows).
+
+> Index stale? Run `node .gitnexus/run.cjs analyze --index-only` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? Bootstrap with `npx`, `bunx`, or `pnpm dlx` — e.g. `bunx gitnexus@latest analyze` (npm 11 npx crash; #1939).
+> On query/context/impact/cypher object results, read staleness.status and branch/lastCommit. Re-analyze only for behind or diverged — current is clone HEAD, not main.
+
+## Always Do
+
+- **MUST run impact before editing.** Use `impact({target: "symbolName", direction: "upstream"})` or `node .gitnexus/run.cjs impact "symbolName" --direction upstream --repo .`; report callers, processes, and risk. Never substitute grep for graph analysis.
+- **MUST analyze graph changes before committing.** Use `detect_changes({scope: "all"})` (MCP) or `node .gitnexus/run.cjs detect-changes --scope all --repo .` (CLI fallback). `partial: true` or `truncated: true` is not a clean check — a zero means unseen, not unaffected; re-run it. For regression review: `detect_changes({scope: "compare", base_ref: "master"})` or `node .gitnexus/run.cjs detect-changes --scope compare --base-ref "master" --repo .`.
+- MUST warn on HIGH/CRITICAL `risk` pre-edit; never use `riskSharedAxes` to waive a HIGH/CRITICAL `risk` warning. Compare File/symbol: MCP File omits axes; Graph-RAG expands File.
+- **MUST treat `risk: UNKNOWN` as unresolved, not as low.** An empty caller set is not evidence the symbol is unused — it can also mean the callers are not resolvable by the index (plain-object property access, dynamic dispatch, cross-language calls). `impact` pairs `UNKNOWN` with a `riskNote` saying so. Confirm with a text search before treating the symbol as safe to change or delete; do not proceed on the strength of a zero.
+- **MUST use `query({search_query: "concept"})` for concepts/flows, `context({name: "symbolName"})` for a named symbol, or `impact` for blast radius, on read-only callers, dependencies, imports, or execution flow.** Graph first; text search only for empty/`UNKNOWN`/literals.
+- For security review, `explain({target: "fileOrSymbol"})` lists taint findings (source→sink flows; needs `analyze --pdg`).
+
+## Never Do
+
+- NEVER edit a function, class, or method before MCP/CLI impact analysis.
+- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis, and never read `UNKNOWN` as an all-clear — it means the walk could not answer, which is the one verdict that requires confirming by other means.
+- NEVER rename symbols with find-and-replace — use `rename` which understands the call graph.
+- NEVER commit before MCP/CLI graph change analysis.
+
+## Resources
+
+| Resource | Use for |
+| --- | --- |
+| `gitnexus://repo/fo4-rapport/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/fo4-rapport/clusters` | All functional areas |
+| `gitnexus://repo/fo4-rapport/processes` | All execution flows |
+| `gitnexus://repo/fo4-rapport/process/{name}` | Step-by-step execution trace |
+
+## CLI
+
+| Task | Read this skill file |
+| --- | --- |
+| Understand architecture / "How does X work?" | `.claude/skills/gitnexus-exploring/SKILL.md` |
+| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus-impact-analysis/SKILL.md` |
+| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus-debugging/SKILL.md` |
+| Rename / extract / split / refactor | `.claude/skills/gitnexus-refactoring/SKILL.md` |
+| Tools, resources, schema reference | `.claude/skills/gitnexus-guide/SKILL.md` |
+| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus-cli/SKILL.md` |
+
+<!-- gitnexus:end -->
