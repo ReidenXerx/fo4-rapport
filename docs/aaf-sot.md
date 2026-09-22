@@ -449,8 +449,12 @@ So `duration` is honoured, AAF ends the scene itself, and our recorded finding t
 ignored, the caller must always `StopScene`" was measuring a **tree** — where a branch's `time`
 governs instead. Exactly what the author said.
 
-This is worth more than one corrected line: Rapport currently times every scene itself and stops it
-by hand. On a non-tree scene it does not need to.
+**What this does and does not mean for Rapport.** Rapport times every scene itself and stops it by
+hand, and on a non-tree scene it does not need to. But Rapport lets AAF *choose* the position, and
+both scenes watched during this session ran trees or staged groups — the branch advanced on its own,
+twice. On n=2 that is a hint, not a split. **Do not remove the manual stop on the strength of this
+result**: in a tree the branch's `time` governs, `duration` is only the fallback, and the manual stop
+is still what ends the scene. Measure how often Rapport's scenes are trees first.
 
 ## How to use this file
 
