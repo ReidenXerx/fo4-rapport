@@ -887,6 +887,13 @@ namespace
 			logger::info("request refused: autonomy is paused, so an addon may not start a scene");
 			return false;
 		}
+		if (a_first && a_second) {
+			if (const auto held = RP::PapyrusLink::GetSingleton().HeldFrom(a_first->GetFormID(), a_second->GetFormID());
+				!held.empty()) {
+				logger::info("request refused: {}", held);
+				return false;
+			}
+		}
 
 		const std::string_view scenario{ a_scenario.empty() ? "" : a_scenario.c_str() };
 
@@ -912,7 +919,19 @@ namespace
 				"why",
 				scenario);
 		}
+		if (ok && a_first && a_second && (a_first->IsPlayerRef() || a_second->IsPlayerRef())) {
+			// The held pair got its scene: the lane has done its job.
+			RP::PapyrusLink::GetSingleton().ClearReservation();
+		}
 		return ok;
+	}
+
+	void Papyrus_ReservePlayerScene(std::monostate, RE::Actor* a_with, float a_seconds)
+	{
+		if (!a_with) {
+			return;
+		}
+		RP::PapyrusLink::GetSingleton().ReservePlayerScene(a_with->GetFormID(), a_seconds);
 	}
 
 	// Ask BEFORE walking two actors across a room. Returns Scenarios::Quality:
@@ -1056,6 +1075,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverDecisions"sv, Papyrus_TakeOverDecisions, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "Busy"sv, Papyrus_Busy, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ReservePlayerScene"sv, Papyrus_ReservePlayerScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
 		logger::info("papyrus: bound 60 native functions on {}", kCoreScript);
@@ -1186,8 +1206,58 @@ namespace RP
 		}
 	}
 
+	void PapyrusLink::ReservePlayerScene(std::uint32_t a_with, float a_seconds)
+	{
+		NamedLock lock{ _reserveLock, "reserve" };
+		if (a_seconds <= 0.0f) {
+			if (_reservedWith != 0) {
+				logger::info("reserve: the player's hold with {:08X} let go", _reservedWith);
+			}
+			_reservedWith = 0;
+			return;
+		}
+		const auto seconds = (std::min)(a_seconds, 120.0f);
+		_reservedWith = a_with;
+		_reservedUntil = std::chrono::steady_clock::now() + std::chrono::milliseconds{ static_cast<int>(seconds * 1000.0f) };
+		logger::info("reserve: the scene slot is held for the player and {:08X} for {:.0f}s", a_with, seconds);
+	}
+
+	std::string PapyrusLink::HeldFrom(std::uint32_t a_first, std::uint32_t a_second)
+	{
+		NamedLock lock{ _reserveLock, "reserve" };
+		if (_reservedWith == 0) {
+			return {};
+		}
+		const auto now = std::chrono::steady_clock::now();
+		if (now >= _reservedUntil) {
+			logger::info("reserve: the player's hold with {:08X} ran out unused", _reservedWith);
+			_reservedWith = 0;
+			return {};
+		}
+		const bool held = (a_first == 0x14 && a_second == _reservedWith) || (a_second == 0x14 && a_first == _reservedWith);
+		if (held) {
+			return {};
+		}
+		const auto left = std::chrono::duration_cast<std::chrono::seconds>(_reservedUntil - now).count();
+		return std::format("the slot is held for the player's request with {:08X} ({}s left)", _reservedWith, left);
+	}
+
+	void PapyrusLink::ClearReservation()
+	{
+		NamedLock lock{ _reserveLock, "reserve" };
+		if (_reservedWith != 0) {
+			logger::info("reserve: the player's scene with {:08X} was accepted - hold released", _reservedWith);
+		}
+		_reservedWith = 0;
+	}
+
 	void PapyrusLink::OnGameLoading()
 	{
+		// A hold belongs to the world it was made in.
+		{
+			NamedLock lock{ _reserveLock, "reserve" };
+			_reservedWith = 0;
+		}
 		// A SAVE LOAD IS A NEW WORLD. The plugin lives for the whole game session and
 		// Papyrus does not, so anything held here about a scene belongs to the world
 		// being left behind - and nothing else ever let go of it. 2026-09-21: a save

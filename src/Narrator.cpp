@@ -168,7 +168,9 @@ namespace RP
 		const auto  offer = kept ? kept : Candidates::GetSingleton().Find(a_first, a_second);
 		const auto& weights = Config::GetSingleton().Weights();
 		auto&       ledger = Ledger::GetSingleton();
-		const auto  persona = std::string{ Barks::GetSingleton().PersonaOf(a_first) };
+		// The verb is the persona of whoever set it going -- never the player's, who
+		// has none (R-11). A scene the player asked for reads in the NPC's voice.
+		const auto  persona = std::string{ Barks::GetSingleton().PersonaOf(a_first == 0x14 ? a_second : a_first) };
 		// Narrated at scene START, after the bridge has seeded the store, so the
 		// ledger is usually current here. The addon's markers still win: they are
 		// what it decided on.

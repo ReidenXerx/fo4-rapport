@@ -388,6 +388,13 @@ String Function NarratorHistory() Global Native
 ; the Narrator's numbers switch on. Gated by the "addon moments" switch, kept in the
 ; history. ApiVersion 201+.
 Function NarrateLine(Int aiFirst, Int aiSecond, String asHeadline, String asNumbers) Global Native
+; The player's priority lane (owner, 2026-09-23: a player's own request outranks
+; autonomy). Holds Rapport's one scene slot for the PLAYER and akWith for up to
+; afSeconds (at most 120; 0 lets go): every other pair's RequestScene is refused
+; until this pair's own request is accepted or the time runs out. A scene already
+; running is never cut short -- the hold takes the next free slot. Overture holds
+; it from the moment a proposition would be a yes. ApiVersion 201+.
+Function ReservePlayerScene(Actor akWith, Float afSeconds) Global Native
 ; Names for the nameless. The first time an addon introduces a generic NPC (a base
 ; not flagged Unique), Rapport gives them a first name and a surname -- derived from
 ; the form id, so the same person gets the same name forever -- and returns it.

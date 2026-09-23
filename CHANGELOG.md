@@ -10,6 +10,9 @@
 - **The Narrator speaks for addons too.** A mod can now narrate its own moments in its own
   words ("addon moments", on by default, a switch in MCM). Overture uses it to say how a
   conversation went, and why.
+- **Scenes with the player.** The player never speaks a scene line: they have no persona, and
+  their side stays their own. The NPC still says theirs. A scene the player asked for is narrated
+  in the NPC's voice.
 - **Fixes.**
   - The MCM menu never saved anything: MCM rejected every setting because its name lacked a
     type letter. Every setting now registers and keeps its value.
@@ -22,8 +25,9 @@
 
 **For addon authors:** `Rapport:Core.ApiVersion()` is 201. New: `NarrateLine` (your own
 narrator line, with `{first}` and `{second}` for the names), `Introduce` (names a nameless
-NPC, returns the name) and `ObserversNear` (how many people could see an actor). Check for
-201 before calling them: Rapport 0.2.0 doesn't have them.
+NPC, returns the name), `ObserversNear` (how many people could see an actor) and
+`ReservePlayerScene` (holds the scene slot for the player's own request, so autonomy can't take
+it). Check for 201 before calling them: Rapport 0.2.0 doesn't have them.
 
 ## 0.2.0
 

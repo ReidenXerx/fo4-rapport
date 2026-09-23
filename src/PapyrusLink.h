@@ -34,6 +34,17 @@ namespace RP
 		void SetAutonomyPaused(bool a_paused) noexcept { _autonomyPaused.store(a_paused); }
 		[[nodiscard]] bool AutonomyPaused() const noexcept { return _autonomyPaused.load(); }
 
+		// The player's priority lane (owner, 2026-09-23, Overture O-16: "a player's own
+		// request outranks Chemistry"). Holds the one scene slot for the PLAYER and
+		// a_with for a_seconds (at most 120; 0 or less lets go). While it holds, the
+		// addon door refuses every other pair; the held pair's own request clears it.
+		// A running scene is never cut short: the hold takes the next free slot.
+		void ReservePlayerScene(std::uint32_t a_with, float a_seconds);
+		// Empty if the door is open to this pair, else why not. Clears the hold once
+		// it has expired.
+		[[nodiscard]] std::string HeldFrom(std::uint32_t a_first, std::uint32_t a_second);
+		void ClearReservation();
+
 		// Leaves a request for the bridge to collect. False when one is already
 		// outstanding or the bridge is not listening.
 		// a_scenario is the addon's choice of story, or empty for a single
@@ -299,6 +310,9 @@ namespace RP
 		std::atomic_bool          _bridgeReady{ false };
 		std::atomic_bool          _sceneInFlight{ false };
 		std::atomic_bool          _autonomyPaused{ false };
+		mutable std::timed_mutex              _reserveLock;
+		std::uint32_t                         _reservedWith{ 0 };
+		std::chrono::steady_clock::time_point _reservedUntil{};
 		std::atomic<std::int32_t> _nextRequest{ 1 };
 		std::chrono::steady_clock::time_point _requestedAt{};
 

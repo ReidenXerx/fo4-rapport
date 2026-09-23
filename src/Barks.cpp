@@ -261,11 +261,20 @@ namespace RP
 			return;
 		}
 
+		// The PLAYER never barks. R-11: the player has no persona, and a persona
+		// hashed from 0x14 would put an NPC's line in their mouth. Overture's O-2/O-3:
+		// the player's side is text they chose, never a voice picked for them. The
+		// NPC keeps its own role's line: it answers after a beat when the player
+		// opened, and opens itself when the player is the one who answers.
+		constexpr std::uint32_t kPlayer = 0x14;
+		const bool playerOpens = a_initiator == kPlayer;
+		const bool playerAnswers = a_responder == kPlayer;
+
 		// Sexes first, outside our lock: Aftermath takes its own.
 		const auto initiatorSex = Aftermath::GetSingleton().SexOf(a_initiator);
 		const auto responderSex = Aftermath::GetSingleton().SexOf(a_responder);
-		const auto initiatorPersona = std::string{ PersonaOf(a_initiator) };
-		const auto responderPersona = std::string{ PersonaOf(a_responder) };
+		const auto initiatorPersona = playerOpens ? std::string{} : std::string{ PersonaOf(a_initiator) };
+		const auto responderPersona = playerAnswers ? std::string{} : std::string{ PersonaOf(a_responder) };
 
 		std::uint32_t opening = 0;
 		std::string   openingID;
@@ -277,9 +286,9 @@ namespace RP
 				return;
 			}
 
-			const auto* first = Pick(initiatorPersona, a_scenario, "initiator", initiatorSex);
-			const auto* second = Pick(responderPersona, a_scenario, "responder", responderSex);
-			if (!first || !second) {
+			const auto* first = playerOpens ? nullptr : Pick(initiatorPersona, a_scenario, "initiator", initiatorSex);
+			const auto* second = playerAnswers ? nullptr : Pick(responderPersona, a_scenario, "responder", responderSex);
+			if ((!first && !playerOpens) || (!second && !playerAnswers)) {
 				logger::warn(
 					"request {}: no {} line for {} {} ({}) in scenario {} - the table does not cover it",
 					a_request, first ? "responder" : "initiator",
@@ -300,8 +309,8 @@ namespace RP
 		}
 
 		logger::info("request {}: bark - {:08X} ({}) opens with {}, {:08X} ({}) answers {}", a_request,
-			a_initiator, initiatorPersona, openingID.empty() ? "nothing" : openingID,
-			a_responder, responderPersona, answers ? "after a beat" : "with nothing");
+			a_initiator, playerOpens ? "the player, silent" : initiatorPersona, openingID.empty() ? "nothing" : openingID,
+			a_responder, playerAnswers ? "the player, silent" : responderPersona, answers ? "after a beat" : "with nothing");
 		if (opening != 0) {
 			Voices::GetSingleton().Speak(a_initiator, a_responder, opening);
 		}

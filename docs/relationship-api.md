@@ -101,6 +101,16 @@ Rapport:Core.NarrateLine(player, npc, "{second} liked that. Not here, though.", 
 
 Write it the way the Narrator talks: one sentence, in the world, no percentages in the headline.
 
+## The player's priority lane
+
+Rapport runs one scene at a time, and an autonomous mod like Chemistry can take the slot in the
+seconds between a player's "yes" and your request. `Rapport:Core.ReservePlayerScene(akWith,
+afSeconds)` (ApiVersion 201+) holds it for the player and `akWith` for up to 120 s: every other
+pair's `RequestScene` is refused until your pair's own request is accepted, which lets the hold
+go by itself. Pass 0 to let go early (the conversation ended without a yes). A scene already
+running is never cut short; the hold takes the next free slot. It only ever holds for a pair with
+the player in it: a deliberate player request outranks autonomy, and nothing else does.
+
 ## Names for the nameless
 
 `Rapport:Core.Introduce(akActor)` (ApiVersion 201+) gives a generic NPC a first name and a
