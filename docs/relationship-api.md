@@ -104,6 +104,24 @@ Rapport:Core.NarrateLine(player, npc, "{second} liked that. Not here, though.", 
 
 Write it the way the Narrator talks: one sentence, in the world, no percentages in the headline.
 
+## When a scene with the player ends
+
+`Rapport:Bridge` sends `OnPlayerSceneRecorded` (ApiVersion 201+) once a scene with the player in it
+has ended and been recorded, so the bond and the pair's history you read in the handler already
+include it. `akArgs[0]` is the player's partner. Register on Rapport.esp's quest `0x800`, with the
+mangled name:
+
+```papyrus
+Rapport:Bridge bridge = Game.GetFormFromFile(0x800, "Rapport.esp") as Rapport:Bridge
+RegisterForCustomEvent(bridge, "rapport:bridge_OnPlayerSceneRecorded")
+
+Event Rapport:Bridge.OnPlayerSceneRecorded(Rapport:Bridge akSender, Var[] akArgs)
+    Actor partner = akArgs[0] as Actor
+EndEvent
+```
+
+A scene that failed or was given up sends nothing: there is nothing recorded to act on.
+
 ## Who could see this actor
 
 `Rapport:Core.ObserversNear(formID)` (ApiVersion 201+) counts the people who could see an actor

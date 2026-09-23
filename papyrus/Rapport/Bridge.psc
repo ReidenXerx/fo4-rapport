@@ -25,6 +25,14 @@ Struct Request
   Float duration   ; how long we asked for; nothing else will enforce it
 EndStruct
 
+; A scene with the PLAYER in it has ended and been recorded -- the bond, the pair's
+; history -- so an addon can act on the scene itself rather than on whatever the
+; player does next (Overture declares lovers here, O-27). akArgs[0] is the
+; player's partner, an Actor. Register for "rapport:bridge_OnPlayerSceneRecorded"
+; on Rapport.esp's quest 0x800: against the decompiled base sources the name must
+; be the mangled one. ApiVersion 201+.
+CustomEvent OnPlayerSceneRecorded
+
 AAF:AAF_API _api
 Request[] _inFlight
 ; Heads a watcher sweep turned to a scene (R-12), released when it ends.
@@ -1763,6 +1771,18 @@ Function Release(Int aiIndex, String asWhy)
 
 	If asWhy == ""
 		Rapport:Core.SceneEnded(entry.id)
+		; AFTER SceneEnded, which recorded it: a listener reads the new bond.
+		Actor player = Game.GetPlayer()
+		If entry.first == player || entry.second == player
+			Var[] args = new Var[1]
+			If entry.first == player
+				args[0] = entry.second
+			Else
+				args[0] = entry.first
+			EndIf
+			; The mangled name, explicitly -- see the declaration.
+			Self.SendCustomEvent("rapport:bridge_OnPlayerSceneRecorded", args)
+		EndIf
 	Else
 		; A request that failed leaves AAF's busy flag behind. Clearing it is the
 		; difference between one wasted attempt and an NPC nobody can ever use.
