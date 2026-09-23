@@ -39,6 +39,16 @@ namespace RP
 			_published = true;
 		}
 
+		// A load: the world these positions were measured in is gone. Back to
+		// "never published", so Near says -1 (unknown) until the first scan of the
+		// new world instead of counting people in the cell the player just left.
+		void Reset()
+		{
+			NamedLock lock{ _lock, "crowd" };
+			_positions.clear();
+			_published = false;
+		}
+
 		// Any thread. -1 when no scan has published yet, which is NOT the same as
 		// "nobody is watching" and must not be rounded to zero by the caller.
 		//

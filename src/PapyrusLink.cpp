@@ -1202,6 +1202,17 @@ namespace RP
 		ClearInFlight();
 		_sceneInFlight.store(false);
 
+		// The published pairs and the crowd were measured in the world being left,
+		// and the first tick of the new one is a whole warm-up away (60 s). Served
+		// in between they are answers about people who are not here. 2026-09-23:
+		// 40 s after a load into the Third Rail, Chemistry took two Fourville
+		// Residents off the old list and AAF was asked to stage two actors who were
+		// not loaded; ObserversNear said "0 watching" in a full bar because it was
+		// still counting the bunkhouse. So: no list, and a crowd of "unknown" (-1),
+		// until the new world has been scanned.
+		Candidates::GetSingleton().Clear();
+		Crowd::GetSingleton().Reset();
+
 		if (inFlight || dropped) {
 			logger::warn("loading a save: {}{} order(s) for the world being left dropped",
 				inFlight ? std::format("request {} was still in flight and is forgotten, ", request) : std::string{},

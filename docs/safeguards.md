@@ -95,3 +95,25 @@ the framework does not guess.
 **An overlay applied before Rapport knew about it.** CumOverlays' own applications are not in our
 ledger. Stopping its quests means no new ones; the ones already standing expire on AAF's timer or
 stay, and `PanicClear` will not touch them because we never recorded them.
+
+**An AAF body morph left on somebody — NOT COVERED, and it has happened.** Reported 2026-09-23 by
+the Silhouette session, measured from F4SE co-saves rather than inferred: the Diamond City guard
+`000F61B6` (`DiamondCitySecurityMayorAlways`) holds LooksMenu morphs `Erection = 1.0` and
+`CErection = 1.0`, keyed to `AAF_MorphKeyword` (`KYWD 000F9E` in AAF.esm), in two consecutive
+co-saves (2026-09-22 21:39 and 23:05). Nothing else in the save holds an AAF morph. **He is one of
+the two actors in Rapport's first real scene** (Geneva and a Diamond City guard, 2026-09-18 — the
+ledger line in `roadmap.md` names `000F61B6`), so this is very likely ours. The cause is NOT
+established: AAF normally clears its keyed morphs at scene end, and this pair survived, maybe through
+an early `StopScene`, an interrupted scene or a load.
+
+Why it matters beyond the look of it: LooksMenu runs BodyGen only for an actor with NO stored morphs,
+so a leftover morph keeps that actor out of every BodyGen distribution (Silhouette's included) for
+the rest of the save.
+
+The fix, specified by the reporter and still to be checked against LooksMenu's own `BodyGen.psc`
+before a line is written: wherever Rapport knows a scene ended, was cancelled or was left behind by a
+load, for each actor it put in the scene call `BodyGen.RemoveMorphsByKeyword(actor, isFemale,
+AAF_MorphKeyword)` and then `BodyGen.UpdateMorphs(actor)`, from the Papyrus side (the bridge drain;
+C++ never calls the VM). This clears ONLY AAF's keyed layer, never BodyGen's or the player's sliders.
+Plus a load-time sweep of the actors in `SCNE`. The check, in any save, without the game:
+`fo4-silhouette/tools/cosave_census.py "<save>.f4se"` lists every actor holding body morphs.
