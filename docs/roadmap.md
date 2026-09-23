@@ -177,3 +177,9 @@ and nothing but memory would have turned it off again.
     longer exist. AAF logs nothing about it. So OnAnimationStart is not evidence that anything plays,
     and a tag match can hand Rapport a dead position. When a position has a UAP duplicate (its tags
     include "UAP"), pick the duplicate. Longer term, check a frame. Not built.
+    **The cause is NOT missing idles** (measured offline 2026-09-23). Every idle the original and the
+    UAP XMLs name resolves to a real IDLE record in the deployed plugin (BP70 251/251, Atomic Lust
+    48/48), and the original BP70 missionary's .hkx files are present loose in Data. So an
+    idle-existence filter in TreeIndex would catch none of the dead positions, and it was not built.
+    Next is an in-game A/B (same actors, original vs UAP position, AAF troubleshooting on), before
+    choosing between "prefer UAP" and a runtime is-it-animating check.
