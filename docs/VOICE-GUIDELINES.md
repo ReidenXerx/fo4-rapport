@@ -637,6 +637,18 @@ one-word-different pairs) failed 12 of 25 before the fix and 0 after. Neither ba
 contains a digit, so no line compares differently except the two "a hundred" lines,
 and those fold on both sides.
 
+**The manifest also records the WORDS (2026-09-23).** `voice/render-manifest.json`
+gains a `text` map, `{voice type: {line id: the bank text the file was matched
+against}}`, beside `rendered` (the model). A line edited after it was voiced keeps its old
+audio, and nothing else can tell: O-6 rewrote 33 Overture lines, and their files went on
+saying the old words. A packager compares `text` with the bank and REFUSES a mismatch.
+
+- An entry with no text means the file was rendered before this was recorded: its
+  words are unknown, not current.
+- Overture's 936 files (156 lines, six voices) were backfilled from their render
+  inputs, each checked equal to the bank first. Rapport's own barks were not
+  backfilled, because which text each was rendered from cannot be proven now.
+
 **What the gate can never see** (nexus-modding, 2026-09-23 - keep this list short and
 check these by ear):
 
@@ -659,6 +671,32 @@ Recorded so they are not rediscovered, and not adopted until measured here:
   - V-21's sibling voices stay until then, and the owner judges by ear (V-9).
   - If tags are adopted, the gate still compares the BANK text. `norm()` already drops
     `[...]`, so a tagged render and its subtitle compare correctly.
+  - **Re-measured by them at our sample size (2026-09-23):** 10 tagged renders, 0
+    paraphrases, 0 tags spoken. That includes `[urgent, clipped]`, `[shouting, enraged]`
+    and `[quiet, menacing, unhurried]` with three `[pause]`s, on one designed voice at
+    eleven_v3, stability 0.2, style 0.5-0.6. That narrows V-20 without overturning it,
+    because four things differ from our 0/8 and none is isolated yet:
+    - the tag's FORM: a bare `[urgent]` against an adjective pair;
+    - the voice;
+    - the line's length: their lines were long declaratives, and a short bark leaves
+      more room to "helpfully" rewrite;
+    - the model build.
+    **The cheap discriminator:** bare `[urgent]` against `[urgent, clipped]` on the SAME
+    line and voice. It isolates the tag's form for two renders, and it runs before tags
+    are used anywhere in Overture.
+- **Homophones are a false-FAILURE class the gate must NOT normalise.** "Preston's in"
+  came back "Preston's Inn": the audio was right and the transcriber chose the wrong
+  word. It looks like the numbers bug, but it is the opposite kind:
+  - Numbers are a CLOSED set, so both sides can be canonicalised (V-28).
+  - Homophones are unbounded (in/inn, their/there, bare/bear, past/passed,
+    whole/hole). Any table is incomplete, and each miss re-rolls a correct take.
+  - They measured roughly 1 in 6 on their bank. At 900 files that would be about 150
+    needless re-rolls.
+  - Their proposal: a diff of exactly ONE word, where the two words are within an edit
+    distance of about 2, goes to REVIEW (the owner's ear) instead of a re-roll.
+  - That relaxes V-1's guarantee from "every shipped file transcribed verbatim" to
+    "verbatim, or a one-word near-miss flagged for an ear". So it is the owner's
+    decision, not a tooling tweak. Not adopted. The strict gate stands until then.
 - **Knobs alone do not direct.** Their owner compared knob-only takes against directed
   ones: "knobs only doesn't work, all the rest is perfect". Stability 0.5 flattened the
   voice.

@@ -350,7 +350,7 @@ def main() -> int:
             if not fuz.exists() or fuz.stat().st_size == 0:
                 failed.append((vt, ln["id"], (r.stderr or r.stdout).strip()[:160]))
                 return
-            done.append((vt, ln["id"], used))
+            done.append((vt, ln["id"], used, ln["text"]))
         except Exception as e:
             failed.append((vt, ln["id"], str(e)[:160]))
 
@@ -361,21 +361,32 @@ def main() -> int:
                 print(f"  {n}/{len(jobs)}  ({time.time()-t0:.0f}s)", flush=True)
 
     import collections as _c
-    bym = _c.Counter(m for _, _, m in done)
+    bym = _c.Counter(m for _, _, m, _ in done)
 
     # Record which model actually produced each file. The renderer knew this and
     # threw it away, so the bark browser could only show which model was TRIED
     # first - and 16 files in one batch needed their second model.
     man_path = ROOT / "voice/render-manifest.json"
-    man = {}
+    man, said = {}, {}
     if man_path.exists():
-        man = json.loads(man_path.read_text(encoding="utf-8")).get("rendered", {})
-    for vt, lid, model in done:
+        doc = json.loads(man_path.read_text(encoding="utf-8"))
+        man, said = doc.get("rendered", {}), doc.get("text", {})
+    # And the words each file was verified against. A line edited after it was
+    # voiced keeps its old audio, and nothing else can tell: O-6 rewrote 33
+    # Overture lines and their files sat there saying the old ones. A packager
+    # compares this with the bank and refuses audio whose words have changed.
+    for vt, lid, model, text in done:
         man.setdefault(vt, {})[lid] = model
+        said.setdefault(vt, {})[lid] = text
     man_path.write_text(json.dumps(
         {"_": "Which model actually produced each .fuz, after the STT gate and any "
               "fallback. Written by render-barks.py; absent entries were rendered "
-              "before this was recorded.", "rendered": man}, indent=2), encoding="utf-8")
+              "before this was recorded.",
+         "_text": "The bank text each .fuz was transcribed back and matched against "
+                  "(V-28), recorded from 2026-09-23. A packager refuses a file whose "
+                  "line now says something else. Absent = rendered before then: unknown, "
+                  "not current.",
+         "rendered": man, "text": said}, indent=2), encoding="utf-8")
     print(f"  manifest : {sum(len(v) for v in man.values())} files recorded")
     print(f"\nrendered {len(done)}, failed {len(failed)}")
     print("  by model : " + ", ".join(f"{m} {n}" for m, n in bym.most_common()))
