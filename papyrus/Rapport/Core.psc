@@ -126,6 +126,10 @@ Function SceneRefused(String asWhy) Global Native
 ; reporting "a scene is already running" to everything that asks.
 ; Returns False when there was nothing in flight for the refusal to be about.
 Bool Function RefusedOurScene(String asWhy) Global Native
+; The request the plugin is waiting on, 0 for none. The bridge drops every other
+; entry from its own list with it (a refused or abandoned request used to stay
+; there and blind it to the next scene). Bridge-internal.
+Int Function InFlightRequest() Global Native
 
 Function NoteSceneTags(String asTags) Global Native
 
@@ -342,7 +346,9 @@ Float Function HoursSinceScene(Int aiFormID) Global Native
 
 ; Who it was with, and how many they have had. lastPartner is the MOST RECENT
 ; partner only -- it is not a history, so "have these two ever" is only knowable
-; while neither has been with anyone else since.
+; while neither has been with anyone else since. An NPC's record ages out after
+; PruneHours with nothing happening (the count starts again at 0); the PLAYER's
+; never does, so the player's count only ever goes up.
 Int Function LastPartner(Int aiFormID) Global Native
 Int Function SceneCount(Int aiFormID) Global Native
 
@@ -396,9 +402,10 @@ Function NarrateLine(Int aiFirst, Int aiSecond, String asHeadline, String asNumb
 ; afSeconds (at most 120): every other pair's request -- an addon's, and Rapport's
 ; own autonomy -- is refused until this pair's own request is accepted or the time
 ; runs out. 0 lets go of a hold made for akWith (only that one). akWith may not be
-; the player. A scene already running is never cut short -- the hold takes the next
-; free slot. Overture holds it from the moment a proposition would be a yes.
-; ApiVersion 201+.
+; the player. One hold at a time: a hold for someone else replaces it, and the log
+; says so. A scene already running is never cut short, and a hold lasts at most
+; 120 s, so hold when Busy() is False -- Overture holds first and then asks Busy(),
+; from the moment a proposition would be a yes. ApiVersion 201+.
 Function ReservePlayerScene(Actor akWith, Float afSeconds) Global Native
 ; Is the slot held for a player's request right now? Autonomy should skip its pass:
 ; every request it would make is refused until the hold is gone. ApiVersion 201+.
@@ -527,8 +534,11 @@ Bool Function Busy() Global Native
 Int Function CanRun(String asScenario, Actor akFirst, Actor akSecond) Global Native
 
 ; Then ask. False means not now -- a scene is already running, the bridge is
-; not up yet, or one of the actors is None. All of those are transient, so
-; treat a False as "try again later" rather than an error; the reason is in
+; not up yet, the slot is held for the player's own request, autonomy is paused
+; (never for a pair with the player in it), or one of them is None, dead, not
+; loaded, in an ambient conversation, or talking to the player (the player's own
+; request excepted: that is where its yes came from). All of those are transient,
+; so treat a False as "try again later" rather than an error; the reason is in
 ; Rapport.log.
 ;
 ; Rapport takes it from here: it chooses the tree, keeps the faces, stops the

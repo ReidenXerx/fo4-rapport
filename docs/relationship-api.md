@@ -131,14 +131,18 @@ afSeconds)` (ApiVersion 201+) holds it for the player and `akWith` for up to 120
 pair's request is refused until your pair's own request is accepted, which lets the hold go by
 itself; that includes Rapport's own autonomy when no addon has taken over. Pass 0 with the same
 `akWith` to let go early (the conversation ended without a yes); a release names its hold, so one
-conversation can't free another's. A scene already running is never cut short; the hold takes the
-next free slot. It only ever holds for a pair with the player in it: a deliberate player request
-outranks autonomy, and nothing else does.
+conversation can't free another's. There is one hold at a time: a hold for someone else replaces
+yours, and `Rapport.log` says so. A scene already running is never cut short, and a hold lasts at
+most 120 s, so take it when `Busy()` is False: hold first, then ask `Busy()`, and let go if it
+says yes. It only ever holds for a pair with the player in it: a deliberate player request
+outranks autonomy, and nothing else does. A pause (the mailbox's) holds off autonomy only; a pair
+with the player in it still gets through.
 
 If you run autonomy yourself, check `Rapport:Core.PlayerHoldsSlot()` next to `Busy()` and skip the
 pass: every request you'd make is refused until the hold is gone. And if a scene with the player
-fails after its request was taken, Rapport's Narrator says so ("... it didn't happen after
-all."), so a yes never vanishes without a word.
+fails after its request was taken, or is given up before it ever started, Rapport's Narrator says
+so ("... it didn't happen after all."), under either of its "scene starts" and "addon moments"
+switches, so a yes never vanishes without a word.
 
 ## Names for the nameless
 
@@ -147,13 +151,14 @@ surname, and returns it. Generic means the name they go by is a label: carried b
 records, not all of them Unique ("Drifter", "Settler", "Resident"). A Unique NPC counts only when
 that name comes from their template rather than their own record, which is how some mods flag every
 patron Unique and still call them all "Drifter". It returns an empty string if they have a real
-name, already wear a custom one, have ever been the player's companion, were introduced before, or
-the player turned names off. `Rapport.log` says which ("keeps their own name (...)"), and
+name, already wear a custom one, have ever been the player's companion, are dead, were introduced
+before, or the player turned names off. `Rapport.log` says which ("keeps their own name (...)"), and
 `Rapport-labels.txt` beside it lists every label with its record counts. The name is derived from the form id, so the same person always gets the same one; the save
-keeps who was introduced and as which base, so an id the engine hands to somebody new reads as
-somebody new. The game keeps the name on the actor by itself. If it's lost (a cell that reset),
+keeps who was introduced and as which base, so an id the engine hands to somebody of a different
+base reads as somebody new. (Somebody new of the SAME base is taken for the one introduced, and
+keeps the name the id gives them anyway.) The game keeps the name on the actor by itself. If it's lost (a cell that reset),
 the next `Introduce` quietly gives it back, without returning it as new. The count can be wrong
 for a load order: `names.json` takes a `"keep"` list (names that are never labels) and a `"label"`
-list (names that always are). Call it when your mod has a reason for the player to learn a name,
+list (names that always are, even as a Unique NPC's own name). Call it when your mod has a reason for the player to learn a name,
 not on every NPC in sight.
 

@@ -899,7 +899,11 @@ namespace
 		// belongs. The mailbox calls PapyrusLink::RequestScene directly and is
 		// deliberately not gated: the whole point of pausing is to stop autonomy
 		// taking the slot from a deliberate test.
-		if (RP::PapyrusLink::GetSingleton().AutonomyPaused()) {
+		// It holds off AUTONOMY. A pair with the player in it is the player's own
+		// request -- Overture's yes -- which is exactly what a pause clears the way
+		// for, so it is never refused here (microscope pass 2).
+		const bool playersOwn = (a_first && a_first->GetFormID() == 0x14) || (a_second && a_second->GetFormID() == 0x14);
+		if (RP::PapyrusLink::GetSingleton().AutonomyPaused() && !playersOwn) {
 			logger::info("request refused: autonomy is paused, so an addon may not start a scene");
 			return false;
 		}
@@ -939,6 +943,11 @@ namespace
 	bool Papyrus_PlayerHoldsSlot(std::monostate)
 	{
 		return RP::PapyrusLink::GetSingleton().PlayerHoldsSlot();
+	}
+
+	std::int32_t Papyrus_InFlightRequest(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().InFlightRequest();
 	}
 
 	// Ask BEFORE walking two actors across a room. Returns Scenarios::Quality:
@@ -1084,6 +1093,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ReservePlayerScene"sv, Papyrus_ReservePlayerScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PlayerHoldsSlot"sv, Papyrus_PlayerHoldsSlot, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "InFlightRequest"sv, Papyrus_InFlightRequest, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SetLovers"sv, Papyrus_SetLovers, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "AreLovers"sv, Papyrus_AreLovers, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "LoverOf"sv, Papyrus_LoverOf, std::nullopt, false);
@@ -1127,6 +1137,32 @@ namespace RP
 		if (!a_bypassHold) {
 			if (const auto held = HeldFrom(a_first->GetFormID(), a_second->GetFormID()); !held.empty()) {
 				logger::info("request refused: {}", held);
+				return false;
+			}
+		}
+		// THE DOOR re-checks what the scan checked. A pair is picked from a list
+		// published up to twenty seconds ago, and by the time it is asked for, one of
+		// them may be talking to the player, in an ambient conversation, dead or gone
+		// -- and AAF walks them off mid-sentence, or refuses (microscope pass 2). The
+		// player's own request is exempt from the dialogue test: the NPC was talking
+		// to the player a moment ago because that is where its yes came from.
+		const bool playersOwn = a_first->GetFormID() == 0x14 || a_second->GetFormID() == 0x14;
+		for (auto* actor : { a_first, a_second }) {
+			if (actor->GetFormID() == 0x14) {
+				continue;
+			}
+			std::string_view why;
+			if (actor->IsDead(true)) {
+				why = "is dead";
+			} else if (!actor->Get3D()) {
+				why = "is not loaded";
+			} else if (!playersOwn && actor->talkingToPlayer) {
+				why = "is talking to the player";
+			} else if (actor->boolFlags.any(RE::Actor::BOOL_FLAGS::kInRandomScene)) {
+				why = "is in the middle of a conversation";
+			}
+			if (!why.empty()) {
+				logger::info("request refused: {:08X} {}", actor->GetFormID(), why);
 				return false;
 			}
 		}
@@ -1247,6 +1283,10 @@ namespace RP
 			return;
 		}
 		const auto seconds = (std::min)(a_seconds, 120.0f);
+		if (_reservedWith != 0 && _reservedWith != a_with && std::chrono::steady_clock::now() < _reservedUntil) {
+			logger::warn("reserve: the player's hold with {:08X} is replaced by one with {:08X} - one hold at a time",
+				_reservedWith, a_with);
+		}
 		_reservedWith = a_with;
 		_reservedUntil = std::chrono::steady_clock::now() + std::chrono::milliseconds{ static_cast<int>(seconds * 1000.0f) };
 		logger::info("reserve: the scene slot is held for the player and {:08X} for {:.0f}s", a_with, seconds);
@@ -1270,6 +1310,12 @@ namespace RP
 		}
 		const auto left = std::chrono::duration_cast<std::chrono::seconds>(_reservedUntil - now).count();
 		return std::format("the slot is held for the player's request with {:08X} ({}s left)", _reservedWith, left);
+	}
+
+	std::int32_t PapyrusLink::InFlightRequest()
+	{
+		NamedLock lock{ _counter, "request counter" };
+		return _sceneInFlight.load() ? _inFlightRequest : 0;
 	}
 
 	bool PapyrusLink::PlayerHoldsSlot()
@@ -1365,9 +1411,15 @@ namespace RP
 		}
 
 		logger::error("giving up on the scene in flight: {} - releasing", a_why);
+		std::uint32_t first = 0;
+		std::uint32_t second = 0;
+		bool          started = false;
 		{
 			NamedLock lock{ _counter, "request counter" };
 			_pending = Pending{};
+			first = static_cast<std::uint32_t>(_inFlightFirst);
+			second = static_cast<std::uint32_t>(_inFlightSecond);
+			started = _sceneRunning;
 		}
 		// Deliberately no ledger entry. Giving up means we do not know what
 		// happened, and a guess written into a save outlives the session that made
@@ -1393,6 +1445,12 @@ namespace RP
 		ClearInFlight();
 		_sceneInFlight.store(false);
 		_heals.fetch_add(1);
+		// A scene with the player that never started is a yes the player is still
+		// waiting on -- the same as a failed one, and said the same way. One that
+		// started and was cut short played; there is nothing to take back.
+		if (!started && (first == 0x14 || second == 0x14)) {
+			Narrator::GetSingleton().OnPlayerSceneFailed(first, second);
+		}
 		return true;
 	}
 

@@ -37,10 +37,11 @@ namespace RP
 		// The player's priority lane (owner, 2026-09-23, Overture O-16: "a player's own
 		// request outranks Chemistry"). Holds the one scene slot for the PLAYER and
 		// a_with for a_seconds (at most 120; 0 or less lets go). While it holds, the
-		// addon door refuses every other pair; the held pair's own request clears it.
-		// A running scene is never cut short: the hold takes the next free slot.
-		// Letting go (0, negative or NaN seconds) only releases a hold made for
-		// a_with: one conversation must not free another's. The player cannot be
+		// request funnel refuses every other pair -- addons and Rapport's own
+		// autonomy alike; the held pair's own request clears it. A running scene is
+		// never cut short. Letting go (0, negative or NaN seconds) only releases a
+		// hold made for a_with: one conversation must not free another's. One hold at
+		// a time: a hold for someone else replaces it, logged. The player cannot be
 		// a_with.
 		void ReservePlayerScene(std::uint32_t a_with, float a_seconds);
 		// Empty if the door is open to this pair, else why not. Clears the hold once
@@ -101,6 +102,9 @@ namespace RP
 		// was nothing in flight, which is how the medic knows whether it actually
 		// healed something or merely re-armed a clock.
 		bool AbandonInFlight(std::string_view a_why);
+		// The request in flight, 0 for none: the bridge's own list is reconciled
+		// against it every poll.
+		[[nodiscard]] std::int32_t InFlightRequest();
 
 		// kPreLoadGame: the world this session's scene and orders belong to is being
 		// left. Forget them - state only, nothing is sent to AAF.

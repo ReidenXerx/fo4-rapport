@@ -299,6 +299,11 @@ namespace RP
 			if (const auto it = _introduced.find(formID); it != _introduced.end()) {
 				if (it->second == 0 || it->second == base) {
 					known = true;
+					// A v1 entry (ids only) learns its base now, or it would match any
+					// later holder of the id forever (microscope pass 2).
+					if (it->second == 0) {
+						it->second = base;
+					}
 				} else {
 					// The engine handed this id to somebody else (a spawned actor
 					// cleaned up and replaced): a stranger, not the one introduced.

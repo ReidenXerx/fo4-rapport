@@ -20,6 +20,22 @@ namespace RP
 			return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport" / "narrator.json";
 		}
 
+		// Where a token starts, in any casing: Papyrus pools string literals
+		// case-insensitively across every script loaded, so an addon's "{second}" is
+		// whatever casing some other script interned first (microscope pass 2).
+		[[nodiscard]] std::size_t FindToken(const std::string& a_text, std::string_view a_token, std::size_t a_from)
+		{
+			if (a_from > a_text.size()) {
+				return std::string::npos;
+			}
+			const auto it = std::search(a_text.begin() + static_cast<std::ptrdiff_t>(a_from), a_text.end(),
+				a_token.begin(), a_token.end(), [](char a_left, char a_right) {
+					return std::tolower(static_cast<unsigned char>(a_left)) ==
+				           std::tolower(static_cast<unsigned char>(a_right));
+				});
+			return it == a_text.end() ? std::string::npos : static_cast<std::size_t>(it - a_text.begin());
+		}
+
 		[[nodiscard]] std::uint64_t Key(std::uint32_t a_first, std::uint32_t a_second) noexcept
 		{
 			return a_first < a_second ? (static_cast<std::uint64_t>(a_first) << 32) | a_second
@@ -267,8 +283,15 @@ namespace RP
 				add("player near", p.player);
 				total = offer->score;
 			}
+			// ONE test for "printed" and for "anything to print", so a zero can never
+			// decide the line's shape without appearing in it: "score 0.00 = 0" came
+			// back through a zero-valued label (microscope pass 2).
+			const auto shown = [](const Bonus& a_bonus) {
+				return !a_bonus.label.empty() && a_bonus.label.front() != '_' && a_bonus.label != "couple" &&
+				       std::abs(a_bonus.value) >= 0.005f;
+			};
 			for (const auto& bonus : bonuses) {
-				if (!bonus.label.empty() && bonus.label.front() != '_' && bonus.label != "couple" && std::abs(bonus.value) >= 0.005f) {
+				if (shown(bonus)) {
 					parts.push_back(std::format("{} {}", bonus.label, Signed(bonus.value)));
 					total += bonus.value;
 				}
@@ -282,9 +305,7 @@ namespace RP
 			// Markers ("_bond") and "couple" are words' facts, never printed parts: a
 			// scene the player asked for carries only a marker, and used to read
 			// "score 0.00 = 0" instead of "asked for directly" (microscope 2026-09-23).
-			const bool printable = std::ranges::any_of(bonuses, [](const Bonus& a_bonus) {
-				return !a_bonus.label.starts_with('_') && a_bonus.label != "couple";
-			});
+			const bool printable = std::ranges::any_of(bonuses, shown);
 			line = same || decidedOn || printable
 			           ? std::format("{} - score {:.2f} = {}", a_scenario.empty() ? "scene" : a_scenario, total,
 			                 sum.empty() ? std::string{ "0" } : sum)
@@ -415,7 +436,7 @@ namespace RP
 				{ "{their}", their },
 			} };
 			for (const auto& [token, value] : tokens) {
-				for (auto at = out.find(token); at != std::string::npos; at = out.find(token, at)) {
+				for (auto at = FindToken(out, token, 0); at != std::string::npos; at = FindToken(out, token, at)) {
 					out.replace(at, token.size(), value);
 					at += value.size();
 				}
@@ -460,7 +481,10 @@ namespace RP
 	{
 		{
 			NamedLock lock{ _lock, "narrator" };
-			if (!_enabled || !_sceneStarts) {
+			// Either switch: the yes this takes back was said under "addon moments"
+			// (Overture), and a lost yes must not go silent because only the other one
+			// is on (microscope pass 2).
+			if (!_enabled || !(_sceneStarts || _addonLines)) {
 				return;
 			}
 		}

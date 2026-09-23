@@ -29,13 +29,20 @@
     never rebuilds a body itself.
   - Right after a load, Rapport no longer offers pairs or counts onlookers from the place
     you just left.
+  - After AAF refused a scene, Rapport lost track of every scene that followed, until the next
+    load. They played, but wrote no bond and no history, and the slot looked busy for thirteen
+    minutes at a time. The refused request is now dropped at once.
+  - An NPC who had just started talking to you, or to someone else, could be picked for a scene
+    in the seconds between Rapport's scan and the request. Rapport now checks again at the moment
+    it asks.
+  - Your own scene history no longer ages out of the save after a month without a scene.
 
 **For addon authors:** `Rapport:Core.ApiVersion()` is 201. New: `NarrateLine` (your own
 narrator line, with `{first}` and `{second}` for the names), `Introduce` (names a nameless
 NPC, returns the name), `ObserversNear` (how many people could see an actor),
 `ReservePlayerScene` and `PlayerHoldsSlot` (the player's priority lane), and `SetLovers` /
 `AreLovers` / `LoverOf` (lovers by your mod's word, kept apart from the engine's spouses).
-`NarrateLine` fills `{they}`, `{them}` and `{their}` for you. Check for 201 before calling them: Rapport 0.2.0 doesn't have them.
+`NarrateLine` fills `{they}`, `{them}` and `{their}` for you, in any casing. Check for 201 before calling them: Rapport 0.2.0 doesn't have them. `RequestScene` now also refuses a pair where someone is dead, not loaded, in an ambient conversation or talking to the player (the player's own request excepted), and a pause never refuses a pair with the player in it.
 
 ## 0.2.0
 

@@ -136,7 +136,9 @@ namespace RP
 		// it may create the pair's record (R-5). A death forgets it with the rest.
 		void SetLovers(std::uint32_t a_first, std::uint32_t a_second, bool a_lovers);
 		[[nodiscard]] bool AreLovers(std::uint32_t a_first, std::uint32_t a_second) const;
-		// The other half of this actor's lovers, or 0.
+		// One of this actor's lovers -- the lowest form id if there are several -- or 0.
+		// Falling out ends lovers (O-28): AddBond and the vanilla seed drop the flag at
+		// kFallenOut, and SetLovers refuses a pair already there.
 		[[nodiscard]] std::uint32_t LoverOf(std::uint32_t a_actor) const;
 
 		// R-6: a dead NPC's rows are waste against a hard ceiling. Called by the

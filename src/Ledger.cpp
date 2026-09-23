@@ -42,6 +42,8 @@ namespace
 	// "Fallen out": the Narrator's own line for a relationship turned bad, and where
 	// lovers stop being lovers (O-28).
 	constexpr float kFallenOut = -0.25f;
+	// The player's form id. Their actor record is never aged out or capped.
+	constexpr std::uint32_t kPlayer = 0x14;
 
 	// What one completed scene is worth: the fraction of the remaining distance to
 	// +1. 0.15 is the size of Chemistry's old per-scene C-3 bonus, so the first
@@ -264,6 +266,13 @@ namespace RP
 			pair.lastTouchedAt = now;
 			pair.lastReason = BondReason::kVanilla;
 		}
+		// O-28 here too: lovers can be declared before the engine's relationship is
+		// imported, and an enemy's seed takes them below the line.
+		if (pair.lovers && pair.bond <= kFallenOut) {
+			pair.lovers = false;
+			logger::info("relationship: {:08X} + {:08X} have fallen out on import - lovers no longer (O-28)",
+				a_first, a_second);
+		}
 		logger::info("relationship: {:08X} + {:08X} seeded from vanilla - rank {}, blood {}, partner {} -> bond {:+.3f}",
 			a_first, a_second, a_rank, a_blood, a_partner, pair.bond);
 	}
@@ -333,6 +342,13 @@ namespace RP
 			it = _pairs.emplace(key, PairRecord{}).first;
 		}
 		if (it->second.lovers == a_lovers) {
+			return;
+		}
+		// O-28 both ways: a pair that has fallen out cannot be declared lovers, or the
+		// next AddBond would end it again with no line crossed and nothing said.
+		if (a_lovers && it->second.bond <= kFallenOut) {
+			logger::info("relationship: {:08X} + {:08X} not declared lovers - they have fallen out (bond {:+.3f}, O-28)",
+				a_first, a_second, it->second.bond);
 			return;
 		}
 		it->second.lovers = a_lovers;
@@ -795,9 +811,27 @@ namespace RP
 
 	void Ledger::Prune() const
 	{
+		// The ceilings -- see the end. The PLAYER's record never goes: it holds every
+		// scene the player has had, and an addon that counts "scenes with somebody
+		// else" from it (Overture's jealousy, O-29) reads a reset as nothing new.
+		// Lovers rows go last: they are a fact, an addon's word.
+		const auto capTables = [this] {
+			Cap(_records, kMaxActorRecords, "actor", [](std::uint32_t a_formID, const ActorRecord& a_record) {
+				return a_formID == kPlayer ? (std::numeric_limits<float>::max)() :
+				                             (std::max)(a_record.lastSceneAt, a_record.lastRefusedAt);
+			});
+			Cap(_pairs, kMaxPairRecords, "pair", [](std::uint64_t, const PairRecord& a_record) {
+				return a_record.lovers ? (std::numeric_limits<float>::max)() :
+				                         (std::max)(a_record.lastSceneAt, a_record.lastTouchedAt);
+			});
+		};
+
 		const auto hours = Config::GetSingleton().pruneHours;
 		const auto now = GameHours();
 		if (hours <= 0.0f || now < 0.0f) {
+			// PruneHours 0 means "never age anything out", and the ceilings are what
+			// still bound the tables then. This return used to skip them as well.
+			capTables();
 			return;
 		}
 
@@ -812,7 +846,7 @@ namespace RP
 		const auto before = _records.size();
 		std::erase_if(_records, [&](const auto& entry) {
 			const auto& [formID, record] = entry;
-			if (wearing.contains(formID)) {
+			if (formID == kPlayer || wearing.contains(formID)) {
 				return false;
 			}
 
@@ -882,12 +916,7 @@ namespace RP
 		// The numbers are deliberately far above any real save: 4000 pairs is 112 KB (28-byte entries)
 		// and 2000 actors is 56 KB, and reaching either means something is wrong
 		// rather than that somebody played a long game.
-		Cap(_records, kMaxActorRecords, "actor", [](const ActorRecord& a_record) {
-			return (std::max)(a_record.lastSceneAt, a_record.lastRefusedAt);
-		});
-		Cap(_pairs, kMaxPairRecords, "pair", [](const PairRecord& a_record) {
-			return (std::max)(a_record.lastSceneAt, a_record.lastTouchedAt);
-		});
+		capTables();
 	}
 
 	// Drops the oldest until the map fits. Templated over the two record types
@@ -902,7 +931,7 @@ namespace RP
 		std::vector<std::pair<float, typename Map::key_type>> byAge;
 		byAge.reserve(a_map.size());
 		for (const auto& [key, record] : a_map) {
-			byAge.emplace_back(a_ageOf(record), key);
+			byAge.emplace_back(a_ageOf(key, record), key);
 		}
 		// Oldest first. A never-touched record sorts to the very front, which is
 		// correct: it is the least worth keeping.

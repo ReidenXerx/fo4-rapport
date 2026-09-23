@@ -218,6 +218,15 @@ Event OnTimer(Int aiTimerID)
 			Rapport:Core.NoteStopAsked()
 		EndIf
 
+		; The list against the plugin, BEFORE a new request joins it. One request is
+		; in flight at a time and the plugin knows which: any other entry here is one
+		; it has already given up on -- AAF refused it, the watchdog or the Medic
+		; abandoned it -- and no event will ever remove it. Left in, it blinded
+		; FindRequestByActors to the next scene, whose start and end then went
+		; unrecorded (no bond, no history), and every scene after it added another
+		; (microscope pass 2).
+		Self.DropStaleRequests(Rapport:Core.InFlightRequest())
+
 		Int request = Rapport:Core.TakeRequest()
 		If request != 0
 			Self.BeginRequest(request, Rapport:Core.TakenFirstID(), Rapport:Core.TakenSecondID(), Rapport:Core.TakenDuration())
@@ -575,6 +584,8 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 			If akArgs.Length > 3 && (akArgs[3] as String) == "Rapport,autonomy"
 				If Rapport:Core.RefusedOurScene("AAF refused the scene: " + akArgs[1])
 					Rapport:Core.Trace("bridge: that refusal was ours - the request is failed rather than left to time out")
+					; And out of our own list, now rather than at the next poll.
+					Self.DropStaleRequests(Rapport:Core.InFlightRequest())
 				EndIf
 			EndIf
 		EndIf
@@ -1724,6 +1735,25 @@ Int Function FindRequestByActors(Var[] akArgs)
 		Return 0
 	EndIf
 	Return -1
+EndFunction
+
+; Every entry the plugin is no longer waiting on, out -- its actors let go, as
+; any failed request's are. aiInFlight is the plugin's request in flight, 0 for none.
+Function DropStaleRequests(Int aiInFlight)
+	If _inFlight == None
+		Return
+	EndIf
+	Int i = _inFlight.Length
+	While i > 0
+		i -= 1
+		If _inFlight[i].id != aiInFlight
+			Request stale = _inFlight[i]
+			_inFlight.Remove(i, 1)
+			Self.ReleaseActor(stale.first)
+			Self.ReleaseActor(stale.second)
+			Rapport:Core.Trace("bridge: dropped request " + stale.id + " - the plugin is no longer waiting on it")
+		EndIf
+	EndWhile
 EndFunction
 
 Function Release(Int aiIndex, String asWhy)
