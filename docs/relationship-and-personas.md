@@ -894,3 +894,24 @@ would have renamed Magnolia.
 Every Narrator line about the player's own moment says "you" -- "You and Dottie are inseparable now",
 "A first time for you and Dottie" -- never the player's name in the third person. The player goes
 first in a pair; an addon's `{first}` is "you" too.
+
+## R-21 - The base game's companions are pinned (owner, 2026-09-24, through Overture O-26 and O-39)
+
+R-7 derives a persona from the form id, which knows nothing about who a companion is. The owner approved
+Overture's table, and `personas.json` pins it:
+
+| persona | companions |
+| --- | --- |
+| romantic | Piper, Preston Garvey, Curie |
+| vulgar | Cait, Hancock (and Ivy, R-15) |
+| reticent | Paladin Danse, Deacon, X6-88, Old Longfellow |
+| mercantile | MacCready, Gage |
+
+**How the ids were found.** Every id is the NPC_ record that carries CompanionActorScript. They were found
+by scanning Fallout4.esm, DLCCoast.esm and DLCNukaWorld.esm for that script, not recalled. The scan finds
+14 such records: these 11, plus Codsworth, Nick Valentine and Strong, whom Overture's approach never opens
+for. Dogmeat carries no such script, and Automatron's Ada is in a file that was not scanned. Curie's placed actor (CurieRef 102249) is pinned beside her base NPC, because
+she changes body mid-story and the reference is what stays.
+
+**Why the pins matter.** They choose Chemistry's weights (R-15) and every Overture line these companions
+say, including the vulgar persona's, which O-40 made explicit.

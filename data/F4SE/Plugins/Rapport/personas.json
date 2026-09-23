@@ -1,11 +1,84 @@
 {
   "_": "Hand-kept persona pins (R-13). Every NPC has a persona derived from its form id; an entry here overrides it. plugin + id are what xEdit shows (the id without the load-order byte); either the actor REFERENCE or its base NPC works. persona must be one of barks.json's personas: mercantile, romantic, vulgar, reticent. This file is never generated.",
+  "_companions": "The base game's companions, pinned by the owner's approval of Overture's O-26 table (2026-09-24, fo4-overture docs/decisions.md O-39). Each id is the NPC_ record that carries CompanionActorScript, found by scanning Fallout4.esm, DLCCoast.esm and DLCNukaWorld.esm for it rather than taken from memory. Codsworth, Nick Valentine and Strong were never in the table: Overture's approach does not open for them (Codsworth and Strong lack ActorTypeNPC; Nick is a Gen-2 synth, which it excludes by keyword).",
   "overrides": [
     {
       "plugin": "CompanionIvy.esm",
       "id": "000803",
       "persona": "vulgar",
       "note": "Ivy (IVYCOMP NPC_, not the _NPC_IVY voice type at 000801), owner poll 2026-09-21"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "079249",
+      "persona": "vulgar",
+      "note": "Cait (CompanionCait), O-26"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "022613",
+      "persona": "vulgar",
+      "note": "Hancock (Hancock), O-26"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "002F1E",
+      "persona": "romantic",
+      "note": "Piper (CompanionPiper), O-26"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "019FD9",
+      "persona": "romantic",
+      "note": "Preston Garvey (PrestonGarvey), O-26"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "027686",
+      "persona": "romantic",
+      "note": "Curie (CompanionCurie), O-26"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "102249",
+      "persona": "romantic",
+      "note": "Curie's placed actor (CurieRef), pinned as well: she changes body mid-story, and the reference is what stays"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "027683",
+      "persona": "reticent",
+      "note": "Paladin Danse (BoSPaladinDanse), O-26"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "045AC9",
+      "persona": "reticent",
+      "note": "Deacon (CompanionDeacon), O-26"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "0BBEE6",
+      "persona": "reticent",
+      "note": "X6-88 (CompanionX6-88), O-26"
+    },
+    {
+      "plugin": "DLCCoast.esm",
+      "id": "006E5B",
+      "persona": "reticent",
+      "note": "Old Longfellow (DLC03_CompanionOldLongfellow), O-26"
+    },
+    {
+      "plugin": "Fallout4.esm",
+      "id": "02740E",
+      "persona": "mercantile",
+      "note": "MacCready (CompanionMacCready), O-26"
+    },
+    {
+      "plugin": "DLCNukaWorld.esm",
+      "id": "00881D",
+      "persona": "mercantile",
+      "note": "Gage (DLC04Gage), O-26"
     }
   ]
 }
