@@ -785,6 +785,19 @@ namespace
 		return static_cast<std::int32_t>(RP::Ledger::GetSingleton().LoverOf(static_cast<std::uint32_t>(a_actor)));
 	}
 
+	// Every lover, one at a time: two plain Ints rather than an array, so the
+	// binding is the shape every other native here already has.
+	std::int32_t Papyrus_LoverCount(std::monostate, std::int32_t a_actor)
+	{
+		return static_cast<std::int32_t>(RP::Ledger::GetSingleton().LoversOf(static_cast<std::uint32_t>(a_actor)).size());
+	}
+
+	std::int32_t Papyrus_LoverAt(std::monostate, std::int32_t a_actor, std::int32_t a_index)
+	{
+		const auto all = RP::Ledger::GetSingleton().LoversOf(static_cast<std::uint32_t>(a_actor));
+		return a_index >= 0 && static_cast<std::size_t>(a_index) < all.size() ? static_cast<std::int32_t>(all[a_index]) : 0;
+	}
+
 	bool Papyrus_IsAffairPair(std::monostate, std::int32_t a_first, std::int32_t a_second)
 	{
 		return RP::Ledger::GetSingleton().IsAffair(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
@@ -1097,6 +1110,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SetLovers"sv, Papyrus_SetLovers, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "AreLovers"sv, Papyrus_AreLovers, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "LoverOf"sv, Papyrus_LoverOf, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "LoverCount"sv, Papyrus_LoverCount, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "LoverAt"sv, Papyrus_LoverAt, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
 		// No count: it was a hand-kept "60" that stopped being true long ago.

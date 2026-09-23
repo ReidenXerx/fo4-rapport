@@ -140,6 +140,8 @@ namespace RP
 		// Falling out ends lovers (O-28): AddBond and the vanilla seed drop the flag at
 		// kFallenOut, and SetLovers refuses a pair already there.
 		[[nodiscard]] std::uint32_t LoverOf(std::uint32_t a_actor) const;
+		// All of them, lowest form id first.
+		[[nodiscard]] std::vector<std::uint32_t> LoversOf(std::uint32_t a_actor) const;
 
 		// R-6: a dead NPC's rows are waste against a hard ceiling. Called by the
 		// engine's death event, never by a timer.

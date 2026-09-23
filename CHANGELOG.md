@@ -43,7 +43,8 @@
 narrator line, with `{first}` and `{second}` for the names), `Introduce` (names a nameless
 NPC, returns the name), `ObserversNear` (how many people could see an actor),
 `ReservePlayerScene` and `PlayerHoldsSlot` (the player's priority lane), and `SetLovers` /
-`AreLovers` / `LoverOf` (lovers by your mod's word, kept apart from the engine's spouses), and the
+`AreLovers` / `LoverOf` / `LoverCount` / `LoverAt` (lovers by your mod's word, kept apart from the
+engine's spouses), and the
 bridge's `OnPlayerSceneRecorded` event (a scene with the player has ended and been recorded).
 `NarrateLine` fills `{they}`, `{them}` and `{their}` for you, in any casing. Check for 201 before calling them: Rapport 0.2.0 doesn't have them. `RequestScene` now also refuses a pair where someone is dead, not loaded, in an ambient conversation or talking to the player (the player's own request excepted), and a pause never refuses a pair with the player in it.
 

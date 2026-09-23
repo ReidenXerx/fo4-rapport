@@ -420,6 +420,11 @@ Function SetLovers(Int aiFirst, Int aiSecond, Bool abLovers) Global Native
 Bool Function AreLovers(Int aiFirst, Int aiSecond) Global Native
 ; One of this actor's lovers -- the lowest form id if there are several -- or 0.
 Int Function LoverOf(Int aiActor) Global Native
+; All of them, one at a time, lowest form id first: LoverCount, then LoverAt(0 ..
+; count - 1); 0 past the end. Overture asks for the PLAYER's, to tell every other
+; lover when a scene with someone happens (O-33). ApiVersion 201+.
+Int Function LoverCount(Int aiActor) Global Native
+Int Function LoverAt(Int aiActor, Int aiIndex) Global Native
 ; Names for the nameless. The first time an addon introduces a generic NPC -- one
 ; whose name is a LABEL (on five or more NPC records, not all Unique), and for a
 ; Unique NPC only when that name comes from their template -- Rapport gives them a

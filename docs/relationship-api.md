@@ -140,7 +140,8 @@ answer exactly what they did before. Ask `Rapport:Relations.AreLovers(a, b)` or 
 well wherever a lover should count. Chemistry, for one, counts the player's lover as spoken for,
 behind its own MCM switch. It is kept in the save. A death forgets it, and so does falling out: a
 lovers pair whose bond drops to -0.25 are lovers no longer (owner decision, Overture O-28).
-`LoverOf` returns one of someone's lovers, the lowest form id if there are several.
+`LoverOf` returns one of someone's lovers, the lowest form id if there are several, and
+`LoverCount` / `LoverAt(actor, i)` walk all of them in the same order.
 
 ## The player's priority lane
 

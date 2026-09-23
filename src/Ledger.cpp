@@ -367,29 +367,35 @@ namespace RP
 
 	std::uint32_t Ledger::LoverOf(std::uint32_t a_actor) const
 	{
-		if (a_actor == 0) {
-			return 0;
-		}
 		// With several lovers, the lowest form id: one answer, the same every time,
 		// rather than whatever the hash map met first.
-		NamedLock     lock{ _lock, "ledger" };
-		std::uint32_t found = 0;
-		for (const auto& [key, record] : _pairs) {
-			if (!record.lovers) {
-				continue;
-			}
-			const auto    lower = static_cast<std::uint32_t>(key >> 32);
-			const auto    higher = static_cast<std::uint32_t>(key & 0xFFFFFFFFu);
-			std::uint32_t other = 0;
-			if (lower == a_actor) {
-				other = higher;
-			} else if (higher == a_actor) {
-				other = lower;
-			}
-			if (other != 0 && (found == 0 || other < found)) {
-				found = other;
+		const auto all = LoversOf(a_actor);
+		return all.empty() ? 0 : all.front();
+	}
+
+	std::vector<std::uint32_t> Ledger::LoversOf(std::uint32_t a_actor) const
+	{
+		std::vector<std::uint32_t> found;
+		if (a_actor == 0) {
+			return found;
+		}
+		{
+			NamedLock lock{ _lock, "ledger" };
+			for (const auto& [key, record] : _pairs) {
+				if (!record.lovers) {
+					continue;
+				}
+				const auto lower = static_cast<std::uint32_t>(key >> 32);
+				const auto higher = static_cast<std::uint32_t>(key & 0xFFFFFFFFu);
+				if (lower == a_actor) {
+					found.push_back(higher);
+				} else if (higher == a_actor) {
+					found.push_back(lower);
+				}
 			}
 		}
+		// Lowest form id first: the same order every time it is asked.
+		std::ranges::sort(found);
 		return found;
 	}
 
