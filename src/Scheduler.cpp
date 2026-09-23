@@ -1,5 +1,7 @@
 #include "Scheduler.h"
 
+#include "Crowd.h"
+
 #include "Candidates.h"
 #include "Aftermath.h"
 #include "Barks.h"
@@ -113,6 +115,12 @@ namespace RP
 
 			const auto started = std::chrono::steady_clock::now();
 			const bool done = _scan.Step(config.frameBudgetMs);
+			if (done) {
+				// Main thread, and the only place this is safe to copy from.
+				// Anyone off-thread reads the published snapshot instead.
+				Crowd::GetSingleton().Publish(
+					_scan.ObserverPositions(), Config::GetSingleton().Weights().observerRadius);
+			}
 			const auto elapsed =
 				std::chrono::duration<double, std::milli>{ std::chrono::steady_clock::now() - started }.count();
 

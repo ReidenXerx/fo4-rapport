@@ -11,6 +11,7 @@
 #include "Watchers.h"
 #include "Expressions.h"
 #include "AAFHealth.h"
+#include "Crowd.h"
 #include "Ledger.h"
 #include "Scenarios.h"
 #include "Takeover.h"
@@ -777,6 +778,34 @@ namespace
 	}
 
 	// The persona (R-7) - derived from the form id, or the owner's override.
+	// How many people could see this actor right now.
+	//
+	// Overture asks it to decide whether a room is public (O-4's place recoil),
+	// and the number is deliberately the SAME one Rapport's own pairing score
+	// uses: ActorScan's observer positions, which are loaded, alive, people only
+	// and never children, measured against the same observerRadius. A caller
+	// gets what Rapport would act on, not a second opinion that drifts from it.
+	//
+	// The actor themselves is in that list and is subtracted. The PLAYER is not:
+	// somebody being propositioned by the player is not thereby in public, and
+	// counting the asker as an audience made every private room read as crowded.
+	std::int32_t Papyrus_ObserversNear(std::monostate, std::int32_t a_formID)
+	{
+		const auto id = static_cast<std::uint32_t>(a_formID);
+		const auto actor = RE::TESForm::GetFormByID(id) ? RE::TESForm::GetFormByID(id)->As<RE::Actor>() : nullptr;
+		if (!actor) {
+			return -1;   // not an actor we can see: not the same as "nobody is watching"
+		}
+
+		const auto here = actor->GetPosition();
+		const auto player = RE::PlayerCharacter::GetSingleton();
+
+		// The actor is in the observer list themselves, and the player is the one
+		// asking - counting either made a private room read as crowded.
+		std::array<RE::NiPoint3, 2> ignore{ here, player ? player->GetPosition() : here };
+		return RP::Crowd::GetSingleton().Near(here, ignore);
+	}
+
 	RE::BSFixedString Papyrus_PersonaOf(std::monostate, std::int32_t a_formID)
 	{
 		return std::string{ RP::Barks::GetSingleton().PersonaOf(static_cast<std::uint32_t>(a_formID)) };
@@ -1002,6 +1031,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "IsPartnerPair"sv, Papyrus_IsPartnerPair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteVanillaRelationship"sv, Papyrus_NoteVanillaRelationship, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PersonaOf"sv, Papyrus_PersonaOf, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ObserversNear"sv, Papyrus_ObserversNear, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "GetNeed"sv, Papyrus_GetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SetNeed"sv, Papyrus_SetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "TakeOverDecisions"sv, Papyrus_TakeOverDecisions, std::nullopt, false);
@@ -1009,7 +1039,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
-		logger::info("papyrus: bound 59 native functions on {}", kCoreScript);
+		logger::info("papyrus: bound 60 native functions on {}", kCoreScript);
 		return true;
 	}
 

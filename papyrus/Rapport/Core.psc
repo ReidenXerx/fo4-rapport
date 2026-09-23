@@ -387,6 +387,14 @@ Bool Function IsPairSeeded(Int aiFirst, Int aiSecond) Global Native
 ; The bond a pair WOULD start at, written nowhere. Rapport:Relations.BondBetween wraps it.
 Float Function SeedBond(Int aiRank, Bool abPartner) Global Native
 Function NoteVanillaRelationship(Int aiFirst, Int aiSecond, Int aiRank, Bool abBlood, Bool abPartner) Global Native
+; How many people could see this actor right now -- loaded, alive, people only,
+; children never counted, measured against the same observerRadius Rapport's own
+; pairing score uses. The actor themselves and the PLAYER are both excluded: the
+; one being propositioned is not in public merely because the player is there.
+; Returns -1 if the form id is not an actor we can see, which is NOT the same as
+; nobody watching.
+Int Function ObserversNear(Int aiFormID) Global Native
+
 String Function PersonaOf(Int aiFormID) Global Native
 
 ; Requests involving this actor that AAF turned down, and how long ago the last one
