@@ -157,7 +157,7 @@ and nothing but memory would have turned it off again.
       Papyrus (`WhosePlace`); Overture needs it once per conversation.
     - `StrongestBondOf(npc, excluding)` - the other person and the value, so a couple Chemistry has made
       (0.75, "inseparable") can be spoken for in Overture the way an engine spouse is.
-    - **A store-side partner flag an addon can set** (player-and-NPC lovers, set by Overture), which
+    - **APPROVED by the owner 2026-09-23 (Overture O-15, behind an MCM switch).** **A store-side partner flag an addon can set** (player-and-NPC lovers, set by Overture), which
       `Rapport:Relations.HasPartner` would then see - so Chemistry's faithfulness charge applies to the
       player's lover too, and a scene anyway is an affair against the player. This one CHANGES what
       Chemistry does, which is why it is an owner poll in the methodology, not a plan.
@@ -165,7 +165,7 @@ and nothing but memory would have turned it off again.
       and never checks for the player, so in a scene Overture requests the player would speak an NPC bark
       in a persona hashed from `0x14` -- against R-11 (the player has no persona) and Overture's O-2/O-3
       (the player's side is text). Must land before any player scene is switched on (review, 2026-09-23).
-    - **A priority lane for a deliberate player request.** Rapport runs one scene at a time, and Chemistry
+    - **APPROVED by the owner 2026-09-23 (Overture O-16).** **A priority lane for a deliberate player request.** Rapport runs one scene at a time, and Chemistry
       can take the slot in the seconds between an NPC's yes and the request. A reservation, or player
       requests outranking autonomy, is an owner poll in Overture's methodology.
 
