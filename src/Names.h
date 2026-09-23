@@ -7,9 +7,16 @@ namespace RP
 	// Names for the nameless (owner, 2026-09-23: "generate persistent names for NPC
 	// if they didn't have names before in moment player approach them").
 	//
-	// A generic NPC -- a Drifter, a Settler, a Diamond City Resident: any actor whose
-	// base is not flagged Unique -- is given a first name and a surname the first
-	// time an addon INTRODUCES them (Overture does, on the player's first approach).
+	// A generic NPC -- a Drifter, a Settler, a Diamond City Resident -- is given a
+	// first name and a surname the first time an addon INTRODUCES them (Overture
+	// does, on the player's first approach). "Generic" is either of two facts:
+	//   - the base is not flagged Unique, or
+	//   - the name they go by is a LABEL: carried by three or more NPC records.
+	// The second exists because the flag alone was measured wrong: TrainBar.esp's
+	// thirteen Third Rail patrons are all flagged Unique (ACBS 0x30) and every one
+	// is called "Drifter" (2026-09-23). A count works in every language; a list of
+	// label words ("Drifter", "Settler") would not survive a localized game.
+	// Never someone who has ever been the player's companion.
 	//
 	// The name is DERIVED, the persona's way (R-7): the same person gets the same
 	// name forever, on every machine, and the name itself costs the save nothing.
@@ -30,7 +37,8 @@ namespace RP
 		[[nodiscard]] static Names& GetSingleton() noexcept;
 
 		// Built-in lists, then Data/F4SE/Plugins/Rapport/names.json if the player
-		// has one (it may replace any list), then the MCM [Names] section.
+		// has one (it may replace any list), then the MCM [Names] section. The
+		// first call also counts every NPC record's name (the labels). Main thread.
 		void Load();
 
 		// Introduce this actor. The new name if they were nameless and are named NOW;
@@ -65,7 +73,10 @@ namespace RP
 		// Main thread only. Skips an actor who already wears a custom name: ours kept
 		// by the game, or somebody else's. True if it named them.
 		static bool Apply(RE::Actor* a_actor, const std::string& a_name);
-		[[nodiscard]] static bool Nameless(RE::Actor* a_actor);
+		// Why not, or "" if they are nameless. Main thread or VM thread.
+		[[nodiscard]] std::string WhyNotNameless(RE::Actor* a_actor) const;
+		// Every NPC record's name, counted once. Main thread, at data ready.
+		void CountLabels();
 
 		mutable std::timed_mutex          _lock;
 		bool                              _enabled{ true };
@@ -73,6 +84,9 @@ namespace RP
 		std::vector<std::string>          _male;
 		std::vector<std::string>          _surnames;
 		std::unordered_set<std::uint32_t> _introduced;
+		// Names three or more NPC records share: a label, not a name.
+		std::unordered_set<std::string>   _labels;
+		bool                              _counted{ false };
 		// _introduced.size(), readable without the lock: the object-loaded event
 		// fires for every object in every cell, and nearly always nobody is named.
 		std::atomic<std::size_t>          _count{ 0 };

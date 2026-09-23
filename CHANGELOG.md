@@ -3,10 +3,10 @@
 ## 0.2.1 (unreleased)
 
 - **Names for the nameless.** The first time a mod built on Rapport introduces someone who
-  has no name of their own (a Settler, a Drifter, anyone whose base is not unique), they get
-  a first name and a surname. The same person always gets the same name, and your save
-  remembers who was introduced. People with real names are never renamed. There's a switch
-  in MCM; `names.json` can replace the name lists.
+  has no name of their own (a Settler, a Drifter, a Diamond City Resident), they get a first
+  name and a surname. The same person always gets the same name, and your save remembers who
+  was introduced. People with real names are never renamed, and neither is anyone who has
+  ever been your companion. There's a switch in MCM; `names.json` can replace the name lists.
 - **The Narrator speaks for addons too.** A mod can now narrate its own moments in its own
   words ("addon moments", on by default, a switch in MCM). Overture uses it to say how a
   conversation went, and why.

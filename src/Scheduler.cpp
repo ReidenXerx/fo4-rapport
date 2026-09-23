@@ -7,6 +7,7 @@
 #include "Barks.h"
 #include "McmSettings.h"
 #include "Narrator.h"
+#include "Names.h"
 #include "Watchers.h"
 #include "Config.h"
 #include "Expressions.h"
@@ -143,11 +144,13 @@ namespace RP
 		// The player moved an MCM slider since the last pass. Reloaded HERE, on the
 		// thread that reads the weights, before this pass ranks with them.
 		if (McmSettings::ChangedSinceLastCheck()) {
-			logger::info("mcm: settings changed - reloading scoring, barks and observers");
+			logger::info("mcm: settings changed - reloading scoring, barks, observers, the narrator and names");
 			Config::GetSingleton().LoadScoring();
 			Barks::GetSingleton().Load();
 			Watchers::GetSingleton().Load();
 			Narrator::GetSingleton().Load();
+			// The names switch too: the census runs once, so this only rereads the switch.
+			Names::GetSingleton().Load();
 		}
 
 		const auto& counters = _scan.Counters();

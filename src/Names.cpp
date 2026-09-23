@@ -7,6 +7,11 @@ namespace RP
 {
 	namespace
 	{
+		// A name on this many NPC records is a label ("Drifter"), not somebody's name.
+		constexpr std::uint32_t kLabelRecords = 3;
+		// HasBeenCompanionFaction, Fallout4.esm.
+		constexpr RE::TESFormID kHasBeenCompanionFaction = 0x000A1B85;
+
 		std::filesystem::path OverridePath()
 		{
 			return std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport" / "names.json";
@@ -122,13 +127,59 @@ namespace RP
 		}
 		McmSettings::Overlay("Names", document);
 
-		NamedLock lock{ _lock, "names" };
-		_enabled = McmSettings::ReadBool(document, "enabled", true);
-		_female = std::move(female);
-		_male = std::move(male);
-		_surnames = std::move(surnames);
-		logger::info("names: {} - {} female, {} male first names, {} surnames", _enabled ? "on" : "OFF",
-			_female.size(), _male.size(), _surnames.size());
+		bool first = false;
+		{
+			NamedLock lock{ _lock, "names" };
+			_enabled = McmSettings::ReadBool(document, "enabled", true);
+			_female = std::move(female);
+			_male = std::move(male);
+			_surnames = std::move(surnames);
+			first = !_counted;
+			logger::info("names: {} - {} female, {} male first names, {} surnames", _enabled ? "on" : "OFF",
+				_female.size(), _male.size(), _surnames.size());
+		}
+		if (first) {
+			CountLabels();
+		}
+	}
+
+	void Names::CountLabels()
+	{
+		std::unordered_map<std::string, std::uint32_t> counts;
+		std::size_t                                    records = 0;
+		if (auto* data = RE::TESDataHandler::GetSingleton()) {
+			for (auto* npc : data->GetFormArray<RE::TESNPC>()) {
+				if (!npc) {
+					continue;
+				}
+				++records;
+				const auto name = RE::TESFullName::GetFullName(*npc);
+				if (!name.empty()) {
+					++counts[std::string{ name }];
+				}
+			}
+		}
+		std::vector<std::pair<std::string, std::uint32_t>> labels;
+		for (const auto& [name, n] : counts) {
+			if (n >= kLabelRecords) {
+				labels.emplace_back(name, n);
+			}
+		}
+		std::sort(labels.begin(), labels.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+		std::string sample;
+		for (std::size_t i = 0; i < labels.size() && i < 16; ++i) {
+			sample += std::format("{}{} ({})", i ? ", " : "", labels[i].first, labels[i].second);
+		}
+		{
+			NamedLock lock{ _lock, "names" };
+			_labels.clear();
+			for (const auto& [name, n] : labels) {
+				_labels.insert(name);
+			}
+			_counted = true;
+		}
+		logger::info("names: {} NPC records, {} names are labels (on {} or more records): {}", records, labels.size(),
+			kLabelRecords, sample);
 	}
 
 	std::string Names::NameFor(std::uint32_t a_formID, bool a_female) const
@@ -142,18 +193,43 @@ namespace RP
 		return first[Mix(stable, 0xA5A5F00Du) % first.size()] + " " + _surnames[Mix(stable, 0x1B873593u) % _surnames.size()];
 	}
 
-	bool Names::Nameless(RE::Actor* a_actor)
+	std::string Names::WhyNotNameless(RE::Actor* a_actor) const
 	{
 		if (!a_actor || a_actor == RE::PlayerCharacter::GetSingleton()) {
-			return false;
+			return "the player";
 		}
 		auto* npc = a_actor->GetNPC();
-		return npc && !npc->IsUnique();
+		if (!npc) {
+			return "no base";
+		}
+		// Anyone who has ever been the player's companion is a person the player
+		// knows by name, whatever their records say. Recruitment adds this faction
+		// and nothing removes it (Overture's O-8 reads the same one).
+		if (auto* faction = RE::TESForm::GetFormByID<RE::TESFaction>(kHasBeenCompanionFaction);
+			faction && a_actor->IsInFaction(faction)) {
+			return "has been a companion";
+		}
+		if (!npc->IsUnique()) {
+			return {};
+		}
+		const char* shown = a_actor->GetDisplayFullName();
+		if (!shown || !*shown) {
+			return "unique, no name to read";
+		}
+		NamedLock lock{ _lock, "names" };
+		if (_labels.contains(shown)) {
+			return {};
+		}
+		return std::format("unique, and \"{}\" is a name, not a label", shown);
 	}
 
 	std::string Names::Introduce(RE::Actor* a_actor)
 	{
-		if (!Nameless(a_actor)) {
+		if (!a_actor) {
+			return {};
+		}
+		if (const auto why = WhyNotNameless(a_actor); !why.empty()) {
+			logger::info("names: {:08X} keeps their own name ({})", a_actor->GetFormID(), why);
 			return {};
 		}
 		const auto formID = a_actor->GetFormID();
@@ -270,18 +346,44 @@ namespace RP
 			RE::BSEventNotifyControl ProcessEvent(const RE::TESObjectLoadedEvent& a_event,
 				RE::BSTEventSource<RE::TESObjectLoadedEvent>*) override
 			{
+				// Once, so the log proves the source below is the real one: a sink on
+				// the wrong address would simply never hear anything.
+				if (!_heard.exchange(true)) {
+					logger::info("names: object-loaded events are arriving");
+				}
 				if (a_event.loaded) {
 					Names::GetSingleton().OnLoaded(a_event.formID);
 				}
 				return RE::BSEventNotifyControl::kContinue;
 			}
+
+		private:
+			std::atomic_bool _heard{ false };
 		};
+
+		// NOT RE::TESObjectLoadedEvent::GetEventSource(). That header function CALLS
+		// relocation 416662, and on 1.10.163 the address there is the event source
+		// ITSELF, not a getter: calling it executed data and took the game down at
+		// data load. Crash log 2026-09-23 11:41:27: "Tried to execute memory at
+		// 0x7FF67C328500" (Fallout4.exe+59D8500), one line after "names: on".
+		//
+		// F4MCP found the same source at the same address a different way. It calls
+		// the header's getter under a guard, sees it fault, and scans the script
+		// event holder by type name: "matrix: loaded attached (scan:
+		// TESObjectLoadedEvent at 7FF67C328500)". Its sink there works. So the
+		// relocation's address is taken AS the source. Rapport runs on 1.10.163
+		// only (F4SEPlugin_Query refuses anything else), so the address is fixed.
+		RE::BSTEventSource<RE::TESObjectLoadedEvent>* LoadedSource()
+		{
+			static REL::Relocation<std::uintptr_t> where{ REL::RelocationID(416662, 2201853) };
+			return reinterpret_cast<RE::BSTEventSource<RE::TESObjectLoadedEvent>*>(where.address());
+		}
 	}
 
 	void Names::RegisterLoadSink()
 	{
 		static LoadSink sink;
-		if (auto* source = RE::TESObjectLoadedEvent::GetEventSource()) {
+		if (auto* source = LoadedSource()) {
 			source->RegisterSink(&sink);
 		} else {
 			logger::error("names: no object-loaded event - a name the game does not keep comes back only on a load");
