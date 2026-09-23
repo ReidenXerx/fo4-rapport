@@ -123,6 +123,18 @@ ledger. The removal call itself, issued on the actual guard through the console,
 **no morphs at all** in the next co-save (`f4mcp-morphtest`). **Not verified:** the scene-end,
 abandon and mid-scene paths in a live scene.
 
+**Rapport never regenerates a body** (owner, 2026-09-23). If AAF's layer was all an actor had, the
+clear leaves an EMPTY entry, and LooksMenu keeps BodyGen away from an actor with any entry -- but only
+until the next save and load: it never loads an empty one (the Silhouette session read it in
+`BodyMorphInterface.cpp`), so from then on BodyGen gives them their body by itself. Asking
+`RegenerateMorphs` to do it at once was considered and REJECTED: re-rolling a body is not something the
+player asked this mod for.
+
+**The sweep's cost.** One order per ledger actor, on EVERY load, and the drain takes eight a poll. A
+ledger of 200 is about 75 s of queue in front of anything queued after it — overlays re-applied after
+the load, for instance. Cosmetic delay, not breakage; if ledgers grow that large, the sweep wants to
+become one order that loops on its own stack.
+
 **Two limits worth knowing.** That save's ledger does NOT contain the guard: his scene is outside its
 history, so the sweep never reaches him. Only an actor Rapport has a record of is swept, which is the
 same rule as every other safeguard here. His entry also stays behind EMPTY; whether LooksMenu then
