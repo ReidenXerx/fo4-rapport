@@ -5,6 +5,7 @@
 #include "Aftermath.h"
 #include "Config.h"
 #include "Expressions.h"
+#include "Names.h"
 #include "PapyrusLink.h"
 
 namespace
@@ -25,6 +26,8 @@ namespace
 	constexpr auto kFaceRecord = FourCC("FACE");
 	constexpr auto kSceneRecord = FourCC("SCNE");
 	constexpr auto kPairRecord = FourCC("PAIR");
+	// Who has been introduced (Names): only the WHO -- the name itself is derived.
+	constexpr auto kNameRecord = FourCC("NAME");
 	constexpr std::uint32_t kVersion = 1;
 
 	// The pair table has its OWN version. kVersion is shared by every record and a
@@ -450,6 +453,7 @@ namespace RP
 				const auto* dying = a_event.actorDying.get();
 				if (a_event.dead && dying && dying != RE::PlayerCharacter::GetSingleton()) {
 					Ledger::GetSingleton().ForgetActor(dying->GetFormID());
+					Names::GetSingleton().Forget(dying->GetFormID());
 				}
 				return RE::BSEventNotifyControl::kContinue;
 			}
@@ -575,6 +579,7 @@ namespace RP
 		GetSingleton().Clear();
 		Aftermath::GetSingleton().Clear();
 		Expressions::GetSingleton().Reset();
+		Names::GetSingleton().Clear();
 		logger::info("ledger: cleared for a new game or a load");
 	}
 
@@ -691,6 +696,17 @@ namespace RP
 					"ledger: this save is being written DURING a scene ({:08X}, {:08X}) - "
 					"the next load will release them",
 					first, second);
+			}
+		}
+
+		// Who has been introduced. The names are derived; this list is what makes a
+		// stranger stay a stranger until they have told the player theirs.
+		const auto introduced = Names::GetSingleton().Introduced();
+		if (a_intfc->OpenRecord(kNameRecord, kVersion)) {
+			const auto nameCount = static_cast<std::uint32_t>(introduced.size());
+			a_intfc->WriteRecordData(nameCount);
+			for (const auto formID : introduced) {
+				a_intfc->WriteRecordData(formID);
 			}
 		}
 	}
@@ -836,6 +852,10 @@ namespace RP
 				LoadScene(a_intfc, version, length);
 				continue;
 			}
+			if (type == kNameRecord) {
+				LoadNames(a_intfc, version, length);
+				continue;
+			}
 			if (type == kPairRecord) {
 				LoadPairs(a_intfc, version, length);
 				continue;
@@ -949,6 +969,41 @@ namespace RP
 			}
 		}
 		Expressions::GetSingleton().RestoreWearing(std::move(wearing));
+	}
+
+	void Ledger::LoadNames(
+		const F4SE::SerializationInterface* a_intfc,
+		std::uint32_t                       a_version,
+		std::uint32_t                       a_length)
+	{
+		if (a_version != kVersion) {
+			logger::warn("ledger: the save holds names version {} - skipped", a_version);
+			return;
+		}
+		std::uint32_t count = 0;
+		if (a_intfc->ReadRecordData(count) != sizeof(count)) {
+			return;
+		}
+		const auto expected = sizeof(std::uint32_t) * (static_cast<std::size_t>(count) + 1);
+		if (count > kMaxEntries || expected != a_length) {
+			logger::error(
+				"ledger: the names record says {} actor(s) ({} bytes) and is {} - refusing to read it",
+				count, expected, a_length);
+			return;
+		}
+		std::vector<std::uint32_t> introduced;
+		introduced.reserve(count);
+		for (std::uint32_t i = 0; i < count; ++i) {
+			std::uint32_t formID = 0;
+			if (a_intfc->ReadRecordData(formID) != sizeof(formID)) {
+				break;
+			}
+			// A plugin that is gone took its people with it.
+			if (const auto resolved = a_intfc->ResolveFormID(formID)) {
+				introduced.push_back(*resolved);
+			}
+		}
+		Names::GetSingleton().Restore(std::move(introduced));
 	}
 
 	void Ledger::LoadScene(

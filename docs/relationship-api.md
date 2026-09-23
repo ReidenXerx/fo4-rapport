@@ -90,3 +90,23 @@ Rapport:Core.RequestScene(akFirst, akSecond, "athome")
 When you pass on a likely pair, `NarrateNearMiss(first, second, "too many people are watching",
 score, bar)` gives the "why nothing happened" line. Rapport rate-limits it and adds the names.
 
+Your own moments, in your own words (ApiVersion 201+): `NarrateLine(first, second, headline,
+numbers)`. `{first}` and `{second}` in either text become the two names. The numbers line only
+shows when the player has the numbers switch on, and the whole line obeys the "addon moments"
+switch. Overture says how a conversation went:
+
+```papyrus
+Rapport:Core.NarrateLine(player, npc, "{second} liked that. Not here, though.", "bond +0.08")
+```
+
+Write it the way the Narrator talks: one sentence, in the world, no percentages in the headline.
+
+## Names for the nameless
+
+`Rapport:Core.Introduce(akActor)` (ApiVersion 201+) gives a generic NPC (one whose base is not
+flagged Unique) a first name and a surname, and returns it. It returns an empty string if they
+have a real name, already wear a custom one, were introduced before, or the player turned names
+off. The name is derived from the form id, so the same person always gets the same one; the save
+only keeps who was introduced. Call it when your mod has a reason for the player to learn a name,
+not on every NPC in sight.
+

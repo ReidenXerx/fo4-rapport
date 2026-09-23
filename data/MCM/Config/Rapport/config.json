@@ -344,6 +344,28 @@
           }
         },
         {
+          "type": "switcher",
+          "id": "bAddonLines:Narrator",
+          "text": "Addon moments",
+          "help": "What a mod built on Rapport has to say in its own words: how a conversation went, and why.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "section",
+          "text": "Names"
+        },
+        {
+          "type": "switcher",
+          "id": "bEnabled:Names",
+          "text": "Names for the nameless",
+          "help": "Someone with no name of their own - a settler, a drifter - gets one the first time a mod introduces them, and keeps it.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
           "type": "section",
           "text": "History"
         },

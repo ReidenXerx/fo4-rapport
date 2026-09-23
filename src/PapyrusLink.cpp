@@ -1,6 +1,7 @@
 #include "PapyrusLink.h"
 
 #include "Narrator.h"
+#include "Names.h"
 #include "Traits.h"
 
 #include "Candidates.h"
@@ -724,6 +725,20 @@ namespace
 		return RP::Narrator::GetSingleton().History();
 	}
 
+	// An addon's own moment in its own words; {first} and {second} become the names.
+	void Papyrus_NarrateLine(std::monostate, std::int32_t a_first, std::int32_t a_second, RE::BSFixedString a_headline,
+		RE::BSFixedString a_numbers)
+	{
+		RP::Narrator::GetSingleton().OnAddonLine(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second),
+			a_headline.empty() ? "" : a_headline.c_str(), a_numbers.empty() ? "" : a_numbers.c_str());
+	}
+
+	// Names for the nameless: the new name, or "" if they have one already.
+	RE::BSFixedString Papyrus_Introduce(std::monostate, RE::Actor* a_who)
+	{
+		return RP::Names::GetSingleton().Introduce(a_who);
+	}
+
 	float Papyrus_FaithfulnessOf(std::monostate, std::int32_t a_formID)
 	{
 		return RP::Traits::Faithfulness(static_cast<std::uint32_t>(a_formID));
@@ -1022,6 +1037,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NarrateBonus"sv, Papyrus_NarrateBonus, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NarrateNearMiss"sv, Papyrus_NarrateNearMiss, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NarratorHistory"sv, Papyrus_NarratorHistory, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NarrateLine"sv, Papyrus_NarrateLine, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "Introduce"sv, Papyrus_Introduce, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "FaithfulnessOf"sv, Papyrus_FaithfulnessOf, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteAffair"sv, Papyrus_NoteAffair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PreviewBond"sv, Papyrus_PreviewBond, std::nullopt, false);

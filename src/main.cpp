@@ -4,6 +4,7 @@
 #include "Aftermath.h"
 #include "Barks.h"
 #include "Narrator.h"
+#include "Names.h"
 #include "Voices.h"
 #include "Watchers.h"
 #include "Expressions.h"
@@ -75,6 +76,8 @@ namespace
 			RP::Voices::GetSingleton().Load();
 			RP::Barks::GetSingleton().Load();
 			RP::Narrator::GetSingleton().Load();
+			RP::Names::GetSingleton().Load();
+			RP::Names::RegisterLoadSink();
 			RP::Ledger::RegisterDeathSink();
 			RP::Watchers::GetSingleton().Load();
 			RP::Expressions::GetSingleton().LoadOverrides();
@@ -110,6 +113,9 @@ namespace
 			// AFTER the ledger has been read (the co-save callback runs before
 			// kPostLoadGame): everybody it names, once, before AAF is up.
 			RP::Morphs::GetSingleton().OnGameLoaded(RP::Ledger::GetSingleton().ActorIDs());
+			// The co-save has said who was introduced; the names go back on everyone in
+			// memory, in case the game does not keep a custom name on an actor itself.
+			RP::Names::GetSingleton().Reapply();
 			RP::Scheduler::GetSingleton().OnLoad();
 			break;
 		case F4SE::MessagingInterface::kPreLoadGame:

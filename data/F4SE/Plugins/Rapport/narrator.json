@@ -5,6 +5,7 @@
   "nearMisses": false,
   "relationshipTurns": false,
   "bystanders": false,
+  "addonLines": true,
   "numbers": true,
   "nearMissCooldownSeconds": 300,
   "pairMissCooldownSeconds": 1800,

@@ -51,6 +51,14 @@ namespace RP
 		// A bystander rolled a comment on the scene in progress.
 		void OnBystander(std::uint32_t a_watcher, bool a_heardOnly);
 
+		// An addon's OWN moment, in its own words (owner, 2026-09-23: Overture needs a
+		// narrator "as we have for chemistry" -- to let players know, without killing
+		// the mood, what is happening and how when they act). "{first}" and "{second}"
+		// in the text become the two names. The numbers line shows only with the
+		// numbers switch on. Its own switch: "addon moments".
+		void OnAddonLine(std::uint32_t a_first, std::uint32_t a_second, std::string_view a_headline,
+			std::string_view a_numbers);
+
 		// Newest last, one entry per line - what the MCM button shows.
 		[[nodiscard]] std::string History() const;
 
@@ -79,6 +87,7 @@ namespace RP
 		bool                     _nearMisses{ false };
 		bool                     _relationshipTurns{ false };
 		bool                     _bystanders{ false };
+		bool                     _addonLines{ true };
 		bool                     _numbers{ true };
 		float                    _nearMissCooldown{ 300.0f };   // real seconds, across all pairs
 		float                    _pairMissCooldown{ 1800.0f };  // real seconds, the same two again

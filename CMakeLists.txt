@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(
 	Rapport
-	VERSION 0.2.0
+	VERSION 0.2.1
 	LANGUAGES CXX
 )
 
@@ -23,6 +23,8 @@ set(SOURCES
 	"src/Barks.cpp"
 	"src/McmSettings.cpp"
 	"src/Narrator.cpp"
+	"src/Names.h"
+	"src/Names.cpp"
 	"src/Watchers.h"
 	"src/Watchers.cpp"
 	"src/Voices.h"

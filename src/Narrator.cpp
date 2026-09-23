@@ -97,12 +97,13 @@ namespace RP
 		_nearMisses = McmSettings::ReadBool(document, "nearMisses", false);
 		_relationshipTurns = McmSettings::ReadBool(document, "relationshipTurns", false);
 		_bystanders = McmSettings::ReadBool(document, "bystanders", false);
+		_addonLines = McmSettings::ReadBool(document, "addonLines", true);
 		_numbers = McmSettings::ReadBool(document, "numbers", true);
 		_nearMissCooldown = document.value("nearMissCooldownSeconds", 300.0f);
 		_pairMissCooldown = document.value("pairMissCooldownSeconds", 1800.0f);
 		_historySize = (std::max)(std::size_t{ 1 }, document.value("historySize", std::size_t{ 12 }));
-		logger::info("narrator: {} - scene starts {}, near misses {}, relationship turns {}, bystanders {}, numbers {}",
-			_enabled ? "on" : "OFF", _sceneStarts, _nearMisses, _relationshipTurns, _bystanders, _numbers);
+		logger::info("narrator: {} - scene starts {}, near misses {}, relationship turns {}, bystanders {}, addon moments {}, numbers {}",
+			_enabled ? "on" : "OFF", _sceneStarts, _nearMisses, _relationshipTurns, _bystanders, _addonLines, _numbers);
 	}
 
 	void Narrator::AddBonus(std::uint32_t a_first, std::uint32_t a_second, std::string_view a_label, float a_value)
@@ -363,6 +364,34 @@ namespace RP
 		Emit(std::format("{} {} {} and {}.", NameOf(a_watcher), a_heardOnly ? "hears" : "has noticed",
 			     NameOf(scene.first), NameOf(scene.second)),
 			{});
+	}
+
+	void Narrator::OnAddonLine(std::uint32_t a_first, std::uint32_t a_second, std::string_view a_headline,
+		std::string_view a_numbers)
+	{
+		bool numbers = false;
+		{
+			NamedLock lock{ _lock, "narrator" };
+			if (!_enabled || !_addonLines || a_headline.empty()) {
+				return;
+			}
+			numbers = _numbers;
+		}
+		// The addon writes the words; the names are ours to fill, because Papyrus has
+		// no name accessor of its own and the Narrator already knows how to ask.
+		const auto fill = [&](std::string_view a_text) {
+			std::string out{ a_text };
+			for (const auto& [token, formID] : { std::pair{ std::string_view{ "{first}" }, a_first },
+				                                  std::pair{ std::string_view{ "{second}" }, a_second } }) {
+				for (auto at = out.find(token); at != std::string::npos; at = out.find(token, at)) {
+					const auto name = NameOf(formID);
+					out.replace(at, token.size(), name);
+					at += name.size();
+				}
+			}
+			return out;
+		};
+		Emit(fill(a_headline), numbers ? fill(a_numbers) : std::string{});
 	}
 
 	std::string Narrator::History() const

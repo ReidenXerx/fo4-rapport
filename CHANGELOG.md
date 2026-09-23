@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.2.1 (unreleased)
+
+- **Names for the nameless.** The first time a mod built on Rapport introduces someone who
+  has no name of their own (a Settler, a Drifter, anyone whose base is not unique), they get
+  a first name and a surname. The same person always gets the same name, and your save
+  remembers who was introduced. People with real names are never renamed. There's a switch
+  in MCM; `names.json` can replace the name lists.
+- **The Narrator speaks for addons too.** A mod can now narrate its own moments in its own
+  words ("addon moments", on by default, a switch in MCM). Overture uses it to say how a
+  conversation went, and why.
+- **Fixes.**
+  - The MCM menu never saved anything: MCM rejected every setting because its name lacked a
+    type letter. Every setting now registers and keeps its value.
+  - A body morph AAF sometimes leaves behind after a scene (it keeps body mods away from
+    that NPC) is now removed from everyone Rapport had in a scene. If AAF's morph was all
+    they had, body mods give them their body again after the next save and load. Rapport
+    never rebuilds a body itself.
+  - Right after a load, Rapport no longer offers pairs or counts onlookers from the place
+    you just left.
+
+**For addon authors:** `Rapport:Core.ApiVersion()` is 201. New: `NarrateLine` (your own
+narrator line, with `{first}` and `{second}` for the names), `Introduce` (names a nameless
+NPC, returns the name) and `ObserversNear` (how many people could see an actor). Check for
+201 before calling them: Rapport 0.2.0 doesn't have them.
+
 ## 0.2.0
 
 **People have relationships now, NPCs talk, and you can see why things happen.**

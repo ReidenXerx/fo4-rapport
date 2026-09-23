@@ -264,6 +264,10 @@ namespace RP
 			const F4SE::SerializationInterface* a_intfc,
 			std::uint32_t                       a_version,
 			std::uint32_t                       a_length);
+		static void LoadNames(
+			const F4SE::SerializationInterface* a_intfc,
+			std::uint32_t                       a_version,
+			std::uint32_t                       a_length);
 
 		mutable std::timed_mutex                                   _lock;
 		mutable std::unordered_map<std::uint32_t, ActorRecord>     _records;

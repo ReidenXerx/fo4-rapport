@@ -382,6 +382,19 @@ Float Function FaithfulnessOf(Int aiFormID) Global Native
 Function NarrateBonus(Int aiFirst, Int aiSecond, String asLabel, Float afValue) Global Native
 Function NarrateNearMiss(Int aiFirst, Int aiSecond, String asWhy, Float afScore, Float afBar) Global Native
 String Function NarratorHistory() Global Native
+; An addon's OWN moment, in its own words: one short line in the storyteller's
+; voice (Overture: how a conversation went, and why). {first} and {second} in
+; either text become the two names. asNumbers is the second line, shown only with
+; the Narrator's numbers switch on. Gated by the "addon moments" switch, kept in the
+; history. ApiVersion 201+.
+Function NarrateLine(Int aiFirst, Int aiSecond, String asHeadline, String asNumbers) Global Native
+; Names for the nameless. The first time an addon introduces a generic NPC (a base
+; not flagged Unique), Rapport gives them a first name and a surname -- derived from
+; the form id, so the same person gets the same name forever -- and returns it.
+; Empty if they have a real name, already carry a custom one, were introduced
+; before, or names are off. The rename happens on the main thread, a frame later.
+; ApiVersion 201+.
+String Function Introduce(Actor akWho) Global Native
 ; True once the engine's relationship has been imported for this pair (its first interaction).
 Bool Function IsPairSeeded(Int aiFirst, Int aiSecond) Global Native
 ; The bond a pair WOULD start at, written nowhere. Rapport:Relations.BondBetween wraps it.
@@ -392,7 +405,7 @@ Function NoteVanillaRelationship(Int aiFirst, Int aiSecond, Int aiRank, Bool abB
 ; pairing score uses. The actor themselves and the PLAYER are both excluded: the
 ; one being propositioned is not in public merely because the player is there.
 ; Returns -1 if the form id is not an actor we can see, which is NOT the same as
-; nobody watching.
+; nobody watching. ApiVersion 201+.
 Int Function ObserversNear(Int aiFormID) Global Native
 
 String Function PersonaOf(Int aiFormID) Global Native
