@@ -41,6 +41,7 @@ set(SOURCES
 	"src/Orders.h"
 	"src/Aftermath.h"
 	"src/Aftermath.cpp"
+	"src/Morphs.cpp"
 	"src/Expressions.h"
 	"src/Expressions.cpp"
 	"src/Ledger.h"

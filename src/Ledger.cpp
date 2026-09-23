@@ -414,6 +414,17 @@ namespace RP
 		return _records.size();
 	}
 
+	std::vector<std::uint32_t> Ledger::ActorIDs() const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		std::vector<std::uint32_t> ids;
+		ids.reserve(_records.size());
+		for (const auto& [formID, record] : _records) {
+			ids.push_back(formID);
+		}
+		return ids;
+	}
+
 	void Ledger::Clear()
 	{
 		NamedLock lock{ _lock, "ledger" };

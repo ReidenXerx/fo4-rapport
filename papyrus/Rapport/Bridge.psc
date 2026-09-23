@@ -737,6 +737,34 @@ EndFunction
 ; actor (AAF's author, fo4-rapport issue #1, §7). Every caller already knows no
 ; scene of this actor is running: a refusal (AAF has already cleared it), a request
 ; left over from another world, or a flag nobody's live scene explains.
+; See DoOrder, kind 33, and src/Morphs.h. Both sexes' maps: LooksMenu keeps morphs
+; per sex, and which one AAF wrote into is not ours to assume.
+;
+; An actor AAF has in a scene RIGHT NOW is left alone -- that morph is AAF's live
+; state, and taking it off mid-scene is breaking somebody else's scene. The busy
+; keyword is read as a Papyrus PROPERTY of AAF_API, which is not an AAF call.
+Function ClearAAFMorphs(Int aiFormID)
+	Actor who = Game.GetForm(aiFormID) as Actor
+	If who == None
+		Return
+	EndIf
+	Keyword aafMorphs = Game.GetFormFromFile(0x00000F9E, "AAF.esm") as Keyword
+	If aafMorphs == None
+		Rapport:Core.Trace("morphs: AAF_MorphKeyword (AAF.esm 000F9E) did not resolve - nothing cleared")
+		Return
+	EndIf
+	If _api != None && who.HasKeyword(_api.AAF_ActorBusy)
+		Rapport:Core.Trace("morphs: " + Rapport:Core.FormIdText(aiFormID) + " is in an AAF scene right now - left alone")
+		Return
+	EndIf
+	BodyGen.RemoveMorphsByKeyword(who, True, aafMorphs)
+	BodyGen.RemoveMorphsByKeyword(who, False, aafMorphs)
+	If who.Is3DLoaded()
+		BodyGen.UpdateMorphs(who)
+	EndIf
+	Rapport:Core.Trace("morphs: AAF's keyed morphs cleared from " + Rapport:Core.FormIdText(aiFormID))
+EndFunction
+
 Function ReleaseActor(Actor akActor)
 	If _api == None || akActor == None
 		Return
@@ -880,6 +908,16 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 		Return
 	ElseIf aiKind == 11
 		Self.RestartAAFQuest()
+		Return
+	EndIf
+
+	; AAF's own scene morphs left on somebody (Erection, CErection, ...). ALSO above
+	; the AAF guards: it makes no AAF call -- BodyGen is LooksMenu's and returns --
+	; and the load sweep sends it for actors who are not loaded, which the guards
+	; below would refuse. Cleared BY KEYWORD, so only AAF's layer goes: BodyGen's
+	; bodies and the player's own LooksMenu sliders sit under other keys.
+	If aiKind == 33
+		Self.ClearAAFMorphs(aiFormID)
 		Return
 	EndIf
 

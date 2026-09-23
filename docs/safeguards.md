@@ -96,24 +96,35 @@ the framework does not guess.
 ledger. Stopping its quests means no new ones; the ones already standing expire on AAF's timer or
 stay, and `PanicClear` will not touch them because we never recorded them.
 
-**An AAF body morph left on somebody — NOT COVERED, and it has happened.** Reported 2026-09-23 by
-the Silhouette session, measured from F4SE co-saves rather than inferred: the Diamond City guard
-`000F61B6` (`DiamondCitySecurityMayorAlways`) holds LooksMenu morphs `Erection = 1.0` and
-`CErection = 1.0`, keyed to `AAF_MorphKeyword` (`KYWD 000F9E` in AAF.esm), in two consecutive
-co-saves (2026-09-22 21:39 and 23:05). Nothing else in the save holds an AAF morph. **He is one of
-the two actors in Rapport's first real scene** (Geneva and a Diamond City guard, 2026-09-18 — the
-ledger line in `roadmap.md` names `000F61B6`), so this is very likely ours. The cause is NOT
-established: AAF normally clears its keyed morphs at scene end, and this pair survived, maybe through
-an early `StopScene`, an interrupted scene or a load.
+### 5. An AAF body morph is left on somebody (added 2026-09-23)
 
-Why it matters beyond the look of it: LooksMenu runs BodyGen only for an actor with NO stored morphs,
-so a leftover morph keeps that actor out of every BodyGen distribution (Silhouette's included) for
-the rest of the save.
+**It has happened.** Reported by the Silhouette session and measured from F4SE co-saves: the Diamond
+City guard `000F61B6` (`DiamondCitySecurityMayorAlways`) held LooksMenu morphs `Erection = 1.0` and
+`CErection = 1.0`, keyed to `AAF_MorphKeyword` (AAF.esm `000F9E`, confirmed by reading AAF.esm), in
+two consecutive saves. He is one of the two actors in Rapport's first real scene (2026-09-18,
+`roadmap.md`), so it is very likely ours; how the morphs survived is NOT established. AAF normally
+removes them at scene end. It matters beyond the look of it: LooksMenu runs BodyGen only for an actor
+with no stored morphs, so a leftover one keeps that actor out of every body-distribution mod.
 
-The fix, specified by the reporter and still to be checked against LooksMenu's own `BodyGen.psc`
-before a line is written: wherever Rapport knows a scene ended, was cancelled or was left behind by a
-load, for each actor it put in the scene call `BodyGen.RemoveMorphsByKeyword(actor, isFemale,
-AAF_MorphKeyword)` and then `BodyGen.UpdateMorphs(actor)`, from the Papyrus side (the bridge drain;
-C++ never calls the VM). This clears ONLY AAF's keyed layer, never BodyGen's or the player's sliders.
-Plus a load-time sweep of the actors in `SCNE`. The check, in any save, without the game:
-`fo4-silhouette/tools/cosave_census.py "<save>.f4se"` lists every actor holding body morphs.
+**What Rapport does now** (`src/Morphs.h`, order kind 33, `Bridge.ClearAAFMorphs`): clears the
+`AAF_MorphKeyword` layer, and only that layer, with `BodyGen.RemoveMorphsByKeyword` for both sexes and
+`UpdateMorphs` when the actor's 3D is loaded. BodyGen's bodies and the player's sliders sit under
+other keys and are untouched. It is not an AAF call, so it cannot strand the drain. It skips anyone AAF
+has marked `AAF_ActorBusy` right now. It runs for:
+
+- the pair of a scene that ENDED, **25 s later**: after the 20 s afterglow, so AAF's own teardown is not
+  cleared under its feet;
+- the pair of a scene the watchdog ABANDONED, and of a request that FAILED;
+- the pair a save caught MID-SCENE (`SCNE`), which never reaches the ledger;
+- on every load, **everyone in the ledger**, before AAF has announced itself.
+
+**Verified 2026-09-23:** the load sweep queued, drained and traced both actors in the test save's
+ledger. The removal call itself, issued on the actual guard through the console, left his entry with
+**no morphs at all** in the next co-save (`f4mcp-morphtest`). **Not verified:** the scene-end,
+abandon and mid-scene paths in a live scene.
+
+**Two limits worth knowing.** That save's ledger does NOT contain the guard: his scene is outside its
+history, so the sweep never reaches him. Only an actor Rapport has a record of is swept, which is the
+same rule as every other safeguard here. His entry also stays behind EMPTY; whether LooksMenu then
+runs BodyGen for him is LooksMenu's decision (Silhouette's "new bodies" button regenerates him either
+way). The check, in any save and without the game: `fo4-silhouette/tools/cosave_census.py "<save>.f4se"`.

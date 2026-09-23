@@ -139,6 +139,9 @@ namespace RP
 		static void RegisterDeathSink();
 
 		[[nodiscard]] std::size_t Size() const;
+		// Every actor with a record: the only people a scene of ours can have left
+		// anything on. For the load-time AAF-morph sweep (Morphs).
+		[[nodiscard]] std::vector<std::uint32_t> ActorIDs() const;
 
 		void Clear();
 

@@ -211,7 +211,14 @@ namespace RP
 			// nine AAF events and this was not one of them, so putting the same
 			// call through a bridge whose other nine demonstrably work is the
 			// control that says whether AAF answers anybody.
-			kGetActorData = 32
+			kGetActorData = 32,
+
+			// AAF's own scene morphs (Erection, CErection...) taken off an actor a
+			// scene of ours had, by AAF_MorphKeyword -- AAF's layer only, never
+			// BodyGen's bodies or the player's sliders. NOT an AAF call: LooksMenu's
+			// BodyGen natives return, so this one cannot strand the drain's stack.
+			// See Morphs.h.
+			kClearAAFMorphs = 33
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

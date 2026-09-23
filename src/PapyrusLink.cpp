@@ -13,6 +13,7 @@
 #include "AAFHealth.h"
 #include "Crowd.h"
 #include "Ledger.h"
+#include "Morphs.h"
 #include "Scenarios.h"
 #include "Takeover.h"
 
@@ -181,6 +182,7 @@ namespace
 			RP::Scenarios::GetSingleton().Pump();
 			RP::Expressions::GetSingleton().Pump();
 			RP::Barks::GetSingleton().Pump();
+			RP::Morphs::GetSingleton().Pump();
 			if (watching) {
 				logger::info("pump: returned normally");
 			}
@@ -1212,6 +1214,9 @@ namespace RP
 		// until the new world has been scanned.
 		Candidates::GetSingleton().Clear();
 		Crowd::GetSingleton().Reset();
+		// Pending clears were for the world being left; the load sweep (main.cpp)
+		// covers whoever the arriving save carries.
+		Morphs::GetSingleton().Forget();
 
 		if (inFlight || dropped) {
 			logger::warn("loading a save: {}{} order(s) for the world being left dropped",
@@ -1251,6 +1256,9 @@ namespace RP
 
 		Release(static_cast<std::uint32_t>(_inFlightFirst));
 		Release(static_cast<std::uint32_t>(_inFlightSecond));
+		// A morph AAF left behind is the same kind of state as the busy flag.
+		Morphs::GetSingleton().OnSceneEnded(static_cast<std::uint32_t>(_inFlightFirst),
+			static_cast<std::uint32_t>(_inFlightSecond));
 		ClearInFlight();
 		_sceneInFlight.store(false);
 		_heals.fetch_add(1);
@@ -1668,6 +1676,9 @@ namespace RP
 			a_first, a_second);
 		Release(a_first);
 		Release(a_second);
+		// Not in the ledger -- their scene never ended -- so the load sweep would
+		// miss them, and an interrupted scene is exactly how a morph gets left.
+		Morphs::GetSingleton().OnSceneEnded(a_first, a_second);
 	}
 
 	void PapyrusLink::NoteActorBusy(std::uint32_t a_formID)
@@ -1951,6 +1962,7 @@ namespace RP
 		if (first != 0 && second != 0) {
 			Ledger::GetSingleton().RecordScene(first, second);
 			Aftermath::GetSingleton().OnSceneEnded(first, second);
+			Morphs::GetSingleton().OnSceneEnded(first, second);
 		}
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();
@@ -2050,6 +2062,8 @@ namespace RP
 		} else {
 			Ledger::GetSingleton().RecordRefusal(first, second);
 		}
+		// AAF may have got as far as walking them in before it failed.
+		Morphs::GetSingleton().OnSceneEnded(first, second);
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();
 		Watchers::GetSingleton().OnSceneEnded();

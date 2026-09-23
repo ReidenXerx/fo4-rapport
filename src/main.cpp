@@ -8,6 +8,7 @@
 #include "Watchers.h"
 #include "Expressions.h"
 #include "Ledger.h"
+#include "Morphs.h"
 #include "Scenarios.h"
 #include "Takeover.h"
 #include "PapyrusLink.h"
@@ -106,6 +107,9 @@ namespace
 				RP::Ledger::GetSingleton().Size(),
 				RP::Aftermath::GetSingleton().Size(),
 				RP::Expressions::GetSingleton().Wearing().size());
+			// AFTER the ledger has been read (the co-save callback runs before
+			// kPostLoadGame): everybody it names, once, before AAF is up.
+			RP::Morphs::GetSingleton().OnGameLoaded(RP::Ledger::GetSingleton().ActorIDs());
 			RP::Scheduler::GetSingleton().OnLoad();
 			break;
 		case F4SE::MessagingInterface::kPreLoadGame:
