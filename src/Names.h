@@ -9,13 +9,22 @@ namespace RP
 	//
 	// A generic NPC -- a Drifter, a Settler, a Diamond City Resident -- is given a
 	// first name and a surname the first time an addon INTRODUCES them (Overture
-	// does, on the player's first approach). "Generic" is either of two facts:
-	//   - the base is not flagged Unique, or
-	//   - the name they go by is a LABEL: carried by three or more NPC records.
-	// The second exists because the flag alone was measured wrong: TrainBar.esp's
-	// thirteen Third Rail patrons are all flagged Unique (ACBS 0x30) and every one
-	// is called "Drifter" (2026-09-23). A count works in every language; a list of
-	// label words ("Drifter", "Settler") would not survive a localized game.
+	// does, on the player's first approach). Generic means the name they go by is
+	// a LABEL, and, if their base is flagged Unique, that they inherit it from a
+	// template rather than carrying it themselves.
+	//
+	// A label is a name on five or more NPC records, at least one of them not
+	// Unique. Measured 2026-09-23 on this load order (10,962 records): at three
+	// records the list already held Preston Garvey, Magnolia, Curie, Shaun and
+	// Nora; at five and up, with the game itself using the name generically at
+	// least once, it holds Raider, Settler, Drifter, Resident, Guard, Worker --
+	// and the few personal names left there (a mod's "Will") carry a name of
+	// their own, which the template test protects. The Unique flag alone was
+	// wrong both ways: TrainBar.esp's thirteen Third Rail patrons are flagged
+	// Unique and all called "Drifter". A count works in every language; a list of
+	// label words would not survive a localized game. Rapport-labels.txt, next to
+	// Rapport.log, lists every label with its counts.
+	//
 	// Never someone who has ever been the player's companion.
 	//
 	// The name is DERIVED, the persona's way (R-7): the same person gets the same

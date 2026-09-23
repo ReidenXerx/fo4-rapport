@@ -104,11 +104,13 @@ Write it the way the Narrator talks: one sentence, in the world, no percentages 
 ## Names for the nameless
 
 `Rapport:Core.Introduce(akActor)` (ApiVersion 201+) gives a generic NPC a first name and a
-surname, and returns it. Generic means the base is not flagged Unique, or the name they go by is
-a label that three or more NPC records share ("Drifter"): some mods flag every patron Unique and
-call them all the same thing. It returns an empty string if they have a real name, already wear
-a custom one, have ever been the player's companion, were introduced before, or the player
-turned names off. `Rapport.log` says which ("keeps their own name (...)"). The name is derived from the form id, so the same person always gets the same one; the save
+surname, and returns it. Generic means the name they go by is a label: carried by five or more NPC
+records, not all of them Unique ("Drifter", "Settler", "Resident"). A Unique NPC counts only when
+that name comes from their template rather than their own record, which is how some mods flag every
+patron Unique and still call them all "Drifter". It returns an empty string if they have a real
+name, already wear a custom one, have ever been the player's companion, were introduced before, or
+the player turned names off. `Rapport.log` says which ("keeps their own name (...)"), and
+`Rapport-labels.txt` beside it lists every label with its record counts. The name is derived from the form id, so the same person always gets the same one; the save
 only keeps who was introduced. Call it when your mod has a reason for the player to learn a name,
 not on every NPC in sight.
 

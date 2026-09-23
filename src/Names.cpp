@@ -7,8 +7,9 @@ namespace RP
 {
 	namespace
 	{
-		// A name on this many NPC records is a label ("Drifter"), not somebody's name.
-		constexpr std::uint32_t kLabelRecords = 3;
+		// A name on this many NPC records, at least one of them not Unique, is a
+		// label ("Drifter"), not somebody's name. Three let Preston Garvey through.
+		constexpr std::uint32_t kLabelRecords = 5;
 		// HasBeenCompanionFaction, Fallout4.esm.
 		constexpr RE::TESFormID kHasBeenCompanionFaction = 0x000A1B85;
 
@@ -146,6 +147,7 @@ namespace RP
 	void Names::CountLabels()
 	{
 		std::unordered_map<std::string, std::uint32_t> counts;
+		std::unordered_map<std::string, std::uint32_t> uniques;
 		std::size_t                                    records = 0;
 		if (auto* data = RE::TESDataHandler::GetSingleton()) {
 			for (auto* npc : data->GetFormArray<RE::TESNPC>()) {
@@ -156,12 +158,15 @@ namespace RP
 				const auto name = RE::TESFullName::GetFullName(*npc);
 				if (!name.empty()) {
 					++counts[std::string{ name }];
+					if (npc->IsUnique()) {
+						++uniques[std::string{ name }];
+					}
 				}
 			}
 		}
 		std::vector<std::pair<std::string, std::uint32_t>> labels;
 		for (const auto& [name, n] : counts) {
-			if (n >= kLabelRecords) {
+			if (n >= kLabelRecords && uniques[name] < n) {
 				labels.emplace_back(name, n);
 			}
 		}
@@ -178,8 +183,21 @@ namespace RP
 			}
 			_counted = true;
 		}
-		logger::info("names: {} NPC records, {} names are labels (on {} or more records): {}", records, labels.size(),
-			kLabelRecords, sample);
+		logger::info("names: {} NPC records, {} names are labels (on {} or more records, not all Unique): {}", records,
+			labels.size(), kLabelRecords, sample);
+
+		// Every label, next to Rapport.log, so a real name that happens to sit on three
+		// records can be found by reading one file: records, how many of them are
+		// flagged Unique, the name.
+		if (auto path = logger::log_directory()) {
+			*path /= "Rapport-labels.txt";
+			if (std::ofstream out{ *path, std::ios::trunc }; out) {
+				out << "# records\tunique\tname - every NPC name Rapport treats as a label (Names.cpp)\n";
+				for (const auto& [name, n] : labels) {
+					out << n << '\t' << uniques[name] << '\t' << name << '\n';
+				}
+			}
+		}
 	}
 
 	std::string Names::NameFor(std::uint32_t a_formID, bool a_female) const
@@ -209,18 +227,27 @@ namespace RP
 			faction && a_actor->IsInFaction(faction)) {
 			return "has been a companion";
 		}
-		if (!npc->IsUnique()) {
-			return {};
-		}
 		const char* shown = a_actor->GetDisplayFullName();
 		if (!shown || !*shown) {
-			return "unique, no name to read";
+			return "no name to read";
 		}
-		NamedLock lock{ _lock, "names" };
-		if (_labels.contains(shown)) {
-			return {};
+		{
+			NamedLock lock{ _lock, "names" };
+			if (!_labels.contains(shown)) {
+				return std::format("\"{}\" is a name, not a label", shown);
+			}
 		}
-		return std::format("unique, and \"{}\" is a name, not a label", shown);
+		if (npc->IsUnique()) {
+			// Unique AND a label: nameless only if the name is not their own but
+			// their template's (TrainBar's patrons inherit "Drifter"). A unique
+			// character who carries a common word as a name keeps it.
+			const bool inherited = npc->baseTemplateForm &&
+			                       npc->actorData.templateUseFlags.all(RE::ACTOR_BASE_DATA::TEMPLATE_USE_FLAG::kBaseData);
+			if (!inherited) {
+				return std::format("unique, and \"{}\" is their own", shown);
+			}
+		}
+		return {};
 	}
 
 	std::string Names::Introduce(RE::Actor* a_actor)
@@ -267,7 +294,9 @@ namespace RP
 		} else {
 			Apply(a_actor, name);
 		}
-		logger::info("names: {:08X} introduced as {}", formID, name);
+		logger::info("names: {:08X} introduced as {} (was \"{}\", base {:08X}{})", formID, name,
+			a_actor->GetDisplayFullName() ? a_actor->GetDisplayFullName() : "", a_actor->GetNPC()->GetFormID(),
+			a_actor->GetNPC()->IsUnique() ? ", unique with an inherited name" : "");
 		return name;
 	}
 

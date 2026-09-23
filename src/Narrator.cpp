@@ -391,7 +391,25 @@ namespace RP
 			}
 			return out;
 		};
-		Emit(fill(a_headline), numbers ? fill(a_numbers) : std::string{});
+		// Sentence case, HERE and not in the addon. Papyrus pools string literals
+		// case-insensitively across every script loaded, so an addon's "He" can come
+		// back as whatever casing some other script interned first. Measured
+		// 2026-09-23: Overture wrote "His name is {second}. He didn't take to that."
+		// and the log read "his name is Elmer Pike. he didn't take to that."
+		auto headline = fill(a_headline);
+		bool start = true;
+		for (auto& c : headline) {
+			const auto u = static_cast<unsigned char>(c);
+			if (start && std::isalpha(u)) {
+				c = static_cast<char>(std::toupper(u));
+				start = false;
+			} else if (c == '.' || c == '!' || c == '?') {
+				start = true;
+			} else if (!std::isspace(u)) {
+				start = false;
+			}
+		}
+		Emit(headline, numbers ? fill(a_numbers) : std::string{});
 	}
 
 	std::string Narrator::History() const
