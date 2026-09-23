@@ -17,7 +17,13 @@ run it. `DESIGN.md` is the specification and outranks this file.
 | **Aftermath that survives a save** | AAF's overlay timer is an in-session countdown: a save, a reload or the game closing mid-count strands an overlay on an NPC forever. Rapport keeps `{actor, set, expiry}` in game hours, in the co-save. |
 | **State that is never stranded** | Nothing Rapport applies may be something only Rapport can remove. Busy flags, faces and overlays are all written into the save, cleaned on load, and removable in one switch. |
 | **A co-save an addon can read** | Who has been with whom, how many times, how long ago, and how often AAF refused them. Facts only — what "too soon" means is the addon's call. |
-| **An addon door** | Two functions: `CanRun(scenario, a, b)` and `RequestScene(a, b, scenario)`, plus the ranked pairs to choose from. |
+| **Relationships and personas** | Every pair that has interacted has a bond from -1 to +1 in the co-save, seeded from the game's own relationships (a married couple starts close). Every NPC has a stable persona -- mercantile, romantic, vulgar or reticent -- and a faithfulness. Addons read and write the store. |
+| **Voices and onlookers** | NPCs bark in their persona's voice during a scene, and people nearby notice and comment. |
+| **The Narrator** | An optional HUD line when a scene starts, with the real reasons, and the score for those who want it. Addons narrate their own moments through it; your own say "you". |
+| **Names for the nameless** (0.2.1) | A Settler or a Drifter an addon introduces gets a first name and a surname, the same ones forever. |
+| **Scenes with you** (0.2.1, not yet run in game) | An addon (Overture) can ask for a scene with the player. Rapport holds its one scene slot for your request so autonomy cannot take it, you never bark, and a scene that falls through says so. |
+| **Lovers** (0.2.1) | An addon can declare two people lovers, kept apart from the engine's spouses. Falling out ends it. |
+| **An addon door** | Two functions: `CanRun(scenario, a, b)` and `RequestScene(a, b, scenario)`, plus the ranked pairs to choose from, the relationship store, and an event when a scene with the player is over (`docs/relationship-api.md`). |
 
 `docs/FEATURES.md` is the full audit, including what is **built but not yet verified in a real
 game**. That distinction is kept honestly and is worth reading before relying on anything.

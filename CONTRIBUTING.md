@@ -26,9 +26,11 @@ functions, C++ answers. C++ queues `Order`s; the bridge drains them, one per sta
 `CallFunctionNoWait`. Anything that reverses that direction is wrong no matter how well it seems to
 work in a test.
 
-**2. `Bridge.psc` has exactly ONE timer** (`kPollTimer = 1`). Every attempt at a second `StartTimer`
-killed the function that started it. The next poll is scheduled BEFORE any AAF call, because a stack
-that calls into AAF frequently never comes back.
+**2. `Bridge.psc` has exactly ONE timer** (`kPollTimer = 1`), and never calls AAF on the timer's own
+stack. The measured failure was the AAF call: a stack that reaches `StartScene` often never comes back,
+and `OnTimer` runs one at a time per script, so one stuck poll starves every timer on it. The second id
+first blamed for it was never at fault (`docs/two-lifetimes.md`, corrected 2026-09-23). The next poll is
+scheduled BEFORE any AAF call, and every AAF call goes out through `CallFunctionNoWait`.
 
 **3. A failed `as` cast in Papyrus assigns None.** Land that on a loop counter and the loop never
 increments — one such bug wrote 845,998 lines and 912 MB. Check every `as` inside a loop.

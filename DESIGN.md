@@ -141,6 +141,12 @@ performance, even on a Steam Deck running an 800-plugin load order:
 
 ## 5b. Player Proposals: flirt, propose, decide (replaces Sex 'Em Up)
 
+**Superseded by Overture** (`fo4-overture`, 2026-09-22 on). This section is the original sketch and is kept
+as history. Overture's own decisions (`fo4-overture/docs/decisions.md`, O-1 to O-34) govern it, and differ
+from this sketch where it matters: the odds are never shown -- the player is never told who someone is
+(O-9, O-11) -- and the proposition is the third of three stages, reached by reading the person
+(`fo4-overture/docs/methodology.md` section 1). What Rapport owes it is R-16 to R-20.
+
 **1. Dialogue, not menus.**
 - A dedicated dialogue quest adds a few player lines to eligible NPCs:
   - **Flirt:** low stakes; raises or tests interest.

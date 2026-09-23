@@ -121,6 +121,13 @@ call. A drain budget of eight is a budget of one.
 `docs/runs/2026-09-18-poll-dies-at-startscene.log`,
 `docs/runs/2026-09-18-nowait-fixed-startscene.log`.
 
+**Corrected 2026-09-23 (microscope pass 2): one failure, not two.** The second timer id was never shown
+to be at fault: run 2 in `docs/two-lifetimes.md` removed every `StartTimer` and failed the same way, and
+the `StartTimer` blamed sat AFTER the `StartScene` call that never came back, so it never ran. Its
+"failsafe never fired" and "`OnSceneInit` timer never fired" are the stuck poll starving every other
+`OnTimer` on the script. What holds is never calling AAF on a timer's stack; the single timer stays as
+a simplicity. (Overture's approach keeps two timer ids, and neither handler calls AAF.)
+
 ### The bridge-alive alarm — VERIFIED IN GAME
 
 **What.** Polls are counted, and a tick that sees no new poll raises an error, not a statistic
@@ -800,6 +807,55 @@ Fallout keeps the interior you just left loaded, but detached. Rapport only cons
 cell, or in the same exterior worldspace. Nobody in a cell you left gets scored, counted as an
 onlooker, or started in a scene the game is no longer running.
 
+## 7d. The player, names and lovers (0.2.1, unreleased)
+
+The rules are R-16 to R-20 in `docs/relationship-and-personas.md`; the API is
+`docs/relationship-api.md`.
+
+### Names for the nameless — VERIFIED IN GAME (before the base-keyed rewrite)
+
+Overture introduced Elmer Pike and Wanda Conway, kept Lindsey's own name, and the names survived a save
+and a load: the game keeps a custom name on the actor by itself. Rewritten the same day to key each
+introduction by id AND base, with the load-time re-apply removed (it crashed at data load once, through
+a getter that is itself a relocation); the rewrite has not been run in game yet. OPEN: whether a leveled
+actor's base id is stable across a reload (if not, an introduced Settler reads as "somebody new").
+
+### The Narrator speaks for addons — VERIFIED IN GAME (Overture's lines)
+
+`NarrateLine(first, second, headline, numbers)`, under its own "addon moments" switch. Seen in game with
+Overture's conversation lines. Built since, not yet run: the `{they}` / `{them}` / `{their}` tokens,
+matched in any casing, one sentence case for every line, and "you" for the player (R-20).
+
+### Scenes with the player — BUILT, NOT VERIFIED IN GAME
+
+The player never barks; the scene is narrated in the NPC's voice; a failure or a never-started abandon
+says so; `OnPlayerSceneRecorded` goes out once the scene is recorded; the player's own history never
+ages out (R-18). Nothing with the player in it has run yet: AAF's handling of the player, faces and
+overlays on the player are all unexercised.
+
+### The player's priority lane — BUILT, NOT VERIFIED IN GAME
+
+`ReservePlayerScene` / `PlayerHoldsSlot`, checked in the request funnel, one hold at a time, not saved;
+the pause holds off autonomy only (R-17).
+
+### Lovers by an addon's word — BUILT, NOT VERIFIED IN GAME
+
+`SetLovers` / `AreLovers` / `LoverOf` / `LoverCount` / `LoverAt`, apart from the engine's spouses, ended
+by a falling-out, never pruned (R-16).
+
+### The bridge forgets a refused request — BUILT, NOT VERIFIED IN GAME (fixes a 0.2.0 bug)
+
+AAF's refusal failed the request on the plugin side only; the bridge kept it in its own in-flight list,
+so the next request made two entries and `FindRequestByActors` could match neither. Every scene after
+it played unrecorded until a load: no bond, no history, `Busy()` for 780 s each. Each poll now drops
+every entry the plugin is no longer waiting on (`InFlightRequest`), which covers the watchdog's and the
+Medic's give-ups too.
+
+### The door re-checks — BUILT, NOT VERIFIED IN GAME
+
+`RequestScene` refuses a pair where someone is dead, not loaded, in an ambient conversation, or talking
+to the player (the player's own request excepted): an addon picks from a list up to twenty seconds old.
+
 ## 8. Findings about AAF that any AAF mod author can use
 
 These are why `docs/aaf-under-the-hood.md` exists. All 21 were measured against a running game or read
@@ -902,10 +958,9 @@ From `docs/roadmap.md`, in dependency order, and stated as absent rather than im
    `GetAttraction` has nothing to return today.
 4. **The F4SE message API** for addons. The Papyrus half exists; the native half does not.
 5. **M3 hardening** — interruption handling, travel and privacy.
-6. **Player Proposals** — its own repository, not started. Flagged early: it needs **dialogue records**,
-   a far heavier ESP structure than the single quest record `tools/make_esp.py` writes by hand. That is
-   the one place the real Creation Kit would genuinely help, and it is worth solving before the design
-   depends on it.
+6. **Player Proposals** — became **Overture** (`fo4-overture`), its own repository. Its dialogue records
+   are generated (`tools/make_overture_esp.py`); stages 1 to 3 are verified in game, and stage 4 -- a
+   Rapport scene with the player -- is built and not yet run.
 
 ---
 

@@ -837,3 +837,60 @@ Four decisions, taken by poll before the publishing pipeline, and binding on the
   000803). The first pin named 000801, which is her voice type `_NPC_IVY`, and it was accepted
   without a word. The loader now refuses a pin that is not an actor or NPC.
 
+## R-16 - Lovers by an addon's word (owner, 2026-09-23, through Overture O-15, O-27, O-28)
+
+- **A lovers flag an addon sets** (`SetLovers` / `AreLovers` / `LoverOf` / `LoverCount` / `LoverAt`,
+  pair flag `0x10`), kept APART from the engine's spouse and courting: `HasPartner` and `ArePartners`
+  answer exactly what they answered before, and a consumer decides for itself whether a lover counts
+  as spoken for. Chemistry counts the PLAYER's lover, behind its own MCM switch (its C-4 and C-9 as
+  amended by O-15).
+- **When:** Overture declares the player and an NPC lovers at a bond of 0.75 AND at least one scene
+  together (O-27) -- never at the yes: a yes is a promise, the scene is the fact.
+- **The end:** falling out (bond at or below -0.25) ends it (O-28), wherever the bond goes there --
+  `AddBond`, and the vanilla seed if it lands on a declared pair -- and `SetLovers` refuses a pair
+  already there. A death forgets it with the rest (R-6).
+- **Kept:** the flag is a fact, so pruning never drops a lovers row, and the pair ceiling cuts them
+  last.
+
+## R-17 - The player's own request comes first (owner, 2026-09-23, through Overture O-16)
+
+- **One scene slot, held for the player:** `ReservePlayerScene(akWith, seconds)` (at most 120 s)
+  refuses every other pair's request until the held pair's own request is accepted, which lets it go.
+  The refusal sits in the request funnel, so it covers addons AND Rapport's own autonomy.
+  `PlayerHoldsSlot()` lets an autonomy mod skip its pass.
+- **One hold at a time:** a hold for someone else replaces it, and the log says so. A release names its
+  hold. Not saved: a load forgets it.
+- **The pause holds off autonomy only.** A pair with the player in it is the player's own request, and
+  the pause exists to clear the way for exactly that.
+- **The door re-checks what the scan checked** (microscope pass 2): a request is refused if either
+  actor is dead, not loaded, in an ambient conversation, or talking to the player -- the player's own
+  request excepted from the last, since that is where its yes came from.
+
+## R-18 - Scenes with the player (R-11's consequences, 2026-09-23)
+
+- **The player never speaks a bark** (R-11: the player has no persona). The NPC still says theirs,
+  and a scene the player asked for is narrated in the NPC's voice.
+- **A yes never vanishes without a word:** a player scene that fails after it was accepted, or is
+  given up before it ever started, is narrated ("... it didn't happen after all.").
+- **Addons hear when it is over:** `Rapport:Bridge` sends `OnPlayerSceneRecorded` once a scene with
+  the player has ended and been recorded (Overture declares lovers at that moment, O-27).
+- **The player's history never ages out:** their actor record is exempt from pruning and the ceiling,
+  so their scene count only goes up (Overture's jealousy counts from it, O-29).
+
+## R-19 - Names for the nameless (owner, 2026-09-23, through Overture O-10)
+
+"Generate persistent names for NPC if they didn't have names before in moment player approach them."
+`Introduce(actor)` gives a generic NPC a first name and a surname, derived from the form id, so the same
+person always gets the same name. Generic means a LABEL: a name on five or more NPC records, not all of
+them Unique; a Unique NPC counts only when the name comes from their template. Never the player, anyone
+who has ever been a companion, the dead, or someone with a custom name already. The game keeps the name
+on the actor through saves (measured); the co-save keeps who was introduced and as which base, and a
+lost name is given back quietly. `names.json`'s `keep` and `label` lists override the count. Settled by
+measurement: the Unique flag alone left the Third Rail's "Drifter"s nameless, and a three-record rule
+would have renamed Magnolia.
+
+## R-20 - The Narrator says "you" (owner, 2026-09-23, through Overture O-34)
+
+Every Narrator line about the player's own moment says "you" -- "You and Dottie are inseparable now",
+"A first time for you and Dottie" -- never the player's name in the third person. The player goes
+first in a pair; an addon's `{first}` is "you" too.

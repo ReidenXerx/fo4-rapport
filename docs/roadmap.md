@@ -96,7 +96,8 @@ and nothing but memory would have turned it off again.
    general sex mechanics that every future mod reuses. Rapport is the ecosystem's shared layer, so
    anything two mods would both want belongs here rather than in an addon.
 
-7. **Player Proposals** — the Sex 'Em Up replacement, in its own repository.
+7. **Player Proposals** — the Sex 'Em Up replacement, in its own repository. **It became Overture
+   (`fo4-overture`)**: stages 1 to 3 verified in game, stage 4 built (items 12 and 14-19 serve it).
 
    Known risk, flagged early: it needs **dialogue records**, and dialogue is a far heavier ESP
    structure than the single quest record `tools/make_esp.py` writes by hand. This is the one place
@@ -148,9 +149,11 @@ and nothing but memory would have turned it off again.
     addon's own bonuses must be reportable too, so Chemistry can say "+0.45 bond"), and an event
     for each moment. Not designed further yet.
 
-12. **What Overture's methodology asks of the core** (proposed 2026-09-23, overnight, nothing built;
-    `fo4-overture/docs/methodology.md`). Each is here because a third mod would want it too (O-1):
-    - `RecordExternalScene(a, b)` - a scene that was not Rapport's still happened. Ivy's own "Favor: Sex"
+12. **What Overture's methodology asks of the core** (proposed 2026-09-23, overnight;
+    `fo4-overture/docs/methodology.md`). Each is here because a third mod would want it too (O-1). Three
+    were BUILT the same day (lovers, barks, the lane: R-16 to R-18); the first three are not:
+    - `RecordExternalScene(a, b)` - a scene that was not Rapport's still happened. (Overture's unshipped
+      companion scaffold `variant-d-ivy-native` already calls it; it does not exist yet.) Ivy's own "Favor: Sex"
       is a fade to black; without this her scenes raise no bond and count as nothing. Bond +15% of the
       distance left, the pair's scene count, `HoursSincePair` - everything `RecordScene` does, minus AAF.
     - `PlaceOf(npc)` - nobody's / theirs / their faction's / the player's. Chemistry computes it in
@@ -183,3 +186,39 @@ and nothing but memory would have turned it off again.
     idle-existence filter in TreeIndex would catch none of the dead positions, and it was not built.
     Next is an in-game A/B (same actors, original vs UAP position, AAF troubleshooting on), before
     choosing between "prefer UAP" and a runtime is-it-animating check.
+
+14. **Tell addons a scene with the player is over** — BUILT 2026-09-23 (`OnPlayerSceneRecorded`, R-18),
+    not yet run. Overture declared lovers a day late without it.
+
+15. **The player's bond, readable by conditions** (microscope pass 2, 2026-09-23). An actor value Rapport
+    keeps in step with the player-to-NPC bond, so a dialogue mod's greeting can read it with a plain
+    condition, before any script runs. Overture keeps its own stale copy (`OvertureTier`, written at a
+    conversation's end) for want of it, and that copy is why a cold greeting for the fallen-out needs a
+    script of its own to lift. Every dialogue mod on Rapport would want it (O-1). Not built.
+
+16. **Queue the player's request** (microscope pass 2). When the slot is busy, hold the player's own
+    request in the lane and start it when the slot frees, rather than every addon retrying on its own
+    clock: Overture retries twelve times five seconds, and a Rapport scene runs 240 to 285. Not built.
+
+17. **The follow** (Overture O-13, O-32): an NPC who says "not here" follows the player somewhere
+    private, for up to an hour -- an NPC-action helper (N-4), and it must never pull a vendor or a quest
+    actor off the mark their quest needs. The owner put it after stage 4 is proven (O-32). Not built.
+
+18. **Rows for spawned actors carry their base form** (microscope pass 2). The ledger keys on the form
+    id, and the engine reuses `FF` ids: a spawned lover cleaned up without dying keeps their row, and the
+    stranger who gets the id inherits the bond and `AreLovers`. Names already key by id AND base (R-19);
+    the ledger does not. Not built.
+
+19. **Forget an introduction when the form is deleted** (microscope pass 2). A reused id of the SAME
+    base still reads as the one introduced. `TESFormDeleteEvent` would close it -- verify its OG
+    relocation first: `TESObjectLoadedEvent`'s "getter" turned out to be the source itself, and calling
+    it crashed at data load. Not built.
+
+20. **Open questions left by the second microscope pass** (not built, not decided):
+    - **Relationship turns during a conversation.** With that Narrator switch on (off by default), a
+      dialogue write that crosses a line is narrated mid-conversation, against Overture's one line per
+      conversation (O-9). Skip reason-3 crossings on player pairs, or let the addon's line carry them.
+    - **`FindRequestByActors`' one-entry fallback.** With one request in flight and no scene id yet,
+      another mod's AAF scene can be matched to Rapport's request.
+    - **`OnRequestFailed` and `OnSceneStarted` read the in-flight fields without the counter lock.**
+      Safe today because everything touching them runs on the main thread; a note, not a bug.

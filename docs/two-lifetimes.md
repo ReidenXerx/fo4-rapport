@@ -92,6 +92,14 @@ A drain loop with a budget of eight is a budget of one.
 `Rapport:Bridge` keeps a single Papyrus timer — the poll. Everything else that needs a clock asks
 the plugin for the answer.
 
+**Corrected 2026-09-23 (microscope pass 2):** the second timer id was never shown to be at fault. Run 2
+below removed every `StartTimer` and failed the same way, and run 3 put it on the AAF call: a stack
+that reaches AAF's `StartScene` does not come back, so the `StartTimer` after it never ran at all, and
+`OnTimer` runs one at a time per script, so the stuck poll starved every other timer on it -- the third
+id in `OnSceneInit` included. The rule that holds is **never call AAF on a timer's stack** (hence
+`CallFunctionNoWait`); one timer stays in this script as a simplicity, not as a finding. A second id
+is safe on a script whose `OnTimer` never stalls (Overture's approach keeps two).
+
 That is not tidiness. It is measured:
 
 > 2026-09-18. The bridge polled **17 times** — 51 seconds at a 3-second interval — and stopped at
