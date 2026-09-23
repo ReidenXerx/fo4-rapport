@@ -72,6 +72,8 @@ and nothing but memory would have turned it off again.
 2. **Body morphs** — `ApplyMorphSet`, the third of AAF's three appearance levers and the only one
    Rapport does not touch. Unlike overlays it needs no textures; unlike expressions it is not
    instant, so it wants its own persistence.
+   **Coupled to a safeguard:** the AAF-morph clear (`docs/safeguards.md` §5) removes everything under
+   `AAF_MorphKeyword` 25 s after a scene, so morph aftermath must change that clear first.
 
 3. **The Attraction stat** - superseded by the relationship module, which ships WITH the release (R-13) — persistent, written through AAF so its own UI shows it and other mods
    can read it. See A-3.

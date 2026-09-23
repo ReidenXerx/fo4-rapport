@@ -123,6 +123,15 @@ ledger. The removal call itself, issued on the actual guard through the console,
 **no morphs at all** in the next co-save (`f4mcp-morphtest`). **Not verified:** the scene-end,
 abandon and mid-scene paths in a live scene.
 
+**It cannot touch Rapport's own aftermath** (checked 2026-09-23, on the owner's question). Overlays go
+through AAF's `ApplyOverlaySet` into LooksMenu's OVERLAY store, not its body morphs. Commonwealth
+Moisturizer is worn meshes and headparts, and its four scripts' only form lookup is `AAF_API` itself
+(`CMkz_EventHandlerScript.psc:181`), with no `BodyGen`, `SetMorph` or morph keyword anywhere. Faces are MFG
+morphs, another system again. **The coupling to remember:** if aftermath ever adopts AAF's
+`ApplyMorphSet` (roadmap, Next 2), those morphs would presumably be stored under this same
+`AAF_MorphKeyword`, and the 25 s clear would take them off. That feature must change this one first --
+clear only AAF's scene-state morphs by name, or skip actors carrying standing morph aftermath.
+
 **Rapport never regenerates a body** (owner, 2026-09-23). If AAF's layer was all an actor had, the
 clear leaves an EMPTY entry, and LooksMenu keeps BodyGen away from an actor with any entry -- but only
 until the next save and load: it never loads an empty one (the Silhouette session read it in
