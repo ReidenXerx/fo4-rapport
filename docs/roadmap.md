@@ -147,3 +147,17 @@ and nothing but memory would have turned it off again.
     Needs from the core: the score breakdown per pair (Rapport has the parts in `PairSignals`; an
     addon's own bonuses must be reportable too, so Chemistry can say "+0.45 bond"), and an event
     for each moment. Not designed further yet.
+
+12. **What Overture's methodology asks of the core** (proposed 2026-09-23, overnight, nothing built;
+    `fo4-overture/docs/methodology.md`). Each is here because a third mod would want it too (O-1):
+    - `RecordExternalScene(a, b)` - a scene that was not Rapport's still happened. Ivy's own "Favor: Sex"
+      is a fade to black; without this her scenes raise no bond and count as nothing. Bond +15% of the
+      distance left, the pair's scene count, `HoursSincePair` - everything `RecordScene` does, minus AAF.
+    - `PlaceOf(npc)` - nobody's / theirs / their faction's / the player's. Chemistry computes it in
+      Papyrus (`WhosePlace`); Overture needs it once per conversation.
+    - `StrongestBondOf(npc, excluding)` - the other person and the value, so a couple Chemistry has made
+      (0.75, "inseparable") can be spoken for in Overture the way an engine spouse is.
+    - **A store-side partner flag an addon can set** (player-and-NPC lovers, set by Overture), which
+      `Rapport:Relations.HasPartner` would then see - so Chemistry's faithfulness charge applies to the
+      player's lover too, and a scene anyway is an affair against the player. This one CHANGES what
+      Chemistry does, which is why it is an owner poll in the methodology, not a plan.
