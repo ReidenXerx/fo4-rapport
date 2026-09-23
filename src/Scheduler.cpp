@@ -120,7 +120,7 @@ namespace RP
 				// Main thread, and the only place this is safe to copy from.
 				// Anyone off-thread reads the published snapshot instead.
 				Crowd::GetSingleton().Publish(
-					_scan.ObserverPositions(), Config::GetSingleton().Weights().observerRadius);
+					_scan.ObserverPositions(), _scan.ObserverIDs(), Config::GetSingleton().Weights().observerRadius);
 			}
 			const auto elapsed =
 				std::chrono::duration<double, std::milli>{ std::chrono::steady_clock::now() - started }.count();
@@ -336,7 +336,9 @@ namespace RP
 				}
 			} else if (!settings.dryRun && !ranked.empty() &&
 					   ranked.front().score >= weights.minimumScore) {
-				if (link.Busy()) {
+				if (link.PlayerHoldsSlot()) {
+					logger::info("   holding: the scene slot is held for the player's own request");
+				} else if (link.Busy()) {
 					logger::info("   holding: a scene is already running");
 				} else if (!link.Ready()) {
 					logger::info("   holding: the bridge is not ready");

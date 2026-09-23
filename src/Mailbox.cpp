@@ -458,7 +458,7 @@ namespace RP
 			const bool wasBusy = link.Busy();
 			const bool paused = link.AutonomyPaused();
 
-			const bool taken = link.RequestScene(first, second, seconds, scenario);
+			const bool taken = link.RequestScene(first, second, seconds, scenario, true);
 			if (taken) {
 				return std::format("OK Rapport took the request: {:08X} + {:08X}{} over {:.0f}s",
 					firstID, secondID,

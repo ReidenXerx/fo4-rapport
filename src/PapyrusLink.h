@@ -39,19 +39,30 @@ namespace RP
 		// a_with for a_seconds (at most 120; 0 or less lets go). While it holds, the
 		// addon door refuses every other pair; the held pair's own request clears it.
 		// A running scene is never cut short: the hold takes the next free slot.
+		// Letting go (0, negative or NaN seconds) only releases a hold made for
+		// a_with: one conversation must not free another's. The player cannot be
+		// a_with.
 		void ReservePlayerScene(std::uint32_t a_with, float a_seconds);
 		// Empty if the door is open to this pair, else why not. Clears the hold once
 		// it has expired.
 		[[nodiscard]] std::string HeldFrom(std::uint32_t a_first, std::uint32_t a_second);
-		void ClearReservation();
+		// Is a live hold in place? For autonomy to skip a pass it could only lose.
+		[[nodiscard]] bool PlayerHoldsSlot();
+		// The held pair's request was accepted: the lane has done its job. Only
+		// that pair clears it.
+		void ClearReservation(std::uint32_t a_first, std::uint32_t a_second);
 
 		// Leaves a request for the bridge to collect. False when one is already
 		// outstanding or the bridge is not listening.
 		// a_scenario is the addon's choice of story, or empty for a single
 		// animation. Rapport does not pick one: the framework executes a scenario,
 		// it does not decide that there should be one.
+		// a_bypassHold: the dev command channel only. Everything else -- addons and
+		// Rapport's own stand-in alike -- is refused while the player's hold names
+		// another pair (microscope 2026-09-23: the stand-in used to walk round it).
 		bool RequestScene(
-			RE::Actor* a_first, RE::Actor* a_second, float a_duration, std::string_view a_scenario);
+			RE::Actor* a_first, RE::Actor* a_second, float a_duration, std::string_view a_scenario,
+			bool a_bypassHold = false);
 
 		// ---- called from Papyrus ----
 		std::int32_t TakeRequest();

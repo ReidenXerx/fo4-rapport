@@ -31,10 +31,12 @@ namespace RP
 		}
 
 		// Main thread, once per scan pass.
-		void Publish(const std::vector<RE::NiPoint3>& a_positions, float a_radius)
+		void Publish(const std::vector<RE::NiPoint3>& a_positions, const std::vector<std::uint32_t>& a_ids,
+			float a_radius)
 		{
 			NamedLock lock{ _lock, "crowd" };
 			_positions = a_positions;
+			_ids = a_ids;
 			_radius = a_radius;
 			_published = true;
 		}
@@ -46,16 +48,17 @@ namespace RP
 		{
 			NamedLock lock{ _lock, "crowd" };
 			_positions.clear();
+			_ids.clear();
 			_published = false;
 		}
 
 		// Any thread. -1 when no scan has published yet, which is NOT the same as
 		// "nobody is watching" and must not be rounded to zero by the caller.
 		//
-		// `a_ignore` are points to leave out — the actor being asked about, who is
-		// in the list themselves, and the player, who is the one doing the asking.
-		[[nodiscard]] std::int32_t Near(const RE::NiPoint3& a_at,
-			std::span<const RE::NiPoint3> a_ignore) const
+		// `a_ignore` is the actor being asked about, who is in the list themselves.
+		// Left out BY ID: a position match against a snapshot a scan old let anyone
+		// who had moved since count as their own audience.
+		[[nodiscard]] std::int32_t Near(const RE::NiPoint3& a_at, std::uint32_t a_ignore) const
 		{
 			NamedLock lock{ _lock, "crowd" };
 			if (!_published) {
@@ -63,20 +66,15 @@ namespace RP
 			}
 			const auto radiusSq = _radius * _radius;
 			std::int32_t seen = 0;
-			for (const auto& p : _positions) {
-				const auto dx = p.x - a_at.x;
-				const auto dy = p.y - a_at.y;
-				const auto dz = p.z - a_at.z;
-				if ((dx * dx + dy * dy + dz * dz) > radiusSq) {
+			for (std::size_t i = 0; i < _positions.size(); ++i) {
+				if (i < _ids.size() && _ids[i] == a_ignore) {
 					continue;
 				}
-				const bool skip = std::ranges::any_of(a_ignore, [&](const RE::NiPoint3& q) {
-					const auto ex = p.x - q.x;
-					const auto ey = p.y - q.y;
-					const auto ez = p.z - q.z;
-					return (ex * ex + ey * ey + ez * ez) < 1.0f;
-				});
-				if (!skip) {
+				const auto& p = _positions[i];
+				const auto  dx = p.x - a_at.x;
+				const auto  dy = p.y - a_at.y;
+				const auto  dz = p.z - a_at.z;
+				if ((dx * dx + dy * dy + dz * dz) <= radiusSq) {
 					++seen;
 				}
 			}
@@ -88,6 +86,7 @@ namespace RP
 
 		mutable std::timed_mutex  _lock;
 		std::vector<RE::NiPoint3> _positions;
+		std::vector<std::uint32_t> _ids;
 		float                     _radius{ 0.0f };
 		bool                      _published{ false };
 	};

@@ -59,6 +59,10 @@ namespace RP
 		void OnAddonLine(std::uint32_t a_first, std::uint32_t a_second, std::string_view a_headline,
 			std::string_view a_numbers);
 
+		// A scene with the player in it failed after it was accepted: one line, so a
+		// yes does not vanish without a word.
+		void OnPlayerSceneFailed(std::uint32_t a_first, std::uint32_t a_second);
+
 		// Newest last, one entry per line - what the MCM button shows.
 		[[nodiscard]] std::string History() const;
 

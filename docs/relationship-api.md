@@ -91,15 +91,26 @@ When you pass on a likely pair, `NarrateNearMiss(first, second, "too many people
 score, bar)` gives the "why nothing happened" line. Rapport rate-limits it and adds the names.
 
 Your own moments, in your own words (ApiVersion 201+): `NarrateLine(first, second, headline,
-numbers)`. `{first}` and `{second}` in either text become the two names. The numbers line only
-shows when the player has the numbers switch on, and the whole line obeys the "addon moments"
-switch. Overture says how a conversation went:
+numbers)`. `{first}` and `{second}` in either text become the two names, and `{they}`, `{them}`
+and `{their}` become `{second}`'s pronouns. Write pronouns as those tokens, never as literals:
+Papyrus pools string literals case-insensitively across every script loaded, so a literal "she"
+can come back "She" in the middle of a sentence. Rapport capitalises the first word of each
+sentence. The numbers line only shows when the player has the numbers switch on, and the whole
+line obeys the "addon moments" switch. Overture says how a conversation went:
 
 ```papyrus
 Rapport:Core.NarrateLine(player, npc, "{second} liked that. Not here, though.", "bond +0.08")
 ```
 
 Write it the way the Narrator talks: one sentence, in the world, no percentages in the headline.
+
+## Who could see this actor
+
+`Rapport:Core.ObserversNear(formID)` (ApiVersion 201+) counts the people who could see an actor
+right now. It's the same population Rapport's own pairing uses (loaded, alive, people only, no
+children), within the same observer radius. The actor themselves isn't counted, and the player
+never is. `-1` means Rapport can't tell: the id isn't an actor it can see, or no scan has run since
+the last load. Treat `-1` as "maybe public", never as "nobody".
 
 ## Lovers by an addon's word
 
@@ -108,17 +119,26 @@ because your mod says so. Overture does it for the player and an NPC after a yes
 apart from the engine's spouse and courting: `Rapport:Relations.ArePartners` and `HasPartner`
 answer exactly what they did before. Ask `Rapport:Relations.AreLovers(a, b)` or `HasLover(a)` as
 well wherever a lover should count. Chemistry, for one, counts the player's lover as spoken for,
-behind its own MCM switch. It is kept in the save, and a death forgets it.
+behind its own MCM switch. It is kept in the save. A death forgets it, and so does falling out: a
+lovers pair whose bond drops to -0.25 are lovers no longer (owner decision, Overture O-28).
+`LoverOf` returns one of someone's lovers, the lowest form id if there are several.
 
 ## The player's priority lane
 
 Rapport runs one scene at a time, and an autonomous mod like Chemistry can take the slot in the
 seconds between a player's "yes" and your request. `Rapport:Core.ReservePlayerScene(akWith,
-afSeconds)` (ApiVersion 201+) holds it for the player and `akWith` for up to 120 s: every other
-pair's `RequestScene` is refused until your pair's own request is accepted, which lets the hold
-go by itself. Pass 0 to let go early (the conversation ended without a yes). A scene already
-running is never cut short; the hold takes the next free slot. It only ever holds for a pair with
-the player in it: a deliberate player request outranks autonomy, and nothing else does.
+afSeconds)` (ApiVersion 201+) holds it for the player and `akWith` for up to 120 s. Every other
+pair's request is refused until your pair's own request is accepted, which lets the hold go by
+itself; that includes Rapport's own autonomy when no addon has taken over. Pass 0 with the same
+`akWith` to let go early (the conversation ended without a yes); a release names its hold, so one
+conversation can't free another's. A scene already running is never cut short; the hold takes the
+next free slot. It only ever holds for a pair with the player in it: a deliberate player request
+outranks autonomy, and nothing else does.
+
+If you run autonomy yourself, check `Rapport:Core.PlayerHoldsSlot()` next to `Busy()` and skip the
+pass: every request you'd make is refused until the hold is gone. And if a scene with the player
+fails after its request was taken, Rapport's Narrator says so ("... it didn't happen after
+all."), so a yes never vanishes without a word.
 
 ## Names for the nameless
 
@@ -130,6 +150,10 @@ patron Unique and still call them all "Drifter". It returns an empty string if t
 name, already wear a custom one, have ever been the player's companion, were introduced before, or
 the player turned names off. `Rapport.log` says which ("keeps their own name (...)"), and
 `Rapport-labels.txt` beside it lists every label with its record counts. The name is derived from the form id, so the same person always gets the same one; the save
-only keeps who was introduced. Call it when your mod has a reason for the player to learn a name,
+keeps who was introduced and as which base, so an id the engine hands to somebody new reads as
+somebody new. The game keeps the name on the actor by itself. If it's lost (a cell that reset),
+the next `Introduce` quietly gives it back, without returning it as new. The count can be wrong
+for a load order: `names.json` takes a `"keep"` list (names that are never labels) and a `"label"`
+list (names that always are). Call it when your mod has a reason for the player to learn a name,
 not on every NPC in sight.
 

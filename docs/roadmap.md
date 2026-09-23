@@ -157,7 +157,7 @@ and nothing but memory would have turned it off again.
       Papyrus (`WhosePlace`); Overture needs it once per conversation.
     - `StrongestBondOf(npc, excluding)` - the other person and the value, so a couple Chemistry has made
       (0.75, "inseparable") can be spoken for in Overture the way an engine spouse is.
-    - **APPROVED by the owner 2026-09-23 (Overture O-15, behind an MCM switch).** **A store-side partner flag an addon can set** (player-and-NPC lovers, set by Overture), which
+    - **APPROVED by the owner 2026-09-23 (Overture O-15, behind an MCM switch); BUILT as a separate LOVERS flag (SetLovers), deliberately NOT seen by HasPartner.** Set at a bond of 0.75 and a scene (O-27), ended by falling out (O-28). **A store-side partner flag an addon can set** (player-and-NPC lovers, set by Overture), which
       `Rapport:Relations.HasPartner` would then see - so Chemistry's faithfulness charge applies to the
       player's lover too, and a scene anyway is an affair against the player. This one CHANGES what
       Chemistry does, which is why it is an owner poll in the methodology, not a plan.

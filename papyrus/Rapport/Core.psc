@@ -384,32 +384,43 @@ Function NarrateNearMiss(Int aiFirst, Int aiSecond, String asWhy, Float afScore,
 String Function NarratorHistory() Global Native
 ; An addon's OWN moment, in its own words: one short line in the storyteller's
 ; voice (Overture: how a conversation went, and why). {first} and {second} in
-; either text become the two names. asNumbers is the second line, shown only with
+; either text become the two names; {they}, {them} and {their} become {second}'s
+; pronouns. Write pronouns as tokens, never as literals: Papyrus pools string
+; literals case-insensitively across every script, so "she" can come back "She".
+; Rapport capitalises each sentence's first word. asNumbers is the second line, shown only with
 ; the Narrator's numbers switch on. Gated by the "addon moments" switch, kept in the
 ; history. ApiVersion 201+.
 Function NarrateLine(Int aiFirst, Int aiSecond, String asHeadline, String asNumbers) Global Native
 ; The player's priority lane (owner, 2026-09-23: a player's own request outranks
 ; autonomy). Holds Rapport's one scene slot for the PLAYER and akWith for up to
-; afSeconds (at most 120; 0 lets go): every other pair's RequestScene is refused
-; until this pair's own request is accepted or the time runs out. A scene already
-; running is never cut short -- the hold takes the next free slot. Overture holds
-; it from the moment a proposition would be a yes. ApiVersion 201+.
+; afSeconds (at most 120): every other pair's request -- an addon's, and Rapport's
+; own autonomy -- is refused until this pair's own request is accepted or the time
+; runs out. 0 lets go of a hold made for akWith (only that one). akWith may not be
+; the player. A scene already running is never cut short -- the hold takes the next
+; free slot. Overture holds it from the moment a proposition would be a yes.
+; ApiVersion 201+.
 Function ReservePlayerScene(Actor akWith, Float afSeconds) Global Native
+; Is the slot held for a player's request right now? Autonomy should skip its pass:
+; every request it would make is refused until the hold is gone. ApiVersion 201+.
+Bool Function PlayerHoldsSlot() Global Native
 ; LOVERS by an addon's word, not the engine's (Overture declares the player and an
 ; NPC lovers after a yes). Kept apart from the engine's spouse/courting, which
 ; Relations.ArePartners and HasPartner still answer unchanged: a consumer decides
 ; for itself whether a lover counts as spoken for (Chemistry does, behind its own
-; MCM switch). Kept in the save; a death forgets it. ApiVersion 201+.
+; MCM switch). Kept in the save; a death forgets it, and so does falling out: a
+; lovers pair whose bond drops to -0.25 are lovers no longer (O-28). ApiVersion 201+.
 Function SetLovers(Int aiFirst, Int aiSecond, Bool abLovers) Global Native
 Bool Function AreLovers(Int aiFirst, Int aiSecond) Global Native
-; The other half of this actor's lovers, or 0.
+; One of this actor's lovers -- the lowest form id if there are several -- or 0.
 Int Function LoverOf(Int aiActor) Global Native
-; Names for the nameless. The first time an addon introduces a generic NPC (a base
-; not flagged Unique), Rapport gives them a first name and a surname -- derived from
-; the form id, so the same person gets the same name forever -- and returns it.
-; Empty if they have a real name, already carry a custom one, were introduced
-; before, or names are off. The rename happens on the main thread, a frame later.
-; ApiVersion 201+.
+; Names for the nameless. The first time an addon introduces a generic NPC -- one
+; whose name is a LABEL (on five or more NPC records, not all Unique), and for a
+; Unique NPC only when that name comes from their template -- Rapport gives them a
+; first name and a surname, derived from the form id so the same person gets the
+; same name forever, and returns it. Empty if they have a real name, carry a custom
+; one, are dead, have ever been the player's companion, were introduced before (a
+; lost name is then quietly given back), or names are off. names.json's "keep" and
+; "label" lists override the count. The rename lands a frame later. ApiVersion 201+.
 String Function Introduce(Actor akWho) Global Native
 ; True once the engine's relationship has been imported for this pair (its first interaction).
 Bool Function IsPairSeeded(Int aiFirst, Int aiSecond) Global Native
@@ -420,8 +431,8 @@ Function NoteVanillaRelationship(Int aiFirst, Int aiSecond, Int aiRank, Bool abB
 ; children never counted, measured against the same observerRadius Rapport's own
 ; pairing score uses. The actor themselves and the PLAYER are both excluded: the
 ; one being propositioned is not in public merely because the player is there.
-; Returns -1 if the form id is not an actor we can see, which is NOT the same as
-; nobody watching. ApiVersion 201+.
+; Returns -1 if the form id is not an actor we can see, or no scan has run since
+; the last load -- which is NOT the same as nobody watching. ApiVersion 201+.
 Int Function ObserversNear(Int aiFormID) Global Native
 
 String Function PersonaOf(Int aiFormID) Global Native

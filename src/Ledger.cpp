@@ -29,11 +29,19 @@ namespace
 	// Who has been introduced (Names): only the WHO -- the name itself is derived.
 	constexpr auto kNameRecord = FourCC("NAME");
 	constexpr std::uint32_t kVersion = 1;
+	// The names record has its own version, for the reason the pair table does
+	// (below). v1 held ids only; v2 holds (id, base) so a reused id reads as
+	// somebody new. v1 still loads, with bases unknown.
+	constexpr std::uint32_t kNameVersion = 2;
 
 	// The pair table has its OWN version. kVersion is shared by every record and a
 	// mismatch refuses the record outright, so bumping it for the relationship
 	// store would have wiped every existing save's whole ledger. v1 still loads.
 	constexpr std::uint32_t kPairVersion = 2;
+
+	// "Fallen out": the Narrator's own line for a relationship turned bad, and where
+	// lovers stop being lovers (O-28).
+	constexpr float kFallenOut = -0.25f;
 
 	// What one completed scene is worth: the fraction of the remaining distance to
 	// +1. 0.15 is the size of Chemistry's old per-scene C-3 bonus, so the first
@@ -176,6 +184,7 @@ namespace RP
 		float         before = 0.0f;
 		float         after = 0.0f;
 		std::uint32_t scenes = 0;
+		bool          fellOut = false;
 		{
 			NamedLock lock{ _lock, "ledger" };
 			if (_dead.contains(a_first) || _dead.contains(a_second)) {
@@ -192,9 +201,17 @@ namespace RP
 			pair.lastReason = a_reason;
 			after = pair.bond;
 			scenes = pair.scenes;
+			// O-28 (owner, 2026-09-23): lovers who fall out are lovers no longer.
+			if (pair.lovers && after <= kFallenOut) {
+				pair.lovers = false;
+				fellOut = true;
+			}
 		}
 		logger::info("relationship: {:08X} + {:08X} bond {:+.3f} -> {:+.3f} (asked {:+.3f}, reason {})",
 			a_first, a_second, before, after, amount, static_cast<int>(a_reason));
+		if (fellOut) {
+			logger::info("relationship: {:08X} + {:08X} have fallen out - lovers no longer (O-28)", a_first, a_second);
+		}
 		// Outside the ledger lock: the Narrator takes its own and reads the ledger.
 		Narrator::GetSingleton().OnBondChanged(a_first, a_second, before, after, scenes, false);
 		return after;
@@ -319,6 +336,8 @@ namespace RP
 			return;
 		}
 		it->second.lovers = a_lovers;
+		// A write like any other: the cap evicts by this, and an untouched row sorted first.
+		it->second.lastTouchedAt = GameHours();
 		logger::info("relationship: {:08X} + {:08X} {} (an addon's word)", a_first, a_second,
 			a_lovers ? "are lovers now" : "are lovers no longer");
 	}
@@ -335,21 +354,27 @@ namespace RP
 		if (a_actor == 0) {
 			return 0;
 		}
-		NamedLock lock{ _lock, "ledger" };
+		// With several lovers, the lowest form id: one answer, the same every time,
+		// rather than whatever the hash map met first.
+		NamedLock     lock{ _lock, "ledger" };
+		std::uint32_t found = 0;
 		for (const auto& [key, record] : _pairs) {
 			if (!record.lovers) {
 				continue;
 			}
-			const auto lower = static_cast<std::uint32_t>(key >> 32);
-			const auto higher = static_cast<std::uint32_t>(key & 0xFFFFFFFFu);
+			const auto    lower = static_cast<std::uint32_t>(key >> 32);
+			const auto    higher = static_cast<std::uint32_t>(key & 0xFFFFFFFFu);
+			std::uint32_t other = 0;
 			if (lower == a_actor) {
-				return higher;
+				other = higher;
+			} else if (higher == a_actor) {
+				other = lower;
 			}
-			if (higher == a_actor) {
-				return lower;
+			if (other != 0 && (found == 0 || other < found)) {
+				found = other;
 			}
 		}
-		return 0;
+		return found;
 	}
 
 	void Ledger::ForgetActor(std::uint32_t a_formID)
@@ -758,11 +783,12 @@ namespace RP
 		// Who has been introduced. The names are derived; this list is what makes a
 		// stranger stay a stranger until they have told the player theirs.
 		const auto introduced = Names::GetSingleton().Introduced();
-		if (a_intfc->OpenRecord(kNameRecord, kVersion)) {
+		if (a_intfc->OpenRecord(kNameRecord, kNameVersion)) {
 			const auto nameCount = static_cast<std::uint32_t>(introduced.size());
 			a_intfc->WriteRecordData(nameCount);
-			for (const auto formID : introduced) {
+			for (const auto& [formID, base] : introduced) {
 				a_intfc->WriteRecordData(formID);
+				a_intfc->WriteRecordData(base);
 			}
 		}
 	}
@@ -829,13 +855,16 @@ namespace RP
 			// Kept if it carries a FACT: a blood tie, an affair, or movement from dialogue,
 			// a gift or an addon (re-seeding would erase that and break the one-shot seed).
 			const bool moved = record.lastReason != BondReason::kNone && record.lastReason != BondReason::kVanilla;
-			if (record.scenes == 0 && std::fabs(record.bond) < kBondFloor && !record.affair && !record.incest && !moved) {
+			// Lovers are a fact too (an addon's word), and a flag lost at the next save
+			// would un-declare them without a word (microscope 2026-09-23).
+			if (record.scenes == 0 && std::fabs(record.bond) < kBondFloor && !record.affair && !record.incest && !moved &&
+				!record.lovers) {
 				return true;
 			}
 			// R-6: a relationship is cleaned on death, never on a timer. Age still
 			// clears scene HISTORY - but only for pairs with no bond to lose.
 			return record.lastSceneAt >= 0.0f && (now - record.lastSceneAt) > hours &&
-			       std::fabs(record.bond) < kBondFloor;
+			       std::fabs(record.bond) < kBondFloor && !record.lovers;
 		});
 		if (const auto dropped = pairsBefore - _pairs.size(); dropped > 0) {
 			logger::info(
@@ -1032,31 +1061,44 @@ namespace RP
 		std::uint32_t                       a_version,
 		std::uint32_t                       a_length)
 	{
-		if (a_version != kVersion) {
+		if (a_version != 1 && a_version != kNameVersion) {
 			logger::warn("ledger: the save holds names version {} - skipped", a_version);
 			return;
 		}
+		const bool withBase = a_version >= 2;
 		std::uint32_t count = 0;
 		if (a_intfc->ReadRecordData(count) != sizeof(count)) {
 			return;
 		}
-		const auto expected = sizeof(std::uint32_t) * (static_cast<std::size_t>(count) + 1);
+		const auto perEntry = withBase ? 2u : 1u;
+		const auto expected = sizeof(std::uint32_t) * (1 + static_cast<std::size_t>(count) * perEntry);
 		if (count > kMaxEntries || expected != a_length) {
 			logger::error(
 				"ledger: the names record says {} actor(s) ({} bytes) and is {} - refusing to read it",
 				count, expected, a_length);
 			return;
 		}
-		std::vector<std::uint32_t> introduced;
+		std::vector<std::pair<std::uint32_t, std::uint32_t>> introduced;
 		introduced.reserve(count);
 		for (std::uint32_t i = 0; i < count; ++i) {
 			std::uint32_t formID = 0;
+			std::uint32_t base = 0;
 			if (a_intfc->ReadRecordData(formID) != sizeof(formID)) {
 				break;
 			}
-			// A plugin that is gone took its people with it.
+			if (withBase && a_intfc->ReadRecordData(base) != sizeof(base)) {
+				break;
+			}
+			// A plugin that is gone took its people with it. A base that no longer
+			// resolves reads as unknown rather than dropping the person.
 			if (const auto resolved = a_intfc->ResolveFormID(formID)) {
-				introduced.push_back(*resolved);
+				std::uint32_t resolvedBase = 0;
+				if (base != 0) {
+					if (const auto b = a_intfc->ResolveFormID(base)) {
+						resolvedBase = *b;
+					}
+				}
+				introduced.emplace_back(*resolved, resolvedBase);
 			}
 		}
 		Names::GetSingleton().Restore(std::move(introduced));

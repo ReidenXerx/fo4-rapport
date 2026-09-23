@@ -288,13 +288,14 @@ namespace RP
 
 			const auto* first = playerOpens ? nullptr : Pick(initiatorPersona, a_scenario, "initiator", initiatorSex);
 			const auto* second = playerAnswers ? nullptr : Pick(responderPersona, a_scenario, "responder", responderSex);
-			if ((!first && !playerOpens) || (!second && !playerAnswers)) {
+			const bool missingOpening = !first && !playerOpens;
+			const bool missingAnswer = !second && !playerAnswers;
+			if (missingOpening || missingAnswer) {
 				logger::warn(
-					"request {}: no {} line for {} {} ({}) in scenario {} - the table does not cover it",
-					a_request, first ? "responder" : "initiator",
-					first ? responderPersona : initiatorPersona,
-					first ? "responder" : "initiator",
-					first ? responderSex : initiatorSex, a_scenario);
+					"request {}: no {} line for {} ({}) in scenario {} - the table does not cover it",
+					a_request, missingOpening ? "initiator" : "responder",
+					missingOpening ? initiatorPersona : responderPersona,
+					missingOpening ? initiatorSex : responderSex, a_scenario);
 			}
 			if (first) {
 				opening = first->topic;

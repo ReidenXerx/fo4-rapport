@@ -279,7 +279,13 @@ namespace RP
 			for (const auto& part : parts) {
 				sum += sum.empty() ? part : ", " + part;
 			}
-			line = same || decidedOn || !bonuses.empty()
+			// Markers ("_bond") and "couple" are words' facts, never printed parts: a
+			// scene the player asked for carries only a marker, and used to read
+			// "score 0.00 = 0" instead of "asked for directly" (microscope 2026-09-23).
+			const bool printable = std::ranges::any_of(bonuses, [](const Bonus& a_bonus) {
+				return !a_bonus.label.starts_with('_') && a_bonus.label != "couple";
+			});
+			line = same || decidedOn || printable
 			           ? std::format("{} - score {:.2f} = {}", a_scenario.empty() ? "scene" : a_scenario, total,
 			                 sum.empty() ? std::string{ "0" } : sum)
 			           : std::format("{} - asked for directly", a_scenario.empty() ? "scene" : a_scenario);
@@ -381,14 +387,37 @@ namespace RP
 		}
 		// The addon writes the words; the names are ours to fill, because Papyrus has
 		// no name accessor of its own and the Narrator already knows how to ask.
+		// Pronouns for {second}, filled here and never in Papyrus: Papyrus pools
+		// string literals case-insensitively across every script loaded, so an
+		// addon's "she" can come back "She" mid-sentence (microscope 2026-09-23).
+		// Lower case here; sentence case below capitalises a sentence's first word.
+		std::string they = "they";
+		std::string them = "them";
+		std::string their = "their";
+		if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_second); actor && actor->GetNPC()) {
+			if (actor->GetNPC()->GetSex() == RE::SEX::kFemale) {
+				they = "she";
+				them = "her";
+				their = "her";
+			} else if (actor->GetNPC()->GetSex() == RE::SEX::kMale) {
+				they = "he";
+				them = "him";
+				their = "his";
+			}
+		}
 		const auto fill = [&](std::string_view a_text) {
 			std::string out{ a_text };
-			for (const auto& [token, formID] : { std::pair{ std::string_view{ "{first}" }, a_first },
-				                                  std::pair{ std::string_view{ "{second}" }, a_second } }) {
+			const std::array<std::pair<std::string_view, std::string>, 5> tokens{ {
+				{ "{first}", NameOf(a_first) },
+				{ "{second}", NameOf(a_second) },
+				{ "{they}", they },
+				{ "{them}", them },
+				{ "{their}", their },
+			} };
+			for (const auto& [token, value] : tokens) {
 				for (auto at = out.find(token); at != std::string::npos; at = out.find(token, at)) {
-					const auto name = NameOf(formID);
-					out.replace(at, token.size(), name);
-					at += name.size();
+					out.replace(at, token.size(), value);
+					at += value.size();
 				}
 			}
 			return out;
@@ -425,6 +454,17 @@ namespace RP
 			out += out.empty() ? entry : "\n" + entry;
 		}
 		return out;
+	}
+
+	void Narrator::OnPlayerSceneFailed(std::uint32_t a_first, std::uint32_t a_second)
+	{
+		{
+			NamedLock lock{ _lock, "narrator" };
+			if (!_enabled || !_sceneStarts) {
+				return;
+			}
+		}
+		Emit(std::format("{} and {} - it didn't happen after all.", NameOf(a_first), NameOf(a_second)), std::string{});
 	}
 
 	void Narrator::Emit(const std::string& a_headline, const std::string& a_numbers)

@@ -84,6 +84,7 @@ namespace RP
 		_questHeld.clear();
 		_candidates.clear();
 		_observerPositions.clear();
+		_observerIDs.clear();
 		_loadedIDs.clear();
 		_cursor = 0;
 		_counters = {};
@@ -147,6 +148,7 @@ namespace RP
 				// mod ignores them entirely, as witnesses too.
 				if (config.IsRaceAllowed(actor->race)) {
 					_observerPositions.push_back(actor->GetPosition());
+					_observerIDs.push_back(actor->GetFormID());
 				}
 				// Every loaded actor, whatever their race: overlays are re-applied and
 				// stranded orders re-issued from this list, and a custom-race NPC an

@@ -1,4 +1,4 @@
 {
-  "_": "Names for the nameless (owner, 2026-09-23): the first time an addon introduces a generic NPC -- a Settler, a Drifter, a base not flagged Unique -- Rapport gives them a first name and a surname, the same ones forever, and keeps who was introduced in the save. The lists are built into Rapport; add \"female\", \"male\" or \"surnames\" arrays here to replace one. The player's MCM [Names] section overrides \"enabled\"; scripts/build-mcm.py makes the MCM default from this file.",
+  "_": "Names for the nameless (owner, 2026-09-23): the first time an addon introduces a generic NPC -- a Settler, a Drifter, anyone whose name is a label on five or more NPC records -- Rapport gives them a first name and a surname, the same ones forever. The lists are built into Rapport; add \"female\", \"male\" or \"surnames\" arrays here to replace one. \"keep\": names that are never labels (a real name the count gets wrong). \"label\": names that always are. Rapport-labels.txt next to Rapport.log shows what the count decided. The player's MCM [Names] section overrides \"enabled\"; scripts/build-mcm.py makes the MCM default from this file.",
   "enabled": true
 }

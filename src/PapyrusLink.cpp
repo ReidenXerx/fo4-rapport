@@ -829,17 +829,18 @@ namespace
 			return -1;   // not an actor we can see: not the same as "nobody is watching"
 		}
 
-		const auto here = actor->GetPosition();
-		const auto player = RE::PlayerCharacter::GetSingleton();
-
-		// The actor is in the observer list themselves, and the player is the one
-		// asking - counting either made a private room read as crowded.
-		std::array<RE::NiPoint3, 2> ignore{ here, player ? player->GetPosition() : here };
-		return RP::Crowd::GetSingleton().Near(here, ignore);
+		// The actor is left out BY ID. A position match against a snapshot up to a
+		// scan old let anyone who had moved count themselves as their own audience
+		// (microscope 2026-09-23). The player is never in the population.
+		return RP::Crowd::GetSingleton().Near(actor->GetPosition(), id);
 	}
 
 	RE::BSFixedString Papyrus_PersonaOf(std::monostate, std::int32_t a_formID)
 	{
+		// R-11: the player has no persona. A hash of 0x14 would be an invented one.
+		if (a_formID == 0x14) {
+			return std::string{};
+		}
 		return std::string{ RP::Barks::GetSingleton().PersonaOf(static_cast<std::uint32_t>(a_formID)) };
 	}
 
@@ -902,13 +903,6 @@ namespace
 			logger::info("request refused: autonomy is paused, so an addon may not start a scene");
 			return false;
 		}
-		if (a_first && a_second) {
-			if (const auto held = RP::PapyrusLink::GetSingleton().HeldFrom(a_first->GetFormID(), a_second->GetFormID());
-				!held.empty()) {
-				logger::info("request refused: {}", held);
-				return false;
-			}
-		}
 
 		const std::string_view scenario{ a_scenario.empty() ? "" : a_scenario.c_str() };
 
@@ -934,19 +928,17 @@ namespace
 				"why",
 				scenario);
 		}
-		if (ok && a_first && a_second && (a_first->IsPlayerRef() || a_second->IsPlayerRef())) {
-			// The held pair got its scene: the lane has done its job.
-			RP::PapyrusLink::GetSingleton().ClearReservation();
-		}
 		return ok;
 	}
 
 	void Papyrus_ReservePlayerScene(std::monostate, RE::Actor* a_with, float a_seconds)
 	{
-		if (!a_with) {
-			return;
-		}
-		RP::PapyrusLink::GetSingleton().ReservePlayerScene(a_with->GetFormID(), a_seconds);
+		RP::PapyrusLink::GetSingleton().ReservePlayerScene(a_with ? a_with->GetFormID() : 0u, a_seconds);
+	}
+
+	bool Papyrus_PlayerHoldsSlot(std::monostate)
+	{
+		return RP::PapyrusLink::GetSingleton().PlayerHoldsSlot();
 	}
 
 	// Ask BEFORE walking two actors across a room. Returns Scenarios::Quality:
@@ -1091,12 +1083,14 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "Busy"sv, Papyrus_Busy, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ReservePlayerScene"sv, Papyrus_ReservePlayerScene, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "PlayerHoldsSlot"sv, Papyrus_PlayerHoldsSlot, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SetLovers"sv, Papyrus_SetLovers, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "AreLovers"sv, Papyrus_AreLovers, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "LoverOf"sv, Papyrus_LoverOf, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
-		logger::info("papyrus: bound 60 native functions on {}", kCoreScript);
+		// No count: it was a hand-kept "60" that stopped being true long ago.
+		logger::info("papyrus: native functions bound on {}", kCoreScript);
 		return true;
 	}
 
@@ -1116,7 +1110,8 @@ namespace RP
 	}
 
 	bool PapyrusLink::RequestScene(
-		RE::Actor* a_first, RE::Actor* a_second, float a_duration, std::string_view a_scenario)
+		RE::Actor* a_first, RE::Actor* a_second, float a_duration, std::string_view a_scenario,
+		bool a_bypassHold)
 	{
 		if (!a_first || !a_second) {
 			return false;
@@ -1124,6 +1119,16 @@ namespace RP
 		if (!_bridgeReady.load()) {
 			logger::warn("scene wanted before the bridge reported ready");
 			return false;
+		}
+		// THE PLAYER'S LANE, here in the funnel every request passes -- addons and
+		// Rapport's own stand-in alike. It used to sit in the addon door only, and
+		// the stand-in (the autonomy of an install with Overture but no Chemistry)
+		// walked straight past it (microscope 2026-09-23).
+		if (!a_bypassHold) {
+			if (const auto held = HeldFrom(a_first->GetFormID(), a_second->GetFormID()); !held.empty()) {
+				logger::info("request refused: {}", held);
+				return false;
+			}
 		}
 		if (_sceneInFlight.exchange(true)) {
 			return false;
@@ -1166,6 +1171,7 @@ namespace RP
 			request, a_first->GetDisplayFullName(), a_first->GetFormID(),
 			a_second->GetDisplayFullName(), a_second->GetFormID(), a_duration);
 		Narrator::GetSingleton().OnRequestAccepted(a_first->GetFormID(), a_second->GetFormID());
+		ClearReservation(a_first->GetFormID(), a_second->GetFormID());
 		return true;
 	}
 
@@ -1227,11 +1233,17 @@ namespace RP
 	void PapyrusLink::ReservePlayerScene(std::uint32_t a_with, float a_seconds)
 	{
 		NamedLock lock{ _reserveLock, "reserve" };
-		if (a_seconds <= 0.0f) {
-			if (_reservedWith != 0) {
+		// !(> 0) and not (<= 0): NaN is a release, never a hold of undefined length.
+		if (!(a_seconds > 0.0f)) {
+			if (_reservedWith != 0 && _reservedWith == a_with) {
 				logger::info("reserve: the player's hold with {:08X} let go", _reservedWith);
+				_reservedWith = 0;
 			}
-			_reservedWith = 0;
+			return;
+		}
+		if (a_with == 0 || a_with == 0x14) {
+			logger::warn("reserve: refused - a hold is for the player AND one other person, and {:08X} is not that",
+				a_with);
 			return;
 		}
 		const auto seconds = (std::min)(a_seconds, 120.0f);
@@ -1260,13 +1272,27 @@ namespace RP
 		return std::format("the slot is held for the player's request with {:08X} ({}s left)", _reservedWith, left);
 	}
 
-	void PapyrusLink::ClearReservation()
+	bool PapyrusLink::PlayerHoldsSlot()
 	{
 		NamedLock lock{ _reserveLock, "reserve" };
-		if (_reservedWith != 0) {
-			logger::info("reserve: the player's scene with {:08X} was accepted - hold released", _reservedWith);
+		if (_reservedWith != 0 && std::chrono::steady_clock::now() >= _reservedUntil) {
+			logger::info("reserve: the player's hold with {:08X} ran out unused", _reservedWith);
+			_reservedWith = 0;
 		}
-		_reservedWith = 0;
+		return _reservedWith != 0;
+	}
+
+	void PapyrusLink::ClearReservation(std::uint32_t a_first, std::uint32_t a_second)
+	{
+		NamedLock lock{ _reserveLock, "reserve" };
+		if (_reservedWith == 0) {
+			return;
+		}
+		const bool held = (a_first == 0x14 && a_second == _reservedWith) || (a_second == 0x14 && a_first == _reservedWith);
+		if (held) {
+			logger::info("reserve: the player's scene with {:08X} was accepted - hold released", _reservedWith);
+			_reservedWith = 0;
+		}
 	}
 
 	void PapyrusLink::OnGameLoading()
@@ -2172,6 +2198,13 @@ namespace RP
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();
 		Watchers::GetSingleton().OnSceneEnded();
+
+		// A scene with the PLAYER in it that fails after the request was taken is
+		// something the player is waiting for: say so, rather than let a yes vanish
+		// without a word (Overture O-9). NPC scenes fail quietly, as they always have.
+		if (first == 0x14 || second == 0x14) {
+			Narrator::GetSingleton().OnPlayerSceneFailed(first, second);
+		}
 
 		ClearInFlight();
 		_sceneInFlight.store(false);

@@ -55,6 +55,8 @@ namespace RP
 		{
 			return _observerPositions;
 		}
+		// Whose each observer position is, index for index.
+		[[nodiscard]] const std::vector<std::uint32_t>& ObserverIDs() const noexcept { return _observerIDs; }
 		// Form ids of everyone loaded and alive this pass, in the same breath as the
 		// observer positions above. Aftermath needs it: an overlay can only be put
 		// back on an actor who is actually here.
@@ -68,6 +70,7 @@ namespace RP
 		std::vector<std::string>                         _questHeld;
 		std::vector<RE::ActorHandle>                     _candidates;
 		std::vector<RE::NiPoint3>                        _observerPositions;
+		std::vector<std::uint32_t>                       _observerIDs;
 		std::vector<std::uint32_t>                       _loadedIDs;
 		std::vector<RE::ActorHandle> _handles;
 		std::size_t                  _cursor{ 0 };

@@ -95,6 +95,19 @@ namespace RP
 			}
 			a_out = std::move(read);
 		}
+
+		void ReadSet(const nlohmann::json& a_doc, const char* a_key, std::unordered_set<std::string>& a_out)
+		{
+			const auto it = a_doc.find(a_key);
+			if (it == a_doc.end() || !it->is_array()) {
+				return;
+			}
+			for (const auto& entry : *it) {
+				if (entry.is_string() && !entry.get<std::string>().empty()) {
+					a_out.insert(entry.get<std::string>());
+				}
+			}
+		}
 	}
 
 	Names& Names::GetSingleton() noexcept
@@ -105,10 +118,12 @@ namespace RP
 
 	void Names::Load()
 	{
-		std::vector<std::string> female = DefaultFemale();
-		std::vector<std::string> male = DefaultMale();
-		std::vector<std::string> surnames = DefaultSurnames();
-		nlohmann::json           document = nlohmann::json::object();
+		std::vector<std::string>        female = DefaultFemale();
+		std::vector<std::string>        male = DefaultMale();
+		std::vector<std::string>        surnames = DefaultSurnames();
+		std::unordered_set<std::string> keep;
+		std::unordered_set<std::string> forceLabels;
+		nlohmann::json                  document = nlohmann::json::object();
 		document["enabled"] = true;
 		if (std::ifstream file{ OverridePath() }; file) {
 			try {
@@ -118,6 +133,8 @@ namespace RP
 					ReadList(read, "female", female);
 					ReadList(read, "male", male);
 					ReadList(read, "surnames", surnames);
+					ReadSet(read, "keep", keep);
+					ReadSet(read, "label", forceLabels);
 					if (const auto it = read.find("enabled"); it != read.end()) {
 						document["enabled"] = *it;
 					}
@@ -135,9 +152,12 @@ namespace RP
 			_female = std::move(female);
 			_male = std::move(male);
 			_surnames = std::move(surnames);
+			_keep = std::move(keep);
+			_forceLabels = std::move(forceLabels);
 			first = !_counted;
-			logger::info("names: {} - {} female, {} male first names, {} surnames", _enabled ? "on" : "OFF",
-				_female.size(), _male.size(), _surnames.size());
+			logger::info("names: {} - {} female, {} male first names, {} surnames; {} kept, {} forced labels",
+				_enabled ? "on" : "OFF", _female.size(), _male.size(), _surnames.size(), _keep.size(),
+				_forceLabels.size());
 		}
 		if (first) {
 			CountLabels();
@@ -186,9 +206,8 @@ namespace RP
 		logger::info("names: {} NPC records, {} names are labels (on {} or more records, not all Unique): {}", records,
 			labels.size(), kLabelRecords, sample);
 
-		// Every label, next to Rapport.log, so a real name that happens to sit on three
-		// records can be found by reading one file: records, how many of them are
-		// flagged Unique, the name.
+		// Every label, next to Rapport.log, so a real name the count gets wrong can be
+		// found by reading one file -- and put on names.json's "keep" list.
 		if (auto path = logger::log_directory()) {
 			*path /= "Rapport-labels.txt";
 			if (std::ofstream out{ *path, std::ios::trunc }; out) {
@@ -207,8 +226,14 @@ namespace RP
 		if (first.empty() || _surnames.empty()) {
 			return {};
 		}
-		const auto stable = Traits::StableID(a_formID);
-		return first[Mix(stable, 0xA5A5F00Du) % first.size()] + " " + _surnames[Mix(stable, 0x1B873593u) % _surnames.size()];
+		const auto  stable = Traits::StableID(a_formID);
+		const auto& given = first[Mix(stable, 0xA5A5F00Du) % first.size()];
+		auto        index = Mix(stable, 0x1B873593u) % _surnames.size();
+		// "Doyle" is a first name and a surname: never "Doyle Doyle".
+		if (_surnames[index] == given && _surnames.size() > 1) {
+			index = (index + 1) % _surnames.size();
+		}
+		return given + " " + _surnames[index];
 	}
 
 	std::string Names::WhyNotNameless(RE::Actor* a_actor) const
@@ -233,6 +258,12 @@ namespace RP
 		}
 		{
 			NamedLock lock{ _lock, "names" };
+			if (_keep.contains(shown)) {
+				return std::format("\"{}\" is on names.json's keep list", shown);
+			}
+			if (_forceLabels.contains(shown)) {
+				return {};
+			}
 			if (!_labels.contains(shown)) {
 				return std::format("\"{}\" is a name, not a label", shown);
 			}
@@ -252,20 +283,49 @@ namespace RP
 
 	std::string Names::Introduce(RE::Actor* a_actor)
 	{
-		if (!a_actor) {
-			return {};
-		}
-		if (const auto why = WhyNotNameless(a_actor); !why.empty()) {
-			logger::info("names: {:08X} keeps their own name ({})", a_actor->GetFormID(), why);
+		if (!a_actor || !a_actor->GetNPC()) {
 			return {};
 		}
 		const auto formID = a_actor->GetFormID();
+		const auto base = a_actor->GetNPC()->GetFormID();
 		const bool female = a_actor->GetNPC()->GetSex() == RE::SEX::kFemale;
+
+		bool known = false;
 		{
 			NamedLock lock{ _lock, "names" };
-			if (!_enabled || _introduced.contains(formID)) {
+			if (!_enabled) {
 				return {};
 			}
+			if (const auto it = _introduced.find(formID); it != _introduced.end()) {
+				if (it->second == 0 || it->second == base) {
+					known = true;
+				} else {
+					// The engine handed this id to somebody else (a spawned actor
+					// cleaned up and replaced): a stranger, not the one introduced.
+					logger::info("names: {:08X} is somebody new (base {:08X}, was {:08X}) - the old name is not theirs",
+						formID, base, it->second);
+					_introduced.erase(it);
+				}
+			}
+		}
+		if (known) {
+			// Introduced before: no new name and no "her name is" line. If the game
+			// lost the name (a cell that reset), give it back quietly -- it is still
+			// the same person.
+			if (!a_actor->extraList || !a_actor->extraList->HasType(RE::EXTRA_DATA_TYPE::kTextDisplayData)) {
+				if (const auto name = NameFor(formID, female); !name.empty()) {
+					ApplyOnMainThread(formID, name);
+					logger::info("names: {:08X} had lost their name - given back as {}", formID, name);
+				}
+			}
+			return {};
+		}
+		if (a_actor->IsDead(true)) {
+			return {};
+		}
+		if (const auto why = WhyNotNameless(a_actor); !why.empty()) {
+			logger::info("names: {:08X} keeps their own name ({})", formID, why);
+			return {};
 		}
 		// Somebody else's name -- the player's own rename, another mod's -- is theirs
 		// to keep. Only a stranger still wearing their base's label gets one of ours.
@@ -279,25 +339,30 @@ namespace RP
 		}
 		{
 			NamedLock lock{ _lock, "names" };
-			_introduced.insert(formID);
-			_count = _introduced.size();
+			_introduced[formID] = base;
 		}
-		// The rename touches the reference's extra data, which is the main thread's.
-		// Papyrus calls this from a VM thread, so it goes through F4SE's task queue,
-		// the way the mailbox runs its verbs.
+		logger::info("names: {:08X} introduced as {} (was \"{}\", base {:08X}{})", formID, name,
+			a_actor->GetDisplayFullName() ? a_actor->GetDisplayFullName() : "", base,
+			a_actor->GetNPC()->IsUnique() ? ", unique with an inherited name" : "");
+		ApplyOnMainThread(formID, name);
+		return name;
+	}
+
+	void Names::ApplyOnMainThread(std::uint32_t a_formID, std::string a_name)
+	{
+		// The rename writes the reference's extra data, which belongs to the main
+		// thread. A native registered without tasklets is in practice run on the VM's
+		// main-thread pass already; the task hop costs a frame and stays correct if
+		// that is ever not so.
 		if (auto* task = F4SE::GetTaskInterface()) {
-			task->AddTask([formID, name] {
-				if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(formID)) {
+			task->AddTask([a_formID, name = std::move(a_name)] {
+				if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_formID)) {
 					Apply(actor, name);
 				}
 			});
-		} else {
-			Apply(a_actor, name);
+		} else if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_formID)) {
+			Apply(actor, a_name);
 		}
-		logger::info("names: {:08X} introduced as {} (was \"{}\", base {:08X}{})", formID, name,
-			a_actor->GetDisplayFullName() ? a_actor->GetDisplayFullName() : "", a_actor->GetNPC()->GetFormID(),
-			a_actor->GetNPC()->IsUnique() ? ", unique with an inherited name" : "");
-		return name;
 	}
 
 	bool Names::Apply(RE::Actor* a_actor, const std::string& a_name)
@@ -312,139 +377,32 @@ namespace RP
 		return true;
 	}
 
-	std::vector<std::uint32_t> Names::Introduced() const
+	std::vector<std::pair<std::uint32_t, std::uint32_t>> Names::Introduced() const
 	{
 		NamedLock lock{ _lock, "names" };
 		return { _introduced.begin(), _introduced.end() };
 	}
 
-	void Names::Restore(std::vector<std::uint32_t> a_introduced)
+	void Names::Restore(std::vector<std::pair<std::uint32_t, std::uint32_t>> a_introduced)
 	{
 		NamedLock lock{ _lock, "names" };
 		_introduced.clear();
-		_introduced.insert(a_introduced.begin(), a_introduced.end());
-		_count = _introduced.size();
+		for (const auto& [id, base] : a_introduced) {
+			_introduced[id] = base;
+		}
 	}
 
 	void Names::Clear()
 	{
 		NamedLock lock{ _lock, "names" };
 		_introduced.clear();
-		_count = 0;
 	}
 
 	void Names::Forget(std::uint32_t a_formID)
 	{
-		if (_count == 0) {
-			return;
-		}
 		NamedLock lock{ _lock, "names" };
 		if (_introduced.erase(a_formID) > 0) {
-			_count = _introduced.size();
 			logger::info("names: {:08X} died - forgotten, so the id cannot name somebody new", a_formID);
-		}
-	}
-
-	void Names::OnLoaded(std::uint32_t a_formID)
-	{
-		if (_count == 0) {
-			return;
-		}
-		{
-			NamedLock lock{ _lock, "names" };
-			if (!_enabled || !_introduced.contains(a_formID)) {
-				return;
-			}
-		}
-		auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_formID);
-		if (!actor || !actor->GetNPC()) {
-			return;
-		}
-		// Said, because it answers the open question: does the game keep a custom
-		// name on an actor by itself? A line here means it did not.
-		if (Apply(actor, NameFor(a_formID, actor->GetNPC()->GetSex() == RE::SEX::kFemale))) {
-			logger::info("names: {:08X} loaded without their name - named again", a_formID);
-		}
-	}
-
-	namespace
-	{
-		class LoadSink final : public RE::BSTEventSink<RE::TESObjectLoadedEvent>
-		{
-		public:
-			RE::BSEventNotifyControl ProcessEvent(const RE::TESObjectLoadedEvent& a_event,
-				RE::BSTEventSource<RE::TESObjectLoadedEvent>*) override
-			{
-				// Once, so the log proves the source below is the real one: a sink on
-				// the wrong address would simply never hear anything.
-				if (!_heard.exchange(true)) {
-					logger::info("names: object-loaded events are arriving");
-				}
-				if (a_event.loaded) {
-					Names::GetSingleton().OnLoaded(a_event.formID);
-				}
-				return RE::BSEventNotifyControl::kContinue;
-			}
-
-		private:
-			std::atomic_bool _heard{ false };
-		};
-
-		// NOT RE::TESObjectLoadedEvent::GetEventSource(). That header function CALLS
-		// relocation 416662, and on 1.10.163 the address there is the event source
-		// ITSELF, not a getter: calling it executed data and took the game down at
-		// data load. Crash log 2026-09-23 11:41:27: "Tried to execute memory at
-		// 0x7FF67C328500" (Fallout4.exe+59D8500), one line after "names: on".
-		//
-		// F4MCP found the same source at the same address a different way. It calls
-		// the header's getter under a guard, sees it fault, and scans the script
-		// event holder by type name: "matrix: loaded attached (scan:
-		// TESObjectLoadedEvent at 7FF67C328500)". Its sink there works. So the
-		// relocation's address is taken AS the source. Rapport runs on 1.10.163
-		// only (F4SEPlugin_Query refuses anything else), so the address is fixed.
-		RE::BSTEventSource<RE::TESObjectLoadedEvent>* LoadedSource()
-		{
-			static REL::Relocation<std::uintptr_t> where{ REL::RelocationID(416662, 2201853) };
-			return reinterpret_cast<RE::BSTEventSource<RE::TESObjectLoadedEvent>*>(where.address());
-		}
-	}
-
-	void Names::RegisterLoadSink()
-	{
-		static LoadSink sink;
-		if (auto* source = LoadedSource()) {
-			source->RegisterSink(&sink);
-		} else {
-			logger::error("names: no object-loaded event - a name the game does not keep comes back only on a load");
-		}
-	}
-
-	void Names::Reapply()
-	{
-		std::vector<std::uint32_t> ids;
-		{
-			NamedLock lock{ _lock, "names" };
-			if (!_enabled) {
-				return;
-			}
-			ids.assign(_introduced.begin(), _introduced.end());
-		}
-		std::size_t inMemory = 0;
-		std::size_t renamed = 0;
-		for (const auto id : ids) {
-			auto* actor = RE::TESForm::GetFormByID<RE::Actor>(id);
-			if (!actor || !actor->GetNPC()) {
-				continue;
-			}
-			++inMemory;
-			if (Apply(actor, NameFor(id, actor->GetNPC()->GetSex() == RE::SEX::kFemale))) {
-				++renamed;
-			}
-		}
-		if (!ids.empty()) {
-			// "kept" = the game held on to the custom name by itself.
-			logger::info("names: {} introduced in this save, {} in memory: {} kept their name, {} named again",
-				ids.size(), inMemory, inMemory - renamed, renamed);
 		}
 	}
 }

@@ -4,15 +4,22 @@
 
 - **Names for the nameless.** The first time a mod built on Rapport introduces someone who
   has no name of their own (a Settler, a Drifter, a Diamond City Resident), they get a first
-  name and a surname. The same person always gets the same name, and your save remembers who
-  was introduced. People with real names are never renamed, and neither is anyone who has
-  ever been your companion. There's a switch in MCM; `names.json` can replace the name lists.
+  name and a surname. The same person always gets the same name, and it survives saves. People
+  with real names keep them, and so does anyone who has ever been your companion. Rapport tells
+  a name from a label by counting records, and writes what it decided to `Rapport-labels.txt`
+  next to its log. If it gets one wrong for your load order, list the name under `"keep"` or
+  `"label"` in `names.json`. There's a switch in MCM; `names.json` can also replace the name
+  lists.
 - **The Narrator speaks for addons too.** A mod can now narrate its own moments in its own
   words ("addon moments", on by default, a switch in MCM). Overture uses it to say how a
   conversation went, and why.
 - **Scenes with the player.** The player never speaks a scene line: they have no persona, and
   their side stays their own. The NPC still says theirs. A scene the player asked for is narrated
-  in the NPC's voice.
+  in the NPC's voice. If it fails after it was accepted, the Narrator says so instead of leaving a
+  yes hanging. And a mod can hold the one scene slot for the player's own request, so autonomy
+  can't take it in the moment between the yes and the scene.
+- **Lovers.** A mod can declare two people lovers (Overture does, for you and the NPC). They're
+  kept in your save, a death ends it, and so does falling out.
 - **Fixes.**
   - The MCM menu never saved anything: MCM rejected every setting because its name lacked a
     type letter. Every setting now registers and keeps its value.
@@ -25,10 +32,10 @@
 
 **For addon authors:** `Rapport:Core.ApiVersion()` is 201. New: `NarrateLine` (your own
 narrator line, with `{first}` and `{second}` for the names), `Introduce` (names a nameless
-NPC, returns the name), `ObserversNear` (how many people could see an actor) and
-`ReservePlayerScene` (holds the scene slot for the player's own request, so autonomy can't take
-it) and `SetLovers` / `AreLovers` / `LoverOf` (lovers by your mod's word, kept apart from the
-engine's spouses). Check for 201 before calling them: Rapport 0.2.0 doesn't have them.
+NPC, returns the name), `ObserversNear` (how many people could see an actor),
+`ReservePlayerScene` and `PlayerHoldsSlot` (the player's priority lane), and `SetLovers` /
+`AreLovers` / `LoverOf` (lovers by your mod's word, kept apart from the engine's spouses).
+`NarrateLine` fills `{they}`, `{them}` and `{their}` for you. Check for 201 before calling them: Rapport 0.2.0 doesn't have them.
 
 ## 0.2.0
 
