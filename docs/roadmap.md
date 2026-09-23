@@ -168,3 +168,12 @@ and nothing but memory would have turned it off again.
     - **A priority lane for a deliberate player request.** Rapport runs one scene at a time, and Chemistry
       can take the slot in the seconds between an NPC's yes and the request. A reservation, or player
       requests outranking autonomy, is an owner poll in Overture's methodology.
+
+13. **Dead AAF positions: prefer the UAP duplicate** (found by the fo4-mcp session, 2026-09-23; memory
+    `aaf-uap-original-positions-dead`). On the owner's install, a position named from a pack's ORIGINAL
+    XML ("BP70 Missionary", "Atomic Cowgirl") fires OnSceneInit and OnAnimationStart, applies morphs and
+    strips, and then both actors stand in vanilla idles for the whole scene. Only "[UAP] ..." positions
+    animate: UAP replaced the pack plugins, and the leftover original XMLs point at idle forms that no
+    longer exist. AAF logs nothing about it. So OnAnimationStart is not evidence that anything plays,
+    and a tag match can hand Rapport a dead position. When a position has a UAP duplicate (its tags
+    include "UAP"), pick the duplicate. Longer term, check a frame. Not built.
