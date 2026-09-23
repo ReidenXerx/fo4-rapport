@@ -3,7 +3,9 @@
 namespace RP
 {
 	// The player's MCM choices, laid over the shipped json (scoring.json,
-	// barks.json) under the SAME key names.
+	// barks.json) under the same key names once MCM's TYPE PREFIX is stripped:
+	// MCM only registers a setting whose key starts with i, f, b or s, so the
+	// ini says fMinimumScore where the json says minimumScore.
 	//
 	// The json files stay the policy and the defaults. MCM keeps what the player
 	// changed in Data/MCM/Settings/Rapport.ini, one [Section] per json block, and

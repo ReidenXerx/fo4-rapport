@@ -8,8 +8,8 @@ typed here, so the menu cannot drift from what the plugin does without MCM: ther
 one source for every number. Re-run after changing either json.
 
 The plugin reads the player's choices from Data/MCM/Settings/Rapport.ini under the
-same section and key names (src/McmSettings.cpp), and reloads within one 20s pass
-of a slider moving.
+same section names and the typed keys MCM writes, stripping the prefix to find the
+json key (src/McmSettings.cpp), and reloads within one 20s pass of a slider moving.
 """
 import json
 import pathlib
@@ -141,18 +141,28 @@ for title, rows in PAGES:
         if key not in source:
             raise SystemExit(f"{key} is not in the json it is supposed to come from - the menu would lie")
         value = source[key]
-        ini.setdefault(section, {})[key] = fmt(value)
         if step is None:
-            content.append({"type": "switcher", "id": f"{mcm_id(key, 'b')}:{section}",
+            kind = "b"
+        else:
+            integral = all(isinstance(v, int) and not isinstance(v, bool) for v in (lo, hi, step)) and \
+                isinstance(value, int)
+            kind = "i" if integral else "f"
+        # settings.ini is what REGISTERS a setting -- MCM types it from the ini KEY -- and a
+        # control's id only points at one. So the ini key and the id must be the same typed
+        # name. The first fix (56e1060) typed only the ids: MCM.log went on listing the same
+        # 23 bare keys as unknown, and every control now pointed at a setting nobody had
+        # registered.
+        mid = mcm_id(key, kind)
+        ini.setdefault(section, {})[mid] = fmt(value)
+        if kind == "b":
+            content.append({"type": "switcher", "id": f"{mid}:{section}",
                             "text": label, "help": help_,
                             "valueOptions": {"sourceType": "ModSettingBool"}})
             continue
-        integral = all(isinstance(v, int) and not isinstance(v, bool) for v in (lo, hi, step)) and \
-            isinstance(value, int)
-        content.append({"type": "slider", "id": f"{mcm_id(key, 'i' if integral else 'f')}:{section}",
+        content.append({"type": "slider", "id": f"{mid}:{section}",
                         "text": label, "help": help_,
                         "valueOptions": {"min": lo, "max": hi, "step": step,
-                                         "sourceType": "ModSettingInt" if integral else "ModSettingFloat"}})
+                                         "sourceType": "ModSettingInt" if kind == "i" else "ModSettingFloat"}})
     pages.append({"pageDisplayName": title, "content": content})
 
 config = {"modName": "Rapport", "displayName": "Rapport", "minMcmVersion": 1,
