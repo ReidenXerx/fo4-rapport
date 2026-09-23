@@ -42,11 +42,52 @@ namespace RP
 			                          : (static_cast<std::uint64_t>(a_second) << 32) | a_first;
 		}
 
+		// O-34 (owner, 2026-09-23, Overture's poll): the player's own moments say
+		// "you", never the player's name in the third person. Sentence case (Emit)
+		// capitalises it where it opens a line.
+		[[nodiscard]] bool IsPlayer(std::uint32_t a_formID) noexcept
+		{
+			return a_formID == 0x14;
+		}
+
 		[[nodiscard]] std::string NameOf(std::uint32_t a_formID)
 		{
+			if (IsPlayer(a_formID)) {
+				return "you";
+			}
 			auto*       actor = RE::TESForm::GetFormByID<RE::Actor>(a_formID);
 			const char* name = actor ? actor->GetDisplayFullName() : nullptr;
 			return name && *name ? std::string{ name } : std::string{ "someone" };
+		}
+
+		// Two people, the player first when they are one of them: "you and Dottie".
+		[[nodiscard]] std::string PairOf(std::uint32_t a_first, std::uint32_t a_second)
+		{
+			if (IsPlayer(a_second) && !IsPlayer(a_first)) {
+				return "you and " + NameOf(a_first);
+			}
+			return NameOf(a_first) + " and " + NameOf(a_second);
+		}
+
+		// The first letter of every sentence in capitals. Rapport's own lines start
+		// with a name or a capital already, except the player's "you"; an addon's
+		// come through Papyrus, which pools string literals case-insensitively, so
+		// their casing is whatever some other script interned first.
+		[[nodiscard]] std::string SentenceCase(std::string a_text)
+		{
+			bool start = true;
+			for (auto& c : a_text) {
+				const auto u = static_cast<unsigned char>(c);
+				if (start && std::isalpha(u)) {
+					c = static_cast<char>(std::toupper(u));
+					start = false;
+				} else if (c == '.' || c == '!' || c == '?') {
+					start = true;
+				} else if (!std::isspace(u)) {
+					start = false;
+				}
+			}
+			return a_text;
 		}
 
 		// "+0.45" / "-0.90": the sign always shown, so a list of parts reads as a sum.
@@ -209,21 +250,25 @@ namespace RP
 
 		// THE WHY, in words: at most three reasons, the relationship first, then the
 		// crowd, then the time and place - the order a person would give them in.
+		// "you" when the player is one of the two (O-34), "they" otherwise.
+		const bool        you = IsPlayer(a_first) || IsPlayer(a_second);
+		const std::string are = you ? "you're" : "they're";
+		const std::string plain = you ? "you" : "they";
 		std::vector<std::string> reasons;
 		if (married) {
-			reasons.emplace_back("they're a couple");
+			reasons.emplace_back(are + " a couple");
 		} else if (bond >= 0.5f) {
-			reasons.emplace_back("they're close");
+			reasons.emplace_back(are + " close");
 		} else if (bond >= 0.15f) {
-			reasons.emplace_back("they get along");
+			reasons.emplace_back(plain + " get along");
 		} else if (bond <= -0.15f) {
 			reasons.emplace_back("bad blood and all");
 		}
 		for (const auto& bonus : bonuses) {
 			if (bonus.label == "own place" && bonus.value > 0.0f) {
-				reasons.emplace_back("they're on their own turf");
+				reasons.emplace_back(you ? "on home ground" : "they're on their own turf");
 			} else if (bonus.label == "spoken for" && bonus.value < 0.0f) {
-				reasons.emplace_back("never mind that one of them is spoken for");
+				reasons.emplace_back(std::format("never mind that one of {} is spoken for", you ? "you" : "them"));
 			}
 		}
 		if (offer) {
@@ -233,9 +278,9 @@ namespace RP
 			} else if (s.observers <= weights.observerTolerance) {
 				reasons.emplace_back("hardly anyone's around");
 			} else if (s.observers == 1) {
-				reasons.emplace_back("someone's watching and they don't care");
+				reasons.emplace_back(std::format("someone's watching and {} don't care", plain));
 			} else {
-				reasons.emplace_back(std::format("{} people are watching and they don't care", s.observers));
+				reasons.emplace_back(std::format("{} people are watching and {} don't care", s.observers, plain));
 			}
 			if (s.night) {
 				reasons.emplace_back("it's late");
@@ -248,7 +293,7 @@ namespace RP
 		}
 
 		const bool indoors = offer && offer->signals.interior;
-		auto headline = std::format("{} and {} {}", NameOf(a_first), NameOf(a_second), Verb(persona, indoors));
+		auto headline = std::format("{} {}", PairOf(a_first, a_second), Verb(persona, indoors));
 		if (!reasons.empty()) {
 			headline += " - " + Join(reasons);
 		}
@@ -336,7 +381,7 @@ namespace RP
 			_lastMiss = now;
 			_missedAt[key] = now;
 		}
-		Emit(std::format("{} and {} would, but {}.", NameOf(a_first), NameOf(a_second), a_why),
+		Emit(std::format("{} would, but {}.", PairOf(a_first, a_second), a_why),
 			_numbers ? std::format("score {:.2f}, needs {:.2f}", a_score, a_bar) : std::string{});
 	}
 
@@ -349,25 +394,24 @@ namespace RP
 				return;
 			}
 		}
-		const auto a = NameOf(a_first);
-		const auto b = NameOf(a_second);
+		const auto pair = PairOf(a_first, a_second);
 		std::string headline;
 		// Crossings only, both ways: a number moving is not news, a line crossed is.
 		constexpr std::array<std::pair<float, std::string_view>, 3> up{ {
 			{ 0.75f, "are inseparable now" }, { 0.5f, "are close now" }, { 0.25f, "are getting close" } } };
 		for (const auto& [line, words] : up) {
 			if (a_before < line && a_after >= line) {
-				headline = std::format("{} and {} {}.", a, b, words);
+				headline = std::format("{} {}.", pair, words);
 				break;
 			}
 		}
 		if (headline.empty() && a_before > -0.25f && a_after <= -0.25f) {
-			headline = std::format("{} and {} have fallen out.", a, b);
+			headline = std::format("{} have fallen out.", pair);
 		}
 		// Not for a couple: a married pair's first scene in Rapport's books is not
 		// their first time, and saying so read as a joke (2026-09-22, the Longs).
 		if (headline.empty() && a_fromScene && a_scenes == 1 && !Ledger::GetSingleton().IsPartner(a_first, a_second)) {
-			headline = std::format("A first time for {} and {}.", a, b);
+			headline = std::format("A first time for {}.", pair);
 		}
 		if (headline.empty()) {
 			return;
@@ -390,8 +434,8 @@ namespace RP
 		if (scene.first == 0) {
 			return;
 		}
-		Emit(std::format("{} {} {} and {}.", NameOf(a_watcher), a_heardOnly ? "hears" : "has noticed",
-			     NameOf(scene.first), NameOf(scene.second)),
+		Emit(std::format("{} {} {}.", NameOf(a_watcher), a_heardOnly ? "hears" : "has noticed",
+			     PairOf(scene.first, scene.second)),
 			{});
 	}
 
@@ -448,20 +492,7 @@ namespace RP
 		// back as whatever casing some other script interned first. Measured
 		// 2026-09-23: Overture wrote "His name is {second}. He didn't take to that."
 		// and the log read "his name is Elmer Pike. he didn't take to that."
-		auto headline = fill(a_headline);
-		bool start = true;
-		for (auto& c : headline) {
-			const auto u = static_cast<unsigned char>(c);
-			if (start && std::isalpha(u)) {
-				c = static_cast<char>(std::toupper(u));
-				start = false;
-			} else if (c == '.' || c == '!' || c == '?') {
-				start = true;
-			} else if (!std::isspace(u)) {
-				start = false;
-			}
-		}
-		Emit(headline, numbers ? fill(a_numbers) : std::string{});
+		Emit(fill(a_headline), numbers ? fill(a_numbers) : std::string{});
 	}
 
 	std::string Narrator::History() const
@@ -488,11 +519,12 @@ namespace RP
 				return;
 			}
 		}
-		Emit(std::format("{} and {} - it didn't happen after all.", NameOf(a_first), NameOf(a_second)), std::string{});
+		Emit(std::format("{} - it didn't happen after all.", PairOf(a_first, a_second)), std::string{});
 	}
 
-	void Narrator::Emit(const std::string& a_headline, const std::string& a_numbers)
+	void Narrator::Emit(const std::string& a_line, const std::string& a_numbers)
 	{
+		const auto headline = SentenceCase(a_line);
 		{
 			NamedLock lock{ _lock, "narrator" };
 			// The game clock, not the wall clock: "02:16" is when it happened in the world.
@@ -501,14 +533,14 @@ namespace RP
 				const auto hour = calendar->gameHour->GetValue();
 				stamp = std::format("{:02d}:{:02d} ", static_cast<int>(hour), static_cast<int>((hour - std::floor(hour)) * 60.0f));
 			}
-			_history.push_back(stamp + a_headline);
+			_history.push_back(stamp + headline);
 			while (_history.size() > _historySize) {
 				_history.pop_front();
 			}
 		}
-		logger::info("narrator: {}{}{}", a_headline, a_numbers.empty() ? "" : " ", a_numbers);
+		logger::info("narrator: {}{}{}", headline, a_numbers.empty() ? "" : " ", a_numbers);
 		// ONE order, both lines: two orders ran on two CallFunctionNoWait stacks and
 		// were not guaranteed to arrive in order, and cost two of the drain budget.
-		PapyrusLink::GetSingleton().QueueOrder(Order{ Order::Kind::kNarrate, 0, a_headline, a_numbers });
+		PapyrusLink::GetSingleton().QueueOrder(Order{ Order::Kind::kNarrate, 0, headline, a_numbers });
 	}
 }

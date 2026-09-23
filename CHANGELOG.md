@@ -10,6 +10,8 @@
   next to its log. If it gets one wrong for your load order, list the name under `"keep"` or
   `"label"` in `names.json`. There's a switch in MCM; `names.json` can also replace the name
   lists.
+- **The Narrator says "you".** Lines about your own moments say "you and Dottie", never your
+  name in the third person.
 - **The Narrator speaks for addons too.** A mod can now narrate its own moments in its own
   words ("addon moments", on by default, a switch in MCM). Overture uses it to say how a
   conversation went, and why.

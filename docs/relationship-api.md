@@ -91,8 +91,9 @@ When you pass on a likely pair, `NarrateNearMiss(first, second, "too many people
 score, bar)` gives the "why nothing happened" line. Rapport rate-limits it and adds the names.
 
 Your own moments, in your own words (ApiVersion 201+): `NarrateLine(first, second, headline,
-numbers)`. `{first}` and `{second}` in either text become the two names, and `{they}`, `{them}`
-and `{their}` become `{second}`'s pronouns. Write pronouns as those tokens, never as literals:
+numbers)`. `{first}` and `{second}` in either text become the two names -- "you" for the player,
+since every Narrator line about the player's own moment says "you" (owner, Overture O-34) -- and
+`{they}`, `{them}` and `{their}` become `{second}`'s pronouns. Write pronouns as those tokens, never as literals:
 Papyrus pools string literals case-insensitively across every script loaded, so a literal "she"
 can come back "She" in the middle of a sentence. Rapport capitalises the first word of each
 sentence. The numbers line only shows when the player has the numbers switch on, and the whole
