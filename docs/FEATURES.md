@@ -755,12 +755,21 @@ relatives carry an incest flag that nothing refuses on; it is there for a future
 Every NPC's persona comes from its form id, and `personas.json` can pin any of them by plugin and id
 (Ivy ships as vulgar). A pin that names something other than a person is refused with a warning.
 
-### An MCM menu, with the json as the single source of defaults — VERIFIED IN GAME (reload)
+### An MCM menu, with the json as the single source of defaults — REGISTRATION VERIFIED (MCM.log); the page not yet looked at
 
-Two pages: *Scene choice* (the bar, closeness, faction, indoors, night, onlookers and the crowd curve)
-and *Voices* (pair lines, bystander comments, radii, chance, timing). The menu's defaults are
-generated from `scoring.json` and `barks.json` (`scripts/build-mcm.py`), so the menu and the files
-cannot disagree. A changed slider applies within one 20 s pass, with no restart. MCM is optional.
+Three pages: *Scene choice* (the bar, closeness, faction, indoors, night, onlookers and the crowd
+curve), *Voices* (pair lines, bystander comments, radii, chance, timing) and *Narrator*. The menu's
+defaults are generated from `scoring.json`, `barks.json` and `narrator.json`
+(`scripts/build-mcm.py`), so the menu and the files cannot disagree. MCM is optional.
+
+**Until 2026-09-23 the menu did not work, and this heading said VERIFIED.** MCM types a setting by
+the first letter of its settings.ini key (i/f/b/s), and every Rapport key was a bare word: 23 of the
+28 never registered, four more registered with the wrong type by the accident of their first letter,
+and only `bystanders` worked. What had been verified was the reload path from a hand-written ini, not
+the menu. Fixed in the generator (typed keys in settings.ini AND typed control ids); MCM's own log now
+lists no Rapport warning and registers 1,817 settings where it registered 1,794. The plugin strips
+the prefix when it reads the player's ini, and still accepts the old bare keys. A changed slider
+should apply within one 20 s pass, but that path has not been re-checked through the real menu yet.
 
 ### The Narrator: who, why, and the numbers — VERIFIED IN GAME (scene starts)
 

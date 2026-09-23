@@ -106,9 +106,12 @@ def mcm_id(key, kind):
 
     i = int, f = float, b = bool, s = string. A plain word registers as nothing,
     and MCM says so once per setting in MCM.log and then carries on -- which is
-    why Rapport shipped a menu where 26 of 28 controls could not store a value
-    and nobody noticed. The two that worked were accidents: "sharedFaction"
-    registered as a STRING and "interior" as an INT, both wrong.
+    why Rapport shipped a menu where 23 of its 28 settings never registered and
+    nobody noticed. The other five registered by the accident of their first
+    letter: sharedFaction, startAfterSeconds and sceneStarts as STRINGS and
+    interior as an INT, all wrong, and bystanders as a bool -- the one setting
+    in the menu that worked. Measured by MCM's own count: 1794 settings
+    registered before the fix, 1817 after, 23 more.
 
     The C++ that reads the player's ini strips this prefix again, so a player who
     already changed a setting under the old bare key keeps their value.
