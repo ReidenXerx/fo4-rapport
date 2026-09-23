@@ -69,7 +69,7 @@ same words, elided in delivery, and a correct subtitle either way.
 `"gotta"` becoming `"need to"` is a different word and still fails.
 
 Watch the regex: a leading apostrophe has no word boundary before it, so a naive
-`'em` never matches anything.
+`\b'em\b` never matches anything.
 
 ### V-2 — Audio tags follow V-1: v3 lines only.
 
@@ -111,6 +111,22 @@ scene, because the engine's facial idle writes the same morphs to blink, breathe
 and **talk**. Lip data would be a third writer fighting a block Rapport installs
 itself. `FaceFXWrapper` is not a dependency we need.
 
+**Scope - read this before inheriting V-5 anywhere else (2026-09-23).** The block is
+per ACTOR: `Bridge.psc` calls `AddMFGBlock` only on an actor whose face Rapport has
+just set (`aiKind == 3`), which is a scene participant. So V-5 covers the **pair
+barks**, and nothing else:
+
+- **Observer barks** are spoken by actors who are NOT in the scene, so no block is
+  on their faces. With `lip: 0` they talk with a still mouth. OPEN - not measured
+  in game, and whether it shows at observer distance is the owner's call.
+- **Overture's dialogue** is ordinary conversation before any scene, never inside
+  the block. It needs lip data: `fo4-overture/scripts/make-lip.py` runs the game's
+  own `Tools/LipGen/LipGenerator.exe` (44.1 kHz mono wav, no resampling), and
+  `pcm-to-fuz.py --lip` packs it into the `.fuz`.
+
+(Flagged by nexus-modding: V-5's justification is scene-scoped, so it does not
+transfer by default. The per-actor reading is from `Bridge.psc`.)
+
 ### V-6 — The voice file path, and the byte that would silently break it.
 
 ```
@@ -122,6 +138,20 @@ Established from a **mod** archive, not vanilla — vanilla is always load order
 the load-order byte as `00`, masked at lookup, so filenames survive any load
 order. Casing is inconsistent inside Bethesda's own archives, so lookup is
 case-insensitive. The folder name **includes** the extension.
+
+**ESL-flagged plugins use the same rule, unchanged** (measured on disk 2026-09-23 by
+nexus-modding, three independent authors):
+
+| plugin (ESL) | INFO in the plugin | voice file |
+|---|---|---|
+| `WhoIsTheGeneral.esp` | `0200000D` | `0000000D_1.fuz` |
+| `Sacrifice Grounds.esp` | `08000803` | `00000803_1.fuz` |
+| `KARMA.esm` | `0100009E` | `0000009E_1.fuz` |
+
+The ESL slot (the `xxx` of the runtime `FExxxyyy`) never appears in the name. In all
+three the middle bits are zero, so `& 0xFFFFFF` and `& 0xFFF` cannot be told apart
+there - keep `& 0xFFFFFF`, which holds for full plugins too, and keep an ESL's object
+ids in `0x800`-`0xFFF`. Seen on disk, not yet watched resolving in game.
 
 ### V-7 — Match vanilla structurally; 48 kbps is deliberate.
 
@@ -167,6 +197,11 @@ thirty-five. Pass an explicit seed on every request.
 
 Short spoken lines with no numbers or dates. `auto` can expand things unasked and
 costs latency for nothing.
+
+So a number in a bank is **spelled out** ("twelve"), which makes the model say it
+reliably. The transcriber writes it back as digits, and the gate has to allow for
+that - see V-28. This setting governs what the MODEL says; it has nothing to do
+with how the gate compares.
 
 ### V-13 — Validate voice type names against the game archives before spending.
 
@@ -565,3 +600,73 @@ and the only sex check measured PITCH - and projecting to a crowd puts a man at 
 How it was found is the method worth keeping: the owner heard it; a subtitle named the wrong person;
 the file at the path was proven right (MD5), which ruled out packaging; a swap test (another actor,
 same line) ruled out the actor; only then did the voice itself come under suspicion.
+
+### V-28 - The gate canonicalises NUMBERS; it must never strip them (2026-09-23)
+
+`norm()` compared words after deleting every character that is not a letter. So
+digits were DELETED: the bank says "twelve", the transcriber writes "12", and
+`"...there are people watching"` never equals `"...there are twelve people
+watching"`. That is a false NEGATIVE: the audio was right, and the gate rejected it
+every time. The line failed for good rather than now and then.
+
+Measured on Overture's `ov_vulgar_recoil_01`, "I want your hands on me and there are
+twelve people watching.":
+
+- FemaleBoston and FemaleRough failed on every take (6 each), and FemaleBoston failed
+  again on a retry at `--tries 8`.
+- FemaleRough and two other voices only passed on eleven_multilingual_v2, because
+  that model's takes happened to transcribe as "twelve". The more expressive v3 was
+  given up for the gate's sake.
+- After the fix, all four passed on v3 with no fallback: FemaleBoston in 4 s, the
+  other three in 13 s together.
+
+The same class of problem as V-18, so it lives in the same `norm()`. Digits become
+words on BOTH sides, before anything is stripped (`numbers_as_words`):
+
+- integers, `1,000`, `3.5` ("three point five"), and ordinals (`21st` -> "twenty
+  first");
+- `%` and "per cent" -> "percent";
+- "a hundred" = "one hundred", and "a hundred and twelve" = "112".
+
+That last fold is blindness by DESIGN. A transcript reading "100" cannot say whether
+the voice said "a" or "one", so the gate must not pretend to tell them apart.
+
+**It still catches real drift.** "twelve" vs 13, 120, and "a hundred and twelve" vs
+120 all still fail. The test (`twelve` vs `12` and 16 other same-meaning pairs, plus 8
+one-word-different pairs) failed 12 of 25 before the fix and 0 after. Neither bank
+contains a digit, so no line compares differently except the two "a hundred" lines,
+and those fold on both sides.
+
+**What the gate can never see** (nexus-modding, 2026-09-23 - keep this list short and
+check these by ear):
+
+- homographs ("record" said either way transcribes the same);
+- mispronounced proper nouns;
+- stress in an ALL-CAPS run (the transcript lowercases it);
+- rhythm, and silences: a `[pause]` is invisible to a transcript.
+
+### Leads from nexus-modding's pass (2026-09-23) - NOT measured on this bank
+
+Recorded so they are not rediscovered, and not adopted until measured here:
+
+- **Direction tags.** They reported that v3 CONSUMES free-form direction such as
+  `[shouting, enraged]` without speaking it (the transcript came back clean), and they
+  replaced three sibling voices with one voice directed three ways. That conflicts
+  with V-20, where the undocumented `[urgent]` caused paraphrase 0/8. The two
+  measurements may be on different model builds.
+  - Before relying on it, re-measure `[urgent]` and one multi-word direction on this
+    bank, gated.
+  - V-21's sibling voices stay until then, and the owner judges by ear (V-9).
+  - If tags are adopted, the gate still compares the BANK text. `norm()` already drops
+    `[...]`, so a tagged render and its subtitle compare correctly.
+- **Knobs alone do not direct.** Their owner compared knob-only takes against directed
+  ones: "knobs only doesn't work, all the rest is perfect". Stability 0.5 flattened the
+  voice.
+- **`[pause]` genuinely pauses** (by ear). Short sentences written as beats get run
+  together without it.
+- **A multi-word ALL-CAPS run lets the model choose the stressed word, and it chose
+  wrong.** A single capitalised word is unambiguous.
+- **Calibrate before bulk.** Render one line for each distinct risk before the batch:
+  swear forms, homographs, the Fallout lexicon, emphasis, pacing. One softened swear
+  word would have been wrong across 485 lines at once.
+

@@ -82,15 +82,78 @@ ELISION = [("wanna", "want to"), ("gonna", "going to"), ("gotta", "got to"),
            ("'cause", "because"), ("cause", "because")]
 
 
+_ONES = ("zero one two three four five six seven eight nine ten eleven twelve thirteen "
+         "fourteen fifteen sixteen seventeen eighteen nineteen").split()
+_TENS = "_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()
+_SCALES = ((10 ** 9, "billion"), (10 ** 6, "million"), (1000, "thousand"))
+_ORDINAL = {"one": "first", "two": "second", "three": "third", "five": "fifth",
+            "eight": "eighth", "nine": "ninth", "twelve": "twelfth"}
+_NUMBER_WORD = "|".join(_ONES[1:] + _TENS[2:])
+
+
+def _words(n: int) -> str:
+    """An integer as the words a voice says for it: 22 -> "twenty two"."""
+    if n < 20:
+        return _ONES[n]
+    if n < 100:
+        return _TENS[n // 10] + ("" if n % 10 == 0 else " " + _ONES[n % 10])
+    if n < 1000:
+        return _ONES[n // 100] + " hundred" + ("" if n % 100 == 0 else " " + _words(n % 100))
+    for size, name in _SCALES:
+        if n >= size:
+            head, rest = divmod(n, size)
+            return _words(head) + " " + name + ("" if rest == 0 else " " + _words(rest))
+    raise ValueError(n)
+
+
+def _ordinal(n: int) -> str:
+    """21 -> "twenty first": only the last word takes the ordinal form."""
+    *head, last = _words(n).split()
+    last = _ORDINAL.get(last) or (last[:-1] + "ieth" if last.endswith("y") else last + "th")
+    return " ".join(head + [last])
+
+
+def numbers_as_words(s: str) -> str:
+    """Canonicalise how a number is WRITTEN, so both sides of the gate agree.
+
+    The bank spells numbers out, because V-12 turns the model's own text
+    normalisation off. The transcriber writes them as digits. Stripping every
+    non-letter DELETED the digits, so "twelve" could never equal "12": a take
+    that was right the first time failed every re-roll, forever
+    (ov_vulgar_recoil_01, 2026-09-23 - twelve takes across two voices).
+
+    So digits become words, on both sides, before anything is stripped. Forms
+    that say the same number differently are folded too - "a hundred" / "one
+    hundred", "a hundred and twelve" / "112", "per cent" / "%". That is
+    blindness by design: a transcript reading "100" cannot say whether the
+    voice said "a" or "one", so the gate must not pretend to tell them apart.
+    """
+    s = re.sub(r"(?<=\d),(?=\d{3}\b)", "", s)                        # 1,000
+    s = re.sub(r"(\d+)\.(\d+)", lambda m: _words(int(m[1])) + " point " +
+               " ".join(_ONES[int(d)] for d in m[2]), s)             # 3.5
+    s = re.sub(r"(\d+)(?:st|nd|rd|th)\b", lambda m: _ordinal(int(m[1])), s)
+    s = re.sub(r"\d+", lambda m: " " + _words(int(m[0])) + " ", s)
+    s = s.replace("%", " percent ")
+    s = re.sub(r"\bper cent\b", "percent", s)
+    s = re.sub(r"\ba (hundred|thousand|million|billion)\b", r"one \1", s)
+    return re.sub(r"\b(hundred|thousand|million|billion) and (?=(?:%s)\b)" % _NUMBER_WORD,
+                  r"\1 ", s)
+
+
 def norm(s: str) -> str:
     """Compare meaning-bearing words only: tags, case, punctuation and elision
     are noise. STT is also not deterministic - the same audio transcribes
     slightly differently between passes, so the comparison has to tolerate the
-    ways a word can be *said* while still catching a different word."""
+    ways a word can be *said* while still catching a different word.
+
+    Numbers are canonicalised BEFORE the strip (see numbers_as_words): a
+    decimal point or thousands comma only survives between two digits."""
     s = re.sub(r"\[[^\]]*\]", " ", s).lower()
+    s = re.sub(r"[^a-z0-9.,%' ]", " ", s)
+    s = numbers_as_words(re.sub(r"(?<!\d)[.,]|[.,](?!\d)", " ", s))
     s = " ".join(re.sub(r"[^a-z' ]", " ", s).split())
     for short, full in ELISION:
-        # A leading apostrophe has no word boundary before it -  needs a word
+        # A leading apostrophe has no word boundary before it - \b needs a word
         # character on the left, and "'" is not one, so "'em" never matched.
         left = "" if short.startswith("'") else r"\b"
         s = re.sub(left + re.escape(short) + r"\b", full, s)
