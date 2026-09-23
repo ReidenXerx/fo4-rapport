@@ -671,6 +671,14 @@ Recorded so they are not rediscovered, and not adopted until measured here:
   - V-21's sibling voices stay until then, and the owner judges by ear (V-9).
   - If tags are adopted, the gate still compares the BANK text. `norm()` already drops
     `[...]`, so a tagged render and its subtitle compare correctly.
+  - If tags are adopted, the manifest must record BOTH texts, because they fail
+    differently (nexus-modding's D-18, 2026-09-23):
+    - a moved BANK text means the audio says something the player is not reading: an
+      ERROR, re-render;
+    - a moved RENDER text (bank plus tags) means the words are right and only the
+      delivery is stale: a WARNING.
+    With one text recorded, changing a tag looks exactly like changing a line. Today's
+    `text` map holds the bank text alone, which is right while nothing is tagged.
   - **Re-measured by them at our sample size (2026-09-23):** 10 tagged renders, 0
     paraphrases, 0 tags spoken. That includes `[urgent, clipped]`, `[shouting, enraged]`
     and `[quiet, menacing, unhurried]` with three `[pause]`s, on one designed voice at
