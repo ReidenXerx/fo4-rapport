@@ -19,7 +19,7 @@
         },
         {
           "type": "slider",
-          "id": "minimumScore:Scoring",
+          "id": "fMinimumScore:Scoring",
           "text": "Score needed (Rapport's own trigger)",
           "help": "The score the best pair must reach before Rapport's built-in trigger starts a scene. Chemistry has its own bar and ignores this one.",
           "valueOptions": {
@@ -35,7 +35,7 @@
         },
         {
           "type": "slider",
-          "id": "maxPairDistance:Scoring",
+          "id": "fMaxPairDistance:Scoring",
           "text": "Furthest apart",
           "help": "Two people further apart than this (game units) are never paired.",
           "valueOptions": {
@@ -47,7 +47,7 @@
         },
         {
           "type": "slider",
-          "id": "proximity:Scoring",
+          "id": "fProximity:Scoring",
           "text": "Closeness weight",
           "help": "What standing close together is worth. It falls off with the square of distance.",
           "valueOptions": {
@@ -59,7 +59,7 @@
         },
         {
           "type": "slider",
-          "id": "sharedFaction:Scoring",
+          "id": "fSharedFaction:Scoring",
           "text": "Same faction",
           "help": "Bonus when both belong to a shared faction.",
           "valueOptions": {
@@ -71,7 +71,7 @@
         },
         {
           "type": "slider",
-          "id": "interior:Scoring",
+          "id": "fInterior:Scoring",
           "text": "Indoors",
           "help": "Bonus for being indoors.",
           "valueOptions": {
@@ -83,7 +83,7 @@
         },
         {
           "type": "slider",
-          "id": "night:Scoring",
+          "id": "fNight:Scoring",
           "text": "Night",
           "help": "Bonus at night.",
           "valueOptions": {
@@ -99,7 +99,7 @@
         },
         {
           "type": "slider",
-          "id": "observerRadius:Scoring",
+          "id": "fObserverRadius:Scoring",
           "text": "Onlooker radius",
           "help": "Anyone within this distance of the pair counts as watching.",
           "valueOptions": {
@@ -111,7 +111,7 @@
         },
         {
           "type": "slider",
-          "id": "observerTolerance:Scoring",
+          "id": "iObserverTolerance:Scoring",
           "text": "Free onlookers",
           "help": "Onlookers who cost nothing. The crowd penalty starts after this many. Chemistry uses the same number.",
           "valueOptions": {
@@ -123,7 +123,7 @@
         },
         {
           "type": "slider",
-          "id": "perObserver:Scoring",
+          "id": "fPerObserver:Scoring",
           "text": "Crowd penalty",
           "help": "Cost per onlooker past the free ones, before the curve below.",
           "valueOptions": {
@@ -135,7 +135,7 @@
         },
         {
           "type": "slider",
-          "id": "observerFalloff:Scoring",
+          "id": "fObserverFalloff:Scoring",
           "text": "Crowd curve",
           "help": "How steeply the crowd penalty climbs: 1 is a straight line, higher punishes big crowds harder.",
           "valueOptions": {
@@ -147,7 +147,7 @@
         },
         {
           "type": "slider",
-          "id": "playerNear:Scoring",
+          "id": "fPlayerNear:Scoring",
           "text": "Player watching",
           "help": "Cost when the player is nearby. 0 by default: the player is not a factor.",
           "valueOptions": {
@@ -168,7 +168,7 @@
         },
         {
           "type": "switcher",
-          "id": "enabled:Barks",
+          "id": "bEnabled:Barks",
           "text": "Pair lines",
           "help": "The two in a scene say something as it starts.",
           "valueOptions": {
@@ -177,7 +177,7 @@
         },
         {
           "type": "slider",
-          "id": "responderDelaySeconds:Barks",
+          "id": "fResponderDelaySeconds:Barks",
           "text": "Answer after (s)",
           "help": "How long the second one waits before answering.",
           "valueOptions": {
@@ -193,7 +193,7 @@
         },
         {
           "type": "switcher",
-          "id": "enabled:Observers",
+          "id": "bEnabled:Observers",
           "text": "Bystander comments",
           "help": "People who see or hear a scene turn their head and may comment.",
           "valueOptions": {
@@ -202,7 +202,7 @@
         },
         {
           "type": "slider",
-          "id": "radius:Observers",
+          "id": "iRadius:Observers",
           "text": "Notice radius",
           "help": "How far away a bystander can notice a scene.",
           "valueOptions": {
@@ -214,7 +214,7 @@
         },
         {
           "type": "slider",
-          "id": "hearRadius:Observers",
+          "id": "iHearRadius:Observers",
           "text": "Hearing radius",
           "help": "Within this distance a bystander hears it through walls. Never more than the notice radius.",
           "valueOptions": {
@@ -226,7 +226,7 @@
         },
         {
           "type": "slider",
-          "id": "chance:Observers",
+          "id": "fChance:Observers",
           "text": "Chance to comment",
           "help": "Each bystander who notices rolls once per scene.",
           "valueOptions": {
@@ -238,7 +238,7 @@
         },
         {
           "type": "slider",
-          "id": "startAfterSeconds:Observers",
+          "id": "iStartAfterSeconds:Observers",
           "text": "Start after (s)",
           "help": "No comments in the first seconds of a scene.",
           "valueOptions": {
@@ -250,7 +250,7 @@
         },
         {
           "type": "slider",
-          "id": "gapSeconds:Observers",
+          "id": "iGapSeconds:Observers",
           "text": "Gap between comments (s)",
           "help": "So two bystanders never talk over each other.",
           "valueOptions": {
@@ -262,7 +262,7 @@
         },
         {
           "type": "slider",
-          "id": "cooldownSeconds:Observers",
+          "id": "iCooldownSeconds:Observers",
           "text": "Per-person cooldown (s)",
           "help": "How long before the same bystander comments again.",
           "valueOptions": {
@@ -287,7 +287,7 @@
         },
         {
           "type": "switcher",
-          "id": "enabled:Narrator",
+          "id": "bEnabled:Narrator",
           "text": "Narrator",
           "help": "Show narration at all.",
           "valueOptions": {
@@ -296,7 +296,7 @@
         },
         {
           "type": "switcher",
-          "id": "numbers:Narrator",
+          "id": "bNumbers:Narrator",
           "text": "Show the numbers",
           "help": "A second line with the score, part by part.",
           "valueOptions": {
@@ -309,7 +309,7 @@
         },
         {
           "type": "switcher",
-          "id": "sceneStarts:Narrator",
+          "id": "bSceneStarts:Narrator",
           "text": "A scene starts",
           "help": "Who, and why now.",
           "valueOptions": {
@@ -318,7 +318,7 @@
         },
         {
           "type": "switcher",
-          "id": "nearMisses:Narrator",
+          "id": "bNearMisses:Narrator",
           "text": "Why nothing happened",
           "help": "Now and then, a likely pair that was passed over and why. Rate-limited.",
           "valueOptions": {
@@ -327,7 +327,7 @@
         },
         {
           "type": "switcher",
-          "id": "relationshipTurns:Narrator",
+          "id": "bRelationshipTurns:Narrator",
           "text": "Relationship turns",
           "help": "A first time together, or a bond crossing a line: getting close, close, inseparable, fallen out.",
           "valueOptions": {
@@ -336,7 +336,7 @@
         },
         {
           "type": "switcher",
-          "id": "bystanders:Narrator",
+          "id": "bBystanders:Narrator",
           "text": "Bystanders react",
           "help": "Someone noticed, or heard.",
           "valueOptions": {
@@ -364,7 +364,7 @@
         },
         {
           "type": "slider",
-          "id": "nearMissCooldownSeconds:Narrator",
+          "id": "iNearMissCooldownSeconds:Narrator",
           "text": "Between 'why not' lines (s)",
           "help": "At most one near miss this often, across all pairs.",
           "valueOptions": {
@@ -376,7 +376,7 @@
         },
         {
           "type": "slider",
-          "id": "pairMissCooldownSeconds:Narrator",
+          "id": "iPairMissCooldownSeconds:Narrator",
           "text": "Same pair again after (s)",
           "help": "How long before the same two are narrated as a near miss again.",
           "valueOptions": {

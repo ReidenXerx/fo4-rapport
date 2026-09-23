@@ -101,6 +101,21 @@ PAGES = [
 ]
 
 
+def mcm_id(key, kind):
+    """MCM reads a setting's TYPE from the FIRST LETTER of its id.
+
+    i = int, f = float, b = bool, s = string. A plain word registers as nothing,
+    and MCM says so once per setting in MCM.log and then carries on -- which is
+    why Rapport shipped a menu where 26 of 28 controls could not store a value
+    and nobody noticed. The two that worked were accidents: "sharedFaction"
+    registered as a STRING and "interior" as an INT, both wrong.
+
+    The C++ that reads the player's ini strips this prefix again, so a player who
+    already changed a setting under the old bare key keeps their value.
+    """
+    return kind + key[0].upper() + key[1:]
+
+
 def fmt(value):
     if isinstance(value, bool):
         return "1" if value else "0"
@@ -128,12 +143,14 @@ for title, rows in PAGES:
         value = source[key]
         ini.setdefault(section, {})[key] = fmt(value)
         if step is None:
-            content.append({"type": "switcher", "id": f"{key}:{section}", "text": label, "help": help_,
+            content.append({"type": "switcher", "id": f"{mcm_id(key, 'b')}:{section}",
+                            "text": label, "help": help_,
                             "valueOptions": {"sourceType": "ModSettingBool"}})
             continue
         integral = all(isinstance(v, int) and not isinstance(v, bool) for v in (lo, hi, step)) and \
             isinstance(value, int)
-        content.append({"type": "slider", "id": f"{key}:{section}", "text": label, "help": help_,
+        content.append({"type": "slider", "id": f"{mcm_id(key, 'i' if integral else 'f')}:{section}",
+                        "text": label, "help": help_,
                         "valueOptions": {"min": lo, "max": hi, "step": step,
                                          "sourceType": "ModSettingInt" if integral else "ModSettingFloat"}})
     pages.append({"pageDisplayName": title, "content": content})

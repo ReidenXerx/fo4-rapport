@@ -1,5 +1,5 @@
 {
- "NPCMZ2-47": {
+ "DLC03MaleBrooks": {
   "races": {
    "HumanRace": 1
   },
@@ -7,24 +7,7 @@
    "male": 1
   }
  },
- "MuseumVoice1": {
-  "races": {
-   "SynthGen2RaceValentine": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleEzraParker": {
-  "races": {
-   "HumanRace": 1,
-   "DLC03RoboBrainRace": 1
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "DLC03FarHarborFF01HolotapeMale": {
+ "Announcer_ElevatorVoice": {
   "races": {
    "HumanRace": 1
   },
@@ -32,7 +15,7 @@
    "male": 1
   }
  },
- "DLC04NPCMChipMorse": {
+ "NPCMMarowski": {
   "races": {
    "HumanRace": 1
   },
@@ -40,36 +23,12 @@
    "male": 1
   }
  },
- "NPCMVaultTecRepGhoul": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03FemaleMrsNakano": {
+ "NPCMPrescottSoldier": {
   "races": {
    "HumanRace": 1
   },
   "sex": {
    "female": 1
-  }
- },
- "NPCMArlenGlass": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "BoSMale01": {
-  "races": {
-   "HumanRace": 141
-  },
-  "sex": {
-   "male": 141
   }
  },
  "DLC03MaleAndreMichaud": {
@@ -80,15 +39,7 @@
    "male": 1
   }
  },
- "RobotLookout": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleMitch": {
+ "NPCMKnightCaptainCade": {
   "races": {
    "HumanRace": 1
   },
@@ -96,65 +47,7 @@
    "male": 1
   }
  },
- "DLC01RobotRobobrain": {
-  "races": {
-   "DLC01RoboBrainRace": 17
-  },
-  "sex": {
-   "male": 16,
-   "female": 1
-  }
- },
- "RobotArcJetComputer": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFCricket": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "female": 2
-  }
- },
- "NPCFProctorIngram": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "MaleGhoul": {
-  "races": {
-   "GhoulRace": 20,
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 21
-  }
- },
- "DLC04_CrSwarmVoice": {
-  "races": {
-   "DLC04_SwarmRace": 11
-  },
-  "sex": {
-   "male": 11
-  }
- },
- "NPCFBobbiNoNose": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMVaultTecScientist07": {
+ "HolotapeCITStudentVoice02": {
   "races": {
    "HumanRace": 1
   },
@@ -162,189 +55,12 @@
    "male": 1
   }
  },
- "NPCMShaun10": {
-  "races": {
-   "HumanChildRace": 3
-  },
-  "sex": {
-   "male": 3
-  }
- },
- "CrBloodBugVoice": {
-  "races": {
-   "BloodbugRace": 31
-  },
-  "sex": {
-   "male": 31
-  }
- },
- "NPCFPhyllisDaily": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04TraderMale": {
-  "races": {
-   "HumanRace": 3
-  },
-  "sex": {
-   "male": 3
-  }
- },
- "DLC04_CrRadRatVoice": {
-  "races": {
-   "DLC04_RadRatRace": 17
-  },
-  "sex": {
-   "male": 17
-  }
- },
- "NPCFCurie": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "female": 2
-  }
- },
- "DLC04NPCMClarkHolotape": {
+ "DLC04NPCMShank": {
   "races": {
    "HumanRace": 1
   },
   "sex": {
    "male": 1
-  }
- },
- "NPCMFinn": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "GunnersMale02": {
-  "races": {
-   "HumanRace": 16
-  },
-  "sex": {
-   "male": 16
-  }
- },
- "DLC04NPCMVictorHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMBennellHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFCait": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFAnnCodman": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMTVAnchorman": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMSkinnyMalone": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMJesseMcDanielHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03CoAFemaleSisterAubert": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMA951": {
-  "races": {
-   "SynthGen2Race": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFAllieFilmore": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03MaleBrooks": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03FemaleMiranda": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCFKaylor": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "CrMoleratVoice": {
-  "races": {
-   "MoleratRace": 34,
-   "DLC04_BloodwormRace": 23
-  },
-  "sex": {
-   "male": 57
   }
  },
  "DLC04NPCMFritsch": {
@@ -355,7 +71,15 @@
    "male": 1
   }
  },
- "DLC04TraderFemale": {
+ "GuardMaleDiamondCity01": {
+  "races": {
+   "HumanRace": 14
+  },
+  "sex": {
+   "male": 14
+  }
+ },
+ "NPCFVaultTecScientist02": {
   "races": {
    "HumanRace": 2
   },
@@ -363,15 +87,151 @@
    "female": 2
   }
  },
- "NPCMDavidTournquist": {
+ "DLC04_CrGatorclawVoice": {
   "races": {
-   "HumanChildRace": 1
+   "DLC04_GatorclawRace": 5
+  },
+  "sex": {
+   "male": 5
+  }
+ },
+ "NPCMCarl": {
+  "races": {
+   "HumanRace": 1
   },
   "sex": {
    "male": 1
   }
  },
- "NPCFAlyssaPark": {
+ "NPCMCaretaker": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMColonelSmith": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotPAM": {
+  "races": {
+   "AssaultronRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFBoSKnightLucia": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCMWilliamBlack": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMrSmith": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "DLC04NPCFKateHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC01NPCFMechanist": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFAlanaSecord": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFGwenMcNamara": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCMChipmunkHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFKristyGreenHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03MaleDejen": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "BoSSquireMale01": {
+  "races": {
+   "HumanChildRace": 7
+  },
+  "sex": {
+   "male": 7
+  }
+ },
+ "FemaleRough": {
+  "races": {
+   "HumanRace": 49
+  },
+  "sex": {
+   "female": 49
+  }
+ },
+ "NPCFDarla": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFClairHutchins": {
   "races": {
    "HumanRace": 1
   },
@@ -387,39 +247,7 @@
    "male": 1
   }
  },
- "GunnersMaleMS05SgtLee": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMMaddox": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMH2-22": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleMaineAccent": {
-  "races": {
-   "HumanRace": 11
-  },
-  "sex": {
-   "male": 11
-  }
- },
- "NPCFMrsSumner": {
+ "DLC03FemaleSisterGwyneth": {
   "races": {
    "HumanRace": 1
   },
@@ -427,7 +255,15 @@
    "female": 1
   }
  },
- "Announcer_ElevatorVoice": {
+ "SynthGen3Female02": {
+  "races": {
+   "HumanRace": 3
+  },
+  "sex": {
+   "female": 3
+  }
+ },
+ "NPCMStorytimeSimon": {
   "races": {
    "HumanRace": 1
   },
@@ -435,23 +271,7 @@
    "male": 1
   }
  },
- "NPCMDonnyKowalsky": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03CoAFemaleSisterMai": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMLucasMiller": {
+ "NPCMClarenceCodman": {
   "races": {
    "HumanRace": 1
   },
@@ -459,382 +279,21 @@
    "male": 1
   }
  },
- "NPCMPerry": {
+ "DLC03CrDataRetrieverVoice": {
   "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFKatelynAlden": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMCaptainWidmark": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03FemaleAster": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMMQ04Sinner": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03CoAMaleZealotWare": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "FemaleBoston": {
-  "races": {
-   "HumanRace": 55
-  },
-  "sex": {
-   "female": 55
-  }
- },
- "DLC03CrChickenVoice": {
-  "races": {
-   "DLC03_RadChickenRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "NPCMEddieWinter": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMTheodoreCollins": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleFaraday": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleNaveen": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03FemaleRRContact": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMDocWeathers": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFArcJetTech01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMTravisMiles_MQ203Music": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMMichaelTournquist": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMDN019CultLeader": {
-  "races": {
-   "HumanRace": 5
+   "DLC03VRDataRetrieverRace": 5
   },
   "sex": {
    "male": 5
   }
  },
- "CrSwan": {
+ "RobotProtectron": {
   "races": {
-   "SupermutantBehemothRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMamaMurphy": {
-  "races": {
+   "ProtectronRace": 81,
    "HumanRace": 1
   },
   "sex": {
-   "female": 1
-  }
- },
- "DLC03CoAMaleBrotherDevin": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFPolly": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMMedfordHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMPickman": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "HolotapeCITAdminVoice01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFCasey": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFDoctorAmari": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "RadioVoiceInstituteAxis": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMVaultTecScientist06": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RadioMayorMurphy": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFGeneva": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMManny": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMStrong": {
-  "races": {
-   "SuperMutantRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMSinjin": {
-  "races": {
-   "GhoulRace": 1,
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "NPCMLancerCaptainKells": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFEmogeneCabot": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "female": 2
-  }
- },
- "DLC04NPCFMagsBlack": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFWilhelminaCabot": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DN028_PaAnnouncerTeenageMale": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "SynthGen1Male01": {
-  "races": {
-   "SynthGen1Race": 106,
-   "SynthGen2Race": 21
-  },
-  "sex": {
-   "male": 127
-  }
- },
- "NPCMMalcolmLatimer": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "NPCFGwenMcNamara": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "HoloFLadiesAuxJennie": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "CrSuperMutant03": {
-  "races": {
-   "SuperMutantRace": 9
-  },
-  "sex": {
-   "male": 9
-  }
- },
- "NPCMVaultTecScientist04": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "DN010_MayorWife": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMClaytonHoldren": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
+   "male": 82
   }
  },
  "DLC03CrWolfVoice": {
@@ -845,7 +304,7 @@
    "male": 9
   }
  },
- "NPCFClairHutchins": {
+ "NPCFScribeCollins": {
   "races": {
    "HumanRace": 1
   },
@@ -853,7 +312,81 @@
    "female": 1
   }
  },
- "NPCMDannySullivan": {
+ "NPCMDoctorSun": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMDustyPolanskiHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFCherylGlass": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMHancock": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFIrma": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03MaleMoseley": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMBennellHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03FemaleJuliannaRiggs": {
+  "races": {
+   "HumanRace": 1,
+   "DLC03RoboBrainRace": 1
+  },
+  "sex": {
+   "female": 1,
+   "male": 1
+  }
+ },
+ "DLC04NPCMEvan": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMWayneTournquist": {
   "races": {
    "HumanRace": 1
   },
@@ -869,31 +402,7 @@
    "male": 1
   }
  },
- "DN157NorwegianGhoulMale02": {
-  "races": {
-   "GhoulRace": 3
-  },
-  "sex": {
-   "male": 3
-  }
- },
- "NPCMRickyDalton": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04GangOperatorMale01": {
-  "races": {
-   "HumanRace": 33
-  },
-  "sex": {
-   "male": 33
-  }
- },
- "DLC04_Announcer_ElevatorVoice": {
+ "NPCFDoctorDuff": {
   "races": {
    "HumanRace": 1
   },
@@ -901,359 +410,12 @@
    "female": 1
   }
  },
- "CrFEVHoundVoice": {
+ "GunnersFemale01": {
   "races": {
-   "FEVHoundRace": 16
+   "HumanRace": 9
   },
   "sex": {
-   "male": 16
-  }
- },
- "GuardMaleVault81": {
-  "races": {
-   "HumanRace": 8
-  },
-  "sex": {
-   "male": 8
-  }
- },
- "HolotapeCITProfVoice01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC01RobotCompanionBleepC": {
-  "races": {
-   "ProtectronRace": 3,
-   "SentryBotRace": 1,
-   "HandyRace": 2,
-   "AssaultronRace": 2,
-   "DLC01HandyCreateABotRace": 2,
-   "EyeBotRace": 1
-  },
-  "sex": {
-   "male": 11
-  }
- },
- "DLC04NPCFDaraHubbell": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMDrMcDermot": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "CrRadscorpion": {
-  "races": {
-   "RadScorpionRace": 29
-  },
-  "sex": {
-   "male": 29
-  }
- },
- "DLC03RobotRobobrain": {
-  "races": {
-   "DLC03RoboBrainRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04_Announcer_NukaGalaxy_NPCFNukaGirlWithStatic_DO_NOT_RECORD": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "HolotapeCITStudentVoice02": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotSentryBot": {
-  "races": {
-   "SentryBotRace": 64,
-   "ProtectronRace": 1
-  },
-  "sex": {
-   "male": 65
-  }
- },
- "MQ101InstAgentFemaleVoice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFScribeNeriah": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03MaleBertRiggs": {
-  "races": {
-   "HumanRace": 1,
-   "DLC03RoboBrainRace": 1
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "DLC04NPCFMackenzieBridgeman": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMJohnCalebBradberton": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "Announcer_PulowskiVoice": {
-  "races": {
-   "SynthGen2RaceValentine": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMAustinEngill": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMDoctorChandrich": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFMarcyLong": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04GangOperatorFemale01": {
-  "races": {
-   "HumanRace": 18
-  },
-  "sex": {
-   "female": 18
-  }
- },
- "NPCFMrsWashington": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03MaleBoSLarsen": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFTraveler01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFMS07cKeypadVoice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "CrMirelurkVoice": {
-  "races": {
-   "MirelurkRace": 57,
-   "RadRoachRace": 4,
-   "RadScorpionRace": 1,
-   "YaoGuaiRace": 5
-  },
-  "sex": {
-   "male": 67
-  }
- },
- "NPCMCaptainZao": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DN157NorwegianGhoulMale01": {
-  "races": {
-   "GhoulRace": 5
-  },
-  "sex": {
-   "male": 5
-  }
- },
- "NPCMWinlock": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "BoSSquireFemale01": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMaxLoken": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMWeylanHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMBrendanVolkert": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleLevi_ADV014": {
-  "races": {
-   "SynthGen2RaceValentine": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMVirgil": {
-  "races": {
-   "SuperMutantRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RelayTowerSupermutantVoice": {
-  "races": {
-   "SuperMutantRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04GangPackFemale01": {
-  "races": {
-   "HumanRace": 22
-  },
-  "sex": {
-   "female": 21,
-   "male": 1
-  }
- },
- "NPCMJohn": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RadioSilverShroud": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMX6-88": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "DLC04NPCFKristyGreenHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "ChildrenOfAtomMale02": {
-  "races": {
-   "HumanRace": 5
-  },
-  "sex": {
-   "male": 5
-  }
- },
- "HoloFLadiesAuxBecka": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
+   "female": 9
   }
  },
  "MQ101NeighborFemaleBostonVoice": {
@@ -1264,63 +426,23 @@
    "female": 7
   }
  },
- "NPCMChrisRosa": {
+ "RobotTurretLowTech": {
   "races": {
-   "HumanChildRace": 1
+   "TurretTripodRace": 64,
+   "TurretWorkshopRace": 6,
+   "DLC04_AnimatronicAlienRace": 7
   },
   "sex": {
-   "male": 1
+   "male": 77
   }
  },
- "DLC03FemaleGildaBroscoe": {
+ "DLC03MaleSpencerLords": {
   "races": {
    "HumanRace": 1,
    "DLC03RoboBrainRace": 1
   },
   "sex": {
-   "female": 1,
-   "male": 1
-  }
- },
- "NPCMZ114": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03HolotapeFemaleFranny": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFRowdy": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "SynthGen1Male03": {
-  "races": {
-   "SynthGen1Race": 5,
-   "SynthGen2Race": 1
-  },
-  "sex": {
-   "male": 6
-  }
- },
- "NPCMElderMaxson": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
+   "male": 2
   }
  },
  "NPCMArturo": {
@@ -1331,23 +453,7 @@
    "male": 1
   }
  },
- "NPCFVaultTecScientist02": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "female": 2
-  }
- },
- "NPCFDoctorDuff": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMBarnes": {
+ "HolotapeCITProfVoice01": {
   "races": {
    "HumanRace": 1
   },
@@ -1355,7 +461,39 @@
    "male": 1
   }
  },
- "DLC01NPCFMechanist": {
+ "MQ101PreWarSoldier01": {
+  "races": {
+   "HumanRace": 5
+  },
+  "sex": {
+   "male": 5
+  }
+ },
+ "DN088_NPCMGeraldSpencer": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrSwan": {
+  "races": {
+   "SupermutantBehemothRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFMrsCallahan": {
+  "races": {
+   "HumanRace": 3
+  },
+  "sex": {
+   "female": 3
+  }
+ },
+ "NPCFMarcyLong": {
   "races": {
    "HumanRace": 1
   },
@@ -1363,41 +501,23 @@
    "female": 1
   }
  },
- "RobotGraygardenWorker": {
+ "NPCMAbbot": {
   "races": {
-   "HandyRace": 3
+   "HumanRace": 1
   },
   "sex": {
-   "male": 3
+   "male": 1
   }
  },
- "RobotMrGutsy": {
+ "NPCMJacobOrden": {
   "races": {
-   "HandyRace": 38
+   "HumanRace": 1
   },
   "sex": {
-   "male": 38
+   "male": 1
   }
  },
- "RobotMrHandy": {
-  "races": {
-   "HandyRace": 87,
-   "HumanRace": 2,
-   "DLC01HandyCreateABotRace": 14
-  },
-  "sex": {
-   "male": 103
-  }
- },
- "SynthGen3Male01": {
-  "races": {
-   "HumanRace": 8
-  },
-  "sex": {
-   "male": 8
-  }
- },
- "DLC01RobotCompanionMaleProcessed": {
+ "DLC04RobotNira": {
   "races": {
    "ProtectronRace": 1
   },
@@ -1405,7 +525,7 @@
    "male": 1
   }
  },
- "NPCMAlanBinet": {
+ "NPCMMrSumner": {
   "races": {
    "HumanRace": 1
   },
@@ -1413,7 +533,7 @@
    "male": 1
   }
  },
- "DLC03MaleCog": {
+ "NPCMParkerQuinn": {
   "races": {
    "HumanRace": 1
   },
@@ -1421,7 +541,7 @@
    "male": 1
   }
  },
- "DLC04_Announcer_MQ00_NPCMRadio": {
+ "HolotapeInstituteVoiceMale01": {
   "races": {
    "HumanRace": 1
   },
@@ -1429,15 +549,39 @@
    "male": 1
   }
  },
- "CrMirelurklingVoice": {
+ "MQ101NeighborMale01Voice": {
   "races": {
-   "RadRoachRace": 5
+   "HumanRace": 3
   },
   "sex": {
-   "male": 5
+   "male": 3
   }
  },
- "MQ203MemoryA_MomVoice": {
+ "NPCMTravisMiles": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC06FemaleOverseer": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMPreWarSoldier1": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFNisha": {
   "races": {
    "HumanRace": 1
   },
@@ -1445,15 +589,217 @@
    "female": 1
   }
  },
- "CrGorillaVoice": {
+ "NPCMTinkerTom": {
   "races": {
-   "GorillaRace": 1
+   "HumanRace": 1
   },
   "sex": {
    "male": 1
   }
  },
- "NPCMCalvinWhitaker": {
+ "NPCMHoratio": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMcDonnell": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "Announcer_JamaicaPlainVoiceF": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFBoSKnightAstlin": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "InstituteScientistFemaleVoice": {
+  "races": {
+   "HumanRace": 14
+  },
+  "sex": {
+   "female": 14
+  }
+ },
+ "NPCMStrong": {
+  "races": {
+   "SuperMutantRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMHarvey": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "HoloFLadiesAuxSue": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCMChipMorse": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04GangDiscipleMale01": {
+  "races": {
+   "HumanRace": 28
+  },
+  "sex": {
+   "male": 28
+  }
+ },
+ "NPCMCaptainWidmark": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFDN068Emma": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMNewtonOberly": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrFeralGhoulVoice": {
+  "races": {
+   "FeralGhoulGlowingRace": 29,
+   "FeralGhoulRace": 101
+  },
+  "sex": {
+   "male": 129,
+   "female": 1
+  }
+ },
+ "DLC03FemaleAster": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMZ2-47": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMKarlOslow": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "ChildrenOfAtomFemale01": {
+  "races": {
+   "HumanRace": 17
+  },
+  "sex": {
+   "female": 17
+  }
+ },
+ "NPCMDoctorCarrington": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMDN033TimShoots": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RadioMistressMysterious": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMJackCabot": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "MQ203MemoryA_DadVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMStanSlavin": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFEmersonGatesHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMJunkyard": {
   "races": {
    "HumanRace": 1
   },
@@ -1469,7 +815,7 @@
    "female": 10
   }
  },
- "NPCMDutchman": {
+ "NPCMEvanWatson": {
   "races": {
    "HumanRace": 1
   },
@@ -1477,7 +823,15 @@
    "male": 1
   }
  },
- "NPCFScribeCollins": {
+ "NPCMDavidTournquist": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03FemaleRRContact": {
   "races": {
    "HumanRace": 1
   },
@@ -1485,60 +839,20 @@
    "female": 1
   }
  },
- "NPCMProctorTeagan": {
+ "DLC03RobotRobobrain": {
+  "races": {
+   "DLC03RoboBrainRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03FemaleSandraLee": {
   "races": {
    "HumanRace": 1
   },
   "sex": {
-   "male": 1
-  }
- },
- "NPCMVault111Security": {
-  "races": {
-   "HumanRace": 7
-  },
-  "sex": {
-   "male": 7
-  }
- },
- "RobotSupervisorBrown": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMrsCallahan": {
-  "races": {
-   "HumanRace": 3
-  },
-  "sex": {
-   "female": 3
-  }
- },
- "MQ101PreWarSoldier01": {
-  "races": {
-   "HumanRace": 5
-  },
-  "sex": {
-   "male": 5
-  }
- },
- "CrBloatflyVoice": {
-  "races": {
-   "BloatflyRace": 25
-  },
-  "sex": {
-   "male": 25
-  }
- },
- "MaleChild": {
-  "races": {
-   "HumanChildRace": 8
-  },
-  "sex": {
-   "male": 8
+   "female": 1
   }
  },
  "NPCFColette": {
@@ -1549,87 +863,15 @@
    "female": 1
   }
  },
- "DLC04NPCMRabbitHolotape": {
+ "DLC03MaleDiMA": {
   "races": {
-   "HumanRace": 1
+   "DLC03_SynthGen2RaceDiMa": 1
   },
   "sex": {
    "male": 1
   }
  },
- "FemaleChild": {
-  "races": {
-   "HumanChildRace": 7
-  },
-  "sex": {
-   "female": 7
-  }
- },
- "Announcer_WaldenPond": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFPriscillaPenske": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMLawrenceHiggs": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMDN033Management": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMHonestDan": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFAmeliaStockton": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCFSergeantLanierHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03CoAFemaleMotherOfFog": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "RadioShroudAnnouncer": {
+ "RobotNavigator": {
   "races": {
    "HandyRace": 1
   },
@@ -1637,7 +879,7 @@
    "male": 1
   }
  },
- "NPCMShaun60": {
+ "NPCMDeanVolkert": {
   "races": {
    "HumanRace": 1
   },
@@ -1645,15 +887,15 @@
    "male": 1
   }
  },
- "NPCFNinaRodriguez": {
+ "NPCFArcJetTech02": {
   "races": {
-   "HumanChildRace": 1
+   "HumanRace": 1
   },
   "sex": {
    "female": 1
   }
  },
- "Announcer_QuarantineVoice": {
+ "NPCMAJ": {
   "races": {
    "HumanRace": 1
   },
@@ -1661,7 +903,196 @@
    "male": 1
   }
  },
- "DLC03FemaleKasumiNakano": {
+ "NPCMZeke": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04TraderMale": {
+  "races": {
+   "HumanRace": 3
+  },
+  "sex": {
+   "male": 3
+  }
+ },
+ "DN010_MayorWife": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCFTraveler01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03MaleNaveen": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFCricket": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "female": 2
+  }
+ },
+ "NPCMZ114": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMMedfordHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03FemaleMariner": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFGlory": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "MQ101InstAgentFemaleVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMVaultTecRep": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFMyrna": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMFinn": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMPrestonGarvey": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMElderMaxson": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04_Announcer_ElevatorVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC06MaleClem": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFGeneva": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "SynthGen3Male01": {
+  "races": {
+   "HumanRace": 8
+  },
+  "sex": {
+   "male": 8
+  }
+ },
+ "DLC01RobotCompanionBleepC": {
+  "races": {
+   "ProtectronRace": 3,
+   "SentryBotRace": 1,
+   "HandyRace": 2,
+   "AssaultronRace": 2,
+   "DLC01HandyCreateABotRace": 2,
+   "EyeBotRace": 1
+  },
+  "sex": {
+   "male": 11
+  }
+ },
+ "NPCMDN068Josh": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotEyebot": {
+  "races": {
+   "EyeBotRace": 34
+  },
+  "sex": {
+   "male": 34
+  }
+ },
+ "NPCFMagnolia": {
   "races": {
    "HumanRace": 1
   },
@@ -1682,183 +1113,7 @@
    "male": 81
   }
  },
- "DLC04NPCMOswald": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMLuisBatemenHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMGouger": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "CrRaiderDogVoice": {
-  "races": {
-   "RaiderDogRace": 22
-  },
-  "sex": {
-   "male": 22
-  }
- },
- "NPCMHenri": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03ComputerFemaleNucleusCountdown": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFProfessorScara": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMPrescottSoldier": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMarowski": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleTony": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMProctorQuinlan": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotMS11Bosun": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03CoAFemaleArchemist": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMSheffield": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03CoAFemaleZealotTheil": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC01NPCMJackson": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFDarcyPembroke": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMTinkerTom": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotLibertyPrime": {
-  "races": {
-   "LibertyPrimeRace": 4
-  },
-  "sex": {
-   "male": 4
-  }
- },
- "NPCMVaultTecScientist02": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFDesdemona": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04_CrCaveCricketVoice": {
-  "races": {
-   "DLC04_CaveCricketRace": 12
-  },
-  "sex": {
-   "male": 12
-  }
- },
- "NPCMBoSPaladinBrandis": {
+ "NPCMX6-88": {
   "races": {
    "HumanRace": 2
   },
@@ -1866,204 +1121,7 @@
    "male": 2
   }
  },
- "NPCMLorenzoCabot": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC01_NPCMJagger": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMSanchezHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFNisha": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMMarkFalconeHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "CrFeralGhoulVoice": {
-  "races": {
-   "FeralGhoulGlowingRace": 29,
-   "FeralGhoulRace": 101
-  },
-  "sex": {
-   "male": 129,
-   "female": 1
-  }
- },
- "DLC03MaleOldLongfellow": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFAvery": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFMadisonLi": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03MaleTeddyWright": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03TrapperMale01": {
-  "races": {
-   "HumanRace": 22
-  },
-  "sex": {
-   "female": 1,
-   "male": 21
-  }
- },
- "DLC03MaleSantiagoAvida": {
-  "races": {
-   "HumanRace": 1,
-   "DLC03RoboBrainRace": 1
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "MQ101NeighborMale01Voice": {
-  "races": {
-   "HumanRace": 3
-  },
-  "sex": {
-   "male": 3
-  }
- },
- "MQ101NeighborMaleBostonVoice": {
-  "races": {
-   "HumanRace": 5
-  },
-  "sex": {
-   "male": 5
-  }
- },
- "NPCFMyrna": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMParkerQuinn": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "PlayerVoiceMale01": {
-  "races": {
-   "HumanRace": 39
-  },
-  "sex": {
-   "male": 21,
-   "female": 18
-  }
- },
- "NPCMVaultTecScientist03": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMCito": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMPrestonGarvey": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMCalebHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03FemaleSandraLee": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMayorMcDonough": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03CoAMaleHighConfessorTektusSYNTH": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotSupervisorWhite": {
+ "RobotCurie": {
   "races": {
    "HandyRace": 1
   },
@@ -2071,12 +1129,84 @@
    "male": 1
   }
  },
- "MQ101PreWarSoldier02": {
+ "NPCMLancerCaptainKells": {
   "races": {
-   "HumanRace": 6
+   "HumanRace": 1
   },
   "sex": {
-   "male": 6
+   "male": 1
+  }
+ },
+ "DLC04NPCMTraveler02": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMDannySullivan": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFAlyssaPark": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFMariaSummerset": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03V118_RobotGeneric": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFNat": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMShaun10": {
+  "races": {
+   "HumanChildRace": 3
+  },
+  "sex": {
+   "male": 3
+  }
+ },
+ "NPCMManny": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMTedHuntley": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
   }
  },
  "MaleOld": {
@@ -2087,17 +1217,7 @@
    "male": 12
   }
  },
- "RaiderMale01": {
-  "races": {
-   "HumanRace": 224,
-   "GhoulRace": 2
-  },
-  "sex": {
-   "male": 225,
-   "female": 1
-  }
- },
- "NPCMNeilFreund": {
+ "NPCMDN033Hugo": {
   "races": {
    "HumanRace": 1
   },
@@ -2105,7 +1225,39 @@
    "male": 1
   }
  },
- "DLC03FemaleSisterGwyneth": {
+ "DLC03MaleBoSLarsen": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMDonnyKowalsky": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMOldManStockton": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "GunnersMale01": {
+  "races": {
+   "HumanRace": 64
+  },
+  "sex": {
+   "male": 64
+  }
+ },
+ "NPCFMirandaSong": {
   "races": {
    "HumanRace": 1
   },
@@ -2121,519 +1273,12 @@
    "male": 8
   }
  },
- "CrUniqueDogmeat": {
-  "races": {
-   "DogmeatRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "MuseumVoice2": {
-  "races": {
-   "SynthGen2RaceValentine": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DN088_NPCMPeteOwens": {
+ "NPCMVaultTecScientist06": {
   "races": {
    "HumanRace": 1
   },
   "sex": {
    "male": 1
-  }
- },
- "NPCFErinCombes": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMTSWallace": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DN088_NPCFJacquelineSpencer": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMPaladinDanse": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMVaultTecScientist05": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "NPCMKentConnolly": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DN041_NPCMHolotape01Actor": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC01_NPCMTonyDelano": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMJacobOrden": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFKendra": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFDoctorPatricia": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "HolotapeCommonGroundskeeper": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RadioMistressMysterious": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMBoSInitiateClarke": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMAaronCorbett": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMBradford": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleMarkWilson_ADV019": {
-  "races": {
-   "SynthGen2RaceValentine": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMMrCallahan": {
-  "races": {
-   "HumanRace": 3
-  },
-  "sex": {
-   "male": 3
-  }
- },
- "DLC04RobotProtectronCowboy": {
-  "races": {
-   "ProtectronRace": 6
-  },
-  "sex": {
-   "male": 6
-  }
- },
- "NPCFPennyFitzgerald": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFNat": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "RobotTurretLowTech": {
-  "races": {
-   "TurretTripodRace": 64,
-   "TurretWorkshopRace": 6,
-   "DLC04_AnimatronicAlienRace": 7
-  },
-  "sex": {
-   "male": 77
-  }
- },
- "DLC01RobotCompanionBleepA": {
-  "races": {
-   "ProtectronRace": 2,
-   "DLC01HandyCreateABotRace": 1,
-   "EyeBotRace": 3,
-   "HandyRace": 2,
-   "AssaultronRace": 2
-  },
-  "sex": {
-   "male": 10
-  }
- },
- "NPCMDeanVolkert": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03FemaleCaptainAvery": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DN010_Mayor": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMSkylanesPilot01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMEvanWatson": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMandyStiles": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMWilliamBlack": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "CrMirelurkHunter": {
-  "races": {
-   "MirelurkHunterRace": 30
-  },
-  "sex": {
-   "male": 30
-  }
- },
- "NPCMBull": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "FemaleRough": {
-  "races": {
-   "HumanRace": 49
-  },
-  "sex": {
-   "female": 49
-  }
- },
- "DLC04NPCMTraveler02": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "Announcer_AirportVoice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "HolotapeCITAdminVoice02": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMBoSScribeFaris": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04GangDiscipleMale01": {
-  "races": {
-   "HumanRace": 28
-  },
-  "sex": {
-   "male": 28
-  }
- },
- "NPCMJacobForsythe": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFTraderRylee": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMKnightCaptainCade": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotAssaultron": {
-  "races": {
-   "AssaultronRace": 53,
-   "StingwingRace": 1,
-   "HumanRace": 1,
-   "DLC01RoboBrainRace": 1,
-   "ProtectronRace": 1
-  },
-  "sex": {
-   "male": 57
-  }
- },
- "DLC04NPCFSierraPetrovita": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC01RobotCompanionFemaleDefault": {
-  "races": {
-   "ProtectronRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "HolotapeCITStudentVoice01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "RailroadAgentMale01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMRexGoodman": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMVaultTecScientist01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "MQ101NeighborFemale02Voice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "RobotDrFeelgood": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "MuseumVoiceF1": {
-  "races": {
-   "SynthGen2RaceValentine": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFDN068Emma": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "RobotSupervisorGreene": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "SynthGen1Male02": {
-  "races": {
-   "SynthGen1Race": 8,
-   "SynthGen2Race": 1
-  },
-  "sex": {
-   "male": 9
-  }
- },
- "DLC03FemaleMariner": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFNess": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFAlanaSecord": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "GunnersMaleMS05MajorJefferies": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMHawthorne": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFK1-98": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
   }
  },
  "NPCMDocCrocker": {
@@ -2644,7 +1289,7 @@
    "male": 1
   }
  },
- "DLC03FemaleChase": {
+ "NPCFWilhelminaCabot": {
   "races": {
    "HumanRace": 1
   },
@@ -2652,183 +1297,16 @@
    "female": 1
   }
  },
- "NPCMKellogg": {
+ "DLC03MaleSantiagoAvida": {
   "races": {
-   "HumanRace": 11
-  },
-  "sex": {
-   "male": 11
-  }
- },
- "RadioPoliceOfficer": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "MaleEvenToned": {
-  "races": {
-   "HumanRace": 128
-  },
-  "sex": {
-   "male": 128
-  }
- },
- "DLC04NPCMSamHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFMagsBlackYoungHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "Vault111Voice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCFLizzieWyath": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "CrCat": {
-  "races": {
-   "CatRace": 20
-  },
-  "sex": {
-   "male": 20
-  }
- },
- "ChildrenOfAtomFemale01": {
-  "races": {
-   "HumanRace": 17
-  },
-  "sex": {
-   "female": 17
-  }
- },
- "DLC01_NPCMThomasHarkin": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "BoSSquireMale01": {
-  "races": {
-   "HumanChildRace": 7
-  },
-  "sex": {
-   "male": 7
-  }
- },
- "FemaleGhoul": {
-  "races": {
-   "GhoulRace": 13
-  },
-  "sex": {
-   "female": 13
-  }
- },
- "NPCMColonelSmith": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "Announcer_HalluciGenMainframe": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMIsaacKarlin": {
-  "races": {
-   "HumanRace": 2
+   "HumanRace": 1,
+   "DLC03RoboBrainRace": 1
   },
   "sex": {
    "male": 2
   }
  },
- "DLC04_Announcer_BottlingPlant_NPCF": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03CoAMaleGrandZealotRichter": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMirandaSong": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMReise": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RadioPoliceChief": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RelayTowerHumanFemaleVoice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC01MechanistEyebot": {
-  "races": {
-   "EyeBotRace": 5
-  },
-  "sex": {
-   "male": 5
-  }
- },
- "DLC03SuperMutantErikson": {
+ "RelayTowerSupermutantVoice": {
   "races": {
    "SuperMutantRace": 1
   },
@@ -2836,15 +1314,23 @@
    "male": 1
   }
  },
- "NPCMPaulPembroke": {
+ "NPCFJuliaThompsonChild": {
   "races": {
-   "HumanRace": 2
+   "HumanChildRace": 1
   },
   "sex": {
-   "male": 2
+   "female": 1
   }
  },
- "DLC04_Announcer_NukaGalaxy_NPCF": {
+ "NPCMMrWashington": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFSierraPetrovita": {
   "races": {
    "HumanRace": 1
   },
@@ -2852,7 +1338,7 @@
    "female": 1
   }
  },
- "NPCMGeorgeCooper": {
+ "DN010_Guard": {
   "races": {
    "HumanRace": 1
   },
@@ -2860,31 +1346,7 @@
    "male": 1
   }
  },
- "NPCMGlowingSeaPOIDB01Pilot01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMNickValentine": {
-  "races": {
-   "SynthGen2RaceValentine": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMBarneyRook": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "HoloFLadiesAuxGemma": {
+ "NPCFAllieFilmore": {
   "races": {
    "HumanRace": 1
   },
@@ -2892,15 +1354,7 @@
    "female": 1
   }
  },
- "DLC03CrHermitCrabVoice": {
-  "races": {
-   "DLC03_HermitCrabRace": 7
-  },
-  "sex": {
-   "male": 7
-  }
- },
- "NPCMPrestonGarveyImpersonator": {
+ "DLC04NPCMLuisBatemenHolotape": {
   "races": {
    "HumanRace": 1
   },
@@ -2908,103 +1362,16 @@
    "male": 1
   }
  },
- "HolotapeInstituteVoiceFemale01": {
+ "MaleBoston": {
   "races": {
-   "HumanRace": 1
+   "HumanRace": 112
   },
   "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCFEmersonGatesHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "MQ203MemoryA_DadVoice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMNewtonOberly": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFSal": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMBosKnightGavil": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "SynthGen3Female02": {
-  "races": {
-   "HumanRace": 3
-  },
-  "sex": {
-   "female": 3
-  }
- },
- "HolotapeInstituteVoiceMale01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotMsNanny": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMKeithDawkins": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMMrParker": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "NPCFMrsWhitfield": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
+   "male": 110,
    "female": 2
   }
  },
- "DLC03CoAMaleHighConfessorTektus": {
+ "DN154_NPCMMarcWilson": {
   "races": {
    "HumanRace": 1
   },
@@ -3012,7 +1379,23 @@
    "male": 1
   }
  },
- "NPCMGerald": {
+ "DN157NorwegianGhoulMale02": {
+  "races": {
+   "GhoulRace": 3
+  },
+  "sex": {
+   "male": 3
+  }
+ },
+ "DLC04NPCMGage": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "NPCMBobbyDeLuca": {
   "races": {
    "HumanRace": 1
   },
@@ -3020,87 +1403,15 @@
    "male": 1
   }
  },
- "DLC04GangDiscipleFemale01": {
+ "DLC01RobotCompanionMaleDefault": {
   "races": {
-   "HumanRace": 21
+   "ProtectronRace": 3
   },
   "sex": {
-   "female": 21
+   "male": 3
   }
  },
- "NPCMDN033TimShoots": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03CrAnglerVoice": {
-  "races": {
-   "DLC03_AnglerRace": 11
-  },
-  "sex": {
-   "male": 11
-  }
- },
- "HolotapeCITStudentVoice03": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04_Announcer_RaiderRadio_NPCM": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "ChildrenOfAtomMale01": {
-  "races": {
-   "HumanRace": 36
-  },
-  "sex": {
-   "male": 36
-  }
- },
- "DLC04RobotNira": {
-  "races": {
-   "ProtectronRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMZeke": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMFensPhantom": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RadioVoiceInstitutePatrol1": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMSavoy": {
+ "DLC03FarHarborFF01HolotapeMale": {
   "races": {
    "HumanRace": 1
   },
@@ -3116,81 +1427,7 @@
    "male": 1
   }
  },
- "NPCMPreWarSoldier1": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMYefimBobrov": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleSpencerLords": {
-  "races": {
-   "HumanRace": 1,
-   "DLC03RoboBrainRace": 1
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "CrYaoGuaiVoice": {
-  "races": {
-   "YaoGuaiRace": 29
-  },
-  "sex": {
-   "male": 29
-  }
- },
- "DLC04GangDiscipleFemale02": {
-  "races": {
-   "HumanRace": 12
-  },
-  "sex": {
-   "female": 11,
-   "male": 1
-  }
- },
- "NPCMEnricoThompson": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC06FemaleOverseer": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMJustinAyo": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04RobotNukatron": {
-  "races": {
-   "ProtectronRace": 8
-  },
-  "sex": {
-   "male": 8
-  }
- },
- "NPCFKatherinePinn": {
+ "NPCFRoslynChambers": {
   "races": {
    "HumanRace": 1
   },
@@ -3198,15 +1435,23 @@
    "female": 1
   }
  },
- "DLC03MaleMoseley": {
+ "NPCMPetePembroke": {
   "races": {
-   "HumanRace": 1
+   "HumanChildRace": 1
   },
   "sex": {
    "male": 1
   }
  },
- "NPCFMrsParker": {
+ "DLC03CoAFemaleMotherOfFog": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04TraderFemale": {
   "races": {
    "HumanRace": 2
   },
@@ -3214,15 +1459,31 @@
    "female": 2
   }
  },
- "RelayTowerAutomatedVoice": {
+ "DLC04GangDiscipleFemale01": {
   "races": {
-   "ProtectronRace": 1
+   "HumanRace": 21
   },
   "sex": {
-   "male": 1
+   "female": 21
   }
  },
- "MQ101NeighborMale02Voice": {
+ "DLC04NPCFLaurenPlummer": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFBonnieTournquist": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "HolotapeCommonGroundskeeper": {
   "races": {
    "HumanRace": 1
   },
@@ -3230,27 +1491,9 @@
    "male": 1
   }
  },
- "DLC03FemaleJuliannaRiggs": {
+ "MuseumVoiceBritish1": {
   "races": {
-   "HumanRace": 1,
-   "DLC03RoboBrainRace": 1
-  },
-  "sex": {
-   "female": 1,
-   "male": 1
-  }
- },
- "NPCMTravisMiles": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMMacCready": {
-  "races": {
-   "HumanRace": 1
+   "SynthGen2RaceValentine": 1
   },
   "sex": {
    "male": 1
@@ -3264,47 +1507,7 @@
    "female": 1
   }
  },
- "DLC04NPCMMason": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMVirgilHuman": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "DLC04NPCFLucy": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03MaleUncleKen": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "SynthGen3Male02": {
-  "races": {
-   "HumanRace": 4
-  },
-  "sex": {
-   "male": 4
-  }
- },
- "DLC04_Announcer_NukaPark": {
+ "HoloFTheControlPeters": {
   "races": {
    "HumanRace": 1
   },
@@ -3312,634 +1515,15 @@
    "female": 1
   }
  },
- "GunnersMale01": {
+ "CrMirelurkVoice": {
   "races": {
-   "HumanRace": 64
+   "MirelurkRace": 57,
+   "RadRoachRace": 4,
+   "RadScorpionRace": 1,
+   "YaoGuaiRace": 5
   },
   "sex": {
-   "male": 64
-  }
- },
- "NPCMDN033Hugo": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMFredAllen": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03V118_RobotGeneric": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "GunnersFemaleMS05PvtHart": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMIanHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMDoctorSun": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMShank": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DN010_Guard": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04GangOperatorMale02": {
-  "races": {
-   "HumanRace": 11
-  },
-  "sex": {
-   "male": 11
-  }
- },
- "NPCMTedHuntley": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "InstituteScientistFemaleVoice": {
-  "races": {
-   "HumanRace": 14
-  },
-  "sex": {
-   "female": 14
-  }
- },
- "NPCMAJ": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotPAM": {
-  "races": {
-   "AssaultronRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMMinutemenRadioVoice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMariaSummerset": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMHoratio": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMGage": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "DLC03CrFogCrawlerVoice": {
-  "races": {
-   "DLC03_FogCrawlerRace": 14
-  },
-  "sex": {
-   "male": 14
-  }
- },
- "NPCMMrSmith": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "NPCMWickedTimVoice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMarleneGlass": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "GuardFemaleVault81": {
-  "races": {
-   "HumanRace": 5
-  },
-  "sex": {
-   "female": 5
-  }
- },
- "RobotNavigator": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleMacheteMike": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMKnightRhys": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFDaisy": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMrAble": {
-  "races": {
-   "HumanRace": 3
-  },
-  "sex": {
-   "male": 3
-  }
- },
- "NPCFBoSKnightLucia": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMScottEdwards": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMHoltCombes": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "_NPC_NoLines": {
-  "races": {
-   "HumanRace": 6,
-   "DLC05ArmorRackRace": 2
-  },
-  "sex": {
-   "female": 3,
-   "male": 5
-  }
- },
- "DLC04GangPackMale02": {
-  "races": {
-   "HumanRace": 18
-  },
-  "sex": {
-   "male": 18
-  }
- },
- "RaiderMale02": {
-  "races": {
-   "HumanRace": 22,
-   "GhoulRace": 3
-  },
-  "sex": {
-   "male": 25
-  }
- },
- "DLC03CrGulperVoice": {
-  "races": {
-   "DLC03_GulperSmallRace": 11,
-   "DLC03_GulperRace": 6
-  },
-  "sex": {
-   "male": 17
-  }
- },
- "NPCMClarenceCodman": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMStorytimeSimon": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotProtectron": {
-  "races": {
-   "ProtectronRace": 81,
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 82
-  }
- },
- "RaiderFemale01": {
-  "races": {
-   "GhoulRace": 4,
-   "HumanRace": 31
-  },
-  "sex": {
-   "female": 35
-  }
- },
- "NPCMJunkyard": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFSergeantMarcksHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "RadioMaleThug": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "CrRadRoach": {
-  "races": {
-   "RadRoachRace": 18
-  },
-  "sex": {
-   "male": 18
-  }
- },
- "DLC04_Announcer_NukaGalaxy_NPCFNukaGirl": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMrSumner": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFTinaDeLuca": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFIrma": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMShengKawolski": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RadioVoiceEyebotAnnouncer": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMMrWashington": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFSheila": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMDN068Josh": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFBeckyFallon": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "RadioFatFahey": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04POISC07NPCFKaliDunmore": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04_Announcer_NukaGalaxy_NPCM": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMagnolia_MuffledReverb": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFDarla": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04_CrGatorclawVoice": {
-  "races": {
-   "DLC04_GatorclawRace": 5
-  },
-  "sex": {
-   "male": 5
-  }
- },
- "NPCFRonnieShaw": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "MQ101NeighborFemale01Voice": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "female": 2
-  }
- },
- "RobotDeezer": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "MQ203MemoryA_KelloggChildVoice": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03MaleMrNakano": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMrsDonoghue": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "female": 2
-  }
- },
- "NPCMVadimBobrov": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMChipmunkHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFVaultTecScientist01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DN088_NPCFSylviaCooper": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMrRussell": {
-  "races": {
-   "HumanRace": 3
-  },
-  "sex": {
-   "male": 3
-  }
- },
- "NPCMWayneTournquist": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "CrSuperMutant02": {
-  "races": {
-   "SuperMutantRace": 9
-  },
-  "sex": {
-   "male": 9
-  }
- },
- "DLC04NPCMEvan": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC01_NPCFAniseCiroletti": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFMsRosa": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCFRachelHolotape": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03MaleAllenLee": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "HoloFLadiesAuxSue": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
+   "male": 67
   }
  },
  "CrSuperMutant": {
@@ -3950,83 +1534,7 @@
    "male": 118
   }
  },
- "DLC03FemaleMQ04System": {
-  "races": {
-   "SynthGen2Race": 1,
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1,
-   "female": 1
-  }
- },
- "MaleBoston": {
-  "races": {
-   "HumanRace": 112
-  },
-  "sex": {
-   "male": 110,
-   "female": 2
-  }
- },
- "DLC03FemaleCassieDalton": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMoeCronin": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFG9-81": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMysteriousStranger": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "SynthGen3Female01": {
-  "races": {
-   "HumanRace": 5
-  },
-  "sex": {
-   "female": 5
-  }
- },
- "DLC03MaleKeithMcKinney": {
-  "races": {
-   "HumanRace": 1,
-   "DLC03RoboBrainRace": 1
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "DLC04NPCMColter": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFGibson": {
+ "DLC04NPCFRachelHolotape": {
   "races": {
    "GhoulRace": 1
   },
@@ -4034,177 +1542,23 @@
    "female": 1
   }
  },
- "DLC04_Announcer_MQ00_NPCMRadioBottle": {
+ "RelayTowerAnnouncerVoice": {
   "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMMcDonnell": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFScarlett": {
-  "races": {
-   "HumanRace": 1
+   "ProtectronRace": 1
   },
   "sex": {
    "female": 1
   }
  },
- "BoSFemale01": {
+ "RobotDeezer": {
   "races": {
-   "HumanRace": 11
-  },
-  "sex": {
-   "female": 11
-  }
- },
- "CrMirelurkQueen": {
-  "races": {
-   "MirelurkQueenRace": 12,
-   "DLC03_FogCrawlerRace": 1,
-   "DeathclawRace": 1
-  },
-  "sex": {
-   "male": 14
-  }
- },
- "HolotapeInstituteVoiceMale02": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "DLC03MaleCole": {
-  "races": {
-   "HumanRace": 1
+   "HandyRace": 1
   },
   "sex": {
    "male": 1
   }
  },
- "NPCFBoSKnightAstlin": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMCaretaker": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMCorporalDowneyHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "MaleRough": {
-  "races": {
-   "HumanRace": 76
-  },
-  "sex": {
-   "male": 76
-  }
- },
- "NPCFRoslynChambers": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMarkSummerset": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMHancock": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMTraveler01": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "NPCFSmilingKate": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMMrWhitfield": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "DLC03CoAMaleBrotherKane": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFRunawayGirl": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMHam": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMGeneralGage": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFEvelynBlack_Holotape": {
+ "DLC03FemaleDebby": {
   "races": {
    "HumanRace": 1
   },
@@ -4220,236 +1574,15 @@
    "male": 1
   }
  },
- "DLC04NPCMDustyPolanskiHolotape": {
+ "NPCFMrsAble": {
   "races": {
-   "HumanRace": 1
+   "HumanRace": 3
   },
   "sex": {
-   "male": 1
+   "female": 3
   }
  },
- "NPCMHenryCooke": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "RobotWhitechapelCharlie": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFRosalindOrman": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMAbbot": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMLowRoadFranklin": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMSwanson": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "CrFeralDogVoice": {
-  "races": {
-   "ViciousDogRace": 44,
-   "RaiderDogRace": 9,
-   "HumanRace": 1,
-   "DLC03_MutatedWolfRace": 4
-  },
-  "sex": {
-   "male": 58
-  }
- },
- "NPCMOldManStockton": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFRobinHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03CrDataRetrieverVoice": {
-  "races": {
-   "DLC03VRDataRetrieverRace": 5
-  },
-  "sex": {
-   "male": 5
-  }
- },
- "CrDeathclawVoice": {
-  "races": {
-   "DeathclawRace": 45,
-   "DLC04DeathclawRaceQuantum": 1
-  },
-  "sex": {
-   "male": 46
-  }
- },
- "DN088_NPCMGeraldSpencer": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "CrBrahminVoice": {
-  "races": {
-   "BrahminRace": 18,
-   "DLC04_BrahmiluffRace": 7
-  },
-  "sex": {
-   "male": 25
-  }
- },
- "NPCMPetePembroke": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFParsonsGuardCaptain": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFScribeHaylen": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMBraxtonHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMFortStrongSoldier": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DN154_NPCMMarcWilson": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03HolotapeMaleCaptainWabash": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotIronsides": {
-  "races": {
-   "SentryBotRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "Announcer_SBostonCheckpoint": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMKarlOslow": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFGlory": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03MaleDejen": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMSolomon": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFBonnieTournquist": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "Announcer_JamaicaPlainVoiceF": {
+ "HolotapeCITStudentVoice03": {
   "races": {
    "HumanRace": 1
   },
@@ -4465,7 +1598,7 @@
    "female": 1
   }
  },
- "DLC04POISC07NPCMBrettDunmore": {
+ "NPCMPaladinDanse": {
   "races": {
    "HumanRace": 1
   },
@@ -4473,15 +1606,15 @@
    "male": 1
   }
  },
- "RobotCurie": {
+ "ChildrenOfAtomMale01": {
   "races": {
-   "HandyRace": 1
+   "HumanRace": 36
   },
   "sex": {
-   "male": 1
+   "male": 36
   }
  },
- "NPCMNorthy": {
+ "DN028_PaAnnouncerTeenageMale": {
   "races": {
    "HumanRace": 1
   },
@@ -4489,31 +1622,7 @@
    "male": 1
   }
  },
- "NPCFArcJetTech02": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03TrapperMale02": {
-  "races": {
-   "HumanRace": 8
-  },
-  "sex": {
-   "male": 8
-  }
- },
- "PlayerVoiceFemale01": {
-  "races": {
-   "HumanRace": 4
-  },
-  "sex": {
-   "female": 4
-  }
- },
- "NPCMDoctorCarrington": {
+ "RelayTowerHumanMaleVoice": {
   "races": {
    "HumanRace": 1
   },
@@ -4521,381 +1630,9 @@
    "male": 1
   }
  },
- "NPCMMel": {
+ "NPCMWinlock": {
   "races": {
    "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "Announcer_SubwayVoice": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMMeachamHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMJackCabot": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "GuardMaleDiamondCity02": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03FemaleJule": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04GangPackMale01": {
-  "races": {
-   "HumanRace": 39
-  },
-  "sex": {
-   "male": 39
-  }
- },
- "NPCMEdwardDeegan": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFLeavittHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "HolotapeCITArcjetExecVoice01": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMRoryRigwell": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMSkylanesPilot02": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMDrHein_Holotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMShaunBaby": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMagnolia": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "RobotEyebot": {
-  "races": {
-   "EyeBotRace": 34
-  },
-  "sex": {
-   "male": 34
-  }
- },
- "DLC04_Announcer_NukaGalaxy_NPCMWithStatic_DO_NOT_RECORD": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "GunnersFemale01": {
-  "races": {
-   "HumanRace": 9
-  },
-  "sex": {
-   "female": 9
-  }
- },
- "NPCMVaultTecRep": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMSturges": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "InstituteCourserMaleVoice": {
-  "races": {
-   "HumanRace": 23
-  },
-  "sex": {
-   "male": 23
-  }
- },
- "DLC03MaleKye": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFAlexisCombes": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC01RobotCompanionMaleDefault": {
-  "races": {
-   "ProtectronRace": 3
-  },
-  "sex": {
-   "male": 3
-  }
- },
- "NPCMCarl": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03FemaleDebby": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "FemaleEvenToned": {
-  "races": {
-   "HumanRace": 79
-  },
-  "sex": {
-   "female": 78,
-   "male": 1
-  }
- },
- "RobotTurretHighTech": {
-  "races": {
-   "TurretBubbleRace": 40,
-   "DLC01WorkshopWallLight": 2,
-   "DLC03VRDefenderTurretRace": 1
-  },
-  "sex": {
-   "male": 43
-  }
- },
- "DLC03HolotapeMaleConfessorMartin": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMNelsonLatimer": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "CrRadStag": {
-  "races": {
-   "RadStagRace": 30
-  },
-  "sex": {
-   "female": 9,
-   "male": 21
-  }
- },
- "NPCMPastorClements": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFMagnolia_NormalReverb": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "BoSMale02": {
-  "races": {
-   "HumanRace": 15
-  },
-  "sex": {
-   "male": 15
-  }
- },
- "NPCFRachel": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "female": 2
-  }
- },
- "NPCMDeacon": {
-  "races": {
-   "HumanRace": 5
-  },
-  "sex": {
-   "male": 5
-  }
- },
- "NPCFMrsAble": {
-  "races": {
-   "HumanRace": 3
-  },
-  "sex": {
-   "female": 3
-  }
- },
- "HoloFTheControlPeters": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03MaleDiMA": {
-  "races": {
-   "DLC03_SynthGen2RaceDiMa": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMBobbyDeLuca": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFJuliaThompsonChild": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCFAnneHargraves": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC04NPCMDelWalshHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFKateHolotape": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "NPCMJunLong": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03FemaleBertha": {
-  "races": {
-   "HumanChildRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "DLC03CrRadRabbit": {
-  "races": {
-   "DLC03_RadRabbitRace": 1
   },
   "sex": {
    "male": 1
@@ -4917,95 +1654,7 @@
    "female": 1
   }
  },
- "DLC04NPCMHarvey": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMDale": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotMolly": {
-  "races": {
-   "HandyRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "NPCMBlythe": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC03RobotPearl": {
-  "races": {
-   "HandyRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMMS07bMartyBullfinch": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMDavies": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCMBrianFitzgerald": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCMMcDermotGhoulHolotape": {
-  "races": {
-   "GhoulRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "FemaleOld": {
-  "races": {
-   "HumanRace": 10
-  },
-  "sex": {
-   "female": 10
-  }
- },
- "DLC04_CrBloodwormVoice": {
-  "races": {
-   "DLC04_BloodwormRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC01_Announcer_FacilityMainframeVoiceF": {
+ "DLC04_Announcer_NukaGalaxy_NPCFNukaGirl": {
   "races": {
    "HumanRace": 1
   },
@@ -5013,7 +1662,23 @@
    "female": 1
   }
  },
- "DLC04NPCFMajaAdamsHolotape": {
+ "DLC01_NPCMJagger": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "GunnersMale02": {
+  "races": {
+   "HumanRace": 16
+  },
+  "sex": {
+   "male": 16
+  }
+ },
+ "DLC04_Announcer_NukaGalaxy_NPCFNukaGirlWithStatic_DO_NOT_RECORD": {
   "races": {
    "HumanRace": 1
   },
@@ -5021,7 +1686,15 @@
    "female": 1
   }
  },
- "DLC04NPCFTraveler02": {
+ "NPCMJohn": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFEmogeneCabot": {
   "races": {
    "HumanRace": 2
   },
@@ -5029,111 +1702,16 @@
    "female": 2
   }
  },
- "NPCMStanSlavin": {
+ "CrDeathclawVoice": {
   "races": {
-   "HumanRace": 1
+   "DeathclawRace": 45,
+   "DLC04DeathclawRaceQuantum": 1
   },
   "sex": {
-   "male": 1
+   "male": 46
   }
  },
- "InstituteScientistMaleVoice": {
-  "races": {
-   "HumanRace": 14
-  },
-  "sex": {
-   "male": 14
-  }
- },
- "NPCMLiamBinet": {
-  "races": {
-   "HumanRace": 2
-  },
-  "sex": {
-   "male": 2
-  }
- },
- "RelayTowerAnnouncerVoice": {
-  "races": {
-   "ProtectronRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "MuseumVoiceBritish1": {
-  "races": {
-   "SynthGen2RaceValentine": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFElliePerkins": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "GuardMaleDiamondCity01": {
-  "races": {
-   "HumanRace": 14
-  },
-  "sex": {
-   "male": 14
-  }
- },
- "NPCMMisterZwicky": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "RobotTakahashi": {
-  "races": {
-   "ProtectronRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "Announcer_PrydwenAirTrafficControl": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "NPCFEustace": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "female": 1
-  }
- },
- "MaleTriggerman01": {
-  "races": {
-   "HumanRace": 43
-  },
-  "sex": {
-   "male": 43
-  }
- },
- "DLC06MaleClem": {
-  "races": {
-   "HumanRace": 1
-  },
-  "sex": {
-   "male": 1
-  }
- },
- "DLC04NPCFLaurenPlummer": {
+ "NPCFMsRosa": {
   "races": {
    "HumanRace": 1
   },
@@ -5149,15 +1727,48 @@
    "male": 1
   }
  },
- "CrStingwingVoice": {
+ "NPCMDocWeathers": {
   "races": {
-   "StingwingRace": 27
+   "HumanRace": 1
   },
   "sex": {
-   "male": 27
+   "male": 1
   }
  },
- "DLC04NPCFDixie": {
+ "NPCMNelsonLatimer": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RelayTowerAutomatedVoice": {
+  "races": {
+   "ProtectronRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RaiderMale02": {
+  "races": {
+   "HumanRace": 22,
+   "GhoulRace": 3
+  },
+  "sex": {
+   "male": 25
+  }
+ },
+ "NPCMBlythe": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFSergeantLanierHolotape": {
   "races": {
    "HumanRace": 1
   },
@@ -5165,12 +1776,638 @@
    "female": 1
   }
  },
- "CrSuperMutantBehemoth": {
+ "NPCFTraderRylee": {
   "races": {
-   "SupermutantBehemothRace": 14
+   "HumanRace": 1
   },
   "sex": {
-   "male": 14
+   "female": 1
+  }
+ },
+ "NPCMHam": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RaiderMale01": {
+  "races": {
+   "HumanRace": 224,
+   "GhoulRace": 2
+  },
+  "sex": {
+   "male": 225,
+   "female": 1
+  }
+ },
+ "RailroadAgentMale01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFNinaRodriguez": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMGeorgeCooper": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMPaulPembroke": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "MaleChild": {
+  "races": {
+   "HumanChildRace": 8
+  },
+  "sex": {
+   "male": 8
+  }
+ },
+ "NPCMGouger": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "MuseumVoiceF1": {
+  "races": {
+   "SynthGen2RaceValentine": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFMrsParker": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "female": 2
+  }
+ },
+ "CrBloodBugVoice": {
+  "races": {
+   "BloodbugRace": 31
+  },
+  "sex": {
+   "male": 31
+  }
+ },
+ "DN041_NPCMHolotape01Actor": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMWickedTimVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMacCready": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotLookout": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMMason": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03MaleLevi_ADV014": {
+  "races": {
+   "SynthGen2RaceValentine": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMHoltCombes": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMTraveler01": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "NPCMShaunBaby": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04RobotNukatron": {
+  "races": {
+   "ProtectronRace": 8
+  },
+  "sex": {
+   "male": 8
+  }
+ },
+ "DLC04NPCFEvelynBlack_Holotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCMJesseMcDanielHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMKentConnolly": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "SynthGen1Male02": {
+  "races": {
+   "SynthGen1Race": 8,
+   "SynthGen2Race": 1
+  },
+  "sex": {
+   "male": 9
+  }
+ },
+ "NPCFRachel": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "female": 2
+  }
+ },
+ "NPCFScarlett": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03FemaleMiranda": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMProctorTeagan": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFErinCombes": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMLucasMiller": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFKendra": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "MQ203MemoryA_KelloggChildVoice": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04_CrBloodwormVoice": {
+  "races": {
+   "DLC04_BloodwormRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMH2-22": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrBloatflyVoice": {
+  "races": {
+   "BloatflyRace": 25
+  },
+  "sex": {
+   "male": 25
+  }
+ },
+ "SynthGen1Male01": {
+  "races": {
+   "SynthGen1Race": 106,
+   "SynthGen2Race": 21
+  },
+  "sex": {
+   "male": 127
+  }
+ },
+ "DLC04NPCMDrMcDermot": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "MQ101NeighborMale02Voice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03FemaleBertha": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMVault111Security": {
+  "races": {
+   "HumanRace": 7
+  },
+  "sex": {
+   "male": 7
+  }
+ },
+ "DLC03MaleTony": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFMackenzieBridgeman": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMRickyDalton": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03CoAFemaleSisterAubert": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMScottEdwards": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMNickValentine": {
+  "races": {
+   "SynthGen2RaceValentine": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC01MechanistEyebot": {
+  "races": {
+   "EyeBotRace": 5
+  },
+  "sex": {
+   "male": 5
+  }
+ },
+ "NPCMChrisRosa": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrRaiderDogVoice": {
+  "races": {
+   "RaiderDogRace": 22
+  },
+  "sex": {
+   "male": 22
+  }
+ },
+ "DLC04NPCFSergeantMarcksHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFBeckyFallon": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMGlowingSeaPOIDB01Pilot01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03MaleFaraday": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "SynthGen3Female01": {
+  "races": {
+   "HumanRace": 5
+  },
+  "sex": {
+   "female": 5
+  }
+ },
+ "DLC03MaleTeddyWright": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMMQ04Sinner": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04POISC07NPCFKaliDunmore": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "GunnersMaleMS05SgtLee": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMA951": {
+  "races": {
+   "SynthGen2Race": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RadioShroudAnnouncer": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMDale": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMMarkFalconeHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "Vault111Voice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "MaleTriggerman01": {
+  "races": {
+   "HumanRace": 43
+  },
+  "sex": {
+   "male": 43
+  }
+ },
+ "CrRadRoach": {
+  "races": {
+   "RadRoachRace": 18
+  },
+  "sex": {
+   "male": 18
+  }
+ },
+ "Announcer_PulowskiVoice": {
+  "races": {
+   "SynthGen2RaceValentine": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03FemaleGildaBroscoe": {
+  "races": {
+   "HumanRace": 1,
+   "DLC03RoboBrainRace": 1
+  },
+  "sex": {
+   "female": 1,
+   "male": 1
+  }
+ },
+ "NPCMLawrenceHiggs": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04RobotProtectronCowboy": {
+  "races": {
+   "ProtectronRace": 6
+  },
+  "sex": {
+   "male": 6
+  }
+ },
+ "CrRadStag": {
+  "races": {
+   "RadStagRace": 30
+  },
+  "sex": {
+   "female": 9,
+   "male": 21
+  }
+ },
+ "NPCMMichaelTournquist": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03FemaleMQ04System": {
+  "races": {
+   "SynthGen2Race": 1,
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1,
+   "female": 1
+  }
+ },
+ "CrMoleratVoice": {
+  "races": {
+   "MoleratRace": 34,
+   "DLC04_BloodwormRace": 23
+  },
+  "sex": {
+   "male": 57
+  }
+ },
+ "DLC04NPCFMagsBlack": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "CrMirelurkHunter": {
+  "races": {
+   "MirelurkHunterRace": 30
+  },
+  "sex": {
+   "male": 30
+  }
+ },
+ "RelayTowerHumanFemaleVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
   }
  },
  "NPCMMrDonoghue": {
@@ -5179,6 +2416,402 @@
   },
   "sex": {
    "male": 2
+  }
+ },
+ "DLC03FemaleChase": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03CrAnglerVoice": {
+  "races": {
+   "DLC03_AnglerRace": 11
+  },
+  "sex": {
+   "male": 11
+  }
+ },
+ "DLC03MaleAllenLee": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMBarneyRook": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMProctorQuinlan": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03CrRadRabbit": {
+  "races": {
+   "DLC03_RadRabbitRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "InstituteCourserMaleVoice": {
+  "races": {
+   "HumanRace": 23
+  },
+  "sex": {
+   "male": 23
+  }
+ },
+ "RobotSentryBot": {
+  "races": {
+   "SentryBotRace": 64,
+   "ProtectronRace": 1
+  },
+  "sex": {
+   "male": 65
+  }
+ },
+ "Announcer_QuarantineVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMBoSPaladinBrandis": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "NPCMDoctorChandrich": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03MaleBertRiggs": {
+  "races": {
+   "HumanRace": 1,
+   "DLC03RoboBrainRace": 1
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "RadioPoliceChief": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03CoAMaleHighConfessorTektus": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC01NPCMJackson": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMBosKnightGavil": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMTheodoreCollins": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMFortStrongSoldier": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "FemaleGhoul": {
+  "races": {
+   "GhoulRace": 13
+  },
+  "sex": {
+   "female": 13
+  }
+ },
+ "NPCFAmeliaStockton": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "HolotapeCITAdminVoice01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFRunawayGirl": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03FemaleCaptainAvery": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "RobotMolly": {
+  "races": {
+   "HandyRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "DLC03MaleUncleKen": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMVaultTecScientist03": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMKellogg": {
+  "races": {
+   "HumanRace": 11
+  },
+  "sex": {
+   "male": 11
+  }
+ },
+ "NPCFMagnolia_MuffledReverb": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFAlexisCombes": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCMSamHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RaiderFemale01": {
+  "races": {
+   "GhoulRace": 4,
+   "HumanRace": 31
+  },
+  "sex": {
+   "female": 35
+  }
+ },
+ "NPCMDN019CultLeader": {
+  "races": {
+   "HumanRace": 5
+  },
+  "sex": {
+   "male": 5
+  }
+ },
+ "DLC04NPCMAaronCorbett": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "PlayerVoiceFemale01": {
+  "races": {
+   "HumanRace": 4
+  },
+  "sex": {
+   "female": 4
+  }
+ },
+ "NPCMLiamBinet": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "NPCMCalvinWhitaker": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMSinjin": {
+  "races": {
+   "GhoulRace": 1,
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "NPCMMrWhitfield": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "DLC03FemaleJule": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMFredAllen": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RadioVoiceEyebotAnnouncer": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMGerald": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMOswald": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMLorenzoCabot": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMDN033Management": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotIronsides": {
+  "races": {
+   "SentryBotRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFPolly": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "MuseumVoice2": {
+  "races": {
+   "SynthGen2RaceValentine": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFTinaDeLuca": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
   }
  },
  "NPCMBilly": {
@@ -5190,7 +2823,7 @@
    "male": 2
   }
  },
- "NPCFCherylGlass": {
+ "DLC03CoAFemaleZealotTheil": {
   "races": {
    "HumanRace": 1
   },
@@ -5198,15 +2831,15 @@
    "female": 1
   }
  },
- "MQ101InstAgentMaleVoice": {
+ "NPCFNess": {
   "races": {
    "HumanRace": 1
   },
   "sex": {
-   "male": 1
+   "female": 1
   }
  },
- "RobotFirstMate": {
+ "DLC01RobotCompanionMaleProcessed": {
   "races": {
    "ProtectronRace": 1
   },
@@ -5214,11 +2847,416 @@
    "male": 1
   }
  },
- "RelayTowerHumanMaleVoice": {
+ "FemaleBoston": {
+  "races": {
+   "HumanRace": 55
+  },
+  "sex": {
+   "female": 55
+  }
+ },
+ "DLC04NPCMDrHein_Holotape": {
   "races": {
    "HumanRace": 1
   },
   "sex": {
+   "male": 1
+  }
+ },
+ "DLC03CoAFemaleArchemist": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCMVictorHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "MQ101PreWarSoldier02": {
+  "races": {
+   "HumanRace": 6
+  },
+  "sex": {
+   "male": 6
+  }
+ },
+ "NPCFSmilingKate": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMNorthy": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMVaultTecRepGhoul": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "MaleGhoul": {
+  "races": {
+   "GhoulRace": 20,
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 21
+  }
+ },
+ "CrRadscorpion": {
+  "races": {
+   "RadScorpionRace": 29
+  },
+  "sex": {
+   "male": 29
+  }
+ },
+ "NPCMKnightRhys": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFElliePerkins": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04POISC07NPCMBrettDunmore": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMVaultTecScientist05": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "CrMirelurkKingVoice": {
+  "races": {
+   "MirelurkKingRace": 24
+  },
+  "sex": {
+   "male": 24
+  }
+ },
+ "DLC04NPCMClarkHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMAustinEngill": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMEddieWinter": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrSuperMutant02": {
+  "races": {
+   "SuperMutantRace": 9
+  },
+  "sex": {
+   "male": 9
+  }
+ },
+ "SynthGen3Male02": {
+  "races": {
+   "HumanRace": 4
+  },
+  "sex": {
+   "male": 4
+  }
+ },
+ "DLC03TrapperMale02": {
+  "races": {
+   "HumanRace": 8
+  },
+  "sex": {
+   "male": 8
+  }
+ },
+ "NPCMMoeCronin": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03MaleMacheteMike": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFSheila": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMTSWallace": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrMirelurklingVoice": {
+  "races": {
+   "RadRoachRace": 5
+  },
+  "sex": {
+   "male": 5
+  }
+ },
+ "HoloFLadiesAuxJennie": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "HolotapeCITStudentVoice01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMBrendanVolkert": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFLizzieWyath": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "MQ101NeighborFemale01Voice": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "female": 2
+  }
+ },
+ "DLC03FemaleCassieDalton": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03MaleMrNakano": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMCorporalDowneyHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMGeneralGage": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMDelWalshHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMrRussell": {
+  "races": {
+   "HumanRace": 3
+  },
+  "sex": {
+   "male": 3
+  }
+ },
+ "NPCFArcJetTech01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "Announcer_HalluciGenMainframe": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMBoSScribeFaris": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrFeralDogVoice": {
+  "races": {
+   "ViciousDogRace": 44,
+   "RaiderDogRace": 9,
+   "HumanRace": 1,
+   "DLC03_MutatedWolfRace": 4
+  },
+  "sex": {
+   "male": 58
+  }
+ },
+ "NPCMNeilFreund": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFMadisonLi": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03MaleCole": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03CoAMaleGrandZealotRichter": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotLibertyPrime": {
+  "races": {
+   "LibertyPrimeRace": 4
+  },
+  "sex": {
+   "male": 4
+  }
+ },
+ "HolotapeCITAdminVoice02": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "HolotapeInstituteVoiceMale02": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "CrSuperMutantBehemoth": {
+  "races": {
+   "SupermutantBehemothRace": 14
+  },
+  "sex": {
+   "male": 14
+  }
+ },
+ "RadioPoliceOfficer": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04GangPackFemale01": {
+  "races": {
+   "HumanRace": 22
+  },
+  "sex": {
+   "female": 21,
    "male": 1
   }
  },
@@ -5230,15 +3268,7 @@
    "male": 1
   }
  },
- "DLC04_CrRadAntVoice": {
-  "races": {
-   "DLC04_RadAntRace": 24
-  },
-  "sex": {
-   "male": 24
-  }
- },
- "DLC04NPCFShelbieChase": {
+ "NPCFFahrenheit": {
   "races": {
    "HumanRace": 1
   },
@@ -5246,7 +3276,575 @@
    "female": 1
   }
  },
- "MQ203MemoryB_SarahVoice": {
+ "NPCMJunLong": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMVaultTecScientist02": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMYefimBobrov": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrBrahminVoice": {
+  "races": {
+   "BrahminRace": 18,
+   "DLC04_BrahmiluffRace": 7
+  },
+  "sex": {
+   "male": 25
+  }
+ },
+ "DLC03CrChickenVoice": {
+  "races": {
+   "DLC03_RadChickenRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "DLC04NPCMSanchezHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "FemaleChild": {
+  "races": {
+   "HumanChildRace": 7
+  },
+  "sex": {
+   "female": 7
+  }
+ },
+ "DLC04GangOperatorFemale01": {
+  "races": {
+   "HumanRace": 18
+  },
+  "sex": {
+   "female": 18
+  }
+ },
+ "DLC03CoAFemaleSisterMai": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "_NPC_NoLines": {
+  "races": {
+   "HumanRace": 6,
+   "DLC05ArmorRackRace": 2
+  },
+  "sex": {
+   "female": 3,
+   "male": 5
+  }
+ },
+ "DLC04GangPackMale01": {
+  "races": {
+   "HumanRace": 39
+  },
+  "sex": {
+   "male": 39
+  }
+ },
+ "NPCFKatherinePinn": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "MQ101NeighborMaleBostonVoice": {
+  "races": {
+   "HumanRace": 5
+  },
+  "sex": {
+   "male": 5
+  }
+ },
+ "NPCFDarcyPembroke": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DN010_Mayor": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMVaultTecScientist07": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03MaleCog": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04GangPackMale02": {
+  "races": {
+   "HumanRace": 18
+  },
+  "sex": {
+   "male": 18
+  }
+ },
+ "DN157NorwegianGhoulMale01": {
+  "races": {
+   "GhoulRace": 5
+  },
+  "sex": {
+   "male": 5
+  }
+ },
+ "NPCMVaultTecScientist01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFProfessorScara": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "GunnersMaleMS05MajorJefferies": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RadioFatFahey": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03ComputerFemaleNucleusCountdown": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "Announcer_SBostonCheckpoint": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFDixie": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "MQ203MemoryA_MomVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCMWeylanHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFParsonsGuardCaptain": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "CrFEVHoundVoice": {
+  "races": {
+   "FEVHoundRace": 16
+  },
+  "sex": {
+   "male": 16
+  }
+ },
+ "NPCMFensPhantom": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03SuperMutantErikson": {
+  "races": {
+   "SuperMutantRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMayorMcDonough": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMEdwardDeegan": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMBoSInitiateClarke": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04_Announcer_NukaGalaxy_NPCM": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMel": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotGraygardenWorker": {
+  "races": {
+   "HandyRace": 3
+  },
+  "sex": {
+   "male": 3
+  }
+ },
+ "DLC04GangOperatorMale01": {
+  "races": {
+   "HumanRace": 33
+  },
+  "sex": {
+   "male": 33
+  }
+ },
+ "NPCMSturges": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "FemaleEvenToned": {
+  "races": {
+   "HumanRace": 79
+  },
+  "sex": {
+   "female": 78,
+   "male": 1
+  }
+ },
+ "NPCMMrAble": {
+  "races": {
+   "HumanRace": 3
+  },
+  "sex": {
+   "male": 3
+  }
+ },
+ "DLC03MaleKye": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFProctorIngram": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMSwanson": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04_Announcer_NukaGalaxy_NPCF": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC01RobotCompanionFemaleDefault": {
+  "races": {
+   "ProtectronRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "DLC04NPCFLeavittHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DN088_NPCFSylviaCooper": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04GangDiscipleFemale02": {
+  "races": {
+   "HumanRace": 12
+  },
+  "sex": {
+   "female": 11,
+   "male": 1
+  }
+ },
+ "NPCFDesdemona": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03MaleMarkWilson_ADV019": {
+  "races": {
+   "SynthGen2RaceValentine": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "SynthGen1Male03": {
+  "races": {
+   "SynthGen1Race": 5,
+   "SynthGen2Race": 1
+  },
+  "sex": {
+   "male": 6
+  }
+ },
+ "DLC03CrFogCrawlerVoice": {
+  "races": {
+   "DLC03_FogCrawlerRace": 14
+  },
+  "sex": {
+   "male": 14
+  }
+ },
+ "DLC04_CrSwarmVoice": {
+  "races": {
+   "DLC04_SwarmRace": 11
+  },
+  "sex": {
+   "male": 11
+  }
+ },
+ "NPCMVirgilHuman": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "CrMirelurkQueen": {
+  "races": {
+   "MirelurkQueenRace": 12,
+   "DLC03_FogCrawlerRace": 1,
+   "DeathclawRace": 1
+  },
+  "sex": {
+   "male": 14
+  }
+ },
+ "NPCMHawthorne": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03CoAMaleBrotherKane": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFRonnieShaw": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "RadioMayorMurphy": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMIanHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMSolomon": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFPhyllisDaily": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC01_NPCFAniseCiroletti": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "MaleEvenToned": {
+  "races": {
+   "HumanRace": 128
+  },
+  "sex": {
+   "male": 128
+  }
+ },
+ "DLC04NPCMColter": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMrCallahan": {
+  "races": {
+   "HumanRace": 3
+  },
+  "sex": {
+   "male": 3
+  }
+ },
+ "NPCMDeacon": {
+  "races": {
+   "HumanRace": 5
+  },
+  "sex": {
+   "male": 5
+  }
+ },
+ "NPCMRexGoodman": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "GunnersFemaleMS05PvtHart": {
   "races": {
    "HumanRace": 1
   },
@@ -5262,7 +3860,104 @@
    "female": 1
   }
  },
- "NPCFFahrenheit": {
+ "NPCMMysteriousStranger": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMCito": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMalcolmLatimer": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "NPCMHenri": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFLucy": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03CrGulperVoice": {
+  "races": {
+   "DLC03_GulperSmallRace": 11,
+   "DLC03_GulperRace": 6
+  },
+  "sex": {
+   "male": 17
+  }
+ },
+ "CrUniqueDogmeat": {
+  "races": {
+   "DogmeatRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "NPCMTravisMiles_MQ203Music": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMKeithDawkins": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "Announcer_AirportVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMRabbitHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMJustinAyo": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFMagsBlackYoungHolotape": {
   "races": {
    "HumanRace": 1
   },
@@ -5270,12 +3965,1317 @@
    "female": 1
   }
  },
- "CrMirelurkKingVoice": {
+ "DLC04_Announcer_RaiderRadio_NPCM": {
   "races": {
-   "MirelurkKingRace": 24
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "GuardMaleVault81": {
+  "races": {
+   "HumanRace": 8
+  },
+  "sex": {
+   "male": 8
+  }
+ },
+ "NPCFDaisy": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMDutchman": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFSal": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "RobotTakahashi": {
+  "races": {
+   "ProtectronRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "ChildrenOfAtomMale02": {
+  "races": {
+   "HumanRace": 5
+  },
+  "sex": {
+   "male": 5
+  }
+ },
+ "NPCFCurie": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "female": 2
+  }
+ },
+ "RadioVoiceInstitutePatrol1": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMaxLoken": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RadioSilverShroud": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFKaylor": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "BoSSquireFemale01": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFRowdy": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCFMajaAdamsHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMVadimBobrov": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotMrHandy": {
+  "races": {
+   "HandyRace": 87,
+   "HumanRace": 2,
+   "DLC01HandyCreateABotRace": 14
+  },
+  "sex": {
+   "male": 103
+  }
+ },
+ "NPCFK1-98": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04_Announcer_BottlingPlant_NPCF": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCFKatelynAlden": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "Announcer_PrydwenAirTrafficControl": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMAlanBinet": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMIsaacKarlin": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "DLC04NPCMBraxtonHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03TrapperMale01": {
+  "races": {
+   "HumanRace": 22
+  },
+  "sex": {
+   "female": 1,
+   "male": 21
+  }
+ },
+ "NPCFMrsWhitfield": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "female": 2
+  }
+ },
+ "GuardMaleDiamondCity02": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03MaleEzraParker": {
+  "races": {
+   "HumanRace": 1,
+   "DLC03RoboBrainRace": 1
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "DLC04_CrCaveCricketVoice": {
+  "races": {
+   "DLC04_CaveCricketRace": 12
+  },
+  "sex": {
+   "male": 12
+  }
+ },
+ "NPCMSkinnyMalone": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RadioVoiceInstituteAxis": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "Announcer_SubwayVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMSheffield": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFCait": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMTVAnchorman": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFDoctorAmari": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "RobotMS11Bosun": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFScribeNeriah": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMJacobForsythe": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04_CrRadRatVoice": {
+  "races": {
+   "DLC04_RadRatRace": 17
+  },
+  "sex": {
+   "male": 17
+  }
+ },
+ "NPCFAnnCodman": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFBobbiNoNose": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "HoloFLadiesAuxBecka": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC01_NPCMThomasHarkin": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMDavies": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotSupervisorWhite": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03MaleMaineAccent": {
+  "races": {
+   "HumanRace": 11
+  },
+  "sex": {
+   "male": 11
+  }
+ },
+ "PlayerVoiceMale01": {
+  "races": {
+   "HumanRace": 39
+  },
+  "sex": {
+   "male": 21,
+   "female": 18
+  }
+ },
+ "NPCFEustace": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03FemaleMrsNakano": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "CrSuperMutant03": {
+  "races": {
+   "SuperMutantRace": 9
+  },
+  "sex": {
+   "male": 9
+  }
+ },
+ "NPCMBarnes": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFRosalindOrman": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMMisterZwicky": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrStingwingVoice": {
+  "races": {
+   "StingwingRace": 27
+  },
+  "sex": {
+   "male": 27
+  }
+ },
+ "DLC04_Announcer_NukaPark": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "InstituteScientistMaleVoice": {
+  "races": {
+   "HumanRace": 14
+  },
+  "sex": {
+   "male": 14
+  }
+ },
+ "RobotMrGutsy": {
+  "races": {
+   "HandyRace": 38
+  },
+  "sex": {
+   "male": 38
+  }
+ },
+ "CrYaoGuaiVoice": {
+  "races": {
+   "YaoGuaiRace": 29
+  },
+  "sex": {
+   "male": 29
+  }
+ },
+ "DLC04NPCFRobinHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMPerry": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03FemaleKasumiNakano": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "RobotArcJetComputer": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03CrHermitCrabVoice": {
+  "races": {
+   "DLC03_HermitCrabRace": 7
+  },
+  "sex": {
+   "male": 7
+  }
+ },
+ "RadioMaleThug": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03HolotapeFemaleFranny": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "HolotapeCITArcjetExecVoice01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMSkylanesPilot02": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DN088_NPCFJacquelineSpencer": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMMrParker": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "RobotFirstMate": {
+  "races": {
+   "ProtectronRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFAvery": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFMarleneGlass": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCMMeachamHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFPriscillaPenske": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMVaultTecScientist04": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "NPCMLowRoadFranklin": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFPennyFitzgerald": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC01_Announcer_FacilityMainframeVoiceF": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC01RobotCompanionBleepA": {
+  "races": {
+   "ProtectronRace": 2,
+   "DLC01HandyCreateABotRace": 1,
+   "EyeBotRace": 3,
+   "HandyRace": 2,
+   "AssaultronRace": 2
+  },
+  "sex": {
+   "male": 10
+  }
+ },
+ "RobotWhitechapelCharlie": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03MaleMitch": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03HolotapeMaleConfessorMartin": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFMandyStiles": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFMrsDonoghue": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "female": 2
+  }
+ },
+ "NPCMSkylanesPilot01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotSupervisorGreene": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04_Announcer_MQ00_NPCMRadio": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFMrsSumner": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04_CrRadAntVoice": {
+  "races": {
+   "DLC04_RadAntRace": 24
   },
   "sex": {
    "male": 24
+  }
+ },
+ "DLC04NPCMJohnCalebBradberton": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "HolotapeInstituteVoiceFemale01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "RobotAssaultron": {
+  "races": {
+   "AssaultronRace": 53,
+   "StingwingRace": 1,
+   "HumanRace": 1,
+   "DLC01RoboBrainRace": 1,
+   "ProtectronRace": 1
+  },
+  "sex": {
+   "male": 57
+  }
+ },
+ "RobotMsNanny": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03RobotPearl": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03HolotapeMaleCaptainWabash": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMSavoy": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMCalebHolotape": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMBradford": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "CrCat": {
+  "races": {
+   "CatRace": 20
+  },
+  "sex": {
+   "male": 20
+  }
+ },
+ "DN088_NPCMPeteOwens": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMMcDermotGhoulHolotape": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFVaultTecScientist01": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMCaptainZao": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMBull": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFShelbieChase": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMBrianFitzgerald": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04_Announcer_MQ00_NPCMRadioBottle": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "MaleRough": {
+  "races": {
+   "HumanRace": 76
+  },
+  "sex": {
+   "male": 76
+  }
+ },
+ "CrGorillaVoice": {
+  "races": {
+   "GorillaRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCFDaraHubbell": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03CoAMaleHighConfessorTektusSYNTH": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMinutemenRadioVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMHenryCooke": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "HoloFLadiesAuxGemma": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "RobotTurretHighTech": {
+  "races": {
+   "TurretBubbleRace": 40,
+   "DLC01WorkshopWallLight": 2,
+   "DLC03VRDefenderTurretRace": 1
+  },
+  "sex": {
+   "male": 43
+  }
+ },
+ "BoSMale02": {
+  "races": {
+   "HumanRace": 15
+  },
+  "sex": {
+   "male": 15
+  }
+ },
+ "NPCMClaytonHoldren": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMPickman": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "RobotSupervisorBrown": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC01RobotRobobrain": {
+  "races": {
+   "DLC01RoboBrainRace": 17
+  },
+  "sex": {
+   "male": 16,
+   "female": 1
+  }
+ },
+ "MQ101NeighborFemale02Voice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04NPCFTraveler02": {
+  "races": {
+   "HumanRace": 2
+  },
+  "sex": {
+   "female": 2
+  }
+ },
+ "BoSMale01": {
+  "races": {
+   "HumanRace": 141
+  },
+  "sex": {
+   "male": 141
+  }
+ },
+ "NPCMPrestonGarveyImpersonator": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMMarkSummerset": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03MaleKeithMcKinney": {
+  "races": {
+   "HumanRace": 1,
+   "DLC03RoboBrainRace": 1
+  },
+  "sex": {
+   "male": 2
+  }
+ },
+ "RobotDrFeelgood": {
+  "races": {
+   "HandyRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMPastorClements": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03MaleOldLongfellow": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "FemaleOld": {
+  "races": {
+   "HumanRace": 10
+  },
+  "sex": {
+   "female": 10
+  }
+ },
+ "NPCFDoctorPatricia": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04GangOperatorMale02": {
+  "races": {
+   "HumanRace": 11
+  },
+  "sex": {
+   "male": 11
+  }
+ },
+ "NPCFAnneHargraves": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMVirgil": {
+  "races": {
+   "SuperMutantRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFCasey": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFG9-81": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC03CoAMaleZealotWare": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "BoSFemale01": {
+  "races": {
+   "HumanRace": 11
+  },
+  "sex": {
+   "female": 11
+  }
+ },
+ "NPCFMamaMurphy": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFScribeHaylen": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "DLC04_Announcer_NukaGalaxy_NPCMWithStatic_DO_NOT_RECORD": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC01_NPCMTonyDelano": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "Announcer_WaldenPond": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMHonestDan": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFMagnolia_NormalReverb": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMMS07bMartyBullfinch": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMRoryRigwell": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMShaun60": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC04NPCMMaddox": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFMS07cKeypadVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "GuardFemaleVault81": {
+  "races": {
+   "HumanRace": 5
+  },
+  "sex": {
+   "female": 5
+  }
+ },
+ "MQ203MemoryB_SarahVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCFGibson": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "NPCMEnricoThompson": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMArlenGlass": {
+  "races": {
+   "GhoulRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "MQ101InstAgentMaleVoice": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "DLC03CoAMaleBrotherDevin": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCFMrsWashington": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "female": 1
+  }
+ },
+ "MuseumVoice1": {
+  "races": {
+   "SynthGen2RaceValentine": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMShengKawolski": {
+  "races": {
+   "HumanChildRace": 1
+  },
+  "sex": {
+   "male": 1
+  }
+ },
+ "NPCMReise": {
+  "races": {
+   "HumanRace": 1
+  },
+  "sex": {
+   "male": 1
   }
  }
 }

@@ -54,7 +54,32 @@ namespace RP::McmSettings
 				logger::warn("mcm: [{}] {}={} is not a number - ignored", section, key, raw);
 				continue;
 			}
-			const auto it = a_target.find(key);
+			// MCM ids carry a TYPE PREFIX -- i, f, b or s followed by the
+			// capitalised name -- because MCM reads a setting's type from the
+			// first letter and refuses to register anything else. Rapport's own
+			// json keys are the bare names, so strip it.
+			//
+			// The bare name is tried FIRST and on purpose: Rapport shipped with
+			// unprefixed ids, so a player who changed a setting before this fix
+			// has their value stored under the old key. Trying bare first means
+			// they keep it instead of silently reverting to the default.
+			auto it = a_target.find(key);
+			if (it == a_target.end() && key.size() > 1 &&
+				std::string_view{ "ifbs" }.find(key.front()) != std::string_view::npos &&
+				std::isupper(static_cast<unsigned char>(key[1]))) {
+				auto bare = key.substr(1);
+				bare.front() = static_cast<char>(std::tolower(static_cast<unsigned char>(bare.front())));
+				it = a_target.find(bare);
+				if (it != a_target.end()) {
+					if (it->is_boolean()) {
+						a_target[bare] = value != 0.0;
+					} else {
+						a_target[bare] = value;
+					}
+					++applied;
+					continue;
+				}
+			}
 			if (it != a_target.end() && it->is_boolean()) {
 				a_target[key] = value != 0.0;
 			} else {
