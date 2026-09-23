@@ -101,6 +101,15 @@ Rapport:Core.NarrateLine(player, npc, "{second} liked that. Not here, though.", 
 
 Write it the way the Narrator talks: one sentence, in the world, no percentages in the headline.
 
+## Lovers by an addon's word
+
+`Rapport:Core.SetLovers(first, second, True)` (ApiVersion 201+) records two people as lovers
+because your mod says so. Overture does it for the player and an NPC after a yes. It is kept
+apart from the engine's spouse and courting: `Rapport:Relations.ArePartners` and `HasPartner`
+answer exactly what they did before. Ask `Rapport:Relations.AreLovers(a, b)` or `HasLover(a)` as
+well wherever a lover should count. Chemistry, for one, counts the player's lover as spoken for,
+behind its own MCM switch. It is kept in the save, and a death forgets it.
+
 ## The player's priority lane
 
 Rapport runs one scene at a time, and an autonomous mod like Chemistry can take the slot in the

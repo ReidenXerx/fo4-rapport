@@ -298,6 +298,60 @@ namespace RP
 		return it != _pairs.end() && it->second.partner;
 	}
 
+	void Ledger::SetLovers(std::uint32_t a_first, std::uint32_t a_second, bool a_lovers)
+	{
+		if (a_first == 0 || a_second == 0 || a_first == a_second) {
+			return;
+		}
+		NamedLock lock{ _lock, "ledger" };
+		if (_dead.contains(a_first) || _dead.contains(a_second)) {
+			return;
+		}
+		const auto key = PairKey(a_first, a_second);
+		auto       it = _pairs.find(key);
+		if (it == _pairs.end()) {
+			if (!a_lovers) {
+				return;
+			}
+			it = _pairs.emplace(key, PairRecord{}).first;
+		}
+		if (it->second.lovers == a_lovers) {
+			return;
+		}
+		it->second.lovers = a_lovers;
+		logger::info("relationship: {:08X} + {:08X} {} (an addon's word)", a_first, a_second,
+			a_lovers ? "are lovers now" : "are lovers no longer");
+	}
+
+	bool Ledger::AreLovers(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		NamedLock lock{ _lock, "ledger" };
+		const auto it = _pairs.find(PairKey(a_first, a_second));
+		return it != _pairs.end() && it->second.lovers;
+	}
+
+	std::uint32_t Ledger::LoverOf(std::uint32_t a_actor) const
+	{
+		if (a_actor == 0) {
+			return 0;
+		}
+		NamedLock lock{ _lock, "ledger" };
+		for (const auto& [key, record] : _pairs) {
+			if (!record.lovers) {
+				continue;
+			}
+			const auto lower = static_cast<std::uint32_t>(key >> 32);
+			const auto higher = static_cast<std::uint32_t>(key & 0xFFFFFFFFu);
+			if (lower == a_actor) {
+				return higher;
+			}
+			if (higher == a_actor) {
+				return lower;
+			}
+		}
+		return 0;
+	}
+
 	void Ledger::ForgetActor(std::uint32_t a_formID)
 	{
 		if (a_formID == 0) {
@@ -553,6 +607,7 @@ namespace RP
 			pair.partner = (entry.flags & 4u) != 0;
 			pair.lastReason = reason <= static_cast<std::uint32_t>(BondReason::kAddon) ? static_cast<BondReason>(reason) : BondReason::kNone;
 			pair.affair = (entry.flags & 8u) != 0;
+			pair.lovers = (entry.flags & 0x10u) != 0;
 		}
 		logger::info(
 			"ledger: read {} pair(s) from the save, {} dropped because a plugin is gone",
@@ -663,6 +718,7 @@ namespace RP
 					record.bond,
 					record.lastTouchedAt,
 					(record.seeded ? 1u : 0u) | (record.incest ? 2u : 0u) | (record.partner ? 4u : 0u) | (record.affair ? 8u : 0u) |
+						(record.lovers ? 0x10u : 0u) |
 						(static_cast<std::uint32_t>(record.lastReason) << 8)
 				};
 				a_intfc->WriteRecordData(entry);

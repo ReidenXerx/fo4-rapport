@@ -27,7 +27,8 @@
 narrator line, with `{first}` and `{second}` for the names), `Introduce` (names a nameless
 NPC, returns the name), `ObserversNear` (how many people could see an actor) and
 `ReservePlayerScene` (holds the scene slot for the player's own request, so autonomy can't take
-it). Check for 201 before calling them: Rapport 0.2.0 doesn't have them.
+it) and `SetLovers` / `AreLovers` / `LoverOf` (lovers by your mod's word, kept apart from the
+engine's spouses). Check for 201 before calling them: Rapport 0.2.0 doesn't have them.
 
 ## 0.2.0
 

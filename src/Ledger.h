@@ -128,6 +128,17 @@ namespace RP
 		// Spouse or courting, per the engine.
 		[[nodiscard]] bool IsPartner(std::uint32_t a_first, std::uint32_t a_second) const;
 
+		// LOVERS by an addon's word, not the engine's (owner, 2026-09-23, Overture O-12 and
+		// O-15): Overture declares the player and an NPC lovers after a yes. Kept apart
+		// from IsPartner on purpose. What the engine says two people ARE stays what it
+		// was, and a consumer decides for itself whether a lover counts as spoken for
+		// (Chemistry does, behind its own MCM switch). Declaring is an interaction, so
+		// it may create the pair's record (R-5). A death forgets it with the rest.
+		void SetLovers(std::uint32_t a_first, std::uint32_t a_second, bool a_lovers);
+		[[nodiscard]] bool AreLovers(std::uint32_t a_first, std::uint32_t a_second) const;
+		// The other half of this actor's lovers, or 0.
+		[[nodiscard]] std::uint32_t LoverOf(std::uint32_t a_actor) const;
+
 		// R-6: a dead NPC's rows are waste against a hard ceiling. Called by the
 		// engine's death event, never by a timer.
 		void ForgetActor(std::uint32_t a_formID);
@@ -222,6 +233,8 @@ namespace RP
 			// One of them was partnered to someone ELSE when these two had a scene
 			// (owner: cheating is a future "bad thing"). Set, never cleared.
 			bool          affair{ false };
+			// Declared by an addon (SetLovers). Flag 0x10 in the save.
+			bool          lovers{ false };
 		};
 
 		// (lower << 32) | higher, so the two orders are one key.

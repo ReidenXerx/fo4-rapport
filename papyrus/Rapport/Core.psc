@@ -395,6 +395,15 @@ Function NarrateLine(Int aiFirst, Int aiSecond, String asHeadline, String asNumb
 ; running is never cut short -- the hold takes the next free slot. Overture holds
 ; it from the moment a proposition would be a yes. ApiVersion 201+.
 Function ReservePlayerScene(Actor akWith, Float afSeconds) Global Native
+; LOVERS by an addon's word, not the engine's (Overture declares the player and an
+; NPC lovers after a yes). Kept apart from the engine's spouse/courting, which
+; Relations.ArePartners and HasPartner still answer unchanged: a consumer decides
+; for itself whether a lover counts as spoken for (Chemistry does, behind its own
+; MCM switch). Kept in the save; a death forgets it. ApiVersion 201+.
+Function SetLovers(Int aiFirst, Int aiSecond, Bool abLovers) Global Native
+Bool Function AreLovers(Int aiFirst, Int aiSecond) Global Native
+; The other half of this actor's lovers, or 0.
+Int Function LoverOf(Int aiActor) Global Native
 ; Names for the nameless. The first time an addon introduces a generic NPC (a base
 ; not flagged Unique), Rapport gives them a first name and a surname -- derived from
 ; the form id, so the same person gets the same name forever -- and returns it.

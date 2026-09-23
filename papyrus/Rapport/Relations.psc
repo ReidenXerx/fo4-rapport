@@ -34,6 +34,23 @@ Bool Function HasPartner(Actor akActor) Global
 	Return Rapport:Relations.HasAssociationID(akActor, None, 104813) || Rapport:Relations.HasAssociationID(akActor, None, 104802)
 EndFunction
 
+; LOVERS by an addon's word (Rapport:Core.SetLovers), not the engine's. HasPartner and
+; ArePartners above stay the engine's alone; ask these as well where a lover should
+; count. ApiVersion 201+.
+Bool Function AreLovers(Actor akFirst, Actor akSecond) Global
+	If akFirst == None || akSecond == None
+		Return False
+	EndIf
+	Return Rapport:Core.AreLovers(akFirst.GetFormID(), akSecond.GetFormID())
+EndFunction
+
+Bool Function HasLover(Actor akActor) Global
+	If akActor == None
+		Return False
+	EndIf
+	Return Rapport:Core.LoverOf(akActor.GetFormID()) != 0
+EndFunction
+
 ; The engine's rank between two people, the higher of the two directions: the store's
 ; key ignores order, so the seed must too, or it would depend on who came first.
 Int Function RankBetween(Actor akFirst, Actor akSecond) Global

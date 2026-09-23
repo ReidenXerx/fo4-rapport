@@ -770,6 +770,21 @@ namespace
 		return RP_VERSION_MAJOR * 10000 + RP_VERSION_MINOR * 100 + RP_VERSION_PATCH;
 	}
 
+	void Papyrus_SetLovers(std::monostate, std::int32_t a_first, std::int32_t a_second, bool a_lovers)
+	{
+		RP::Ledger::GetSingleton().SetLovers(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second), a_lovers);
+	}
+
+	bool Papyrus_AreLovers(std::monostate, std::int32_t a_first, std::int32_t a_second)
+	{
+		return RP::Ledger::GetSingleton().AreLovers(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
+	}
+
+	std::int32_t Papyrus_LoverOf(std::monostate, std::int32_t a_actor)
+	{
+		return static_cast<std::int32_t>(RP::Ledger::GetSingleton().LoverOf(static_cast<std::uint32_t>(a_actor)));
+	}
+
 	bool Papyrus_IsAffairPair(std::monostate, std::int32_t a_first, std::int32_t a_second)
 	{
 		return RP::Ledger::GetSingleton().IsAffair(static_cast<std::uint32_t>(a_first), static_cast<std::uint32_t>(a_second));
@@ -1076,6 +1091,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "Busy"sv, Papyrus_Busy, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RequestScene"sv, Papyrus_RequestScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ReservePlayerScene"sv, Papyrus_ReservePlayerScene, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SetLovers"sv, Papyrus_SetLovers, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "AreLovers"sv, Papyrus_AreLovers, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "LoverOf"sv, Papyrus_LoverOf, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CanRun"sv, Papyrus_CanRun, std::nullopt, false);
 
 		logger::info("papyrus: bound 60 native functions on {}", kCoreScript);
