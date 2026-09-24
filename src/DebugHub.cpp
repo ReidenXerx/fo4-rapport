@@ -188,7 +188,7 @@ namespace RP
 		{
 			std::ifstream in{ path, std::ios::binary };
 			if (!in) {
-				logger::error("debug hub: could not read {}", path.string());
+				logger::error("debug hub: could not read {}", PathText(path));
 				return;
 			}
 			text.assign(std::istreambuf_iterator<char>{ in }, std::istreambuf_iterator<char>{});
@@ -204,9 +204,12 @@ namespace RP
 
 		// Back up once, and never overwrite an existing backup: the first one is the
 		// user's own settings, and that is the copy worth keeping.
-		const auto backup = path.string() + ".before-rapport-debug";
+		// Built on the path, not its string(): the Documents folder can hold a user name
+		// the ANSI code page cannot, and string() throws on it (PathText, PCH.h).
+		auto backup = path;
+		backup += ".before-rapport-debug";
 		std::error_code ec;
-		if (!std::filesystem::exists(backup)) {
+		if (!std::filesystem::exists(backup, ec)) {
 			std::filesystem::copy_file(path, backup, ec);
 			if (ec) {
 				logger::error("debug hub: could not back up the ini ({}) — leaving it untouched", ec.message());
@@ -217,7 +220,7 @@ namespace RP
 
 		std::ofstream out{ path, std::ios::binary | std::ios::trunc };
 		if (!out) {
-			logger::error("debug hub: could not write {}", path.string());
+			logger::error("debug hub: could not write {}", PathText(path));
 			return;
 		}
 		out << text;

@@ -17,11 +17,37 @@
 
 namespace
 {
+	// The log file, opened by its WIDE path. spdlog's basic_file_sink takes a narrow
+	// file name, and path::string() throws on a user name the ANSI code page cannot
+	// hold -- inside F4SEPlugin_Load, where F4SE answers a throw by disabling the
+	// plugin: "disabled, fatal error occurred while loading plugin", and no log at
+	// all to say why (the Silhouette session found it, 2026-09-24).
+	class FileSink final : public spdlog::sinks::base_sink<std::mutex>
+	{
+	public:
+		explicit FileSink(const std::filesystem::path& a_path) :
+			_out(a_path, std::ios::binary | std::ios::trunc)
+		{}
+
+	protected:
+		void sink_it_(const spdlog::details::log_msg& a_msg) override
+		{
+			spdlog::memory_buf_t formatted;
+			formatter_->format(a_msg, formatted);
+			_out.write(formatted.data(), static_cast<std::streamsize>(formatted.size()));
+		}
+
+		void flush_() override { _out.flush(); }
+
+	private:
+		std::ofstream _out;
+	};
+
 	// Must run AFTER F4SE::Init: log_directory() is built from GetSaveFolderName(),
 	// which Init is what populates. Called any earlier it resolves to
 	// "Documents/My Games//F4SE" and the log lands next to the game's folder
 	// instead of inside it.
-	void InitLogging()
+	void InitLoggingUnguarded()
 	{
 		auto path = logger::log_directory();
 		if (!path) {
@@ -50,13 +76,26 @@ namespace
 		// into, and a first run has nothing to rename. Neither is worth refusing to
 		// start over.
 
-		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+		// basic_file_sink made the folder itself; this sink does not.
+		std::filesystem::create_directories(path->parent_path(), ec);
+		auto sink = std::make_shared<FileSink>(*path);
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 		log->set_level(spdlog::level::info);
 		log->flush_on(spdlog::level::info);
 
 		spdlog::set_default_logger(std::move(log));
 		spdlog::set_pattern("[%H:%M:%S.%e] [%l] %v"s);
+	}
+
+	// Never throws: a plugin without a log is a nuisance, a plugin F4SE disabled
+	// over its log is gone.
+	void InitLogging() noexcept
+	{
+		try {
+			InitLoggingUnguarded();
+		} catch (...) {
+			// Nowhere to say it: this IS the log.
+		}
 	}
 
 	void MessageHandler(F4SE::MessagingInterface::Message* a_message)

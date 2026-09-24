@@ -135,7 +135,7 @@ namespace RP
 		logger::error(
 			"mailbox: THE DEV COMMAND CHANNEL IS OPEN. Anything that can write {} can drive this "
 			"game. The console verb is {}. Set DevMailbox=0 in Rapport.ini to close it.",
-			_inbox.string(), config.devConsole ? "ALSO ENABLED" : "disabled");
+			PathText(_inbox), config.devConsole ? "ALSO ENABLED" : "disabled");
 
 		_watcher = std::thread{ [this] { Watch(); } };
 	}
