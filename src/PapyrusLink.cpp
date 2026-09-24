@@ -321,6 +321,40 @@ namespace
 		return RE::BSFixedString{ "Rapport debug: failed - see Rapport.log" };
 	}
 
+	RE::BSFixedString Papyrus_DebugScenePair(
+		std::monostate, RE::Actor* a_facing, RE::BSFixedString a_pair, bool a_force)
+	{
+		try {
+			const std::string_view pair{ a_pair.empty() ? "" : a_pair.c_str() };
+			return RE::BSFixedString{ RP::DebugTriggers::ScenePair(a_facing, pair, a_force) };
+		} catch (const std::exception& e) {
+			logger::critical("DebugScenePair threw: {}", e.what());
+		} catch (...) {
+			logger::critical("DebugScenePair threw something that is not a std::exception");
+		}
+		return RE::BSFixedString{ "Rapport debug: failed - see Rapport.log" };
+	}
+
+	RE::BSFixedString Papyrus_LastRefusal(std::monostate)
+	{
+		return RE::BSFixedString{ RP::PapyrusLink::GetSingleton().LastRefusal() };
+	}
+
+	// R-25: the exclusion for a start with no position chosen, or "" to leave AAF's
+	// settings as they are.
+	RE::BSFixedString Papyrus_SceneExcludeTags(std::monostate, RE::BSFixedString a_given)
+	{
+		try {
+			const std::string_view given{ a_given.empty() ? "" : a_given.c_str() };
+			return RE::BSFixedString{ RP::PapyrusLink::GetSingleton().SceneExcludeTags(given) };
+		} catch (const std::exception& e) {
+			logger::critical("SceneExcludeTags threw: {} - AAF's own exclusions stand", e.what());
+		} catch (...) {
+			logger::critical("SceneExcludeTags threw - AAF's own exclusions stand");
+		}
+		return RE::BSFixedString{ "" };
+	}
+
 	bool Papyrus_BlockFaces(std::monostate)
 	{
 		return RP::Config::GetSingleton().blockAnimationFaces;
@@ -1144,6 +1178,7 @@ namespace
 		const bool playersOwn = (a_first && a_first->GetFormID() == 0x14) || (a_second && a_second->GetFormID() == 0x14);
 		if (RP::PapyrusLink::GetSingleton().AutonomyPaused() && !playersOwn) {
 			logger::info("request refused: autonomy is paused, so an addon may not start a scene");
+			RP::PapyrusLink::GetSingleton().NoteRefusal("autonomy is paused (mailbox) - no addon may start a scene");
 			return false;
 		}
 
@@ -1165,7 +1200,8 @@ namespace
 			// An addon gets a plain false and no reason, because the reasons are
 			// all transient -- busy, bridge not up, one of them is None. Saying
 			// WHY in the log and `false` on the wire keeps the addon's side a
-			// retry loop instead of an error-handling tree.
+			// retry loop instead of an error-handling tree. One that wants the
+			// words anyway asks LastRefusal().
 			logger::info(
 				"papyrus: an addon asked for \"{}\" and was turned down - see the line above for "
 				"why",
@@ -1239,6 +1275,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "ActorInFront"sv, Papyrus_ActorInFront, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugSceneWith"sv, Papyrus_DebugSceneWith, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugSceneFor"sv, Papyrus_DebugSceneFor, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DebugScenePair"sv, Papyrus_DebugScenePair, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "LastRefusal"sv, Papyrus_LastRefusal, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SceneExcludeTags"sv, Papyrus_SceneExcludeTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ActorsExclude"sv, Papyrus_ActorsExclude, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteBridgeConnected"sv, Papyrus_NoteBridgeConnected, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BlockFaces"sv, Papyrus_BlockFaces, std::nullopt, false);
@@ -1370,23 +1409,34 @@ namespace RP
 
 	bool PapyrusLink::RequestScene(
 		RE::Actor* a_first, RE::Actor* a_second, float a_duration, std::string_view a_scenario,
-		bool a_bypassHold)
+		bool a_bypassHold, std::string* a_why)
 	{
-		if (!a_first || !a_second) {
+		// Every refusal says why, twice: into a_why for a caller that asked (the debug
+		// triggers' HUD line), and into LastRefusal for an addon that only got false
+		// back. The log lines stay exactly as they were: fo4-mcp reads them.
+		const auto refuse = [&](std::string a_reason) {
+			if (a_why) {
+				*a_why = a_reason;
+			}
+			NoteRefusal(std::move(a_reason));
 			return false;
+		};
+
+		if (!a_first || !a_second) {
+			return refuse("one of the two is nobody");
 		}
 		if (!_bridgeReady.load()) {
 			logger::warn("scene wanted before the bridge reported ready");
-			return false;
+			return refuse("the bridge is not ready yet - give it a few seconds after a load");
 		}
 		// THE PLAYER'S LANE, here in the funnel every request passes -- addons and
 		// Rapport's own stand-in alike. It used to sit in the addon door only, and
 		// the stand-in (the autonomy of an install with Overture but no Chemistry)
 		// walked straight past it (microscope 2026-09-23).
 		if (!a_bypassHold) {
-			if (const auto held = HeldFrom(a_first->GetFormID(), a_second->GetFormID()); !held.empty()) {
+			if (auto held = HeldFrom(a_first->GetFormID(), a_second->GetFormID()); !held.empty()) {
 				logger::info("request refused: {}", held);
-				return false;
+				return refuse(std::move(held));
 			}
 		}
 		// THE DOOR re-checks what the scan checked. A pair is picked from a list
@@ -1418,11 +1468,16 @@ namespace RP
 			}
 			if (!why.empty()) {
 				logger::info("request refused: {:08X} {}", actor->GetFormID(), why);
-				return false;
+				const char* name = actor->GetDisplayFullName();
+				return refuse(name && *name ? std::format("{} ({:08X}) {}", name, actor->GetFormID(), why)
+				                            : std::format("{:08X} {}", actor->GetFormID(), why));
 			}
 		}
 		if (_sceneInFlight.exchange(true)) {
-			return false;
+			// Said now, where it used to be silent: the addon door's "see the line
+			// above" had no line above for this one.
+			logger::info("request refused: a scene is already in flight");
+			return refuse("a scene is already in flight - one at a time");
 		}
 
 		const auto request = _nextRequest.fetch_add(1);
@@ -1463,7 +1518,20 @@ namespace RP
 			a_second->GetDisplayFullName(), a_second->GetFormID(), a_duration);
 		Narrator::GetSingleton().OnRequestAccepted(a_first->GetFormID(), a_second->GetFormID());
 		ClearReservation(a_first->GetFormID(), a_second->GetFormID());
+		NoteRefusal({});
 		return true;
+	}
+
+	std::string PapyrusLink::LastRefusal() const
+	{
+		std::scoped_lock lock{ _refusalLock };
+		return _lastRefusal;
+	}
+
+	void PapyrusLink::NoteRefusal(std::string a_why)
+	{
+		std::scoped_lock lock{ _refusalLock };
+		_lastRefusal = std::move(a_why);
 	}
 
 	std::int32_t PapyrusLink::TakeRequest()
@@ -1808,6 +1876,23 @@ namespace RP
 			return {};
 		}
 		return Scenarios::GetSingleton().ChooseSceneStart(scenario, first, second);
+	}
+
+	std::string PapyrusLink::SceneExcludeTags(std::string_view a_given)
+	{
+		// The same snapshot ChooseScenePosition takes, for the same request: the
+		// bridge asks for the position first and, only when there is none, this.
+		std::uint32_t first = 0;
+		std::uint32_t second = 0;
+		{
+			NamedLock lock{ _counter, "request counter" };
+			first = static_cast<std::uint32_t>(_inFlightFirst);
+			second = static_cast<std::uint32_t>(_inFlightSecond);
+		}
+		if (first == 0 || second == 0) {
+			return {};
+		}
+		return Scenarios::GetSingleton().ExcludeTagsFor(a_given, first, second);
 	}
 
 	void PapyrusLink::OnSceneStarted(std::int32_t a_request)

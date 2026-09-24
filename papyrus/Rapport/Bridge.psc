@@ -491,6 +491,17 @@ Function DoStartScene(Int aiRequest)
 	String chosen = Rapport:Core.ScenePosition()
 	If chosen != ""
 		settings.position = chosen
+	Else
+		; Unconstrained, AAF picks from everything this pair can play - and the packs
+		; ship hugs, kisses and cuddles among it: two hugs in a row where sex was asked
+		; for (R-25). The plugin answers with AAF's own exclusions plus the non-sex
+		; markers, or "" to leave them be (a reticent member may get a kiss). Assigned
+		; only when there is an answer: the factory's value is AAF's own sentinel, and
+		; writing over it with anything less throws the player's settings away.
+		String exclude = Rapport:Core.SceneExcludeTags(settings.excludeTags)
+		If exclude != ""
+			settings.excludeTags = exclude
+		EndIf
 	EndIf
 
 	; AAF's readiness, CHECKED rather than merely logged.

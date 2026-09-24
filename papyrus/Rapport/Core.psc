@@ -85,6 +85,15 @@ Actor Function ActorInFront(Float afMaxDistance, Float afMaxAngle) Global Native
 String Function DebugSceneWith(Actor akFirst, Actor akSecond, Bool abForce) Global Native
 ; A scene for akTarget with the partner Rapport's own pairing ranks best.
 String Function DebugSceneFor(Actor akTarget, Bool abForce) Global Native
+; A scene for the best pair of one kind nearby: asPair is "FF", "FM" or "MM".
+; akFacing (may be None) is one of the two when their sex fits the kind.
+String Function DebugScenePair(Actor akFacing, String asPair, Bool abForce) Global Native
+
+; Why the last scene request was turned down, in words ("Drifter (33008AF6) is in
+; the middle of a conversation"); "" after one was taken. RequestScene answers a
+; plain False, and an addon that wants to SAY why - Chemistry's Decide now - asks
+; this straight after. An older plugin without it answers "" too.
+String Function LastRefusal() Global Native
 
 ; Does AAF's actor Var name actors, none of them this one? The bridge asks before it
 ; takes an event for a request whose scene has not started yet: one whose actors
@@ -144,6 +153,13 @@ Function NoteAAFRevivalChoice(Bool abYes) Global Native
 ; a position id and no filters at all -- so the one moment a position can be
 ; chosen is the moment the scene begins. StartScene honours it.
 String Function ScenePosition() Global Native
+
+; R-25. For a start with NO position chosen, where AAF picks from everything the
+; pair can play - hugs and kisses included. asGiven is the SceneSettings factory's
+; excludeTags (AAF's sentinel for its own list). Returns what to set instead - AAF's
+; own exclusions plus the non-sex markers - or "" to leave it untouched, which is
+; what a pair with a reticent member gets.
+String Function SceneExcludeTags(String asGiven) Global Native
 
 ; Said once, after StopScene has been asked for, so the poll does not ask again
 ; every three seconds while AAF winds the scene down.

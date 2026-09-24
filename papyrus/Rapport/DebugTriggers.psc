@@ -21,15 +21,19 @@ Float Function ForThemDistance() Global
 	Return 1500.0
 EndFunction
 
-Function Say(String asLine) Global
+; The HUD line. The plugin logs every line IT writes ("debug trigger: ..."), so only
+; a line made here in Papyrus is logged from here - once, not twice.
+Function Say(String asLine, Bool abLogged = True) Global
 	Debug.Notification(asLine)
-	Rapport:Core.Trace("debug trigger: " + asLine)
+	If !abLogged
+		Rapport:Core.Trace("debug trigger: " + asLine)
+	EndIf
 EndFunction
 
 Function SceneWithMe(Bool abForce) Global
 	Actor target = Rapport:Core.ActorInFront(Rapport:DebugTriggers.WithMeDistance(), 35.0)
 	If target == None
-		Rapport:DebugTriggers.Say("Rapport debug: nobody in front of you - face them, within a few steps")
+		Rapport:DebugTriggers.Say("Rapport debug: nobody in front of you - face them, within a few steps", False)
 		Return
 	EndIf
 	Rapport:DebugTriggers.Say(Rapport:Core.DebugSceneWith(Game.GetPlayer(), target, abForce))
@@ -38,10 +42,17 @@ EndFunction
 Function SceneForThem(Bool abForce) Global
 	Actor target = Rapport:Core.ActorInFront(Rapport:DebugTriggers.ForThemDistance(), 25.0)
 	If target == None
-		Rapport:DebugTriggers.Say("Rapport debug: nobody in front of you - face the one you mean")
+		Rapport:DebugTriggers.Say("Rapport debug: nobody in front of you - face the one you mean", False)
 		Return
 	EndIf
 	Rapport:DebugTriggers.Say(Rapport:Core.DebugSceneFor(target, abForce))
+EndFunction
+
+; The best pair of one kind nearby - asPair "FF", "FM" or "MM". The one you face is
+; one of the two when their sex fits; facing nobody is fine, the field is ranked.
+Function ScenePair(String asPair, Bool abForce) Global
+	Actor facing = Rapport:Core.ActorInFront(Rapport:DebugTriggers.ForThemDistance(), 25.0)
+	Rapport:DebugTriggers.Say(Rapport:Core.DebugScenePair(facing, asPair, abForce))
 EndFunction
 
 ; ---- what the MCM calls -----------------------------------------------------
@@ -59,4 +70,28 @@ EndFunction
 
 Function SceneForThemReal() Global
 	Rapport:DebugTriggers.SceneForThem(false)
+EndFunction
+
+Function PairFFForced() Global
+	Rapport:DebugTriggers.ScenePair("FF", true)
+EndFunction
+
+Function PairFFReal() Global
+	Rapport:DebugTriggers.ScenePair("FF", false)
+EndFunction
+
+Function PairFMForced() Global
+	Rapport:DebugTriggers.ScenePair("FM", true)
+EndFunction
+
+Function PairFMReal() Global
+	Rapport:DebugTriggers.ScenePair("FM", false)
+EndFunction
+
+Function PairMMForced() Global
+	Rapport:DebugTriggers.ScenePair("MM", true)
+EndFunction
+
+Function PairMMReal() Global
+	Rapport:DebugTriggers.ScenePair("MM", false)
 EndFunction

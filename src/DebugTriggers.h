@@ -25,5 +25,11 @@ namespace RP
 
 		// A scene for this actor with the partner Rapport's own pairing ranks best.
 		[[nodiscard]] std::string SceneFor(RE::Actor* a_target, bool a_force);
+
+		// A scene for the best pair of one kind nearby -- "FF", "FM" or "MM" -- so the
+		// owner can test each on demand. The actor faced (may be nullptr) is one of
+		// the two when their sex fits the kind; otherwise the whole nearby field is
+		// ranked and the HUD says the one faced was passed over.
+		[[nodiscard]] std::string ScenePair(RE::Actor* a_facing, std::string_view a_pair, bool a_force);
 	}
 }

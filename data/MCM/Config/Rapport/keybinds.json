@@ -36,6 +36,60 @@
         "script": "Rapport:DebugTriggers",
         "function": "SceneForThemReal"
       }
+    },
+    {
+      "id": "RapportPairFFForced",
+      "desc": "Rapport debug: F+F - forced",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "PairFFForced"
+      }
+    },
+    {
+      "id": "RapportPairFFReal",
+      "desc": "Rapport debug: F+F - real",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "PairFFReal"
+      }
+    },
+    {
+      "id": "RapportPairFMForced",
+      "desc": "Rapport debug: F+M - forced",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "PairFMForced"
+      }
+    },
+    {
+      "id": "RapportPairFMReal",
+      "desc": "Rapport debug: F+M - real",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "PairFMReal"
+      }
+    },
+    {
+      "id": "RapportPairMMForced",
+      "desc": "Rapport debug: M+M - forced",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "PairMMForced"
+      }
+    },
+    {
+      "id": "RapportPairMMReal",
+      "desc": "Rapport debug: M+M - real",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "PairMMReal"
+      }
     }
   ]
 }

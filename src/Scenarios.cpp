@@ -2,6 +2,7 @@
 
 #include "PapyrusLink.h"
 #include "Aftermath.h"
+#include "Barks.h"
 #include "Expressions.h"
 #include "Config.h"
 #include "TreeIndex.h"
@@ -15,6 +16,16 @@ namespace
 			return static_cast<char>(std::tolower(c));
 		});
 		return out;
+	}
+
+	[[nodiscard]] std::string_view Trim(std::string_view a_text)
+	{
+		const auto first = a_text.find_first_not_of(" \t\r\n");
+		if (first == std::string_view::npos) {
+			return {};
+		}
+		const auto last = a_text.find_last_not_of(" \t\r\n");
+		return a_text.substr(first, last - first + 1);
 	}
 
 	// "A, B ,C" -> {"a","b","c"}. Empty entries dropped, so a trailing comma or a
@@ -62,7 +73,12 @@ namespace RP
 	{
 		_scenarios.clear();
 
+		// R-25's rule as the owner set it, standing until scenarios.json says otherwise.
+		_nonSexTags = "NonSex,SFW";
+		_nonSexAllowedFor = { "reticent" };
+
 		IndexInstalledTags();
+		ResolveAAFExcludes();
 		TreeIndex::GetSingleton().Load();
 
 		const auto    path = ConfigPath();
@@ -78,6 +94,32 @@ namespace RP
 		} catch (const std::exception& e) {
 			logger::error("scenarios: {} is not valid json ({}) - none are available", path.string(), e.what());
 			return;
+		}
+
+		// Types checked rather than trusted: nlohmann throws on a wrong one, and a
+		// throw here is inside the data-ready handler.
+		if (const auto rule = document.find("nonSex"); rule != document.end() && rule->is_object()) {
+			if (const auto tags = rule->find("tags"); tags != rule->end() && tags->is_string()) {
+				_nonSexTags = tags->get<std::string>();
+			}
+			if (const auto who = rule->find("allowedFor"); who != rule->end() && who->is_array()) {
+				_nonSexAllowedFor.clear();
+				for (const auto& persona : *who) {
+					if (persona.is_string()) {
+						_nonSexAllowedFor.push_back(Lower(persona.get<std::string>()));
+					}
+				}
+			}
+		}
+		{
+			std::string who;
+			for (const auto& persona : _nonSexAllowedFor) {
+				who += who.empty() ? persona : ", " + persona;
+			}
+			logger::info(
+				"scenarios: a scene AAF picks for (no tree) never gets a position tagged [{}], unless one of the "
+				"two is {}",
+				_nonSexTags, who.empty() ? "- nobody is exempt" : who);
 		}
 
 		const auto list = document.find("scenarios");
@@ -162,6 +204,121 @@ namespace RP
 			_scenarios.size(), _tags.size());
 	}
 
+	// AAF's default exclusions, as AAF itself resolves them (R-25).
+	//
+	// SceneSettings.excludeTags REPLACES the list rather than adding to it (AAF's
+	// SceneSettings docs), and the factory hands out a sentinel, "default_excludetags",
+	// that AAF resolves on its side (aaf-under-the-hood §11) and nothing can extend in
+	// place. So a start that excludes anything must carry AAF's own list along, or it
+	// quietly lets POSE and UTILITY positions back in.
+	//
+	// Every "*_settings.ini" in Data/AAF counts, and setting by setting the file with
+	// the highest `priority` wins: AAF merges them that way, which is why
+	// Rapport_settings.ini at 100 changes its two debug switches and nothing else. A
+	// file without a priority line is 0, as in AAF.
+	//
+	// Blind to one thing: a value the player changed in AAF's own MCM is kept per save
+	// and never reaches these files.
+	void Scenarios::ResolveAAFExcludes()
+	{
+		_aafExcludes = "pose,utility";
+		_aafExcludesFrom = "AAF's shipped default - no settings file sets it";
+
+		bool            found = false;
+		int             best = 0;
+		std::error_code ec;
+		for (const auto& entry : std::filesystem::directory_iterator{ AAFDataPath(), ec }) {
+			if (!entry.is_regular_file(ec)) {
+				continue;
+			}
+			const auto name = PathText(entry.path().filename());
+			if (!Lower(name).ends_with("_settings.ini")) {
+				continue;
+			}
+			std::ifstream file{ entry.path() };
+			if (!file) {
+				continue;
+			}
+
+			int                        priority = 0;
+			std::optional<std::string> excludes;
+			std::string                line;
+			while (std::getline(file, line)) {
+				// A file saved "UTF-8 with BOM" starts with three bytes that would turn its
+				// first key -- the priority line, by AAF's own convention -- into a stranger.
+				if (line.starts_with("\xEF\xBB\xBF")) {
+					line.erase(0, 3);
+				}
+				std::string_view text{ line };
+				if (const auto comment = text.find(';'); comment != std::string_view::npos) {
+					text = text.substr(0, comment);
+				}
+				const auto equals = text.find('=');
+				if (equals == std::string_view::npos) {
+					continue;
+				}
+				const auto key = Lower(Trim(text.substr(0, equals)));
+				const auto value = Trim(text.substr(equals + 1));
+				if (key == "priority") {
+					int parsed = 0;
+					if (std::from_chars(value.data(), value.data() + value.size(), parsed).ec == std::errc{}) {
+						priority = parsed;
+					}
+				} else if (key == "default_excludetags") {
+					excludes = std::string{ value };
+				}
+			}
+			if (excludes && (!found || priority > best)) {
+				found = true;
+				best = priority;
+				_aafExcludes = *excludes;
+				_aafExcludesFrom = std::format("{}, priority {}", name, priority);
+			}
+		}
+		logger::info("scenarios: AAF's own exclusions are [{}] ({})", _aafExcludes, _aafExcludesFrom);
+	}
+
+	std::string Scenarios::ExcludeTagsFor(
+		std::string_view a_given, std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		if (Trim(_nonSexTags).empty()) {
+			return {};
+		}
+
+		// Either one of them shy enough for a kiss to be the whole scene. The player has
+		// no persona (R-11), so only an NPC can make the pair an exception.
+		for (const auto id : { a_first, a_second }) {
+			if (id == 0 || id == 0x14) {
+				continue;
+			}
+			const auto persona = Lower(Barks::GetSingleton().PersonaOf(id));
+			if (!persona.empty() && std::ranges::find(_nonSexAllowedFor, persona) != _nonSexAllowedFor.end()) {
+				logger::info(
+					"unconstrained start: {:08X} is {} - AAF may give them a hug or a kiss; its own exclusions "
+					"stand",
+					id, persona);
+				return {};
+			}
+		}
+
+		const auto given = Trim(a_given);
+		const bool sentinel = given.empty() || Lower(given) == "default_excludetags";
+		std::string out = sentinel ? _aafExcludes : std::string{ given };
+		// A list that already ends in a comma ("pose,utility," in somebody's ini) must
+		// not become "pose,utility,,NonSex" -- what AAF makes of an empty tag is unknown.
+		while (!out.empty() && (out.back() == ',' || out.back() == ' ' || out.back() == '\t')) {
+			out.pop_back();
+		}
+		if (!out.empty()) {
+			out += ',';
+		}
+		out += _nonSexTags;
+		logger::info(
+			"unconstrained start: AAF picks, excluding [{}] - {} plus the non-sex markers", out,
+			sentinel ? std::format("AAF's own ({})", _aafExcludesFrom) : std::string{ "the list it was given" });
+		return out;
+	}
+
 	// Reads the tags out of AAF's own XML rather than asking AAF.
 	//
 	// Deliberately crude -- a regex over `tags="..."` rather than an XML parse.
@@ -187,7 +344,9 @@ namespace RP
 			if (!entry.is_regular_file(ec)) {
 				continue;
 			}
-			const auto name = entry.path().filename().string();
+			// PathText, not string(): string() throws on a file name the ANSI code page
+			// cannot hold, and this runs inside the data-ready handler.
+			const auto name = PathText(entry.path().filename());
 			if (!name.ends_with(".xml") && !name.ends_with(".XML")) {
 				continue;
 			}

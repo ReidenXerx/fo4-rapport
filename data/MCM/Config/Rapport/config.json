@@ -471,6 +471,80 @@
         },
         {
           "type": "section",
+          "text": "A pair of one kind"
+        },
+        {
+          "type": "text",
+          "text": "The best pair of that kind near you. Face someone to make them one of the two - or face nobody and let Rapport rank everyone in range."
+        },
+        {
+          "type": "button",
+          "text": "Best F+F pair nearby - FORCED",
+          "help": "The best-ranked pair of two women near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "PairFFForced",
+            "params": []
+          }
+        },
+        {
+          "type": "button",
+          "text": "Best F+F pair nearby - REAL",
+          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "PairFFReal",
+            "params": []
+          }
+        },
+        {
+          "type": "button",
+          "text": "Best F+M pair nearby - FORCED",
+          "help": "The best-ranked pair of a woman and a man near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "PairFMForced",
+            "params": []
+          }
+        },
+        {
+          "type": "button",
+          "text": "Best F+M pair nearby - REAL",
+          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "PairFMReal",
+            "params": []
+          }
+        },
+        {
+          "type": "button",
+          "text": "Best M+M pair nearby - FORCED",
+          "help": "The best-ranked pair of two men near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "PairMMForced",
+            "params": []
+          }
+        },
+        {
+          "type": "button",
+          "text": "Best M+M pair nearby - REAL",
+          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "PairMMReal",
+            "params": []
+          }
+        },
+        {
+          "type": "section",
           "text": "Hotkeys"
         },
         {
@@ -496,6 +570,42 @@
           "text": "For them - real",
           "type": "hotkey",
           "help": "The same, only if that pair clears the bar and nobody is resting - exactly as autonomy would decide. The HUD says why not."
+        },
+        {
+          "id": "RapportPairFFForced",
+          "text": "F+F - forced",
+          "type": "hotkey",
+          "help": "The best-ranked pair of two women near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day."
+        },
+        {
+          "id": "RapportPairFFReal",
+          "text": "F+F - real",
+          "type": "hotkey",
+          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not."
+        },
+        {
+          "id": "RapportPairFMForced",
+          "text": "F+M - forced",
+          "type": "hotkey",
+          "help": "The best-ranked pair of a woman and a man near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day."
+        },
+        {
+          "id": "RapportPairFMReal",
+          "text": "F+M - real",
+          "type": "hotkey",
+          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not."
+        },
+        {
+          "id": "RapportPairMMForced",
+          "text": "M+M - forced",
+          "type": "hotkey",
+          "help": "The best-ranked pair of two men near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day."
+        },
+        {
+          "id": "RapportPairMMReal",
+          "text": "M+M - real",
+          "type": "hotkey",
+          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not."
         }
       ]
     }

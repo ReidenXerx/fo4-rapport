@@ -60,6 +60,31 @@
     "unconstrained however this file is written. They play; nothing can promise how",
     "they end. Core.CanRun reports that rather than pretending."
   ],
+  "nonSex": {
+    "comment": [
+      "R-25 (owner, 2026-09-24). A scene that starts with no tree -- quickie, and every",
+      "f_f pair -- lets AAF pick from everything the pair can play, and the packs ship",
+      "hugs, kisses, cuddles and a slow dance among it. The owner saw two hugs in a row",
+      "where sex was asked for.",
+      "",
+      "tags        positions carrying ANY of these are excluded from such a start, on",
+      "            top of AAF's own default exclusions (default_excludetags, read from",
+      "            its settings files). The markers packs actually use for non-sex:",
+      "            NonSex (CHAK: 39 installed positions), SFW (UAP's embrace, kiss and",
+      "            cuddle: 11); neither is on any position with a sex act. Not Kissing:",
+      "            at least 16 sex positions carry that too.",
+      "allowedFor  personas shy enough that a kiss can be the whole scene. When either",
+      "            of the two has one, nothing is excluded beyond AAF's own list, and AAF",
+      "            may pick a hug -- sometimes, as the owner put it.",
+      "",
+      "A tree start is never touched: the tree already names its position.",
+      "About ten kisses carry neither marker (BP70's Kissing, Make Out, Smooching,",
+      "Rufgt's Gay Kissing, ...) and can still come up now and then; the owner is fine",
+      "with a random one."
+    ],
+    "tags": "NonSex,SFW",
+    "allowedFor": [ "reticent" ]
+  },
   "scenarios": [
     {
       "id": "quickie",

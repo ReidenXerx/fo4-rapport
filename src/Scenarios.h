@@ -163,6 +163,20 @@ namespace RP
 		[[nodiscard]] Quality Preflight(
 			std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second) const;
 
+		// What an UNCONSTRAINED start may not pick (R-25, owner 2026-09-24).
+		//
+		// A scene with no tree (quickie, and every f_f pair on this install) lets AAF
+		// choose from everything the pair can play, and the packs ship hugs, kisses,
+		// cuddles and a slow dance among it: two hugs in a row where sex was asked for.
+		// The answer is the exclusion to hand AAF for such a start -- AAF's own
+		// defaults, plus the non-sex markers of scenarios.json "nonSex" -- or empty
+		// to leave AAF's settings alone, which is what a pair gets when one of the two
+		// has a persona shy enough that a kiss can be the whole scene.
+		//
+		// a_given is what the SceneSettings factory holds, usually AAF's sentinel.
+		[[nodiscard]] std::string ExcludeTagsFor(
+			std::string_view a_given, std::uint32_t a_first, std::uint32_t a_second) const;
+
 		// How long the chosen tree is authored to run, or 0 when none was chosen.
 		[[nodiscard]] float ChosenSeconds() const;
 
@@ -220,6 +234,7 @@ namespace RP
 	private:
 		void IndexInstalledTags();
 		void MarkPlayableStages();
+		void ResolveAAFExcludes();
 
 		void EnterStage(std::size_t a_index, std::vector<Order>& a_out);
 		void SendCurrentOption(std::vector<Order>& a_out);
@@ -310,5 +325,17 @@ namespace RP
 
 		std::vector<Scenario>                      _scenarios;
 		std::unordered_set<std::string>            _tags;   // lowercased
+
+		// Written by Load alone, at data-ready, before any scene can ask; read-only
+		// after that, which is why ExcludeTagsFor takes no lock.
+		//
+		// AAF's own default exclusions as its settings files resolve them, and which
+		// file said so.
+		std::string _aafExcludes;
+		std::string _aafExcludesFrom;
+		// scenarios.json "nonSex": the tags packs mark non-sex positions with, and
+		// the personas (lowercased) who may still be given one.
+		std::string              _nonSexTags;
+		std::vector<std::string> _nonSexAllowedFor;
 	};
 }

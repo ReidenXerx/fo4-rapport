@@ -1082,10 +1082,62 @@ be SOT".
   - the blink stays max(engine, ours), so held faces still blink;
   - Anatomy's contact mouth opens the jaw to fit while something is in the mouth, starting from our jaw;
   - while a held actor speaks one of Rapport's lines, the 29 mouth morphs (make_mfg.py MOUTH) are left to lip
-    sync for 9 s. ASSUMED: the C++ side does not know a line's length.
+    sync for 9 s. ASSUMED: the C++ side does not know a line's length. Superseded the same day when the hello
+    carries feature bit 1 (anatomy f39831b, features 7): their side then gives the mouth ids to ANY line the
+    engine plays on a held face, for its real length, and Rapport stops clearing mouth bits itself.
+  - Also from that build: bit 2 lets the busy-mouth reaction RAISE brows, cheeks and nose above a held face
+    during oral contact (the owner's A-26 poll: layered on top, raise-only).
+  - A load now also sends a clear for everyone (formID 0), on top of their own release at every load.
 - **The jaw is set deliberately now:** Anticipation 15, Pleasure 15/25/35, Climax 45, Oral 35 (the contact
   mouth's base), Kiss 15, Dazed 20.
 - **Eyes:** the sets' eyelid values apply for the first time, as a floor under the blink. The pleasure and oral
   eyes will look more closed than before; worth a look in game.
 - **Where:** `src/FaceAuthority.*` reads `faces.json`, which `tools/make_mfg.py` writes from the same table as
   the AAF XML. It is fed from `PapyrusLink::QueueOrder`, the one funnel every face and line passes.
+
+## R-25 - No hugs where sex was asked for, unless someone is shy (owner, 2026-09-24)
+
+The owner, testing R-23: "2 times at row they do hugging instead of real sex". Then: "if it was randomly picked
+non sex i am ok with it. we can allow nonsex for only specific personas that could be too shy to sex sometimes
+despite post apocalyptic morale".
+
+**What happened (Rapport.log, 16:53-16:56).** Chemistry's Decide now chose `quickie`. Quickie has no tree stage,
+so the bridge started the scene with no position and AAF picked from everything the pair could play. It picked
+"(CHAK) Table Kiss A1", tagged `NonSex, Kissing, Foreplay`.
+
+**The rule.**
+- A scene that starts with no tree gets AAF's own default exclusions plus the non-sex markers, `NonSex` and `SFW`.
+  Quickie starts this way, and so does every f_f pair on this install.
+- If either member's persona is **reticent** (R-8: "nothing, the first few times"), the markers are not
+  excluded, and AAF may pick a hug now and then. The player has no persona (R-11), so only an NPC makes that
+  exception.
+- A tree start is untouched: the tree already names its position.
+- Settings: `scenarios.json` `"nonSex": {"tags": "NonSex,SFW", "allowedFor": ["reticent"]}`.
+
+**Why these tags.** They are read from the installed packs (tags come from `positionData` and from the
+`*_tagData.xml` files, which ADD to them; aaf-sot §9).
+- `NonSex` is CHAK's marker: 39 installed positions of hugs, cuddles, kisses, snoozes and a slow dance.
+- `SFW` is UAP's, on 11: Atomic Lust's embrace, kiss, cuddle and holding hands.
+- Neither marker is on any position with a sex-act tag.
+- `Kissing` was rejected, because at least 16 sex positions carry it too.
+- About ten kiss-only positions carry neither marker (BP70's Kissing, Make Out, Smooching, Rufgt's Gay
+  Kissing, ...) and can still come up by chance, which the owner accepted.
+
+**Why the defaults are read from disk.** Setting `SceneSettings.excludeTags` REPLACES AAF's
+`default_excludetags`, it does not add to it (AAF's SceneSettings docs). The factory holds a sentinel that AAF
+resolves on its own side (aaf-under-the-hood §11). So Rapport reads every `Data/AAF/*_settings.ini` and takes
+the value from the highest `priority`, as AAF merges them: `pose,utility` from AAF_settings.ini on this install.
+It cannot see a value the player changed in AAF's own MCM, which AAF stores per save.
+
+**Found on the way, not changed.** Quickie's stage lists `include` (Handjob, Blowjob, ...) and `exclude` (beds,
+couches). Neither reaches AAF, because only a tree stage chooses anything. Passing `include` would make an f_f
+quickie match nothing and fail, so it stays as written, and the owner has been told.
+
+**Debug triggers, same day (R-23 follow-up).**
+- **A pair of one kind:** F+F, F+M and M+M, FORCED and REAL, as buttons and hotkeys. Each picks the best-ranked
+  pair of that kind near the player. The NPC faced is one of the two when their sex fits; otherwise the HUD
+  says they were passed over.
+- **Refusals in words:** the scene funnel's door now says why on the HUD ("Rapport refused Elmer Pike +
+  Drifter: Drifter (33008AF6) is in the middle of a conversation"). It used to say "the reason is in
+  Rapport.log".
+- **Chemistry:** its Decide now reads `Core.LastRefusal()` straight after a refused request and shows it.

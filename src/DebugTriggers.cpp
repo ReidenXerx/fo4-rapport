@@ -139,15 +139,29 @@ namespace RP::DebugTriggers
 								 : (std::max)(settings.sceneSeconds, Scenarios::GetSingleton().SecondsFor(scenario));
 
 			// The funnel every scene passes, the player's lane included; forced also
-			// passes the lane's hold, as the dev channel's request does.
-			const bool taken = PapyrusLink::GetSingleton().RequestScene(a_first, a_second, seconds, scenario, a_force);
+			// passes the lane's hold, as the dev channel's request does. Its door
+			// refuses in words, and the words go on the HUD: "the reason is in
+			// Rapport.log" sent the owner to a file for a one-line answer.
+			std::string why;
+			const bool  taken =
+				PapyrusLink::GetSingleton().RequestScene(a_first, a_second, seconds, scenario, a_force, &why);
 			const auto line = taken
 			                      ? std::format("Rapport debug ({}): scene asked for - {} + {}{}", a_force ? "forced" : "real",
 									  Name(a_first), Name(a_second), a_extra)
-			                      : std::format("Rapport debug ({}): Rapport refused {} + {} - the reason is in Rapport.log",
-									  a_force ? "forced" : "real", Name(a_first), Name(a_second));
+			                      : std::format("Rapport debug ({}): Rapport refused {} + {}: {}", a_force ? "forced" : "real",
+									  Name(a_first), Name(a_second), why.empty() ? "the reason is in Rapport.log" : why);
 			logger::info("debug trigger: {}", line);
 			return line;
+		}
+
+		// True for a woman, false for a man; nullopt with no NPC record to ask.
+		[[nodiscard]] std::optional<bool> Female(RE::Actor* a_actor)
+		{
+			auto* npc = a_actor ? a_actor->GetNPC() : nullptr;   // not const: GetSex() is not
+			if (!npc) {
+				return std::nullopt;
+			}
+			return npc->GetSex() == RE::SEX::kFemale;
 		}
 
 		[[nodiscard]] std::string Refuse(bool a_force, std::string_view a_why)
@@ -318,5 +332,117 @@ namespace RP::DebugTriggers
 			extra = std::format(" - score {:.2f} clears the {:.2f} bar", best->score, weights.minimumScore);
 		}
 		return Request(best->first, best->second, a_force, std::move(extra));
+	}
+
+	std::string ScenePair(RE::Actor* a_facing, std::string_view a_pair, bool a_force)
+	{
+		// How many women the pair has. AAF names compositions females first (F_M,
+		// never M_F), so "MF" is accepted as the same thing.
+		int women = -1;
+		if (a_pair == "FF") {
+			women = 2;
+		} else if (a_pair == "FM" || a_pair == "MF") {
+			women = 1;
+		} else if (a_pair == "MM") {
+			women = 0;
+		}
+		if (women < 0) {
+			return Refuse(a_force, std::format("\"{}\" is not a pair - FF, FM or MM", a_pair));
+		}
+		const std::string_view label = women == 2 ? "F+F" : women == 1 ? "F+M" : "M+M";
+
+		if (auto busy = NotNow(a_force); !busy.empty()) {
+			return busy;
+		}
+		if (!a_force) {
+			// What stops the stand-in before it looks at anyone (Scheduler.cpp).
+			if (PapyrusLink::GetSingleton().AutonomyPaused()) {
+				return Refuse(a_force, "autonomy is paused (mailbox) - nothing starts on its own");
+			}
+			if (Config::GetSingleton().dryRun) {
+				return Refuse(a_force, "DryRun is on in Rapport.ini - the stand-in only watches");
+			}
+		}
+
+		// The one faced is one of the two when they fit this kind of pair. The player
+		// is never one: "a scene with the one I face" is the button for that.
+		RE::Actor*  anchor = nullptr;
+		std::string passedOver;
+		if (a_facing && a_facing->GetFormID() != kPlayer) {
+			const auto female = Female(a_facing);
+			const bool fits = female && ((*female && women >= 1) || (!*female && women <= 1));
+			if (!fits) {
+				passedOver = std::format(" ({} in front of you is not part of an {} pair - passed over)", Name(a_facing),
+					label);
+			} else {
+				if (const auto why = HardRule(a_facing); !why.empty()) {
+					return Refuse(a_force, std::format("{} {}", Name(a_facing), why));
+				}
+				if (!a_force) {
+					if (const auto why = Resting(a_facing); !why.empty()) {
+						return Refuse(a_force, why);
+					}
+				}
+				anchor = a_facing;
+			}
+		}
+
+		// The stand-in's own candidates, as SceneFor takes them, less anyone whose
+		// sex nothing can tell and anyone a hard rule keeps out.
+		const auto scan = Scan();
+		std::vector<RE::Actor*> candidates;
+		bool                    anchorIn = false;
+		for (const auto& handle : scan.Candidates()) {
+			const auto actor = handle.get();
+			if (!actor || !Female(actor.get()) || !HardRule(actor.get()).empty()) {
+				continue;
+			}
+			if (!a_force && !Resting(actor.get()).empty()) {
+				continue;
+			}
+			anchorIn = anchorIn || actor.get() == anchor;
+			candidates.push_back(actor.get());
+		}
+		if (anchor && !anchorIn) {
+			if (!a_force) {
+				return Refuse(a_force, std::format("{} is not a candidate now - talking, in an ambient conversation, held "
+												   "by a quest, or out of range (the tick log says which)",
+										   Name(anchor)));
+			}
+			candidates.push_back(anchor);   // forced: the hard rules passed above
+		}
+
+		const auto& weights = Config::GetSingleton().Weights();
+		const auto  every = candidates.size() * candidates.size();
+		const auto  ranked = RankPairs(candidates, scan.ObserverPositions(), weights, every);
+		const auto  best = std::ranges::find_if(ranked, [&](const ScoredPair& p) {
+			const auto a = Female(p.first);
+			const auto b = Female(p.second);
+			if (!a || !b || static_cast<int>(*a) + static_cast<int>(*b) != women) {
+				return false;
+			}
+			return !anchor || p.first == anchor || p.second == anchor;
+		});
+		if (best == ranked.end()) {
+			return Refuse(a_force,
+				anchor ? std::format("nobody Rapport would pair with {} as {} within {:.0f} units", Name(anchor), label,
+							 weights.maxPairDistance)
+					   : std::format("no {} pair near you that Rapport ranks - {} candidate(s) in range{}", label,
+							 candidates.size(), passedOver));
+		}
+
+		std::string extra;
+		if (a_force) {
+			extra = std::format(" ({}) - score {:.2f}; skipped: the bar, cooldowns, privacy, time of day", label,
+				best->score);
+		} else {
+			if (best->score < weights.minimumScore) {
+				return Refuse(a_force, std::format("the best {} pair is {} + {} at {:.2f}, under the {:.2f} bar ({}){}",
+										   label, Name(best->first), Name(best->second), best->score,
+										   weights.minimumScore, Describe(*best), passedOver));
+			}
+			extra = std::format(" ({}) - score {:.2f} clears the {:.2f} bar", label, best->score, weights.minimumScore);
+		}
+		return Request(best->first, best->second, a_force, extra + passedOver);
 	}
 }

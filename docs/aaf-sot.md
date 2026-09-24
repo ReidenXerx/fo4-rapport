@@ -255,6 +255,21 @@ A position's effective tags are assembled, not declared in one place:
 So a tag can be present in the XML we are reading and still not be on the position at runtime.
 When tag-based selection surprises us, this order is the first thing to check.
 
+**Measured here (2026-09-24, R-25): the non-sex markers.** A survey of `positionData` tags plus
+every `*_tagData.xml` found two markers pack authors use for "this is not sex":
+- `NonSex` is CHAK's: 70 position ids in `CHAKPack_tagData.xml`, 39 of them installed here (hugs,
+  cuddles, kisses, snoozes, a slow dance). The rest name positions of CHAK packs this install lacks.
+  None of them carries a sex-act tag.
+- `SFW` is UAP's, on 11 installed positions: Atomic Lust's embrace, kiss, cuddle and holding hands,
+  F_M and M_M. None carries a sex-act tag.
+- `Kissing` is not a marker: at least 16 installed positions carrying it also carry an act
+  (`PenisToVagina`, `Cunnilingus`, ...).
+- About ten kiss-only positions carry no marker at all: BP70's and UAP's Kissing, Make Out, Smooching,
+  Rufgt's Gay Kissing and others.
+
+A survey of `positionData` alone reported **zero** `NonSex` positions. The tag lives only in the
+tagData file, so a probe that reads one of the two sources is wrong, not merely incomplete.
+
 Sources: `animators/XML/tagData`, `animators/XML/furnitureData`, `animators/XML/actionData`,
 `animators/XML/animationData`.
 
@@ -283,6 +298,16 @@ in force — and a setting the player never touched keeps following the ini live
 
 `distance_limit` and `reequip_delay` together explain a family of "AAF did not clean up" reports
 that are simply AAF taking its time on purpose.
+
+**The merge is per SETTING, not per file.** `Rapport_settings.ini` sits at priority 100 and sets two
+debug switches, and every other setting still comes from `AAF_settings.ini` (priority -1). A file
+without a `priority` line counts as 0. The files are `Data/AAF/*_settings.ini`.
+
+**`SceneSettings.excludeTags` REPLACES `default_excludetags`; it does not add to it.** The factory
+holds the sentinel string `default_excludetags`, which AAF resolves on its side and which cannot be
+extended in place. So a caller that excludes anything must carry the defaults itself, or `pose` and
+`utility` positions come back. Rapport reads them from the settings files (R-25). A value the
+player changed in AAF's MCM is per save and invisible from disk.
 
 Source: `authors/API/AAF_settings`.
 

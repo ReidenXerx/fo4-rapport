@@ -61,9 +61,22 @@ namespace RP
 		// a_bypassHold: the dev command channel only. Everything else -- addons and
 		// Rapport's own stand-in alike -- is refused while the player's hold names
 		// another pair (microscope 2026-09-23: the stand-in used to walk round it).
+		// a_why, when given, receives the refusal in words ("Drifter (33008AF6) is in
+		// the middle of a conversation"); the debug triggers put it on the HUD.
 		bool RequestScene(
 			RE::Actor* a_first, RE::Actor* a_second, float a_duration, std::string_view a_scenario,
-			bool a_bypassHold = false);
+			bool a_bypassHold = false, std::string* a_why = nullptr);
+
+		// Why the last request was turned down, in words; empty after one was taken.
+		// For an addon that got a plain false and wants to say why -- Chemistry's
+		// Decide now. Last-writer-wins: the door is shared, so it is the most recent
+		// refusal, which for a caller reading it straight after its own is its own.
+		[[nodiscard]] std::string LastRefusal() const;
+		void                      NoteRefusal(std::string a_why);
+
+		// The exclusion for an unconstrained start of the scene in flight (R-25), or
+		// empty to leave AAF's settings alone. Scenarios::ExcludeTagsFor decides.
+		[[nodiscard]] std::string SceneExcludeTags(std::string_view a_given);
 
 		// ---- called from Papyrus ----
 		std::int32_t TakeRequest();
@@ -301,6 +314,11 @@ namespace RP
 		std::chrono::steady_clock::time_point _sceneStartedAt{};
 		bool         _sceneRunning{ false };
 		bool         _stopAsked{ false };
+
+		// Its own lock: RequestScene refuses before it takes _counter, and a refusal
+		// must not have to wait behind a request being published.
+		mutable std::mutex _refusalLock;
+		std::string        _lastRefusal;
 
 		// Two queues, because two scripts drain them. Rapport's own bridge must
 		// never name a Commonwealth Moisturizer type -- it would then carry an
