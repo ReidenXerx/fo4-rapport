@@ -74,6 +74,18 @@ Function ForeignSceneEnded(Int aiLocation, Var akActors, String asPosition, Stri
 ; with the request already released, cannot leave the cum a second time.
 Function OwnSceneEnded(Int aiLocation, Var akActors) Global Native
 
+; R-23, debug triggers (the MCM's Debug page and hotkeys; Rapport:DebugTriggers).
+; The actor the player is facing: within afMaxDistance units and afMaxAngle degrees
+; either side of the player's heading, the smallest angle winning. None when nobody.
+; Chemistry and Overture name their target with this too: one "in front of you".
+Actor Function ActorInFront(Float afMaxDistance, Float afMaxAngle) Global Native
+; A scene now. abForce skips the soft gates (the bar, cooldowns, privacy, time of
+; day); without it every gate the stand-in obeys applies. The hard rules always do.
+; Returns one line for the HUD: what happened, or what refused and why.
+String Function DebugSceneWith(Actor akFirst, Actor akSecond, Bool abForce) Global Native
+; A scene for akTarget with the partner Rapport's own pairing ranks best.
+String Function DebugSceneFor(Actor akTarget, Bool abForce) Global Native
+
 ; Does AAF's actor Var name actors, none of them this one? The bridge asks before it
 ; takes an event for a request whose scene has not started yet: one whose actors
 ; leave OUR actor out is not ours. Asked this way round so that every failure --

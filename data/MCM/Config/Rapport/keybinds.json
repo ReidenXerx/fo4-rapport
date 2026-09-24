@@ -1,0 +1,41 @@
+{
+  "modName": "Rapport",
+  "keybinds": [
+    {
+      "id": "RapportSceneWithMeForced",
+      "desc": "Rapport debug: With me - forced",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "SceneWithMeForced"
+      }
+    },
+    {
+      "id": "RapportSceneWithMeReal",
+      "desc": "Rapport debug: With me - real",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "SceneWithMeReal"
+      }
+    },
+    {
+      "id": "RapportSceneForThemForced",
+      "desc": "Rapport debug: For them - forced",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "SceneForThemForced"
+      }
+    },
+    {
+      "id": "RapportSceneForThemReal",
+      "desc": "Rapport debug: For them - real",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:DebugTriggers",
+        "function": "SceneForThemReal"
+      }
+    }
+  ]
+}

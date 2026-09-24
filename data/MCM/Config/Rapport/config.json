@@ -409,6 +409,95 @@
           }
         }
       ]
+    },
+    {
+      "pageDisplayName": "Debug",
+      "content": [
+        {
+          "type": "text",
+          "text": "Scenes on demand, for testing. Face the actor you mean, then click - or bind a key below and press it in game. FORCED skips the score bar, cooldowns, privacy and time of day; REAL obeys every rule and says on the HUD which one refused. Adults only, one scene at a time - always."
+        },
+        {
+          "type": "section",
+          "text": "A scene with you"
+        },
+        {
+          "type": "button",
+          "text": "A scene with the one I face - FORCED",
+          "help": "You and the actor you are facing (a few steps away), through Rapport's own scene request. Skips the score bar, cooldowns, privacy and time of day.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "SceneWithMeForced",
+            "params": []
+          }
+        },
+        {
+          "type": "button",
+          "text": "A scene with the one I face - REAL",
+          "help": "The same, obeying every rule a real request obeys (their cooldown included). The HUD says which rule refused.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "SceneWithMeReal",
+            "params": []
+          }
+        },
+        {
+          "type": "section",
+          "text": "A scene for them"
+        },
+        {
+          "type": "button",
+          "text": "The one I face + their best partner - FORCED",
+          "help": "The actor you are facing, with the partner Rapport's own pairing ranks best nearby. Skips the score bar, cooldowns, privacy and time of day.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "SceneForThemForced",
+            "params": []
+          }
+        },
+        {
+          "type": "button",
+          "text": "The one I face + their best partner - REAL",
+          "help": "The same, only if that pair clears the bar and nobody is resting - exactly as autonomy would decide. The HUD says why not.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:DebugTriggers",
+            "function": "SceneForThemReal",
+            "params": []
+          }
+        },
+        {
+          "type": "section",
+          "text": "Hotkeys"
+        },
+        {
+          "id": "RapportSceneWithMeForced",
+          "text": "With me - forced",
+          "type": "hotkey",
+          "help": "You and the actor you are facing (a few steps away), through Rapport's own scene request. Skips the score bar, cooldowns, privacy and time of day."
+        },
+        {
+          "id": "RapportSceneWithMeReal",
+          "text": "With me - real",
+          "type": "hotkey",
+          "help": "The same, obeying every rule a real request obeys (their cooldown included). The HUD says which rule refused."
+        },
+        {
+          "id": "RapportSceneForThemForced",
+          "text": "For them - forced",
+          "type": "hotkey",
+          "help": "The actor you are facing, with the partner Rapport's own pairing ranks best nearby. Skips the score bar, cooldowns, privacy and time of day."
+        },
+        {
+          "id": "RapportSceneForThemReal",
+          "text": "For them - real",
+          "type": "hotkey",
+          "help": "The same, only if that pair clears the bar and nobody is resting - exactly as autonomy would decide. The HUD says why not."
+        }
+      ]
     }
   ]
 }

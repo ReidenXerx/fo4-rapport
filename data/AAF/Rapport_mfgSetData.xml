@@ -80,7 +80,7 @@
 
 <!-- Before anything happens: lips just parted, brows lifted, eyes a little heavy. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
 <mfgSet id="Rapport_Anticipation_1">
-	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="40" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="40" lock="true"/>  <!-- Right Middle Brow Up -->
 	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
@@ -93,7 +93,7 @@
 
 <!-- Before anything happens: lips just parted, brows lifted, eyes a little heavy. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
 <mfgSet id="Rapport_Anticipation_2">
-	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="40" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="40" lock="true"/>  <!-- Right Middle Brow Up -->
 	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
@@ -113,7 +113,7 @@
 
 <!-- Before anything happens: lips just parted, brows lifted, eyes a little heavy. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
 <mfgSet id="Rapport_Anticipation_3">
-	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="40" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="40" lock="true"/>  <!-- Right Middle Brow Up -->
 	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
@@ -130,7 +130,7 @@
 
 <!-- Before anything happens: lips just parted, brows lifted, eyes a little heavy. -- gone: vacant, tongue out, the lights are off -->
 <mfgSet id="Rapport_Anticipation_4">
-	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="18" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="18" lock="true"/>  <!-- Right Middle Brow Up -->
 	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
@@ -146,7 +146,7 @@
 
 <!-- Before anything happens: lips just parted, brows lifted, eyes a little heavy. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
 <mfgSet id="Rapport_Anticipation_5">
-	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="40" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="40" lock="true"/>  <!-- Right Middle Brow Up -->
 	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
@@ -167,7 +167,7 @@
 
 <!-- Before anything happens: lips just parted, brows lifted, eyes a little heavy. -- grins: wide, shameless, teeth out and thoroughly pleased -->
 <mfgSet id="Rapport_Anticipation_6">
-	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="15" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="15" lock="true"/>  <!-- Right Middle Brow Up -->
 	<setting morphID="8" intensity="15"/>  <!-- Left Lip Corner Out -->
@@ -184,7 +184,7 @@
 
 <!-- Early. A soft smile and half-closed eyes; nothing exaggerated. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
 <mfgSet id="Rapport_Pleasure_1_1">
-	<setting morphID="2" intensity="30"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="17" intensity="50"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="50"/>  <!-- Right Smile -->
 	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
@@ -199,7 +199,7 @@
 
 <!-- Early. A soft smile and half-closed eyes; nothing exaggerated. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
 <mfgSet id="Rapport_Pleasure_1_2">
-	<setting morphID="2" intensity="30"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="17" intensity="50"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="50"/>  <!-- Right Smile -->
 	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
@@ -221,7 +221,7 @@
 
 <!-- Early. A soft smile and half-closed eyes; nothing exaggerated. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
 <mfgSet id="Rapport_Pleasure_1_3">
-	<setting morphID="2" intensity="30"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="17" intensity="16"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="50"/>  <!-- Right Smile -->
 	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
@@ -239,7 +239,7 @@
 
 <!-- Early. A soft smile and half-closed eyes; nothing exaggerated. -- gone: vacant, tongue out, the lights are off -->
 <mfgSet id="Rapport_Pleasure_1_4">
-	<setting morphID="2" intensity="30"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="17" intensity="50"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="50"/>  <!-- Right Smile -->
 	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
@@ -257,7 +257,7 @@
 
 <!-- Early. A soft smile and half-closed eyes; nothing exaggerated. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
 <mfgSet id="Rapport_Pleasure_1_5">
-	<setting morphID="2" intensity="30"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="17" intensity="50"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="50"/>  <!-- Right Smile -->
 	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
@@ -280,7 +280,7 @@
 
 <!-- Early. A soft smile and half-closed eyes; nothing exaggerated. -- grins: wide, shameless, teeth out and thoroughly pleased -->
 <mfgSet id="Rapport_Pleasure_1_6">
-	<setting morphID="2" intensity="30"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="17" intensity="28"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="23"/>  <!-- Right Smile -->
 	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
@@ -299,7 +299,7 @@
 
 <!-- Building. Mouth further open, cheeks lifting, eyes nearly shut. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
 <mfgSet id="Rapport_Pleasure_2_1">
-	<setting morphID="2" intensity="60"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
 	<setting morphID="24" intensity="40"/>  <!-- Lower Lip Roll Out -->
 	<setting morphID="14" intensity="80" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="80" lock="true"/>  <!-- Right Middle Brow Up -->
@@ -317,7 +317,7 @@
 
 <!-- Building. Mouth further open, cheeks lifting, eyes nearly shut. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
 <mfgSet id="Rapport_Pleasure_2_2">
-	<setting morphID="2" intensity="60"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
 	<setting morphID="24" intensity="40"/>  <!-- Lower Lip Roll Out -->
 	<setting morphID="14" intensity="80" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="80" lock="true"/>  <!-- Right Middle Brow Up -->
@@ -342,7 +342,7 @@
 
 <!-- Building. Mouth further open, cheeks lifting, eyes nearly shut. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
 <mfgSet id="Rapport_Pleasure_2_3">
-	<setting morphID="2" intensity="60"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
 	<setting morphID="24" intensity="40"/>  <!-- Lower Lip Roll Out -->
 	<setting morphID="14" intensity="80" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="80" lock="true"/>  <!-- Right Middle Brow Up -->
@@ -364,7 +364,7 @@
 
 <!-- Building. Mouth further open, cheeks lifting, eyes nearly shut. -- gone: vacant, tongue out, the lights are off -->
 <mfgSet id="Rapport_Pleasure_2_4">
-	<setting morphID="2" intensity="60"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
 	<setting morphID="24" intensity="40"/>  <!-- Lower Lip Roll Out -->
 	<setting morphID="14" intensity="42" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="42" lock="true"/>  <!-- Right Middle Brow Up -->
@@ -385,7 +385,7 @@
 
 <!-- Building. Mouth further open, cheeks lifting, eyes nearly shut. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
 <mfgSet id="Rapport_Pleasure_2_5">
-	<setting morphID="2" intensity="60"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
 	<setting morphID="24" intensity="40"/>  <!-- Lower Lip Roll Out -->
 	<setting morphID="14" intensity="80" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="80" lock="true"/>  <!-- Right Middle Brow Up -->
@@ -411,7 +411,7 @@
 
 <!-- Building. Mouth further open, cheeks lifting, eyes nearly shut. -- grins: wide, shameless, teeth out and thoroughly pleased -->
 <mfgSet id="Rapport_Pleasure_2_6">
-	<setting morphID="2" intensity="60"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
 	<setting morphID="24" intensity="40"/>  <!-- Lower Lip Roll Out -->
 	<setting morphID="14" intensity="36" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="36" lock="true"/>  <!-- Right Middle Brow Up -->
@@ -431,7 +431,7 @@
 
 <!-- Near the peak. Brows high and drawn in, eyes shut, mouth open. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
 <mfgSet id="Rapport_Pleasure_3_1">
-	<setting morphID="2" intensity="85"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="40" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="4" intensity="90" lock="true"/>  <!-- Left Cheek Up -->
 	<setting morphID="27" intensity="90" lock="true"/>  <!-- Right Cheek Up -->
@@ -451,7 +451,7 @@
 
 <!-- Near the peak. Brows high and drawn in, eyes shut, mouth open. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
 <mfgSet id="Rapport_Pleasure_3_2">
-	<setting morphID="2" intensity="85"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="68" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="4" intensity="90" lock="true"/>  <!-- Left Cheek Up -->
 	<setting morphID="27" intensity="90" lock="true"/>  <!-- Right Cheek Up -->
@@ -475,7 +475,7 @@
 
 <!-- Near the peak. Brows high and drawn in, eyes shut, mouth open. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
 <mfgSet id="Rapport_Pleasure_3_3">
-	<setting morphID="2" intensity="85"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="40" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="4" intensity="90" lock="true"/>  <!-- Left Cheek Up -->
 	<setting morphID="27" intensity="90" lock="true"/>  <!-- Right Cheek Up -->
@@ -499,7 +499,7 @@
 
 <!-- Near the peak. Brows high and drawn in, eyes shut, mouth open. -- gone: vacant, tongue out, the lights are off -->
 <mfgSet id="Rapport_Pleasure_3_4">
-	<setting morphID="2" intensity="85"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="40" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="4" intensity="90" lock="true"/>  <!-- Left Cheek Up -->
 	<setting morphID="27" intensity="90" lock="true"/>  <!-- Right Cheek Up -->
@@ -524,7 +524,7 @@
 
 <!-- Near the peak. Brows high and drawn in, eyes shut, mouth open. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
 <mfgSet id="Rapport_Pleasure_3_5">
-	<setting morphID="2" intensity="85"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="40" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="4" intensity="90" lock="true"/>  <!-- Left Cheek Up -->
 	<setting morphID="27" intensity="90" lock="true"/>  <!-- Right Cheek Up -->
@@ -552,7 +552,7 @@
 
 <!-- Near the peak. Brows high and drawn in, eyes shut, mouth open. -- grins: wide, shameless, teeth out and thoroughly pleased -->
 <mfgSet id="Rapport_Pleasure_3_6">
-	<setting morphID="2" intensity="85"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="40" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="4" intensity="60" lock="true"/>  <!-- Left Cheek Up -->
 	<setting morphID="27" intensity="60" lock="true"/>  <!-- Right Cheek Up -->
@@ -574,8 +574,9 @@
 	<setting morphID="33" intensity="64" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. See the note on MOUTH below: the animation owns it. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
+<!-- The moment. Teeth showing, eyes screwed shut, the mouth open on it -- ours now: see FACE AUTHORITY. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
 <mfgSet id="Rapport_Climax_1">
+	<setting morphID="2" intensity="45"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="60" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="60"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="100" lock="true"/>  <!-- Left Cheek Up -->
@@ -594,8 +595,9 @@
 	<setting morphID="42" intensity="85" lock="true"/>  <!-- Right Upper Eye Lid Up -->
 </mfgSet>
 
-<!-- The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. See the note on MOUTH below: the animation owns it. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
+<!-- The moment. Teeth showing, eyes screwed shut, the mouth open on it -- ours now: see FACE AUTHORITY. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
 <mfgSet id="Rapport_Climax_2">
+	<setting morphID="2" intensity="45"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="80" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="60"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="100" lock="true"/>  <!-- Left Cheek Up -->
@@ -618,8 +620,9 @@
 	<setting morphID="33" intensity="75" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. See the note on MOUTH below: the animation owns it. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
+<!-- The moment. Teeth showing, eyes screwed shut, the mouth open on it -- ours now: see FACE AUTHORITY. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
 <mfgSet id="Rapport_Climax_3">
+	<setting morphID="2" intensity="45"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="60" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="60"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="100" lock="true"/>  <!-- Left Cheek Up -->
@@ -642,8 +645,9 @@
 	<setting morphID="42" intensity="0" lock="true"/>  <!-- Right Upper Eye Lid Up -->
 </mfgSet>
 
-<!-- The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. See the note on MOUTH below: the animation owns it. -- gone: vacant, tongue out, the lights are off -->
+<!-- The moment. Teeth showing, eyes screwed shut, the mouth open on it -- ours now: see FACE AUTHORITY. -- gone: vacant, tongue out, the lights are off -->
 <mfgSet id="Rapport_Climax_4">
+	<setting morphID="2" intensity="45"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="60" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="70"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="100" lock="true"/>  <!-- Left Cheek Up -->
@@ -664,8 +668,9 @@
 	<setting morphID="33" intensity="30" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. See the note on MOUTH below: the animation owns it. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
+<!-- The moment. Teeth showing, eyes screwed shut, the mouth open on it -- ours now: see FACE AUTHORITY. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
 <mfgSet id="Rapport_Climax_5">
+	<setting morphID="2" intensity="45"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="60" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="60"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="100" lock="true"/>  <!-- Left Cheek Up -->
@@ -692,8 +697,9 @@
 	<setting morphID="33" intensity="70" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. See the note on MOUTH below: the animation owns it. -- grins: wide, shameless, teeth out and thoroughly pleased -->
+<!-- The moment. Teeth showing, eyes screwed shut, the mouth open on it -- ours now: see FACE AUTHORITY. -- grins: wide, shameless, teeth out and thoroughly pleased -->
 <mfgSet id="Rapport_Climax_6">
+	<setting morphID="2" intensity="45"/>  <!-- Jaw Open -->
 	<setting morphID="0" intensity="60" lock="true"/>  <!-- Brow Squeeze -->
 	<setting morphID="49" intensity="60"/>  <!-- Tongue To Roof -->
 	<setting morphID="4" intensity="70" lock="true"/>  <!-- Left Cheek Up -->
@@ -716,8 +722,9 @@
 	<setting morphID="33" intensity="75" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it was the loudest part of this set and the animation does it better. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
+<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
 <mfgSet id="Rapport_Oral_1">
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60"/>  <!-- Upper Lip Funnel -->
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
@@ -733,8 +740,9 @@
 	<setting morphID="42" intensity="59" lock="true"/>  <!-- Right Upper Eye Lid Up -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it was the loudest part of this set and the animation does it better. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
+<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
 <mfgSet id="Rapport_Oral_2">
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60"/>  <!-- Upper Lip Funnel -->
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
@@ -755,8 +763,9 @@
 	<setting morphID="0" intensity="56" lock="true"/>  <!-- Brow Squeeze -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it was the loudest part of this set and the animation does it better. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
+<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
 <mfgSet id="Rapport_Oral_3">
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60"/>  <!-- Upper Lip Funnel -->
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
@@ -776,8 +785,9 @@
 	<setting morphID="42" intensity="0" lock="true"/>  <!-- Right Upper Eye Lid Up -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it was the loudest part of this set and the animation does it better. -- gone: vacant, tongue out, the lights are off -->
+<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- gone: vacant, tongue out, the lights are off -->
 <mfgSet id="Rapport_Oral_4">
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60"/>  <!-- Upper Lip Funnel -->
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
@@ -800,8 +810,9 @@
 	<setting morphID="33" intensity="21" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it was the loudest part of this set and the animation does it better. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
+<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
 <mfgSet id="Rapport_Oral_5">
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60"/>  <!-- Upper Lip Funnel -->
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
@@ -825,8 +836,9 @@
 	<setting morphID="33" intensity="49" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it was the loudest part of this set and the animation does it better. -- grins: wide, shameless, teeth out and thoroughly pleased -->
+<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- grins: wide, shameless, teeth out and thoroughly pleased -->
 <mfgSet id="Rapport_Oral_6">
+	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
 	<setting morphID="46" intensity="60"/>  <!-- Upper Lip Funnel -->
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
@@ -953,7 +965,7 @@
 
 <!-- Afterwards, briefly. Eyes heavy, a half smile, jaw slack. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
 <mfgSet id="Rapport_Dazed_1">
-	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
 	<setting morphID="18" intensity="45" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="45" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="35"/>  <!-- Left Smile -->
@@ -966,7 +978,7 @@
 
 <!-- Afterwards, briefly. Eyes heavy, a half smile, jaw slack. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
 <mfgSet id="Rapport_Dazed_2">
-	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
 	<setting morphID="18" intensity="45" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="45" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="35"/>  <!-- Left Smile -->
@@ -986,7 +998,7 @@
 
 <!-- Afterwards, briefly. Eyes heavy, a half smile, jaw slack. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
 <mfgSet id="Rapport_Dazed_3">
-	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
 	<setting morphID="18" intensity="45" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="45" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="14"/>  <!-- Left Smile -->
@@ -1002,7 +1014,7 @@
 
 <!-- Afterwards, briefly. Eyes heavy, a half smile, jaw slack. -- gone: vacant, tongue out, the lights are off -->
 <mfgSet id="Rapport_Dazed_4">
-	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
 	<setting morphID="18" intensity="45" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="45" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="35"/>  <!-- Left Smile -->
@@ -1018,7 +1030,7 @@
 
 <!-- Afterwards, briefly. Eyes heavy, a half smile, jaw slack. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
 <mfgSet id="Rapport_Dazed_5">
-	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
 	<setting morphID="18" intensity="45" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="45" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="35"/>  <!-- Left Smile -->
@@ -1039,7 +1051,7 @@
 
 <!-- Afterwards, briefly. Eyes heavy, a half smile, jaw slack. -- grins: wide, shameless, teeth out and thoroughly pleased -->
 <mfgSet id="Rapport_Dazed_6">
-	<setting morphID="2" intensity="25"/>  <!-- Jaw Open -->
+	<setting morphID="2" intensity="20"/>  <!-- Jaw Open -->
 	<setting morphID="18" intensity="45" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="45" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="24"/>  <!-- Left Smile -->

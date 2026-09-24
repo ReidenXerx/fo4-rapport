@@ -10,6 +10,7 @@ numbers.
 Run it after editing SETS; the XML is generated, not hand-maintained.
 """
 import io
+import json
 import pathlib
 import re
 
@@ -254,6 +255,22 @@ STYLES = [
          eyes(lvl, sym("Upper Eye Lid Down", 65) + sym("Lower Eye Lid Up", 75)))),
 ]
 
+# FACE AUTHORITY (owner, 2026-09-24: "we need grab whole power on ruling things we
+# rule in rapport including expressions bc we need to be SOT").
+#
+# Everything above about losing the jaw was true of the AAF path: the engine merges a
+# face as max(override, animation) (0x6689D0, fo4-anatomy's field notes), so an mfg
+# set can open what the animation leaves closed and never close what it opens. The
+# owner saw exactly that in cowgirl: Pleasure_3's Jaw Open 85 -- the "next suspect"
+# named above -- wide open like a blowjob, and a close-open flicker on top.
+#
+# With Anatomy's cbp.dll installed, Rapport's values REPLACE the merged ones after
+# that merge, for every morph (FaceAuthority, via faces.json below). So the jaw is
+# ours again, and set deliberately low: lips parted when building, open on the moan
+# at the peak. The blink stays the engine's, and Anatomy's contact mouth still opens
+# the jaw around whatever is in it. Without cbp.dll this XML is the whole story,
+# and the history above still applies to it.
+#
 # Each set is (id, note, [(morph name, intensity 0-100), ...], lock, level).
 # Intensities are deliberately short of 100 except at the peak: a face pinned to
 # maximum on every morph reads as a rictus rather than as pleasure.
@@ -267,43 +284,43 @@ SETS = [
 
     ("Rapport_Anticipation",
      "Before anything happens: lips just parted, brows lifted, eyes a little heavy.",
-     [("Jaw Open", 20)] + sym("Middle Brow Up", 40) + sym("Lip Corner Out", 25)
+     [("Jaw Open", 15)] + sym("Middle Brow Up", 40) + sym("Lip Corner Out", 25)
      + sym("Upper Eye Lid Down", 20),
      True, 25),
 
     ("Rapport_Pleasure_1",
      "Early. A soft smile and half-closed eyes; nothing exaggerated.",
-     [("Jaw Open", 30)] + sym("Smile", 50) + sym("Lower Eye Lid Down", 40)
+     [("Jaw Open", 15)] + sym("Smile", 50) + sym("Lower Eye Lid Down", 40)
      + sym("Upper Eye Lid Down", 45) + sym("Middle Brow Up", 50),
      True, 35),
 
     ("Rapport_Pleasure_2",
      "Building. Mouth further open, cheeks lifting, eyes nearly shut.",
-     [("Jaw Open", 60), ("Lower Lip Roll Out", 40)] + sym("Middle Brow Up", 80)
+     [("Jaw Open", 25), ("Lower Lip Roll Out", 40)] + sym("Middle Brow Up", 80)
      + sym("Cheek Up", 60) + sym("Upper Eye Lid Down", 70)
      + sym("Lower Eye Lid Down", 60) + sym("Lip Corner Out", 50),
      True, 60),
 
     ("Rapport_Pleasure_3",
      "Near the peak. Brows high and drawn in, eyes shut, mouth open.",
-     [("Jaw Open", 85), ("Brow Squeeze", 40)] + sym("Cheek Up", 90)
+     [("Jaw Open", 35), ("Brow Squeeze", 40)] + sym("Cheek Up", 90)
      + sym("Middle Brow Up", 100) + sym("Outer Brow Down", 50)
      + sym("Upper Eye Lid Down", 90) + sym("Lower Eye Lid Down", 80),
      True, 85),
 
     ("Rapport_Climax",
-     "The moment. Teeth showing, eyes screwed shut -- and the JAW IS NOT OURS. "
-     "See the note on MOUTH below: the animation owns it.",
-     [("Brow Squeeze", 60), ("Tongue To Roof", 60)]
+     "The moment. Teeth showing, eyes screwed shut, the mouth open on it -- ours "
+     "now: see FACE AUTHORITY.",
+     [("Jaw Open", 45), ("Brow Squeeze", 60), ("Tongue To Roof", 60)]
      + sym("Cheek Up", 100) + sym("Middle Brow Up", 100)
      + sym("Upper Eye Lid Down", 100) + sym("Lower Eye Lid Down", 85)
      + sym("Lower Lip Down", 60),
      True, 100),
 
     ("Rapport_Oral",
-     "Mouth working around something: funnelled lips. The JAW IS NOT OURS -- it "
-     "was the loudest part of this set and the animation does it better.",
-     [("Lower Lip Funnel", 60),
+     "Mouth working around something: funnelled lips, the jaw a little open -- "
+     "Anatomy's contact mouth opens it to fit while something is in it.",
+     [("Jaw Open", 35), ("Lower Lip Funnel", 60),
       ("Upper Lip Funnel", 60), ("Pucker", 40), ("Upper Lip Roll Out", 70),
       ("Lower Lip Roll Out", 50)]
      + sym("Upper Eye Lid Down", 50) + sym("Lower Eye Lid Down", 40),
@@ -318,7 +335,7 @@ SETS = [
 
     ("Rapport_Dazed",
      "Afterwards, briefly. Eyes heavy, a half smile, jaw slack.",
-     [("Jaw Open", 25)] + sym("Upper Eye Lid Down", 45) + sym("Smile", 35)
+     [("Jaw Open", 20)] + sym("Upper Eye Lid Down", 45) + sym("Smile", 35)
      + sym("Middle Brow Up", 30),
      True, 30),
 ]
@@ -383,6 +400,10 @@ def main():
     out.write(HEADER)
 
     emitted = []
+    # The same values for FaceAuthority, which sends them to Anatomy's hook: morph id
+    # -> intensity 0-100, per emitted set. The XML and this file are written from one
+    # loop, so the two paths can never show different faces.
+    faces = {}
     for setID, note, settings, lock, level in SETS:
         # Rapport_Clear has no variants: it is the reset, and there is only one
         # way to put a face back to nothing.
@@ -397,6 +418,7 @@ def main():
             emitted.append(name_v)
             out.write("<!-- %s -->\n" % (note + how))
             out.write('<mfgSet id="%s">\n' % name_v)
+            faces[name_v] = {str(ID[name]): value for name, value in overlay(settings, extra)}
             for name, value in overlay(settings, extra):
                 # THE MOUTH IS NEVER LOCKED, whatever the set asks for. See MOUTH.
                 #
@@ -423,6 +445,20 @@ def main():
     path = root / "data" / "AAF" / "Rapport_mfgSetData.xml"
     with io.open(path, 'w', encoding="utf-8", newline="\n") as fh:
         fh.write(out.getvalue())
+
+    # FaceAuthority's copy. "mouth" is the MOUTH set as morph ids: the morphs a
+    # speaking actor's lip sync must keep, so they are left out while Rapport's
+    # line plays.
+    faces_path = root / "data" / "F4SE" / "Plugins" / "Rapport" / "faces.json"
+    document = {
+        "_comment": "GENERATED by tools/make_mfg.py -- edit that, not this. Morph id -> intensity 0-100.",
+        "morphs": len(MORPHS),
+        "mouth": sorted(ID[name] for name in MOUTH),
+        "sets": faces,
+    }
+    with io.open(faces_path, 'w', encoding="utf-8", newline="\n") as fh:
+        fh.write(json.dumps(document, indent=1) + "\n")
+    print("%s: %d set(s), %d mouth morph(s)" % (faces_path.name, len(faces), len(document["mouth"])))
 
     # The plugin builds these names by appending a style number, so a mismatch
     # here is a face that silently never appears. Printed so it can be checked.

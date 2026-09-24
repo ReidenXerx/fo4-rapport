@@ -8,6 +8,7 @@
 #include "Voices.h"
 #include "Watchers.h"
 #include "Expressions.h"
+#include "FaceAuthority.h"
 #include "Ledger.h"
 #include "Morphs.h"
 #include "Scenarios.h"
@@ -98,6 +99,18 @@ namespace
 		}
 	}
 
+	// Anatomy's cbp.dll introducing itself (FaceAuthority): 'RFAH' { u32 version; u32 features }.
+	// The only way Rapport learns it may rule faces past the engine's merge.
+	void AnatomyHandler(F4SE::MessagingInterface::Message* a_message)
+	{
+		constexpr std::uint32_t kHello = 0x52464148;   // 'RFAH'
+		if (!a_message || a_message->type != kHello || !a_message->data || a_message->dataLen < 8) {
+			return;
+		}
+		const auto* words = static_cast<const std::uint32_t*>(a_message->data);
+		RP::FaceAuthority::GetSingleton().OnHello(words[0], words[1]);
+	}
+
 	void MessageHandler(F4SE::MessagingInterface::Message* a_message)
 	{
 		if (!a_message) {
@@ -105,6 +118,16 @@ namespace
 		}
 
 		switch (a_message->type) {
+		case F4SE::MessagingInterface::kPostLoad:
+			// Again, now that every plugin is loaded: registering in Load finds
+			// cbp.dll only because it sorts before Rapport.dll (F4SE looks the sender
+			// up among plugins already loaded -- the anatomy session read it in
+			// PluginManager.cpp). A repeat registration is not duplicated, and the
+			// hello comes later, at PostPostLoad.
+			if (const auto messaging = F4SE::GetMessagingInterface()) {
+				messaging->RegisterListener(AnatomyHandler, "OCBPC plugin");
+			}
+			break;
 		case F4SE::MessagingInterface::kGameDataReady:
 			RP::Config::GetSingleton().Load();
 			RP::Config::GetSingleton().LoadRaces();
@@ -112,6 +135,7 @@ namespace
 			RP::DebugHub::GetSingleton().Load();
 			RP::Aftermath::GetSingleton().Load();
 			RP::Expressions::GetSingleton().Load();
+			RP::FaceAuthority::GetSingleton().Load();
 			RP::Voices::GetSingleton().Load();
 			RP::Barks::GetSingleton().Load();
 			RP::Narrator::GetSingleton().Load();
@@ -214,6 +238,11 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	if (!messaging || !messaging->RegisterListener(MessageHandler)) {
 		logger::critical("could not register the messaging listener");
 		return false;
+	}
+	// Anatomy's face hook, when it is installed. Not an error when it is not: faces then
+	// stay on Rapport's AAF path alone, as they always were.
+	if (!messaging->RegisterListener(AnatomyHandler, "OCBPC plugin")) {
+		logger::info("face authority: no listener for Anatomy's cbp.dll - not installed, or it loads after Rapport");
 	}
 
 	logger::info("loaded");

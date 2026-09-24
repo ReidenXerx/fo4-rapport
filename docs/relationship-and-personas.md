@@ -1029,3 +1029,63 @@ decisions. The numbers marked ASSUMED are for tuning.
   - A same-sex pair still gets the cum on both (A-21's "both"). With a creature it reduces to the human.
   - The slot order that would settle both is readable now, but unmeasured for a same-sex pair.
   - Whether Rapport's MFG block fights other mods' AAF_BlockMFG keywords is unmeasured.
+
+## R-23 - Debug triggers: scenes on demand (owner poll, 2026-09-24)
+
+fo4-mcp cannot start AAF scenes, so the owner starts them himself. He asked for MCM buttons, then chose in a
+poll:
+- **Triggers:** all four.
+  - Rapport, "a scene with the one I face": the player plus the NPC they face.
+  - Rapport, "the one I face + their best partner".
+  - Chemistry, "decide now".
+  - Overture, "approach now" and "straight to a yes".
+- **Gates:** every trigger twice.
+  - FORCED skips the soft gates: the score bar, cooldowns, privacy, time of day and bond.
+  - REAL obeys every gate the real path obeys, and says on the HUD which one refused.
+  - The hard rules hold for both: adults only, alive, loaded, not fighting, a race Rapport dresses, and one
+    scene at a time.
+- **Input:** a Debug page in each mod's MCM, and MCM hotkeys (keybinds.json).
+
+As built:
+- **"In front of you"** is Rapport's `ActorInFront`, one definition for all three mods. It uses the player's
+  yaw, with the same arithmetic as F4MCP's `aim` verb, which is measured in game.
+- **Rapport REAL** runs one scan through the stand-in's own filters and ranks the pair with `RankPairs`. The
+  player is never scored: a scene with the player is the player's choice.
+- **Chemistry REAL** is its ordinary `Consider()` pass. FORCED takes the best pair Rapport offers.
+- **Overture REAL approach** makes the player activate the NPC, so the engine picks the greeting as in play.
+  **Straight to a yes** builds a finished stage-3 accept and hands it to `Finish()`, so it gets the same
+  markers, Narrator line and scene request as a real one.
+
+## R-24 - Rapport rules the faces it holds (owner, 2026-09-24)
+
+The owner: "we need grab whole power on ruling things we rule in rapport including expressions bc we need to
+be SOT".
+
+**The measurement.**
+- In a cowgirl the face looked like the blowjob: the jaw wide open, with a close-open flicker.
+- `Rapport_Pleasure_3` had Jaw Open 85, unlocked.
+- The engine builds a face as clamp(max(override, animation)) (0x6689D0; fo4-anatomy's field notes). So no
+  AAF mfg set can close what the animation opens, and `lock` never helped.
+- The engine also ignores MFG overrides on the upper eyelids: they are min(1, blink + animation). So
+  Rapport's eyelid values never showed at all (the anatomy session read it from the executable).
+
+**The fix, agreed with the anatomy session.**
+- Anatomy's cbp.dll ("OCBPC plugin") owns the one hook after the merge (0x6860FA). It REPLACES the merged
+  value with Rapport's for every morph Rapport owns.
+- **Protocol:** F4SE messages from "Rapport" to "OCBPC plugin".
+  - 'RFAS' sets a face: `{u32 version=1; u32 formID; u64 owned; float value[54]}`.
+  - 'RFAC' releases one actor, or everyone with formID 0.
+  - Their 'RFAH' hello at PostPostLoad turns it on. With no hello, Rapport's AAF path is the whole story, as
+    before.
+- **Own-all:** every morph 0-49 of a held face is Rapport's, and a morph the set doesn't name is 0. The
+  exceptions:
+  - the blink stays max(engine, ours), so held faces still blink;
+  - Anatomy's contact mouth opens the jaw to fit while something is in the mouth, starting from our jaw;
+  - while a held actor speaks one of Rapport's lines, the 29 mouth morphs (make_mfg.py MOUTH) are left to lip
+    sync for 9 s. ASSUMED: the C++ side does not know a line's length.
+- **The jaw is set deliberately now:** Anticipation 15, Pleasure 15/25/35, Climax 45, Oral 35 (the contact
+  mouth's base), Kiss 15, Dazed 20.
+- **Eyes:** the sets' eyelid values apply for the first time, as a floor under the blink. The pleasure and oral
+  eyes will look more closed than before; worth a look in game.
+- **Where:** `src/FaceAuthority.*` reads `faces.json`, which `tools/make_mfg.py` writes from the same table as
+  the AAF XML. It is fed from `PapyrusLink::QueueOrder`, the one funnel every face and line passes.

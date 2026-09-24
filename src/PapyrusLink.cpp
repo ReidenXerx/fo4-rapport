@@ -7,10 +7,12 @@
 #include "Candidates.h"
 #include "Config.h"
 #include "DebugHub.h"
+#include "DebugTriggers.h"
 #include "Aftermath.h"
 #include "Barks.h"
 #include "Watchers.h"
 #include "Expressions.h"
+#include "FaceAuthority.h"
 #include "ForeignScenes.h"
 #include "AAFHealth.h"
 #include "Crowd.h"
@@ -282,6 +284,43 @@ namespace
 		}
 	}
 
+	// ---- debug triggers (R-23): the MCM's Debug page and its hotkeys --------------
+	// The actor the player faces. Also Chemistry's and Overture's way to name "him":
+	// one definition of "in front of you" for all three mods.
+	RE::Actor* Papyrus_ActorInFront(std::monostate, float a_maxDistance, float a_maxAngle)
+	{
+		try {
+			return RP::DebugTriggers::ActorInFront(a_maxDistance, a_maxAngle);
+		} catch (...) {
+			logger::critical("ActorInFront threw");
+			return nullptr;
+		}
+	}
+
+	RE::BSFixedString Papyrus_DebugSceneWith(std::monostate, RE::Actor* a_first, RE::Actor* a_second, bool a_force)
+	{
+		try {
+			return RE::BSFixedString{ RP::DebugTriggers::SceneWith(a_first, a_second, a_force) };
+		} catch (const std::exception& e) {
+			logger::critical("DebugSceneWith threw: {}", e.what());
+		} catch (...) {
+			logger::critical("DebugSceneWith threw something that is not a std::exception");
+		}
+		return RE::BSFixedString{ "Rapport debug: failed - see Rapport.log" };
+	}
+
+	RE::BSFixedString Papyrus_DebugSceneFor(std::monostate, RE::Actor* a_target, bool a_force)
+	{
+		try {
+			return RE::BSFixedString{ RP::DebugTriggers::SceneFor(a_target, a_force) };
+		} catch (const std::exception& e) {
+			logger::critical("DebugSceneFor threw: {}", e.what());
+		} catch (...) {
+			logger::critical("DebugSceneFor threw something that is not a std::exception");
+		}
+		return RE::BSFixedString{ "Rapport debug: failed - see Rapport.log" };
+	}
+
 	bool Papyrus_BlockFaces(std::monostate)
 	{
 		return RP::Config::GetSingleton().blockAnimationFaces;
@@ -368,6 +407,7 @@ namespace
 			RP::Scenarios::GetSingleton().Pump();
 			RP::Expressions::GetSingleton().Pump();
 			RP::ForeignScenes::GetSingleton().Pump();
+			RP::FaceAuthority::GetSingleton().Pump();
 			RP::Barks::GetSingleton().Pump();
 			RP::Morphs::GetSingleton().Pump();
 			if (watching) {
@@ -1196,6 +1236,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "ForeignSceneAnimation"sv, Papyrus_ForeignSceneAnimation, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ForeignSceneEnded"sv, Papyrus_ForeignSceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OwnSceneEnded"sv, Papyrus_OwnSceneEnded, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ActorInFront"sv, Papyrus_ActorInFront, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DebugSceneWith"sv, Papyrus_DebugSceneWith, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DebugSceneFor"sv, Papyrus_DebugSceneFor, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ActorsExclude"sv, Papyrus_ActorsExclude, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteBridgeConnected"sv, Papyrus_NoteBridgeConnected, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BlockFaces"sv, Papyrus_BlockFaces, std::nullopt, false);
@@ -1587,6 +1630,7 @@ namespace RP
 		// Somebody else's scenes too (R-22): forgotten, not cleared -- their faces are
 		// on the wearing list, which the arriving save's own record governs.
 		ForeignScenes::GetSingleton().Reset();
+		FaceAuthority::GetSingleton().Reset();
 		ClearInFlight();
 		_sceneInFlight.store(false);
 
@@ -1888,6 +1932,10 @@ namespace RP
 			});
 			return;
 		}
+
+		// Rapport rules the faces it holds past the engine's merge, when Anatomy is
+		// there: every face and every line passes here, so nothing escapes it.
+		FaceAuthority::GetSingleton().OnOrder(a_order);
 
 		const auto forMoisturizer = a_order.kind == Order::Kind::kApplyMoisturizer ||
 		                            a_order.kind == Order::Kind::kClearMoisturizer;
