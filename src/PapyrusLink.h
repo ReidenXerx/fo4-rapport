@@ -77,6 +77,8 @@ namespace RP
 		// The exclusion for an unconstrained start of the scene in flight (R-25), or
 		// empty to leave AAF's settings alone. Scenarios::ExcludeTagsFor decides.
 		[[nodiscard]] std::string SceneExcludeTags(std::string_view a_given);
+		// What that start asks AAF for (a tree-less scenario's acts), or empty.
+		[[nodiscard]] std::string SceneIncludeTags();
 
 		// ---- called from Papyrus ----
 		std::int32_t TakeRequest();

@@ -355,6 +355,20 @@ namespace
 		return RE::BSFixedString{ "" };
 	}
 
+	// ...and what such a start should ask for (quickie's acts, when the pair has a
+	// man), or "" to ask for nothing.
+	RE::BSFixedString Papyrus_SceneIncludeTags(std::monostate)
+	{
+		try {
+			return RE::BSFixedString{ RP::PapyrusLink::GetSingleton().SceneIncludeTags() };
+		} catch (const std::exception& e) {
+			logger::critical("SceneIncludeTags threw: {} - the start asks for no act", e.what());
+		} catch (...) {
+			logger::critical("SceneIncludeTags threw - the start asks for no act");
+		}
+		return RE::BSFixedString{ "" };
+	}
+
 	bool Papyrus_BlockFaces(std::monostate)
 	{
 		return RP::Config::GetSingleton().blockAnimationFaces;
@@ -1278,6 +1292,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "DebugScenePair"sv, Papyrus_DebugScenePair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "LastRefusal"sv, Papyrus_LastRefusal, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneExcludeTags"sv, Papyrus_SceneExcludeTags, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SceneIncludeTags"sv, Papyrus_SceneIncludeTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ActorsExclude"sv, Papyrus_ActorsExclude, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteBridgeConnected"sv, Papyrus_NoteBridgeConnected, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BlockFaces"sv, Papyrus_BlockFaces, std::nullopt, false);
@@ -1882,17 +1897,37 @@ namespace RP
 	{
 		// The same snapshot ChooseScenePosition takes, for the same request: the
 		// bridge asks for the position first and, only when there is none, this.
+		// The scenario is COPIED under the lock, for ChooseScenePosition's reason.
 		std::uint32_t first = 0;
 		std::uint32_t second = 0;
+		std::string   scenario;
 		{
 			NamedLock lock{ _counter, "request counter" };
 			first = static_cast<std::uint32_t>(_inFlightFirst);
 			second = static_cast<std::uint32_t>(_inFlightSecond);
+			scenario = _inFlightScenario;
 		}
 		if (first == 0 || second == 0) {
 			return {};
 		}
-		return Scenarios::GetSingleton().ExcludeTagsFor(a_given, first, second);
+		return Scenarios::GetSingleton().ExcludeTagsFor(a_given, first, second, scenario);
+	}
+
+	std::string PapyrusLink::SceneIncludeTags()
+	{
+		std::uint32_t first = 0;
+		std::uint32_t second = 0;
+		std::string   scenario;
+		{
+			NamedLock lock{ _counter, "request counter" };
+			first = static_cast<std::uint32_t>(_inFlightFirst);
+			second = static_cast<std::uint32_t>(_inFlightSecond);
+			scenario = _inFlightScenario;
+		}
+		if (first == 0 || second == 0) {
+			return {};
+		}
+		return Scenarios::GetSingleton().IncludeTagsFor(first, second, scenario);
 	}
 
 	void PapyrusLink::OnSceneStarted(std::int32_t a_request)
@@ -1941,7 +1976,8 @@ namespace RP
 
 		// Below the guard, not above it. A stale start clearing this would let the
 		// next scene ask for furniture the room has already refused once.
-		Scenarios::GetSingleton().NoteSceneStarted();
+		Scenarios::GetSingleton().NoteSceneStarted(
+			static_cast<std::uint32_t>(_inFlightFirst), static_cast<std::uint32_t>(_inFlightSecond));
 
 		// The clock starts HERE, not when the request was made: AAF walks the pair
 		// to each other first, and that walk is not the scene. Measured at 12.5
@@ -2571,7 +2607,7 @@ namespace RP
 		// and it must only do that on evidence from the scene it is about: a stale
 		// request failing for "the actor is already busy" says nothing whatsoever
 		// about the room, and used to ban furniture for every scene after it.
-		Scenarios::GetSingleton().NoteSceneRefused();
+		Scenarios::GetSingleton().NoteSceneRefused(a_why);
 
 		// The scenario teardown that the watchdog path already got, and this one
 		// did not. Latent while every live failure fires before the scene starts,

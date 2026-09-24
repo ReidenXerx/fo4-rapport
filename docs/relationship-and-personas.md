@@ -1129,9 +1129,41 @@ resolves on its own side (aaf-under-the-hood §11). So Rapport reads every `Data
 the value from the highest `priority`, as AAF merges them: `pose,utility` from AAF_settings.ini on this install.
 It cannot see a value the player changed in AAF's own MCM, which AAF stores per save.
 
-**Found on the way, not changed.** Quickie's stage lists `include` (Handjob, Blowjob, ...) and `exclude` (beds,
-couches). Neither reaches AAF, because only a tree stage chooses anything. Passing `include` would make an f_f
-quickie match nothing and fail, so it stays as written, and the owner has been told.
+**Quickie steers (owner poll, same day).** Quickie's stage `include` (Handjob, Blowjob, PenisToMouth,
+PenisToVagina, FromBehind) and `exclude` (beds, couches) used to reach AAF in no case, because only a tree stage
+chose anything. The owner chose "steer + safety net":
+- A tree-less scenario's first playable stage is its style. Its `exclude` always goes to AAF, shy pair or not:
+  the shy rule changes what they do, not where.
+- Its `include` goes to AAF as `includeTags` (ANY of them), but only when the pair has a man. Measured with beds
+  and the markers out: F+M keeps 131 of 185 positions with the list, M+M 29 of 57.
+- Two women never get the list. 8 of their 24 positions carry one of those tags (2 on the ground), so asking
+  would squeeze F+F down to those.
+- **Any pose, the owner's standing rule:** "If for some reason we didn't find sufficient pose we fallback to any
+  pose / We was doing such always for everything".
+  - When AAF answers `[034] ... no animations` for a start that carried any of Rapport's filters (quickie's
+    style, its act list, the non-sex markers), that pair's next start asks for nothing. AAF's own defaults alone
+    apply, until a scene of theirs actually starts.
+  - So a scene never fails twice over our filters. A hug is possible on that one retry; the owner accepted a
+    random non-sex pick from the start.
+  - Only `[034]` counts. An actor already busy, or AAF not ready, says nothing about the filters.
+
+**The owner's rule for where this applies:** "our scenarios is for gameplay" and expressions are "related to act
+MECHANIC". So:
+- MECHANICS (faces, expressions, cum, aftermath) run on every AAF scene, the AAF menu included (R-22).
+- GAMEPLAY (scenarios, position choice, the no-hug rule, quickie's style) applies only to scenes Rapport's mods
+  start. An AAF-menu scene is mostly testing and stays unrestricted.
+- All of R-25 lives in the bridge's own StartScene, which a menu scene never passes through.
+
+**UAP originals (owner, same day): "let it as it is".**
+- On 09-23, three positions from packs' ORIGINAL XML stood in idles, while their "[UAP] ..." copies animated.
+  The cause is unknown (aaf-uap-original-positions-dead).
+- The owner chose no machinery for it:
+  - AAF keeps picking by itself;
+  - a position reported broken is dealt with for that exact position.
+- Where Rapport names a position itself (its tree choice), it takes the exact UAP twin: an original that runs the
+  same tree as a "[UAP]" position gives way to it. On this install that is 2 trees, Atomic Spanking and Atomic
+  Lust's love tree.
+- The 9 original BP70 trees have no twin and stay.
 
 **Debug triggers, same day (R-23 follow-up).**
 - **A pair of one kind:** F+F, F+M and M+M, FORCED and REAL, as buttons and hotkeys. Each picks the best-ranked

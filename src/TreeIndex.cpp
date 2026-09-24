@@ -156,7 +156,9 @@ namespace RP
 			if (!entry.is_regular_file(ec)) {
 				continue;
 			}
-			const auto name = Lower(entry.path().filename().string());
+			// PathText, not string(): string() throws on a file name the ANSI code page
+			// cannot hold, and this runs inside the data-ready handler.
+			const auto name = Lower(PathText(entry.path().filename()));
 			if (!name.ends_with(".xml")) {
 				continue;
 			}
@@ -360,9 +362,24 @@ namespace RP
 		}
 		std::ranges::sort(_declared, {}, &Declared::positionID);
 
+		// ---- UAP twins ----------------------------------------------------
+		// The owner's rule (2026-09-24): where a "[UAP] ..." position runs the very
+		// same tree as a pack's original position, Rapport names the UAP one. UAP is
+		// the patch meant to fix those packs, and originals it replaced were measured
+		// standing in idles (aaf-uap-original-positions-dead). Only exact twins -- the
+		// same tree -- and only where Rapport names the position; what AAF picks by
+		// itself is left alone.
+		std::unordered_set<std::string> uapTrees;
+		for (const auto& id : order) {
+			if (const auto& decl = declared[id]; !decl.retired && id.starts_with("[UAP]")) {
+				uapTrees.insert(decl.treeID);
+			}
+		}
+
 		// ---- join -----------------------------------------------------------
-		std::uint32_t orphaned = 0;
-		std::uint32_t retired = 0;
+		std::uint32_t            orphaned = 0;
+		std::uint32_t            retired = 0;
+		std::vector<std::string> gaveWay;
 		for (const auto& id : order) {
 			auto& decl = declared[id];
 
@@ -370,6 +387,10 @@ namespace RP
 			// a pack deliberately taking another pack's position out of play.
 			if (decl.retired) {
 				++retired;
+				continue;
+			}
+			if (!id.starts_with("[UAP]") && uapTrees.contains(decl.treeID)) {
+				gaveWay.push_back(id);
 				continue;
 			}
 
@@ -416,6 +437,14 @@ namespace RP
 				"trees: {} position(s) were retired by an override and are not in the catalogue - "
 				"AAF would refuse them",
 				retired);
+		}
+		if (!gaveWay.empty()) {
+			std::string names;
+			for (const auto& id : gaveWay) {
+				names += names.empty() ? std::format("\"{}\"", id) : std::format(", \"{}\"", id);
+			}
+			logger::info("trees: {} original position(s) run the same tree as a [UAP] one and give way to it: {}",
+				gaveWay.size(), names);
 		}
 
 		logger::info(

@@ -158,8 +158,17 @@ String Function ScenePosition() Global Native
 ; pair can play - hugs and kisses included. asGiven is the SceneSettings factory's
 ; excludeTags (AAF's sentinel for its own list). Returns what to set instead - AAF's
 ; own exclusions plus the non-sex markers - or "" to leave it untouched, which is
-; what a pair with a reticent member gets.
+; what a pair with a reticent member gets. A scenario with no tree (quickie) adds
+; its own style: no beds, no couches. "" too for a pair whose last start AAF found
+; nothing for with these filters on: any pose then, until a scene of theirs starts
+; (the owner's rule - a scene never fails twice over our filters). Ask this FIRST.
 String Function SceneExcludeTags(String asGiven) Global Native
+
+; The other half of that style: the acts a tree-less scenario asks AAF for (quickie:
+; handjob, blowjob, penis-to-mouth, penis-to-vagina, from behind - ANY of them),
+; only when the pair has a man. "" asks for nothing: two women, or a pair on the
+; any-pose fallback above.
+String Function SceneIncludeTags() Global Native
 
 ; Said once, after StopScene has been asked for, so the poll does not ask again
 ; every three seconds while AAF winds the scene down.

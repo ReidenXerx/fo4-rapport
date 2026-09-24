@@ -502,6 +502,13 @@ Function DoStartScene(Int aiRequest)
 		If exclude != ""
 			settings.excludeTags = exclude
 		EndIf
+		; And what a tree-less scenario asks for (quickie's acts, when the pair has a
+		; man). includeTags is ANY-of. The factory leaves it empty, so nothing of the
+		; player's is lost by setting it.
+		String include = Rapport:Core.SceneIncludeTags()
+		If include != ""
+			settings.includeTags = include
+		EndIf
 	EndIf
 
 	; AAF's readiness, CHECKED rather than merely logged.

@@ -18,6 +18,14 @@ namespace
 		return out;
 	}
 
+	// One pair, either order: the lower form id in the high half.
+	[[nodiscard]] std::uint64_t PairKey(std::uint32_t a_first, std::uint32_t a_second)
+	{
+		const auto low = (std::min)(a_first, a_second);
+		const auto high = (std::max)(a_first, a_second);
+		return (static_cast<std::uint64_t>(low) << 32) | high;
+	}
+
 	[[nodiscard]] std::string_view Trim(std::string_view a_text)
 	{
 		const auto first = a_text.find_first_not_of(" \t\r\n");
@@ -278,45 +286,124 @@ namespace RP
 		logger::info("scenarios: AAF's own exclusions are [{}] ({})", _aafExcludes, _aafExcludesFrom);
 	}
 
-	std::string Scenarios::ExcludeTagsFor(
-		std::string_view a_given, std::uint32_t a_first, std::uint32_t a_second) const
+	const Scenarios::Stage* Scenarios::StyleOf(std::string_view a_scenario) const
 	{
-		if (Trim(_nonSexTags).empty()) {
+		// Written by Load alone, before any scene; read-only after -- no lock, as with
+		// the rest of what ExcludeTagsFor reads.
+		const auto* scenario = a_scenario.empty() ? nullptr : Find(a_scenario);
+		if (!scenario || std::ranges::any_of(scenario->stages, &Stage::tree)) {
+			return nullptr;   // a tree scenario's tags choose its tree, never AAF's pick
+		}
+		const auto first = std::ranges::find_if(scenario->stages, &Stage::playable);
+		return first == scenario->stages.end() ? nullptr : &*first;
+	}
+
+	std::string Scenarios::ExcludeTagsFor(
+		std::string_view a_given, std::uint32_t a_first, std::uint32_t a_second,
+		std::string_view a_scenario) const
+	{
+		// Every start the bridge makes without a position asks this FIRST, so this is
+		// where what the last one carried is forgotten.
+		const auto key = PairKey(a_first, a_second);
+		_filtersSentFor.store(0);
+		if (_anyPoseFor.load() == key) {
+			logger::info(
+				"unconstrained start: {:08X} and {:08X} got nothing from AAF with Rapport's filters last time - any "
+				"pose now, AAF's own exclusions alone (a scene never fails twice over our filters)",
+				a_first, a_second);
 			return {};
 		}
 
 		// Either one of them shy enough for a kiss to be the whole scene. The player has
 		// no persona (R-11), so only an NPC can make the pair an exception.
+		std::string shy;
 		for (const auto id : { a_first, a_second }) {
 			if (id == 0 || id == 0x14) {
 				continue;
 			}
 			const auto persona = Lower(Barks::GetSingleton().PersonaOf(id));
 			if (!persona.empty() && std::ranges::find(_nonSexAllowedFor, persona) != _nonSexAllowedFor.end()) {
-				logger::info(
-					"unconstrained start: {:08X} is {} - AAF may give them a hug or a kiss; its own exclusions "
-					"stand",
-					id, persona);
-				return {};
+				shy = std::format("{:08X} is {}", id, persona);
+				break;
 			}
+		}
+		const bool nonSex = shy.empty() && !Trim(_nonSexTags).empty();
+
+		const auto* style = StyleOf(a_scenario);
+		const auto  styleExclude = style ? Trim(style->exclude) : std::string_view{};
+
+		if (!nonSex && styleExclude.empty()) {
+			if (!shy.empty()) {
+				logger::info("unconstrained start: {} - AAF may give them a hug or a kiss; its own exclusions stand",
+					shy);
+			}
+			return {};
 		}
 
 		const auto given = Trim(a_given);
 		const bool sentinel = given.empty() || Lower(given) == "default_excludetags";
 		std::string out = sentinel ? _aafExcludes : std::string{ given };
-		// A list that already ends in a comma ("pose,utility," in somebody's ini) must
-		// not become "pose,utility,,NonSex" -- what AAF makes of an empty tag is unknown.
-		while (!out.empty() && (out.back() == ',' || out.back() == ' ' || out.back() == '\t')) {
-			out.pop_back();
+		// A list ending in a comma ("pose,utility," in somebody's ini) must not become
+		// "pose,utility,,NonSex" -- what AAF makes of an empty tag is unknown.
+		const auto append = [&out](std::string_view a_tags) {
+			while (!out.empty() && (out.back() == ',' || out.back() == ' ' || out.back() == '\t')) {
+				out.pop_back();
+			}
+			if (!out.empty()) {
+				out += ',';
+			}
+			out += a_tags;
+		};
+		if (nonSex) {
+			append(_nonSexTags);
 		}
-		if (!out.empty()) {
-			out += ',';
+		if (!styleExclude.empty()) {
+			append(styleExclude);
 		}
-		out += _nonSexTags;
-		logger::info(
-			"unconstrained start: AAF picks, excluding [{}] - {} plus the non-sex markers", out,
-			sentinel ? std::format("AAF's own ({})", _aafExcludesFrom) : std::string{ "the list it was given" });
+		logger::info("unconstrained start: AAF picks, excluding [{}] - {}{}{}{}", out,
+			sentinel ? std::format("AAF's own ({})", _aafExcludesFrom) : std::string{ "the list it was given" },
+			nonSex ? ", the non-sex markers" : "", styleExclude.empty() ? "" : std::format(", \"{}\"'s style", a_scenario),
+			shy.empty() ? "" : std::format(" ({}, so a hug or a kiss may still come)", shy));
+		_filtersSentFor.store(key);
 		return out;
+	}
+
+	std::string Scenarios::IncludeTagsFor(
+		std::uint32_t a_first, std::uint32_t a_second, std::string_view a_scenario)
+	{
+		// The any-pose fallback asks for nothing -- ExcludeTagsFor, asked first, has said so.
+		const auto key = PairKey(a_first, a_second);
+		if (_anyPoseFor.load() == key) {
+			return {};
+		}
+		const auto* style = StyleOf(a_scenario);
+		const auto  include = style ? Trim(style->include) : std::string_view{};
+		if (include.empty()) {
+			return {};
+		}
+
+		// A man in the pair, known rather than assumed: an actor with no NPC to ask
+		// counts as unknown, and unknown asks for nothing.
+		bool man = false;
+		bool known = true;
+		for (const auto id : { a_first, a_second }) {
+			auto* actor = RE::TESForm::GetFormByID<RE::Actor>(id);
+			auto* npc = actor ? actor->GetNPC() : nullptr;   // not const: GetSex() is not
+			if (!npc) {
+				known = false;
+				continue;
+			}
+			man = man || npc->GetSex() == RE::SEX::kMale;
+		}
+		if (!man || !known) {
+			logger::info("unconstrained start: \"{}\" asks for no act - {}", a_scenario,
+				known ? "two women; their positions carry other tags" : "a sex nobody could read");
+			return {};
+		}
+
+		_filtersSentFor.store(key);
+		logger::info("unconstrained start: \"{}\" asks AAF for any of [{}]", a_scenario, include);
+		return std::string{ include };
 	}
 
 	// Reads the tags out of AAF's own XML rather than asking AAF.
@@ -409,8 +496,12 @@ namespace RP
 
 	const Scenarios::Scenario* Scenarios::Find(std::string_view a_id) const
 	{
+		// Without case: an addon's scenario name arrives as a BSFixedString, which the
+		// engine interns case-insensitively and may hand back as "Quickie" (aaf-under-the-
+		// hood §12; the debug triggers' "FM" came back as "fm").
+		const auto same = [](unsigned char a, unsigned char b) { return std::tolower(a) == std::tolower(b); };
 		for (const auto& scenario : _scenarios) {
-			if (scenario.id == a_id) {
+			if (std::ranges::equal(scenario.id, a_id, same)) {
 				return &scenario;
 			}
 		}
@@ -941,8 +1032,19 @@ namespace RP
 		PapyrusLink::GetSingleton().QueueOrders(outgoing);
 	}
 
-	void Scenarios::NoteSceneRefused()
+	void Scenarios::NoteSceneRefused(std::string_view a_why)
 	{
+		// The any-pose fallback, before the furniture test's early returns. Only AAF's
+		// own "nothing matched" ([034]) says anything about the filters: an actor already
+		// busy, or AAF not ready, would otherwise cost the next scene its style.
+		if (const auto sent = _filtersSentFor.exchange(0); sent != 0 && a_why.find("[034]") != std::string_view::npos) {
+			_anyPoseFor.store(sent);
+			logger::warn(
+				"scenarios: AAF found nothing with Rapport's filters on ({}) - this pair's next start asks for "
+				"nothing and takes any pose, until a scene of theirs starts",
+				a_why);
+		}
+
 		NamedLock lock{ _lock, "scenarios" };
 		if (_chosenPosition.empty() || _avoidFurniture) {
 			return;
@@ -962,8 +1064,16 @@ namespace RP
 		}
 	}
 
-	void Scenarios::NoteSceneStarted()
+	void Scenarios::NoteSceneStarted(std::uint32_t a_first, std::uint32_t a_second)
 	{
+		_filtersSentFor.store(0);
+		if (const auto key = PairKey(a_first, a_second); _anyPoseFor.load() == key) {
+			_anyPoseFor.store(0);
+			logger::info("scenarios: {:08X} and {:08X} have a scene again - their next start uses Rapport's "
+						 "filters again",
+				a_first, a_second);
+		}
+
 		NamedLock lock{ _lock, "scenarios" };
 		_avoidFurniture = false;
 	}

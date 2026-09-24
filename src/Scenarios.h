@@ -174,8 +174,33 @@ namespace RP
 		// has a persona shy enough that a kiss can be the whole scene.
 		//
 		// a_given is what the SceneSettings factory holds, usually AAF's sentinel.
+		//
+		// A scenario with NO tree stage (quickie) also brings its own style: its first
+		// playable stage's `exclude` (quickie: no beds, no couches) is added here, for
+		// every pair, shy or not (owner poll 2026-09-24). Only scenes Rapport starts
+		// ask this: an AAF-menu scene never passes through, and stays unrestricted --
+		// scenarios are gameplay, and gameplay is for our scenes only.
+		//
+		// ANY POSE, the owner's standing rule: "If for some reason we didn't find
+		// sufficient pose we fallback to any pose". When AAF found nothing ([034]) for a
+		// start that carried any of this, that pair's next start gets none of it -- no
+		// style, no non-sex markers, AAF's own defaults alone -- until a scene of theirs
+		// starts. A scene never fails twice over Rapport's filters.
 		[[nodiscard]] std::string ExcludeTagsFor(
-			std::string_view a_given, std::uint32_t a_first, std::uint32_t a_second) const;
+			std::string_view a_given, std::uint32_t a_first, std::uint32_t a_second,
+			std::string_view a_scenario) const;
+
+		// The other half of that style: the stage's `include` (quickie: handjob,
+		// blowjob, penis-to-mouth, penis-to-vagina, from behind), handed to AAF as
+		// includeTags -- ANY of them -- but only when the pair has a man. Two women get
+		// none: 8 of their 24 positions carry one of those tags, and asking would squeeze
+		// them down to those. Empty = ask for nothing -- and always empty for a pair on
+		// the any-pose fallback above.
+		//
+		// Called AFTER ExcludeTagsFor for the same start: that one resets what the start
+		// carried, this one only adds to it.
+		[[nodiscard]] std::string IncludeTagsFor(
+			std::uint32_t a_first, std::uint32_t a_second, std::string_view a_scenario);
 
 		// How long the chosen tree is authored to run, or 0 when none was chosen.
 		[[nodiscard]] float ChosenSeconds() const;
@@ -201,11 +226,12 @@ namespace RP
 		void NoteAnimationAdvanced();
 
 		// A scene would not start. If its tree needed furniture, the next one will
-		// not ask for any.
-		void NoteSceneRefused();
+		// not ask for any. If AAF found nothing with Rapport's filters on, that pair's
+		// next start asks for nothing (any pose). a_why is AAF's refusal text.
+		void NoteSceneRefused(std::string_view a_why);
 
-		// One started, so the room is clearly fine.
-		void NoteSceneStarted();
+		// One started, so the room is clearly fine -- and this pair's filters with it.
+		void NoteSceneStarted(std::uint32_t a_first, std::uint32_t a_second);
 
 		// Advances when the current stage has run its seconds. Called on the same
 		// poll as everything else.
@@ -235,6 +261,11 @@ namespace RP
 		void IndexInstalledTags();
 		void MarkPlayableStages();
 		void ResolveAAFExcludes();
+
+		// The stage whose tags are a tree-less scenario's style (its first playable
+		// one), or nullptr: no scenario, or one with a tree stage, whose tags choose
+		// its tree instead.
+		[[nodiscard]] const Stage* StyleOf(std::string_view a_scenario) const;
 
 		void EnterStage(std::size_t a_index, std::vector<Order>& a_out);
 		void SendCurrentOption(std::vector<Order>& a_out);
@@ -337,5 +368,12 @@ namespace RP
 		// the personas (lowercased) who may still be given one.
 		std::string              _nonSexTags;
 		std::vector<std::string> _nonSexAllowedFor;
+
+		// The any-pose fallback, as pair keys (lower form id in the high half).
+		// Atomics, not _lock: the bridge's natives set them, the refusal and the start
+		// read them, each on whatever thread its event arrived on. Mutable because
+		// ExcludeTagsFor, a const reader of the config, is also what resets them.
+		mutable std::atomic<std::uint64_t> _filtersSentFor{ 0 };   // this start carried Rapport's filters
+		mutable std::atomic<std::uint64_t> _anyPoseFor{ 0 };       // AAF found nothing with them on
 	};
 }

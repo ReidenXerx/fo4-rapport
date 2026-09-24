@@ -338,12 +338,19 @@ namespace RP::DebugTriggers
 	{
 		// How many women the pair has. AAF names compositions females first (F_M,
 		// never M_F), so "MF" is accepted as the same thing.
+		//
+		// Compared WITHOUT case. The argument is a BSFixedString, and the engine interns
+		// those case-insensitively, handing back whichever spelling it stored first
+		// (aaf-under-the-hood §12): the MCM's "FM" arrived here as "fm", and the owner's
+		// F+M button answered that "fm" is not a pair.
+		std::string pair{ a_pair };
+		std::ranges::transform(pair, pair.begin(), [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
 		int women = -1;
-		if (a_pair == "FF") {
+		if (pair == "FF") {
 			women = 2;
-		} else if (a_pair == "FM" || a_pair == "MF") {
+		} else if (pair == "FM" || pair == "MF") {
 			women = 1;
-		} else if (a_pair == "MM") {
+		} else if (pair == "MM") {
 			women = 0;
 		}
 		if (women < 0) {
