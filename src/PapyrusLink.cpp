@@ -365,6 +365,21 @@ namespace
 
 	// ...and what such a start should ask for (quickie's acts, when the pair has a
 	// man), or "" to ask for nothing.
+	// R-26 stage 2: where OUR scene should play -- {x, y, z, facing degrees}, or empty to
+	// leave AAF's own spot. Placement::ChooseSpot decides and logs every decision.
+	std::vector<float> Papyrus_SceneSpot(std::monostate, RE::Actor* a_slot0, RE::Actor* a_slot1, RE::BSFixedString a_position)
+	{
+		try {
+			return RP::Placement::ChooseSpot(a_slot0, a_slot1, a_position.empty() ? "" : a_position.c_str(),
+				RP::PapyrusLink::GetSingleton().InFlightRequest());
+		} catch (const std::exception& e) {
+			logger::critical("SceneSpot threw: {} - AAF's own spot stands", e.what());
+		} catch (...) {
+			logger::critical("SceneSpot threw - AAF's own spot stands");
+		}
+		return {};
+	}
+
 	RE::BSFixedString Papyrus_SceneIncludeTags(std::monostate)
 	{
 		try {
@@ -1312,6 +1327,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "LastRefusal"sv, Papyrus_LastRefusal, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneExcludeTags"sv, Papyrus_SceneExcludeTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneIncludeTags"sv, Papyrus_SceneIncludeTags, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SceneSpot"sv, Papyrus_SceneSpot, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ActorsExclude"sv, Papyrus_ActorsExclude, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteBridgeConnected"sv, Papyrus_NoteBridgeConnected, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BlockFaces"sv, Papyrus_BlockFaces, std::nullopt, false);

@@ -422,6 +422,24 @@ EndFunction
 ; Same-sex pairs keep the caller's order: there is no convention to follow.
 ; Used by EVERY array handed to AAF, so a query and a start never disagree
 ; about who is who.
+; R-26: the one invisible marker every moved scene is played at. Placed once (an
+; XMarkerHeading, Fallout4.esm 00000034, persistent), then moved to each scene's cell
+; and set on its spot -- never one marker per scene left lying in the world.
+ObjectReference _spotMarker
+
+ObjectReference Function SpotMarker(Actor akNear)
+	If _spotMarker == None || _spotMarker.IsDeleted()
+		Form heading = Game.GetFormFromFile(0x00000034, "Fallout4.esm")
+		If heading == None
+			Return None
+		EndIf
+		_spotMarker = akNear.PlaceAtMe(heading, 1, True, False, False)
+	Else
+		_spotMarker.MoveTo(akNear, 0.0, 0.0, 0.0, True)
+	EndIf
+	Return _spotMarker
+EndFunction
+
 Actor[] Function ForAAF(Actor akFirst, Actor akSecond)
 	Actor[] actors = new Actor[2]
 	actors[0] = akFirst
@@ -508,6 +526,24 @@ Function DoStartScene(Int aiRequest)
 		String include = Rapport:Core.SceneIncludeTags()
 		If include != ""
 			settings.includeTags = include
+		EndIf
+	EndIf
+
+	; R-26 stage 2: WHERE it plays. AAF puts a ground scene where slot 0 stands and
+	; knows nothing of the table beside it. The plugin answers with a clear spot on the
+	; navmesh, or empty to leave AAF's own (a furniture scene, a clear spot already, no
+	; readable navmesh, nothing clear within reach) and says which in Rapport.log.
+	; AAF's docs: a non-furniture locationObject is used for its coordinates.
+	Float[] spot = Rapport:Core.SceneSpot(actors[0], actors[1], chosen)
+	If spot != None && spot.Length == 4
+		ObjectReference marker = Self.SpotMarker(actors[0])
+		If marker != None
+			marker.SetPosition(spot[0], spot[1], spot[2])
+			marker.SetAngle(0.0, 0.0, spot[3])
+			settings.locationObject = marker
+			Rapport:Core.Trace("bridge: request " + aiRequest + " plays at Rapport's spot (" + spot[0] + ", " + spot[1] + ", " + spot[2] + "), marker " + Rapport:Core.FormIdText(marker.GetFormID()))
+		Else
+			Rapport:Core.Trace("bridge: request " + aiRequest + " - no spot marker could be placed; AAF's own spot stands")
 		EndIf
 	EndIf
 

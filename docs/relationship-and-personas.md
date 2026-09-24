@@ -1203,3 +1203,24 @@ hand AAF a marker there, for OUR scenes only. The AAF menu starts its own scenes
   or a type not listed.
 - A log full of things that never clip means the radius or the band is too wide.
 - Room shells (a box more than 4 radii wide that surrounds the spot) are counted apart, not listed.
+
+**Stage 2, built the same day (the owner: "maybe u do and next stage too? and dont forget add good logging").**
+Our scenes only. Just before StartScene, the bridge asks `Core.SceneSpot(slot0, slot1, position)`:
+- **Furniture:** a position whose tree needs furniture is left to AAF, which places it on the furniture.
+- **Already clear:** if AAF's own spot (slot 0's feet) is clear for the footprint, nothing moves.
+- **Otherwise it searches.** Rings every 40u out to 320u, 12 points a ring; the first spot that passes
+  all three tests wins:
+  - **on the floor:** the footprint lies on the cell's NAVMESH, meaning its centre and 16 ring points at
+    r and r/2 are all within 24u of level. The navmesh is walkable floor, baked around statics and
+    furniture;
+  - **nothing in the way:** no solid object's bounds box is in the footprint. That covers settlement
+    builds and moved clutter, which the baked navmesh does not know;
+  - **reachable:** a straight walk from slot 0 stays on the navmesh, 30u steps, no step over 36u.
+- **The move:** one persistent XMarkerHeading (Fallout4.esm 00000034) is moved to the spot, faced like
+  slot 0, and handed to AAF as `locationObject`.
+- **The navmesh read:** CommonLibF4 only forward-declares the cell's NavMeshArray. It is read as a
+  BSTArray of NavMesh pointers, each checked against the game's NavMesh vtable, inside a structured-
+  exception guard. An unreadable navmesh means no move, logged.
+- **Every decision is a "placement: request N: ..." line.** The first animation's survey then logs how
+  far the scene's centre landed from our spot: that line is the measurement of whether AAF honours
+  `locationObject` for a ground position (UNVERIFIED until the owner plays one).

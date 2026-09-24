@@ -170,6 +170,12 @@ String Function SceneExcludeTags(String asGiven) Global Native
 ; any-pose fallback above.
 String Function SceneIncludeTags() Global Native
 
+; R-26 stage 2: where OUR scene should play, asked just before StartScene with the actors
+; in AAF's slot order and the position chosen (or ""). {x, y, z, facing degrees} of a
+; clear spot on the navmesh, to hand AAF as locationObject -- or an empty array to leave
+; AAF's own spot. Every decision is a "placement:" line in Rapport.log.
+Float[] Function SceneSpot(Actor akSlot0, Actor akSlot1, String asPosition) Global Native
+
 ; Said once, after StopScene has been asked for, so the poll does not ask again
 ; every three seconds while AAF winds the scene down.
 Function NoteStopAsked() Global Native
