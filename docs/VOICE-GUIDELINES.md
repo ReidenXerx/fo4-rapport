@@ -104,7 +104,29 @@ refuses anything that is genuinely MP3 or already RIFF.
 
 ## The Fallout 4 side
 
-### V-5 — `lip: 0`, always. This is correct, not a shortcut.
+### V-5 — SUPERSEDED 2026-09-24: every line ships lip sync.
+
+**The owner:** "we should have lipsync everywhere / our mod is first class not a slop". This came after
+the anatomy session measured two held barks at 17:37. The engine's lip object ran for 4.2 s and 3.1 s,
+and the lip layer (+0xF0) never moved, because all 6,656 of Rapport's .fuz had a lip block of length 0.
+
+**Why the reason below no longer holds.** V-5 rested on the scene's face BLOCK: lip data would be a
+third writer fighting it. Since R-24, Rapport rules held faces after the engine's merge. Anatomy's
+cbp.dll (hello feature bit 1) hands the 29 MOUTH ids back to the engine for exactly as long as the
+engine plays a line. So during a line, lip sync owns the mouth by design, and nothing is fought.
+
+**How it ships:**
+- `scripts/lip-barks.py` runs the game's own `xwmaencode` (decode) and `LipGenerator` over every render.
+- It writes `build/voice-lip/`: the same audio bytes plus a lip block.
+- `package-voice.py` ships those copies, and fails the run on any line still without one.
+
+**Measured on the way:** LipGenerator is not deterministic (four runs on one line gave 3,312 to 3,470
+bytes), so the build runs one file at a time.
+
+**Verified in game: not yet.** The first held bark after staging should make anatomy's probe log its
+lip ids moving.
+
+The original V-5, kept for the record:
 
 `Config.h` sets `blockAnimationFaces{true}`, freezing the face for the length of a
 scene, because the engine's facial idle writes the same morphs to blink, breathe

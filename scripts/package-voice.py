@@ -20,8 +20,17 @@ It removes stale files from its own folder (a line that was deleted, or renamed)
 because a leftover .fuz named for a retired FormID is audio for a line that no
 longer exists - harmless today, and the first thing to go wrong if that id were
 ever reissued. The registry never reissues, but the folder should not depend on it.
+
+LIP SYNC (owner, 2026-09-24: "we should have lipsync everywhere"; supersedes V-5).
+What ships is build/voice-lip/<VoiceType>/<line>.fuz, made by
+scripts/lip-barks.py: the same audio as voice/out plus a lip block. It is used only
+while its stamp still names the current render and text. A line without a
+current lip copy ships its bare render, so it still plays, and is COUNTED. The
+count fails the run, as an unrendered line does, so a release cannot go out
+silent-mouthed without saying so.
 """
 import argparse
+import hashlib
 import json
 import pathlib
 import shutil
@@ -30,6 +39,24 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import make_dialogue  # noqa: E402
+
+LIPPED = ROOT / "build" / "voice-lip"
+
+
+def lipped_copy(src: pathlib.Path, vt: str, lid: str, text: str) -> pathlib.Path | None:
+    """The lip-synced copy of this render, if lip-barks.py made one from THIS audio
+    and THIS text. Same stamp as lip-barks.py writes."""
+    dst = LIPPED / vt / f"{lid}.fuz"
+    meta = dst.with_suffix(".json")
+    if not dst.is_file() or not meta.is_file():
+        return None
+    try:
+        stamp = json.loads(meta.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if stamp != {"src_sha1": hashlib.sha1(src.read_bytes()).hexdigest(), "text": text}:
+        return None
+    return dst
 
 
 def main() -> int:
@@ -41,9 +68,10 @@ def main() -> int:
     staging = pathlib.Path(a.staging)
     entries = make_dialogue.load()                       # (line, info_id, topic_id)
     by_id = {ln["id"]: info for ln, info, _ in entries}
+    text_of = {ln["id"]: ln["text"] for ln, _info, _ in entries}
     voice_root = staging / "Sound" / "Voice" / make_dialogue.PLUGIN
 
-    wanted, missing_src = {}, []
+    wanted, missing_src, no_lip = {}, [], []
     for vt_dir in sorted((ROOT / "voice/out").iterdir()):
         # voice/out is its own git repository now: .git (and any dot-folder) is not a
         # voice type, and walking it reported 205 "unrendered" lines that hid real ones.
@@ -55,7 +83,10 @@ def main() -> int:
             src = vt_dir / f"{lid}.fuz"
             dst = staging / make_dialogue.voice_path(vt_dir.name, info)
             if src.exists():
-                wanted[dst] = src
+                lipped = lipped_copy(src, vt_dir.name, lid, text_of[lid])
+                if lipped is None:
+                    no_lip.append(f"{vt_dir.name}/{lid}")
+                wanted[dst] = lipped or src
             elif not lid.endswith(("_m", "_f")):
                 # A gendered line is rendered for one gender only, so its absence
                 # for the other is correct. Anything else missing is a gap.
@@ -83,8 +114,12 @@ def main() -> int:
         print(f"NOT RENDERED  : {len(missing_src)} (these lines will be silent with a subtitle)")
         for m in missing_src[:5]:
             print(f"    {m}")
+    if no_lip:
+        print(f"NO LIP SYNC   : {len(no_lip)} (shipped bare - run scripts/lip-barks.py)")
+        for m in no_lip[:5]:
+            print(f"    {m}")
     if a.check:
-        return 1 if missing_src else 0
+        return 1 if (missing_src or no_lip) else 0
 
     for dst in todo:
         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -97,8 +132,9 @@ def main() -> int:
     wrong = [d for d in wanted if d not in have or not same(d, wanted[d])]
     print(f"\nin place      : {len(have):,}   wrong or missing: {len(wrong)}")
     # Unrendered lines fail the WRITE mode too: the release gate relies on this exit
-    # code, and a line with no audio is exactly what it exists to stop.
-    return 1 if (wrong or missing_src) else 0
+    # code, and a line with no audio is exactly what it exists to stop. So does a
+    # line with no lip sync, since 2026-09-24.
+    return 1 if (wrong or missing_src or no_lip) else 0
 
 
 if __name__ == "__main__":
