@@ -1108,7 +1108,8 @@ be SOT".
     - the blink still wins on the upper lids (18/41);
     - MOUTH ids are never blended, even if a mask names one;
     - an RFAD for a form with no held face is dropped and logged "not held".
-  - STATUS: both sides are built. Not yet staged or seen in game.
+  - STATUS: VERIFIED in game on 2026-09-25, with Rapport.dll 5635bbd1 and cbp.dll a0c8a574e403. The owner:
+    "facial deep expressions in browes is very immersive".
 - **The jaw is set deliberately now:** Anticipation 15, Pleasure 15/25/35, Climax 45, Oral 35 (the contact
   mouth's base), Kiss 15, Dazed 20.
 - **Eyes:** the sets' eyelid values apply for the first time, as a floor under the blink. The pleasure and oral
