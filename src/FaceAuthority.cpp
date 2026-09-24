@@ -6,11 +6,13 @@ namespace RP
 	{
 		constexpr std::uint32_t kSet = 0x52464153;     // 'RFAS'
 		constexpr std::uint32_t kClear = 0x52464143;   // 'RFAC'
+		constexpr std::uint32_t kDeep = 0x52464144;    // 'RFAD': the held face at full depth
 		constexpr std::uint32_t kVersion = 1;
 		constexpr const char*   kPeer = "OCBPC plugin";   // Anatomy's cbp.dll, by its F4SE name
 
 		// Hello feature bits, as the anatomy session defined them.
 		constexpr std::uint32_t kEngineLines = 1u << 1;   // lines keep the mouth, for their real length
+		constexpr std::uint32_t kDepthBlend = 1u << 3;    // blends toward our deep face by depth
 
 		// How long a line of Rapport's keeps the speaker's mouth for their lip sync.
 		// The C++ side does not know a line's length -- the bridge says it later, and
@@ -65,6 +67,7 @@ namespace RP
 		}
 
 		std::unordered_map<std::string, std::array<float, kSlots>> sets;
+		std::unordered_map<std::string, Deep>                      deep;
 		std::uint64_t                                              mouth = 0;
 		std::uint32_t                                              morphs = 50;
 		try {
@@ -85,6 +88,20 @@ namespace RP
 				}
 				sets.emplace(setID, values);
 			}
+			// Optional: a faces.json from before the deep faces has none, and blends nothing.
+			for (const auto& [setID, settings] : document.value("deep", nlohmann::json::object()).items()) {
+				Deep entry;
+				for (const auto& [morph, intensity] : settings.items()) {
+					const auto id = static_cast<std::size_t>(std::stoul(morph));
+					if (id < morphs) {
+						entry.values[id] = std::clamp(intensity.get<float>() / 100.0f, 0.0f, 1.0f);
+						entry.mask |= std::uint64_t{ 1 } << id;
+					}
+				}
+				if (entry.mask != 0) {
+					deep.emplace(setID, entry);
+				}
+			}
 		} catch (const std::exception& e) {
 			logger::error("face authority: {} has a shape this plugin cannot read ({}) - the AAF path alone",
 				PathText(path), e.what());
@@ -94,13 +111,14 @@ namespace RP
 		{
 			NamedLock lock{ _lock, "face authority" };
 			_sets = std::move(sets);
+			_deep = std::move(deep);
 			_mouth = mouth;
 			_morphs = morphs;
 			_unknown.clear();
 		}
 		_loaded.store(true);
-		logger::info("face authority: {} set(s) of {} morph(s), {} of them the mouth; Anatomy {}", _sets.size(), morphs,
-			std::popcount(mouth),
+		logger::info("face authority: {} set(s) of {} morph(s), {} of them the mouth, {} with a deep face; Anatomy {}",
+			_sets.size(), morphs, std::popcount(mouth), _deep.size(),
 			_peer.load() ? "answered - Rapport rules the faces it holds"
 						 : "has not answered (yet) - the AAF path alone until it does");
 	}
@@ -123,6 +141,9 @@ namespace RP
 			_loaded.load() ? "Rapport rules the faces it holds" : "authority begins once faces.json is read",
 			(a_features & kEngineLines) ? "the engine's own, for their real length"
 										: "Rapport gives the mouth back for 9 s per line");
+		logger::info("face authority: depth blend {}", (a_features & kDepthBlend)
+														   ? "ON - a held oral face follows the depth in the mouth"
+														   : "not offered by this cbp.dll - the oral face holds still");
 	}
 
 	bool FaceAuthority::ValuesOf(const std::string& a_setID, std::array<float, kSlots>& a_out)
@@ -137,6 +158,18 @@ namespace RP
 				a_setID);
 		}
 		return false;
+	}
+
+	void FaceAuthority::DeepOf(const std::string& a_setID, Send& a_send) const
+	{
+		if (!(_peerFeatures.load() & kDepthBlend)) {
+			return;
+		}
+		if (const auto found = _deep.find(a_setID); found != _deep.end()) {
+			a_send.deep = true;
+			a_send.deepMask = found->second.mask;
+			a_send.deepValues = found->second.values;
+		}
 	}
 
 	std::uint64_t FaceAuthority::MaskFor(const Held& a_held) const noexcept
@@ -171,6 +204,7 @@ namespace RP
 				auto& held = _held[a_order.formID];
 				held.setID = a_order.setID;
 				send.owned = MaskFor(held);
+				DeepOf(held.setID, send);
 			} else if (a_order.kind == Order::Kind::kSayTopic) {
 				// Their side hands the mouth to the line itself, for as long as the engine
 				// plays it -- better than any guess here, and any line, not just ours.
@@ -190,6 +224,7 @@ namespace RP
 				}
 				held.speaking = true;
 				send.owned = MaskFor(held);
+				DeepOf(held.setID, send);
 			} else {
 				return;
 			}
@@ -218,6 +253,7 @@ namespace RP
 				Send send;
 				send.formID = formID;
 				send.owned = MaskFor(held);
+				DeepOf(held.setID, send);
 				if (ValuesOf(held.setID, send.values)) {
 					sends.push_back(send);
 				}
@@ -250,6 +286,10 @@ namespace RP
 		if (!messaging) {
 			return;
 		}
+		// One message, or one RFAS+RFAD pair, at a time: a clear from another thread may not
+		// land between an RFAS and its RFAD. Not _lock -- the receiver takes its own lock.
+		static std::mutex sending;
+		const std::scoped_lock one{ sending };
 		if (a_send.clear) {
 			ClearMessage message{ kVersion, a_send.formID };
 			messaging->Dispatch(kClear, &message, sizeof(message), kPeer);
@@ -258,5 +298,12 @@ namespace RP
 		SetMessage message{ kVersion, a_send.formID, a_send.owned, {} };
 		std::ranges::copy(a_send.values, message.value);
 		messaging->Dispatch(kSet, &message, sizeof(message), kPeer);
+		// Right after its RFAS, which (as agreed) drops whatever deep face that actor had:
+		// a face with no deep one is simply never blended.
+		if (a_send.deep) {
+			SetMessage deep{ kVersion, a_send.formID, a_send.deepMask, {} };
+			std::ranges::copy(a_send.deepValues, deep.value);
+			messaging->Dispatch(kDeep, &deep, sizeof(deep), kPeer);
+		}
 	}
 }

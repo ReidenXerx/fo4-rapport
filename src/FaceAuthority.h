@@ -18,6 +18,9 @@ namespace RP
 	//   'RFAS' Rapport -> OCBPC  { u32 version=1; u32 formID; u64 owned; float value[54]; }
 	//   'RFAC' Rapport -> OCBPC  { u32 version=1; u32 formID; }   (0 = everyone)
 	//   'RFAH' OCBPC -> Rapport  { u32 version; u32 features; }   at PostPostLoad
+	//   'RFAD' Rapport -> OCBPC  { u32 version=1; u32 formID; u64 blend; float value[54]; }
+	//          the held face at full depth, right after its RFAS; only with feature bit 3.
+	//          Their side: value = lerp(held, deep, depth) for every id in blend.
 	// No hello, no authority: Rapport's AAF mfg path stays the whole story, as before.
 	// Their side keeps the blink as max(ours, merged) and puts the contact mouth on
 	// top while something is in the mouth.
@@ -71,12 +74,26 @@ namespace RP
 			std::uint64_t owned{ 0 };
 			std::array<float, kSlots> values{};
 			bool clear{ false };
+			// The same face at full depth, for Anatomy to blend toward by its own depth
+			// signal: sent as 'RFAD' right after the RFAS it belongs to.
+			bool                      deep{ false };
+			std::uint64_t             deepMask{ 0 };
+			std::array<float, kSlots> deepValues{};
+		};
+
+		// A set's face at full depth: the morphs in the blend, and where they go.
+		struct Deep
+		{
+			std::uint64_t             mask{ 0 };
+			std::array<float, kSlots> values{};
 		};
 
 		// The values of a set, found under our lock. False when faces.json never
 		// named it, which is said once.
 		[[nodiscard]] bool ValuesOf(const std::string& a_setID, std::array<float, kSlots>& a_out);
 		[[nodiscard]] std::uint64_t MaskFor(const Held& a_held) const noexcept;
+		// Puts the set's deep face on a_send, when it has one and Anatomy blends. Under our lock.
+		void DeepOf(const std::string& a_setID, Send& a_send) const;
 
 		static void Dispatch(const Send& a_send);
 
@@ -87,10 +104,13 @@ namespace RP
 		// The hello's feature bits. Bit 1: while the engine plays a line on a held face,
 		// the mouth ids are the line's lip sync on their side, for the line's real length
 		// -- so Rapport's own 9 s mouth window is not needed (anatomy f39831b, 2026-09-24).
+		// Bit 3: it blends a held face toward its deep face ('RFAD') by the depth of
+		// what is in the mouth -- the brows drawing together as it goes deeper.
 		std::atomic<std::uint32_t> _peerFeatures{ 0 };
 		std::uint32_t            _morphs{ 50 };
 		std::uint64_t            _mouth{ 0 };
 		std::unordered_map<std::string, std::array<float, kSlots>> _sets;
+		std::unordered_map<std::string, Deep>                      _deep;
 		std::unordered_set<std::string>                            _unknown;   // said once each
 		std::unordered_map<std::uint32_t, Held>                    _held;
 	};

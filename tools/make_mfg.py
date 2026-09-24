@@ -407,6 +407,27 @@ def check_styles_match_the_plugin():
 # style 1's wide eyes on Ivy -- the owner saw no oral face at all (2026-09-24).
 PROTECTED = {"Rapport_Oral"}
 
+# The same face at FULL DEPTH (owner, 2026-09-24: "when penis go deep in throat broves
+# sliding closer like хмурится"). Rapport authors both ends; Anatomy's cbp.dll blends
+# the brows, lids, nose and cheeks from the held face toward this one by its own depth
+# signal, frame by frame ('RFAD', hello feature bit 3). Every morph named here is in
+# the blend, zeros included: a zero says "at full depth this goes down to nothing" --
+# the pleading lift of the inner brows gives way to the squeeze.
+DEEP = {
+    "Rapport_Oral":
+        [("Brow Squeeze", 85)]
+        + sym("Middle Brow Down", 55) + sym("Middle Brow Up", 0)
+        + [("Left Brow Outer Up", 0), ("Right Outer Brow Up", 0)]
+        + sym("Outer Brow Down", 30)
+        + sym("Upper Eye Lid Down", 75) + sym("Upper Eye Lid Up", 0)
+        + sym("Lower Eye Lid Up", 45) + sym("Lower Eye Lid Down", 0)
+        + sym("Nose Up", 30) + sym("Cheek Up", 45),
+}
+# A renamed set would otherwise lose its deep face without a word.
+assert set(DEEP) <= {entry[0] for entry in SETS}, "DEEP names a set SETS does not have"
+assert not {name for face in DEEP.values() for name, _ in face} & set(MOUTH), \
+    "a deep face may not blend a mouth morph: the mouth is the contact mouth's and lip sync's"
+
 
 def unprotected(set_id, extra):
     if set_id not in PROTECTED:
@@ -424,6 +445,7 @@ def main():
     # -> intensity 0-100, per emitted set. The XML and this file are written from one
     # loop, so the two paths can never show different faces.
     faces = {}
+    deep = {}
     for setID, note, settings, lock, level in SETS:
         # Rapport_Clear has no variants: it is the reset, and there is only one
         # way to put a face back to nothing.
@@ -440,6 +462,8 @@ def main():
             out.write("<!-- %s -->\n" % (note + how))
             out.write('<mfgSet id="%s">\n' % name_v)
             faces[name_v] = {str(ID[name]): value for name, value in overlay(settings, extra)}
+            if setID in DEEP:
+                deep[name_v] = {str(ID[name]): value for name, value in DEEP[setID]}
             for name, value in overlay(settings, extra):
                 # THE MOUTH IS NEVER LOCKED, whatever the set asks for. See MOUTH.
                 #
@@ -476,10 +500,14 @@ def main():
         "morphs": len(MORPHS),
         "mouth": sorted(ID[name] for name in MOUTH),
         "sets": faces,
+        # The face at full depth, by the same set names, for the sets that have one:
+        # every morph listed is blended, and only those. See DEEP.
+        "deep": deep,
     }
     with io.open(faces_path, 'w', encoding="utf-8", newline="\n") as fh:
         fh.write(json.dumps(document, indent=1) + "\n")
-    print("%s: %d set(s), %d mouth morph(s)" % (faces_path.name, len(faces), len(document["mouth"])))
+    print("%s: %d set(s), %d mouth morph(s), %d with a deep face"
+          % (faces_path.name, len(faces), len(document["mouth"]), len(deep)))
 
     # The plugin builds these names by appending a style number, so a mismatch
     # here is a face that silently never appears. Printed so it can be checked.

@@ -1083,13 +1083,32 @@ be SOT".
   exceptions:
   - the blink stays max(engine, ours), so held faces still blink;
   - Anatomy's contact mouth opens the jaw to fit while something is in the mouth, starting from our jaw;
-  - while a held actor speaks one of Rapport's lines, the 29 mouth morphs (make_mfg.py MOUTH) are left to lip
+  - while a held actor speaks one of Rapport's lines, the mouth morphs (make_mfg.py MOUTH: 29 at first, 23 since the measured list) are left to lip
     sync for 9 s. ASSUMED: the C++ side does not know a line's length. Superseded the same day when the hello
     carries feature bit 1 (anatomy f39831b, features 7): their side then gives the mouth ids to ANY line the
     engine plays on a held face, for its real length, and Rapport stops clearing mouth bits itself.
   - Also from that build: bit 2 lets the busy-mouth reaction RAISE brows, cheeks and nose above a held face
     during oral contact (the owner's A-26 poll: layered on top, raise-only).
   - A load now also sends a clear for everyone (formID 0), on top of their own release at every load.
+- **Depth-driven brows (owner, 2026-09-24: "when penis go deep in throat broves sliding closer like
+  хмурится").** Rapport authors both ends of the face; Anatomy supplies the depth, frame by frame.
+  - 'RFAD' has the RFAS layout: `{u32 version=1; u32 formID; u64 blend; float value[54]}`. It carries the held
+    face at FULL depth.
+  - It is sent right after every RFAS for a set that has a deep face, and only when the hello carries feature
+    bit 3. An RFAS with no RFAD after it means "no deep face now".
+  - Their side computes value = lerp(held, deep, depth) for the ids in `blend`. On those ids their A-26
+    raise-only terms stand down, so the frown is not lifted back up.
+  - The deep face lives in make_mfg.py `DEEP` and goes to faces.json `"deep"`. It exists for Rapport_Oral only.
+    From the pleading face it goes to: Brow Squeeze 85, Middle Brow Down 55, Middle Brow Up 0, Outer Brow Up 0,
+    Outer Brow Down 30, Upper Eye Lid Down 75, Lower Eye Lid Up 45, Nose Up 30, Cheek Up 45.
+  - The blend holds no mouth id: the mouth stays with the contact mouth and lip sync.
+  - Anatomy agreed (fork 10ca01f, cbp.dll 6a40a1e7a848, their A-29). On their side:
+    - w = inside × clamp(depth/6), the same depth signal A-26 reads;
+    - the blend runs after our held face and before the contact mouth;
+    - the blink still wins on the upper lids (18/41);
+    - MOUTH ids are never blended, even if a mask names one;
+    - an RFAD for a form with no held face is dropped and logged "not held".
+  - STATUS: both sides are built. Not yet staged or seen in game.
 - **The jaw is set deliberately now:** Anticipation 15, Pleasure 15/25/35, Climax 45, Oral 35 (the contact
   mouth's base), Kiss 15, Dazed 20.
 - **Eyes:** the sets' eyelid values apply for the first time, as a floor under the blink. The pleasure and oral
