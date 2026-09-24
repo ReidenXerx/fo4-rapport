@@ -84,6 +84,10 @@ namespace RP
 		std::atomic_bool         _peer{ false };
 		std::atomic_bool         _loaded{ false };
 		std::uint32_t            _peerVersion{ 0 };
+		// The hello's feature bits. Bit 1: while the engine plays a line on a held face,
+		// the mouth ids are the line's lip sync on their side, for the line's real length
+		// -- so Rapport's own 9 s mouth window is not needed (anatomy f39831b, 2026-09-24).
+		std::atomic<std::uint32_t> _peerFeatures{ 0 };
 		std::uint32_t            _morphs{ 50 };
 		std::uint64_t            _mouth{ 0 };
 		std::unordered_map<std::string, std::array<float, kSlots>> _sets;

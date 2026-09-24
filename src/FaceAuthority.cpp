@@ -9,6 +9,9 @@ namespace RP
 		constexpr std::uint32_t kVersion = 1;
 		constexpr const char*   kPeer = "OCBPC plugin";   // Anatomy's cbp.dll, by its F4SE name
 
+		// Hello feature bits, as the anatomy session defined them.
+		constexpr std::uint32_t kEngineLines = 1u << 1;   // lines keep the mouth, for their real length
+
 		// How long a line of Rapport's keeps the speaker's mouth for their lip sync.
 		// The C++ side does not know a line's length -- the bridge says it later, and
 		// only as "said" -- so this covers the poll's delay before it is said (up to
@@ -113,9 +116,13 @@ namespace RP
 			NamedLock lock{ _lock, "face authority" };
 			_peerVersion = a_version;
 		}
+		_peerFeatures.store(a_features);
 		_peer.store(true);
-		logger::info("face authority: Anatomy's cbp.dll answered (protocol v{}, features {:08X}) - {}", a_version,
-			a_features, _loaded.load() ? "Rapport rules the faces it holds" : "authority begins once faces.json is read");
+		logger::info("face authority: Anatomy's cbp.dll answered (protocol v{}, features {:08X}) - {}; lines: {}",
+			a_version, a_features,
+			_loaded.load() ? "Rapport rules the faces it holds" : "authority begins once faces.json is read",
+			(a_features & kEngineLines) ? "the engine's own, for their real length"
+										: "Rapport gives the mouth back for 9 s per line");
 	}
 
 	bool FaceAuthority::ValuesOf(const std::string& a_setID, std::array<float, kSlots>& a_out)
@@ -165,6 +172,11 @@ namespace RP
 				held.setID = a_order.setID;
 				send.owned = MaskFor(held);
 			} else if (a_order.kind == Order::Kind::kSayTopic) {
+				// Their side hands the mouth to the line itself, for as long as the engine
+				// plays it -- better than any guess here, and any line, not just ours.
+				if (_peerFeatures.load() & kEngineLines) {
+					return;
+				}
 				// Only a face we hold has a mouth of ours to give back; anybody else's
 				// lips were never ours.
 				const auto found = _held.find(a_order.formID);
@@ -218,8 +230,18 @@ namespace RP
 
 	void FaceAuthority::Reset()
 	{
-		NamedLock lock{ _lock, "face authority" };
-		_held.clear();
+		{
+			NamedLock lock{ _lock, "face authority" };
+			_held.clear();
+		}
+		// And tell the other side, formID 0 = everyone. It drops every hold on a load by
+		// itself; this is the anatomy session's belt-and-braces (2026-09-24), for a hold
+		// that would otherwise outlive the world it was made in.
+		if (Available()) {
+			Send send;
+			send.clear = true;
+			Dispatch(send);
+		}
 	}
 
 	void FaceAuthority::Dispatch(const Send& a_send)
