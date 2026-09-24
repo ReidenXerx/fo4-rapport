@@ -1,4 +1,5 @@
 #include "PapyrusLink.h"
+#include "Placement.h"
 
 #include "Narrator.h"
 #include "Names.h"
@@ -249,7 +250,14 @@ namespace
 		RE::BSFixedString a_position, RE::BSFixedString a_tags)
 	{
 		try {
-			RP::ForeignScenes::GetSingleton().Animation(a_location, Members(a_actors), Text(a_position), Text(a_tags));
+			const auto members = Members(a_actors);
+			RP::ForeignScenes::GetSingleton().Animation(a_location, members, Text(a_position), Text(a_tags));
+			// Stage 1 of "no scene inside a table", for menu scenes too: log only.
+			std::vector<std::uint32_t> ids;
+			for (const auto& m : members) {
+				ids.push_back(m.formID);
+			}
+			RP::Placement::Survey(ids, Text(a_position), Text(a_tags), false);
 		} catch (const std::exception& e) {
 			logger::critical("ForeignSceneAnimation threw: {}", e.what());
 		} catch (...) {
@@ -412,6 +420,17 @@ namespace
 	void Papyrus_NoteScenePosition(std::monostate, RE::BSFixedString a_position)
 	{
 		RP::Expressions::GetSingleton().NotePosition(a_position.empty() ? "" : a_position.c_str());
+		// Stage 1 of "no scene inside a table": say what stands in the way. Log only.
+		try {
+			auto&      link = RP::PapyrusLink::GetSingleton();
+			const auto first = static_cast<std::uint32_t>(link.TakenFirstID());
+			const auto second = static_cast<std::uint32_t>(link.TakenSecondID());
+			if (first != 0 && second != 0) {
+				RP::Placement::Survey({ first, second }, a_position.empty() ? "" : a_position.c_str(), "", true);
+			}
+		} catch (...) {
+			logger::warn("placement: the survey threw - nothing else is affected");
+		}
 	}
 
 	void Papyrus_NoteSceneTags(std::monostate, RE::BSFixedString a_tags)

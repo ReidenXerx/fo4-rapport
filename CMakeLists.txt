@@ -48,6 +48,7 @@ set(SOURCES
 	"src/Expressions.cpp"
 	"src/ForeignScenes.h"
 	"src/ForeignScenes.cpp"
+	"src/Placement.cpp"
 	"src/DebugTriggers.h"
 	"src/DebugTriggers.cpp"
 	"src/FaceAuthority.h"

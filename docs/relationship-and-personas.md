@@ -1178,3 +1178,28 @@ MECHANIC". So:
   Drifter: Drifter (33008AF6) is in the middle of a conversation"). It used to say "the reason is in
   Rapport.log".
 - **Chemistry:** its Decide now reads `Core.LastRefusal()` straight after a refused request and shows it.
+
+## R-26 - Scenes inside tables: stage 1, measure before moving anything (owner, 2026-09-24)
+
+The owner: "are we able to rule fundamental problem of aaf scenes - that scenes starting in inapropriate
+places for ex INSIDE texture like table/clutter". AAF plays a ground position where the first actor
+stands and knows nothing of the room. The lever is `SceneSettings.locationObject`: AAF's docs say a
+non-furniture object passed there is used for its coordinates. Stage 2 will choose a clear spot and
+hand AAF a marker there, for OUR scenes only. The AAF menu starts its own scenes and stays out of reach.
+
+**Stage 1, built: detection only** (`src/Placement.*`).
+- **When:** at each scene's first animation, ours (`NoteScenePosition`) and menu scenes
+  (`ForeignSceneAnimation`), once per pair per 120 s.
+- **What counts:** every loaded reference in the actors' cells whose base is solid (STAT, SCOL, MSTT,
+  FURN, CONT, ACTI, DOOR, TERM, FLOR). Its bounds box is placed by position, Z rotation and scale, and
+  checked against a cylinder around the actors, 20 to 110 units above their feet.
+- **The cylinder's radius, ASSUMED:** 110 for lying and all-fours positions, 70 for standing ones, 90
+  otherwise, and never less than the actors' spread + 40.
+- **What is logged:** one Rapport.log line per scene, "placement: ... N in the way - <type> <id>
+  (<plugin>) ref <id>, <depth>u in". Nothing in the world is touched.
+
+**What the owner compares it with:** the scenes he sees clip.
+- A clip with nothing logged means the test is blind somewhere: a neighbouring exterior cell, a tilt,
+  or a type not listed.
+- A log full of things that never clip means the radius or the band is too wide.
+- Room shells (a box more than 4 radii wide that surrounds the spot) are counted apart, not listed.
