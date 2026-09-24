@@ -83,8 +83,8 @@
 	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="40" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="40" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="25"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="25" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="25" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="18" intensity="20" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="20" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="3" intensity="14" lock="true"/>  <!-- Left Brow Outer Up -->
@@ -96,8 +96,8 @@
 	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="40" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="40" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="25"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="25" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="25" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="18" intensity="20" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="20" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="13" intensity="18" lock="true"/>  <!-- Left Middle Brow Down -->
@@ -116,8 +116,8 @@
 	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="40" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="40" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="25"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="25" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="25" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="18" intensity="20" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="20" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="23" intensity="18"/>  <!-- Lower Lip Roll In -->
@@ -133,15 +133,15 @@
 	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="18" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="18" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="25"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="25" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="25" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="18" intensity="20" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="20" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="49" intensity="18"/>  <!-- Tongue To Roof -->
 	<setting morphID="11" intensity="14"/>  <!-- Left Lower Lip Down -->
 	<setting morphID="34" intensity="14"/>  <!-- Right Lower Lip Down -->
-	<setting morphID="5" intensity="8"/>  <!-- Left Frown -->
-	<setting morphID="28" intensity="8"/>  <!-- Right Frown -->
+	<setting morphID="5" intensity="8" lock="true"/>  <!-- Left Frown -->
+	<setting morphID="28" intensity="8" lock="true"/>  <!-- Right Frown -->
 </mfgSet>
 
 <!-- Before anything happens: lips just parted, brows lifted, eyes a little heavy. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
@@ -149,8 +149,8 @@
 	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="40" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="40" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="8" intensity="25"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="25"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="25" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="25" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="18" intensity="20" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="20" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="21" intensity="19"/>  <!-- Left Upper Lip Up -->
@@ -170,8 +170,8 @@
 	<setting morphID="2" intensity="15"/>  <!-- Jaw Open -->
 	<setting morphID="14" intensity="15" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="15" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="8" intensity="15"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="15"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="15" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="15" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="18" intensity="20" lock="true"/>  <!-- Left Upper Eye Lid Down -->
 	<setting morphID="41" intensity="20" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="20"/>  <!-- Left Smile -->
@@ -251,8 +251,8 @@
 	<setting morphID="49" intensity="24"/>  <!-- Tongue To Roof -->
 	<setting morphID="11" intensity="19"/>  <!-- Left Lower Lip Down -->
 	<setting morphID="34" intensity="19"/>  <!-- Right Lower Lip Down -->
-	<setting morphID="5" intensity="10"/>  <!-- Left Frown -->
-	<setting morphID="28" intensity="10"/>  <!-- Right Frown -->
+	<setting morphID="5" intensity="10" lock="true"/>  <!-- Left Frown -->
+	<setting morphID="28" intensity="10" lock="true"/>  <!-- Right Frown -->
 </mfgSet>
 
 <!-- Early. A soft smile and half-closed eyes; nothing exaggerated. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
@@ -289,8 +289,8 @@
 	<setting morphID="41" intensity="45" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="14" intensity="21" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="21" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="8" intensity="21"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="21"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="21" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="21" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="21" intensity="14"/>  <!-- Left Upper Lip Up -->
 	<setting morphID="44" intensity="14"/>  <!-- Right Upper Lip Up -->
 	<setting morphID="4" intensity="24" lock="true"/>  <!-- Left Cheek Up -->
@@ -309,8 +309,8 @@
 	<setting morphID="41" intensity="70" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="9" intensity="60" lock="true"/>  <!-- Left Lower Eye Lid Down -->
 	<setting morphID="32" intensity="60" lock="true"/>  <!-- Right Lower Eye Lid Down -->
-	<setting morphID="8" intensity="50"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="50"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="50" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="50" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="3" intensity="33" lock="true"/>  <!-- Left Brow Outer Up -->
 	<setting morphID="26" intensity="33" lock="true"/>  <!-- Right Outer Brow Up -->
 </mfgSet>
@@ -327,8 +327,8 @@
 	<setting morphID="41" intensity="70" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="9" intensity="60" lock="true"/>  <!-- Left Lower Eye Lid Down -->
 	<setting morphID="32" intensity="60" lock="true"/>  <!-- Right Lower Eye Lid Down -->
-	<setting morphID="8" intensity="50"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="50"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="50" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="50" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="13" intensity="42" lock="true"/>  <!-- Left Middle Brow Down -->
 	<setting morphID="36" intensity="42" lock="true"/>  <!-- Right Middle Brow Down -->
 	<setting morphID="15" intensity="39" lock="true"/>  <!-- Left Nose Up -->
@@ -352,8 +352,8 @@
 	<setting morphID="41" intensity="70" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="9" intensity="60" lock="true"/>  <!-- Left Lower Eye Lid Down -->
 	<setting morphID="32" intensity="60" lock="true"/>  <!-- Right Lower Eye Lid Down -->
-	<setting morphID="8" intensity="50"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="50"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="50" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="50" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="23" intensity="42"/>  <!-- Lower Lip Roll In -->
 	<setting morphID="45" intensity="27"/>  <!-- Sticky Lips -->
 	<setting morphID="17" intensity="27"/>  <!-- Left Smile -->
@@ -374,13 +374,13 @@
 	<setting morphID="41" intensity="70" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="9" intensity="60" lock="true"/>  <!-- Left Lower Eye Lid Down -->
 	<setting morphID="32" intensity="60" lock="true"/>  <!-- Right Lower Eye Lid Down -->
-	<setting morphID="8" intensity="50"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="50"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="50" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="50" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="49" intensity="42"/>  <!-- Tongue To Roof -->
 	<setting morphID="11" intensity="33"/>  <!-- Left Lower Lip Down -->
 	<setting morphID="34" intensity="33"/>  <!-- Right Lower Lip Down -->
-	<setting morphID="5" intensity="18"/>  <!-- Left Frown -->
-	<setting morphID="28" intensity="18"/>  <!-- Right Frown -->
+	<setting morphID="5" intensity="18" lock="true"/>  <!-- Left Frown -->
+	<setting morphID="28" intensity="18" lock="true"/>  <!-- Right Frown -->
 </mfgSet>
 
 <!-- Building. Mouth further open, cheeks lifting, eyes nearly shut. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
@@ -395,8 +395,8 @@
 	<setting morphID="41" intensity="70" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="9" intensity="60" lock="true"/>  <!-- Left Lower Eye Lid Down -->
 	<setting morphID="32" intensity="60" lock="true"/>  <!-- Right Lower Eye Lid Down -->
-	<setting morphID="8" intensity="50"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="50"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="50" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="50" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="21" intensity="45"/>  <!-- Left Upper Lip Up -->
 	<setting morphID="44" intensity="27"/>  <!-- Right Upper Lip Up -->
 	<setting morphID="15" intensity="39" lock="true"/>  <!-- Left Nose Up -->
@@ -421,8 +421,8 @@
 	<setting morphID="41" intensity="70" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="9" intensity="60" lock="true"/>  <!-- Left Lower Eye Lid Down -->
 	<setting morphID="32" intensity="60" lock="true"/>  <!-- Right Lower Eye Lid Down -->
-	<setting morphID="8" intensity="36"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="36"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="36" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="36" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="17" intensity="48"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="39"/>  <!-- Right Smile -->
 	<setting morphID="21" intensity="24"/>  <!-- Left Upper Lip Up -->
@@ -514,8 +514,8 @@
 	<setting morphID="49" intensity="60"/>  <!-- Tongue To Roof -->
 	<setting morphID="11" intensity="47"/>  <!-- Left Lower Lip Down -->
 	<setting morphID="34" intensity="47"/>  <!-- Right Lower Lip Down -->
-	<setting morphID="5" intensity="26"/>  <!-- Left Frown -->
-	<setting morphID="28" intensity="26"/>  <!-- Right Frown -->
+	<setting morphID="5" intensity="26" lock="true"/>  <!-- Left Frown -->
+	<setting morphID="28" intensity="26" lock="true"/>  <!-- Right Frown -->
 	<setting morphID="19" intensity="81" lock="true"/>  <!-- Left Upper Eye Lid Up -->
 	<setting morphID="42" intensity="81" lock="true"/>  <!-- Right Upper Eye Lid Up -->
 	<setting morphID="10" intensity="26" lock="true"/>  <!-- Left Lower Eye Lid Up -->
@@ -566,8 +566,8 @@
 	<setting morphID="32" intensity="80" lock="true"/>  <!-- Right Lower Eye Lid Down -->
 	<setting morphID="17" intensity="68"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="55"/>  <!-- Right Smile -->
-	<setting morphID="8" intensity="51"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="51"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="51" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="51" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="21" intensity="34"/>  <!-- Left Upper Lip Up -->
 	<setting morphID="44" intensity="34"/>  <!-- Right Upper Lip Up -->
 	<setting morphID="10" intensity="64" lock="true"/>  <!-- Left Lower Eye Lid Up -->
@@ -660,8 +660,8 @@
 	<setting morphID="32" intensity="85" lock="true"/>  <!-- Right Lower Eye Lid Down -->
 	<setting morphID="11" intensity="55"/>  <!-- Left Lower Lip Down -->
 	<setting morphID="34" intensity="55"/>  <!-- Right Lower Lip Down -->
-	<setting morphID="5" intensity="30"/>  <!-- Left Frown -->
-	<setting morphID="28" intensity="30"/>  <!-- Right Frown -->
+	<setting morphID="5" intensity="30" lock="true"/>  <!-- Left Frown -->
+	<setting morphID="28" intensity="30" lock="true"/>  <!-- Right Frown -->
 	<setting morphID="19" intensity="95" lock="true"/>  <!-- Left Upper Eye Lid Up -->
 	<setting morphID="42" intensity="95" lock="true"/>  <!-- Right Upper Eye Lid Up -->
 	<setting morphID="10" intensity="30" lock="true"/>  <!-- Left Lower Eye Lid Up -->
@@ -714,15 +714,15 @@
 	<setting morphID="34" intensity="60"/>  <!-- Right Lower Lip Down -->
 	<setting morphID="17" intensity="80"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="65"/>  <!-- Right Smile -->
-	<setting morphID="8" intensity="60"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="60"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="60" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="60" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="21" intensity="40"/>  <!-- Left Upper Lip Up -->
 	<setting morphID="44" intensity="40"/>  <!-- Right Upper Lip Up -->
 	<setting morphID="10" intensity="75" lock="true"/>  <!-- Left Lower Eye Lid Up -->
 	<setting morphID="33" intensity="75" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
+<!-- Mouth working around something, eyes up at him: heavy lids, the inner brows raised and drawn together -- pleading (owner poll, 2026-09-24: 'dont see our special expressions on blowjob'). Anatomy's contact mouth opens the jaw to fit. The eyes and brows are PROTECTED from the styles: see PROTECTED. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
 <mfgSet id="Rapport_Oral_1">
 	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
@@ -730,17 +730,20 @@
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
 	<setting morphID="48" intensity="70"/>  <!-- Upper Lip Roll Out -->
 	<setting morphID="24" intensity="50"/>  <!-- Lower Lip Roll Out -->
-	<setting morphID="18" intensity="0" lock="true"/>  <!-- Left Upper Eye Lid Down -->
-	<setting morphID="41" intensity="0" lock="true"/>  <!-- Right Upper Eye Lid Down -->
-	<setting morphID="9" intensity="18" lock="true"/>  <!-- Left Lower Eye Lid Down -->
-	<setting morphID="32" intensity="18" lock="true"/>  <!-- Right Lower Eye Lid Down -->
-	<setting morphID="3" intensity="38" lock="true"/>  <!-- Left Brow Outer Up -->
-	<setting morphID="26" intensity="38" lock="true"/>  <!-- Right Outer Brow Up -->
-	<setting morphID="19" intensity="59" lock="true"/>  <!-- Left Upper Eye Lid Up -->
-	<setting morphID="42" intensity="59" lock="true"/>  <!-- Right Upper Eye Lid Up -->
+	<setting morphID="0" intensity="35" lock="true"/>  <!-- Brow Squeeze -->
+	<setting morphID="18" intensity="55" lock="true"/>  <!-- Left Upper Eye Lid Down -->
+	<setting morphID="41" intensity="55" lock="true"/>  <!-- Right Upper Eye Lid Down -->
+	<setting morphID="9" intensity="30" lock="true"/>  <!-- Left Lower Eye Lid Down -->
+	<setting morphID="32" intensity="30" lock="true"/>  <!-- Right Lower Eye Lid Down -->
+	<setting morphID="14" intensity="75" lock="true"/>  <!-- Left Middle Brow Up -->
+	<setting morphID="37" intensity="75" lock="true"/>  <!-- Right Middle Brow Up -->
+	<setting morphID="16" intensity="20" lock="true"/>  <!-- Left Outer Brow Down -->
+	<setting morphID="39" intensity="20" lock="true"/>  <!-- Right Outer Brow Down -->
+	<setting morphID="4" intensity="25" lock="true"/>  <!-- Left Cheek Up -->
+	<setting morphID="27" intensity="25" lock="true"/>  <!-- Right Cheek Up -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
+<!-- Mouth working around something, eyes up at him: heavy lids, the inner brows raised and drawn together -- pleading (owner poll, 2026-09-24: 'dont see our special expressions on blowjob'). Anatomy's contact mouth opens the jaw to fit. The eyes and brows are PROTECTED from the styles: see PROTECTED. -- grits: brows down and in, nose wrinkled, teeth bared, eyes screwed shut -->
 <mfgSet id="Rapport_Oral_2">
 	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
@@ -748,22 +751,24 @@
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
 	<setting morphID="48" intensity="70"/>  <!-- Upper Lip Roll Out -->
 	<setting morphID="24" intensity="50"/>  <!-- Lower Lip Roll Out -->
-	<setting morphID="18" intensity="70" lock="true"/>  <!-- Left Upper Eye Lid Down -->
-	<setting morphID="41" intensity="70" lock="true"/>  <!-- Right Upper Eye Lid Down -->
-	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
-	<setting morphID="32" intensity="40" lock="true"/>  <!-- Right Lower Eye Lid Down -->
-	<setting morphID="13" intensity="49" lock="true"/>  <!-- Left Middle Brow Down -->
-	<setting morphID="36" intensity="49" lock="true"/>  <!-- Right Middle Brow Down -->
+	<setting morphID="0" intensity="35" lock="true"/>  <!-- Brow Squeeze -->
+	<setting morphID="18" intensity="55" lock="true"/>  <!-- Left Upper Eye Lid Down -->
+	<setting morphID="41" intensity="55" lock="true"/>  <!-- Right Upper Eye Lid Down -->
+	<setting morphID="9" intensity="30" lock="true"/>  <!-- Left Lower Eye Lid Down -->
+	<setting morphID="32" intensity="30" lock="true"/>  <!-- Right Lower Eye Lid Down -->
+	<setting morphID="14" intensity="75" lock="true"/>  <!-- Left Middle Brow Up -->
+	<setting morphID="37" intensity="75" lock="true"/>  <!-- Right Middle Brow Up -->
+	<setting morphID="16" intensity="20" lock="true"/>  <!-- Left Outer Brow Down -->
+	<setting morphID="39" intensity="20" lock="true"/>  <!-- Right Outer Brow Down -->
+	<setting morphID="4" intensity="25" lock="true"/>  <!-- Left Cheek Up -->
+	<setting morphID="27" intensity="25" lock="true"/>  <!-- Right Cheek Up -->
 	<setting morphID="15" intensity="46" lock="true"/>  <!-- Left Nose Up -->
 	<setting morphID="38" intensity="46" lock="true"/>  <!-- Right Nose Up -->
 	<setting morphID="21" intensity="38"/>  <!-- Left Upper Lip Up -->
 	<setting morphID="44" intensity="38"/>  <!-- Right Upper Lip Up -->
-	<setting morphID="10" intensity="52" lock="true"/>  <!-- Left Lower Eye Lid Up -->
-	<setting morphID="33" intensity="52" lock="true"/>  <!-- Right Lower Eye Lid Up -->
-	<setting morphID="0" intensity="56" lock="true"/>  <!-- Brow Squeeze -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
+<!-- Mouth working around something, eyes up at him: heavy lids, the inner brows raised and drawn together -- pleading (owner poll, 2026-09-24: 'dont see our special expressions on blowjob'). Anatomy's contact mouth opens the jaw to fit. The eyes and brows are PROTECTED from the styles: see PROTECTED. -- holds it in: lip bitten, the face uneven, one brow up, eyes unfocused -->
 <mfgSet id="Rapport_Oral_3">
 	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
@@ -771,21 +776,24 @@
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
 	<setting morphID="48" intensity="70"/>  <!-- Upper Lip Roll Out -->
 	<setting morphID="24" intensity="50"/>  <!-- Lower Lip Roll Out -->
-	<setting morphID="18" intensity="42" lock="true"/>  <!-- Left Upper Eye Lid Down -->
-	<setting morphID="41" intensity="31" lock="true"/>  <!-- Right Upper Eye Lid Down -->
-	<setting morphID="9" intensity="24" lock="true"/>  <!-- Left Lower Eye Lid Down -->
-	<setting morphID="32" intensity="21" lock="true"/>  <!-- Right Lower Eye Lid Down -->
+	<setting morphID="0" intensity="35" lock="true"/>  <!-- Brow Squeeze -->
+	<setting morphID="18" intensity="55" lock="true"/>  <!-- Left Upper Eye Lid Down -->
+	<setting morphID="41" intensity="55" lock="true"/>  <!-- Right Upper Eye Lid Down -->
+	<setting morphID="9" intensity="30" lock="true"/>  <!-- Left Lower Eye Lid Down -->
+	<setting morphID="32" intensity="30" lock="true"/>  <!-- Right Lower Eye Lid Down -->
+	<setting morphID="14" intensity="75" lock="true"/>  <!-- Left Middle Brow Up -->
+	<setting morphID="37" intensity="75" lock="true"/>  <!-- Right Middle Brow Up -->
+	<setting morphID="16" intensity="20" lock="true"/>  <!-- Left Outer Brow Down -->
+	<setting morphID="39" intensity="20" lock="true"/>  <!-- Right Outer Brow Down -->
+	<setting morphID="4" intensity="25" lock="true"/>  <!-- Left Cheek Up -->
+	<setting morphID="27" intensity="25" lock="true"/>  <!-- Right Cheek Up -->
 	<setting morphID="23" intensity="49"/>  <!-- Lower Lip Roll In -->
 	<setting morphID="45" intensity="31"/>  <!-- Sticky Lips -->
 	<setting morphID="17" intensity="31"/>  <!-- Left Smile -->
 	<setting morphID="38" intensity="28" lock="true"/>  <!-- Right Nose Up -->
-	<setting morphID="3" intensity="42" lock="true"/>  <!-- Left Brow Outer Up -->
-	<setting morphID="36" intensity="24" lock="true"/>  <!-- Right Middle Brow Down -->
-	<setting morphID="19" intensity="0" lock="true"/>  <!-- Left Upper Eye Lid Up -->
-	<setting morphID="42" intensity="0" lock="true"/>  <!-- Right Upper Eye Lid Up -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- gone: vacant, tongue out, the lights are off -->
+<!-- Mouth working around something, eyes up at him: heavy lids, the inner brows raised and drawn together -- pleading (owner poll, 2026-09-24: 'dont see our special expressions on blowjob'). Anatomy's contact mouth opens the jaw to fit. The eyes and brows are PROTECTED from the styles: see PROTECTED. -- gone: vacant, tongue out, the lights are off -->
 <mfgSet id="Rapport_Oral_4">
 	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
@@ -793,24 +801,25 @@
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
 	<setting morphID="48" intensity="70"/>  <!-- Upper Lip Roll Out -->
 	<setting morphID="24" intensity="50"/>  <!-- Lower Lip Roll Out -->
-	<setting morphID="18" intensity="0" lock="true"/>  <!-- Left Upper Eye Lid Down -->
-	<setting morphID="41" intensity="0" lock="true"/>  <!-- Right Upper Eye Lid Down -->
-	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
-	<setting morphID="32" intensity="40" lock="true"/>  <!-- Right Lower Eye Lid Down -->
+	<setting morphID="0" intensity="35" lock="true"/>  <!-- Brow Squeeze -->
+	<setting morphID="18" intensity="55" lock="true"/>  <!-- Left Upper Eye Lid Down -->
+	<setting morphID="41" intensity="55" lock="true"/>  <!-- Right Upper Eye Lid Down -->
+	<setting morphID="9" intensity="30" lock="true"/>  <!-- Left Lower Eye Lid Down -->
+	<setting morphID="32" intensity="30" lock="true"/>  <!-- Right Lower Eye Lid Down -->
+	<setting morphID="14" intensity="75" lock="true"/>  <!-- Left Middle Brow Up -->
+	<setting morphID="37" intensity="75" lock="true"/>  <!-- Right Middle Brow Up -->
+	<setting morphID="16" intensity="20" lock="true"/>  <!-- Left Outer Brow Down -->
+	<setting morphID="39" intensity="20" lock="true"/>  <!-- Right Outer Brow Down -->
+	<setting morphID="4" intensity="25" lock="true"/>  <!-- Left Cheek Up -->
+	<setting morphID="27" intensity="25" lock="true"/>  <!-- Right Cheek Up -->
 	<setting morphID="49" intensity="49"/>  <!-- Tongue To Roof -->
 	<setting morphID="11" intensity="38"/>  <!-- Left Lower Lip Down -->
 	<setting morphID="34" intensity="38"/>  <!-- Right Lower Lip Down -->
-	<setting morphID="5" intensity="21"/>  <!-- Left Frown -->
-	<setting morphID="28" intensity="21"/>  <!-- Right Frown -->
-	<setting morphID="14" intensity="49" lock="true"/>  <!-- Left Middle Brow Up -->
-	<setting morphID="37" intensity="49" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="19" intensity="66" lock="true"/>  <!-- Left Upper Eye Lid Up -->
-	<setting morphID="42" intensity="66" lock="true"/>  <!-- Right Upper Eye Lid Up -->
-	<setting morphID="10" intensity="21" lock="true"/>  <!-- Left Lower Eye Lid Up -->
-	<setting morphID="33" intensity="21" lock="true"/>  <!-- Right Lower Eye Lid Up -->
+	<setting morphID="5" intensity="21" lock="true"/>  <!-- Left Frown -->
+	<setting morphID="28" intensity="21" lock="true"/>  <!-- Right Frown -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
+<!-- Mouth working around something, eyes up at him: heavy lids, the inner brows raised and drawn together -- pleading (owner poll, 2026-09-24: 'dont see our special expressions on blowjob'). Anatomy's contact mouth opens the jaw to fit. The eyes and brows are PROTECTED from the styles: see PROTECTED. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
 <mfgSet id="Rapport_Oral_5">
 	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
@@ -818,10 +827,17 @@
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
 	<setting morphID="48" intensity="70"/>  <!-- Upper Lip Roll Out -->
 	<setting morphID="24" intensity="50"/>  <!-- Lower Lip Roll Out -->
-	<setting morphID="18" intensity="38" lock="true"/>  <!-- Left Upper Eye Lid Down -->
-	<setting morphID="41" intensity="38" lock="true"/>  <!-- Right Upper Eye Lid Down -->
-	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
-	<setting morphID="32" intensity="40" lock="true"/>  <!-- Right Lower Eye Lid Down -->
+	<setting morphID="0" intensity="35" lock="true"/>  <!-- Brow Squeeze -->
+	<setting morphID="18" intensity="55" lock="true"/>  <!-- Left Upper Eye Lid Down -->
+	<setting morphID="41" intensity="55" lock="true"/>  <!-- Right Upper Eye Lid Down -->
+	<setting morphID="9" intensity="30" lock="true"/>  <!-- Left Lower Eye Lid Down -->
+	<setting morphID="32" intensity="30" lock="true"/>  <!-- Right Lower Eye Lid Down -->
+	<setting morphID="14" intensity="75" lock="true"/>  <!-- Left Middle Brow Up -->
+	<setting morphID="37" intensity="75" lock="true"/>  <!-- Right Middle Brow Up -->
+	<setting morphID="16" intensity="20" lock="true"/>  <!-- Left Outer Brow Down -->
+	<setting morphID="39" intensity="20" lock="true"/>  <!-- Right Outer Brow Down -->
+	<setting morphID="4" intensity="25" lock="true"/>  <!-- Left Cheek Up -->
+	<setting morphID="27" intensity="25" lock="true"/>  <!-- Right Cheek Up -->
 	<setting morphID="21" intensity="52"/>  <!-- Left Upper Lip Up -->
 	<setting morphID="44" intensity="31"/>  <!-- Right Upper Lip Up -->
 	<setting morphID="15" intensity="46" lock="true"/>  <!-- Left Nose Up -->
@@ -830,13 +846,9 @@
 	<setting morphID="30" intensity="35"/>  <!-- Right Lip Corner In -->
 	<setting morphID="12" intensity="28"/>  <!-- Left Lower Lip Up -->
 	<setting morphID="35" intensity="28"/>  <!-- Right Lower Lip Up -->
-	<setting morphID="3" intensity="49" lock="true"/>  <!-- Left Brow Outer Up -->
-	<setting morphID="36" intensity="31" lock="true"/>  <!-- Right Middle Brow Down -->
-	<setting morphID="10" intensity="49" lock="true"/>  <!-- Left Lower Eye Lid Up -->
-	<setting morphID="33" intensity="49" lock="true"/>  <!-- Right Lower Eye Lid Up -->
 </mfgSet>
 
-<!-- Mouth working around something: funnelled lips, the jaw a little open -- Anatomy's contact mouth opens it to fit while something is in it. -- grins: wide, shameless, teeth out and thoroughly pleased -->
+<!-- Mouth working around something, eyes up at him: heavy lids, the inner brows raised and drawn together -- pleading (owner poll, 2026-09-24: 'dont see our special expressions on blowjob'). Anatomy's contact mouth opens the jaw to fit. The eyes and brows are PROTECTED from the styles: see PROTECTED. -- grins: wide, shameless, teeth out and thoroughly pleased -->
 <mfgSet id="Rapport_Oral_6">
 	<setting morphID="2" intensity="35"/>  <!-- Jaw Open -->
 	<setting morphID="22" intensity="60"/>  <!-- Lower Lip Funnel -->
@@ -844,22 +856,23 @@
 	<setting morphID="25" intensity="40"/>  <!-- Pucker -->
 	<setting morphID="48" intensity="70"/>  <!-- Upper Lip Roll Out -->
 	<setting morphID="24" intensity="50"/>  <!-- Lower Lip Roll Out -->
-	<setting morphID="18" intensity="46" lock="true"/>  <!-- Left Upper Eye Lid Down -->
-	<setting morphID="41" intensity="46" lock="true"/>  <!-- Right Upper Eye Lid Down -->
-	<setting morphID="9" intensity="40" lock="true"/>  <!-- Left Lower Eye Lid Down -->
-	<setting morphID="32" intensity="40" lock="true"/>  <!-- Right Lower Eye Lid Down -->
-	<setting morphID="17" intensity="56"/>  <!-- Left Smile -->
-	<setting morphID="40" intensity="46"/>  <!-- Right Smile -->
-	<setting morphID="8" intensity="42"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="42"/>  <!-- Right Lip Corner Out -->
-	<setting morphID="21" intensity="28"/>  <!-- Left Upper Lip Up -->
-	<setting morphID="44" intensity="28"/>  <!-- Right Upper Lip Up -->
+	<setting morphID="0" intensity="35" lock="true"/>  <!-- Brow Squeeze -->
+	<setting morphID="18" intensity="55" lock="true"/>  <!-- Left Upper Eye Lid Down -->
+	<setting morphID="41" intensity="55" lock="true"/>  <!-- Right Upper Eye Lid Down -->
+	<setting morphID="9" intensity="30" lock="true"/>  <!-- Left Lower Eye Lid Down -->
+	<setting morphID="32" intensity="30" lock="true"/>  <!-- Right Lower Eye Lid Down -->
+	<setting morphID="14" intensity="75" lock="true"/>  <!-- Left Middle Brow Up -->
+	<setting morphID="37" intensity="75" lock="true"/>  <!-- Right Middle Brow Up -->
+	<setting morphID="16" intensity="20" lock="true"/>  <!-- Left Outer Brow Down -->
+	<setting morphID="39" intensity="20" lock="true"/>  <!-- Right Outer Brow Down -->
 	<setting morphID="4" intensity="49" lock="true"/>  <!-- Left Cheek Up -->
 	<setting morphID="27" intensity="49" lock="true"/>  <!-- Right Cheek Up -->
-	<setting morphID="14" intensity="42" lock="true"/>  <!-- Left Middle Brow Up -->
-	<setting morphID="37" intensity="42" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="10" intensity="52" lock="true"/>  <!-- Left Lower Eye Lid Up -->
-	<setting morphID="33" intensity="52" lock="true"/>  <!-- Right Lower Eye Lid Up -->
+	<setting morphID="17" intensity="56"/>  <!-- Left Smile -->
+	<setting morphID="40" intensity="46"/>  <!-- Right Smile -->
+	<setting morphID="8" intensity="42" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="42" lock="true"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="21" intensity="28"/>  <!-- Left Upper Lip Up -->
+	<setting morphID="44" intensity="28"/>  <!-- Right Upper Lip Up -->
 </mfgSet>
 
 <!-- Lips pursed, eyes closed. Used for the foreplay tags, which otherwise get an expression that belongs to a different act entirely. -- lets go: open, lifted, soft -- and at the peak the eyes go WIDE -->
@@ -919,8 +932,8 @@
 	<setting morphID="49" intensity="21"/>  <!-- Tongue To Roof -->
 	<setting morphID="11" intensity="16"/>  <!-- Left Lower Lip Down -->
 	<setting morphID="34" intensity="16"/>  <!-- Right Lower Lip Down -->
-	<setting morphID="5" intensity="9"/>  <!-- Left Frown -->
-	<setting morphID="28" intensity="9"/>  <!-- Right Frown -->
+	<setting morphID="5" intensity="9" lock="true"/>  <!-- Left Frown -->
+	<setting morphID="28" intensity="9" lock="true"/>  <!-- Right Frown -->
 	<setting morphID="14" intensity="21" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="21" lock="true"/>  <!-- Right Middle Brow Up -->
 </mfgSet>
@@ -953,8 +966,8 @@
 	<setting morphID="41" intensity="80" lock="true"/>  <!-- Right Upper Eye Lid Down -->
 	<setting morphID="17" intensity="24"/>  <!-- Left Smile -->
 	<setting morphID="40" intensity="20"/>  <!-- Right Smile -->
-	<setting morphID="8" intensity="18"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="18"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="18" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="18" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="21" intensity="12"/>  <!-- Left Upper Lip Up -->
 	<setting morphID="44" intensity="12"/>  <!-- Right Upper Lip Up -->
 	<setting morphID="4" intensity="21" lock="true"/>  <!-- Left Cheek Up -->
@@ -1024,8 +1037,8 @@
 	<setting morphID="49" intensity="21"/>  <!-- Tongue To Roof -->
 	<setting morphID="11" intensity="16"/>  <!-- Left Lower Lip Down -->
 	<setting morphID="34" intensity="16"/>  <!-- Right Lower Lip Down -->
-	<setting morphID="5" intensity="9"/>  <!-- Left Frown -->
-	<setting morphID="28" intensity="9"/>  <!-- Right Frown -->
+	<setting morphID="5" intensity="9" lock="true"/>  <!-- Left Frown -->
+	<setting morphID="28" intensity="9" lock="true"/>  <!-- Right Frown -->
 </mfgSet>
 
 <!-- Afterwards, briefly. Eyes heavy, a half smile, jaw slack. -- sneers: lip curled off the teeth, contemptuous, enjoying it meanly -->
@@ -1058,8 +1071,8 @@
 	<setting morphID="40" intensity="20"/>  <!-- Right Smile -->
 	<setting morphID="14" intensity="18" lock="true"/>  <!-- Left Middle Brow Up -->
 	<setting morphID="37" intensity="18" lock="true"/>  <!-- Right Middle Brow Up -->
-	<setting morphID="8" intensity="18"/>  <!-- Left Lip Corner Out -->
-	<setting morphID="31" intensity="18"/>  <!-- Right Lip Corner Out -->
+	<setting morphID="8" intensity="18" lock="true"/>  <!-- Left Lip Corner Out -->
+	<setting morphID="31" intensity="18" lock="true"/>  <!-- Right Lip Corner Out -->
 	<setting morphID="21" intensity="12"/>  <!-- Left Upper Lip Up -->
 	<setting morphID="44" intensity="12"/>  <!-- Right Upper Lip Up -->
 	<setting morphID="4" intensity="21" lock="true"/>  <!-- Left Cheek Up -->

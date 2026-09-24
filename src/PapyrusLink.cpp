@@ -472,6 +472,7 @@ namespace
 	// pair of states three runs have now been spent telling apart.
 	void Papyrus_Pump(std::monostate)
 	{
+		RP::Placement::Pump();
 		RP::PapyrusLink::GetSingleton().NotePump();
 
 		// Loud, and only while a scene is running, so it is a handful of lines per

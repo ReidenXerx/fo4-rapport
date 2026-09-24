@@ -19,6 +19,10 @@ namespace RP::Placement
 	void Survey(const std::vector<std::uint32_t>& a_actors, std::string_view a_position, std::string_view a_tags,
 		bool a_ours);
 
+	// Runs the surveys that have waited long enough (4 s after the first animation, so
+	// the actors stand where the scene plays). Called on Rapport's poll.
+	void Pump();
+
 	// STAGE 2 (owner, same day): where OUR scene should play. Asked by the bridge just before
 	// StartScene, with the actors in AAF's slot order (slot 0 is where AAF would put it).
 	//

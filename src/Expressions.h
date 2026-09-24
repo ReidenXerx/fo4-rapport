@@ -92,6 +92,16 @@ namespace RP
 		[[nodiscard]] static std::string_view FaceForAct(
 			std::string_view a_actTags, std::string_view a_position, int a_intensity);
 
+		// The face for ONE member, from the scene's face. The oral face belongs to the
+		// MOUTH, not to the scene: in a blowjob the man is not sucking anything, and he
+		// wore Rapport_Oral until the owner saw it (2026-09-24). In a mixed pair whose act
+		// names which side the mouth is on, the mouth's owner keeps Rapport_Oral and the
+		// other wears Rapport_Pleasure_<a_otherLevel>. A same-sex pair, a group, or an act
+		// that does not say (69, rimming) keeps it on everyone -- nothing tells them apart.
+		[[nodiscard]] static std::string FaceFor(std::string_view a_sceneFace, std::string_view a_actTags,
+			std::string_view a_position, std::uint32_t a_actor, const std::vector<std::uint32_t>& a_members,
+			int a_otherLevel);
+
 		// How wet and how flushed, from the face that was chosen. Sweat follows
 		// the expression rather than the clock for the same reason the face does:
 		// AAF's tree steps are what actually advance a scene, and a body that is

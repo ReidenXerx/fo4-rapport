@@ -750,12 +750,19 @@ namespace RP
 		const bool  change = face != a_scene.face;
 		const int   level = Expressions::HeatLevelFor(face);
 		std::size_t late = 0;
+		std::vector<std::uint32_t> ids;
+		for (const auto& member : a_scene.members) {
+			ids.push_back(member.formID);
+		}
 		for (auto& member : a_scene.members) {
 			if (member.formID == 0 || !member.raceAllowed || (!change && member.wearing)) {
 				continue;
 			}
+			// The oral face on the mouth only; the partner at pleasure (FaceFor).
+			const auto mine = Expressions::FaceFor(face, a_scene.liveAct, a_scene.position, member.formID, ids,
+				a_scene.climaxSeen ? 3 : 2);
 			a_out.push_back(
-				Order{ Order::Kind::kApplyExpression, member.formID, Expressions::VariantFor(face, member.formID) });
+				Order{ Order::Kind::kApplyExpression, member.formID, Expressions::VariantFor(mine, member.formID) });
 			// Every time it goes on, not only the first: a load or the panic switch may
 			// have swept the wearing list since, and a face nobody lists is a face nobody
 			// clears.

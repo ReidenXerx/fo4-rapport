@@ -225,6 +225,49 @@ namespace RP
 		return std::format("{}_{}", a_setID, (a_formID % kStyles) + 1);
 	}
 
+	std::string Expressions::FaceFor(std::string_view a_sceneFace, std::string_view a_actTags,
+		std::string_view a_position, std::uint32_t a_actor, const std::vector<std::uint32_t>& a_members,
+		int a_otherLevel)
+	{
+		if (a_sceneFace != "Rapport_Oral"sv || a_members.size() != 2) {
+			return std::string{ a_sceneFace };
+		}
+		// Sex, read now: 1 female, 0 male, -1 unknown.
+		const auto sexOf = [](std::uint32_t a_id) {
+			auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_id);
+			auto* npc = actor ? actor->GetNPC() : nullptr;   // not const: GetSex() is not
+			return npc ? static_cast<int>(npc->GetSex() == RE::SEX::kFemale) : -1;
+		};
+		const int s0 = sexOf(a_members[0]);
+		const int s1 = sexOf(a_members[1]);
+		if (s0 < 0 || s1 < 0 || s0 == s1) {
+			return std::string{ a_sceneFace };
+		}
+		const auto female = s0 == 1 ? a_members[0] : a_members[1];
+		const auto male = s0 == 1 ? a_members[1] : a_members[0];
+
+		// "<giver part>To<receiver part>": the mouth receives in PenisToMouth, gives in
+		// MouthToVagina. Named acts say it too. Both kinds at once (69) settles nothing.
+		std::string text{ a_actTags };
+		text += ',';
+		text += a_position;
+		std::ranges::transform(text, text.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+		const auto has = [&](std::initializer_list<std::string_view> a_needles) {
+			return std::ranges::any_of(a_needles, [&](std::string_view n) { return text.find(n) != std::string::npos; });
+		};
+		const bool herMouth = has({ "penistomouth"sv, "blowjob"sv, "fellatio"sv, "irrumatio"sv, "deepthroat"sv,
+			"mouthtopenis"sv, "tonguetopenis"sv });
+		const bool hisMouth = has({ "cunnilingus"sv, "mouthtovagina"sv, "tonguetovagina"sv, "vaginatomouth"sv });
+		if (herMouth == hisMouth) {
+			return std::string{ a_sceneFace };
+		}
+		const auto mouth = herMouth ? female : male;
+		if (a_actor == mouth) {
+			return std::string{ a_sceneFace };
+		}
+		return std::format("Rapport_Pleasure_{}", std::clamp(a_otherLevel, 1, 3));
+	}
+
 	std::string_view Expressions::FaceForAct(
 		std::string_view a_actTags, std::string_view a_position, int a_intensity)
 	{
@@ -605,8 +648,10 @@ namespace RP
 			if (formID == 0) {
 				continue;
 			}
+			// The oral face goes on the mouth only; the partner gets pleasure (FaceFor).
+			const auto mine = FaceFor(a_setID, _liveAct, _livePosition, formID, { _first, _second }, 2);
 			a_out.push_back(
-				Order{ Order::Kind::kApplyExpression, formID, VariantFor(a_setID, formID) });
+				Order{ Order::Kind::kApplyExpression, formID, VariantFor(mine, formID) });
 
 			// Per actor (R-22): an actor can arrive wearing a level another scene left,
 			// and what comes off must be what is ON them. Off before on inside, because

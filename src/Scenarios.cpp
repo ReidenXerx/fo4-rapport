@@ -1000,8 +1000,11 @@ namespace RP
 		_faceApplied.assign(want);
 		for (const auto formID : { _first, _second }) {
 			if (formID != 0) {
+				// The oral face on the mouth only; the partner at this stage's pleasure.
+				const auto mine = Expressions::FaceFor(_faceApplied, act, position, formID, { _first, _second },
+					_climaxSeen ? 3 : a_intensity);
 				a_out.push_back(Order{ Order::Kind::kApplyExpression, formID,
-					Expressions::VariantFor(_faceApplied, formID), {} });
+					Expressions::VariantFor(mine, formID), {} });
 			}
 		}
 

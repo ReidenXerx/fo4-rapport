@@ -23,9 +23,18 @@ namespace RP::Placement
 
 		// The search for a clear spot: rings every kStep units out to kReach, kAngles points
 		// a ring. Far enough to leave a room's clutter, near enough that AAF's walk is short.
-		constexpr float        kStep = 40.0f;
-		constexpr float        kReach = 320.0f;
-		constexpr std::int32_t kAngles = 12;
+		constexpr float        kStep = 30.0f;
+		constexpr float        kReach = 330.0f;
+		constexpr std::int32_t kAngles = 16;
+
+		// The navmesh keeps clear of walls and furniture by about this much, so the
+		// floor ring stands this far inside the footprint: a small room was rejecting
+		// every spot as "the footprint leaves the floor" (measured 2026-09-24).
+		constexpr float kNavmeshInset = 35.0f;
+
+		// The survey waits for the actors to be in place: at the first animation AAF may
+		// still be walking one of them in (a 397u "footprint", measured).
+		constexpr auto kSurveyDelay = std::chrono::seconds{ 4 };
 
 		// Floor continuity: how far a footprint's points may differ in height (a rug, a
 		// threshold), and one walk sample from the next (a step, not a ledge).
@@ -105,6 +114,26 @@ namespace RP::Placement
 			}
 		}
 
+		// Things with bounds that nobody can walk into: the editor markers (XMarker,
+		// XMarkerHeading -- our own spot marker among them -- COCMarkerHeading) and
+		// AAF's own scene helpers (AAF.esm). Measured: both were reported "AT the spot".
+		[[nodiscard]] bool Marker(RE::TESBoundObject* a_base)
+		{
+			const auto* file = a_base->GetFile(0);
+			if (!file) {
+				return false;
+			}
+			const auto name = file->GetFilename();
+			if (name == "AAF.esm"sv) {
+				return true;
+			}
+			if (name == "Fallout4.esm"sv) {
+				const auto local = a_base->GetFormID() & 0x00FFFFFF;
+				return local == 0x34 || local == 0x3B || local == 0x32;
+			}
+			return false;
+		}
+
 		struct Hit
 		{
 			float       depth{ 0.0f };
@@ -148,7 +177,7 @@ namespace RP::Placement
 						continue;
 					}
 					auto* base = ref->GetObjectReference();
-					if (!base || !Solid(base->GetFormType())) {
+					if (!base || !Solid(base->GetFormType()) || Marker(base)) {
 						continue;
 					}
 					const auto& bd = base->boundData;
@@ -301,7 +330,7 @@ namespace RP::Placement
 				a_why = "off the navmesh";
 				return std::nullopt;
 			}
-			for (const float r : { a_radius, a_radius * 0.5f }) {
+			for (const float r : { (std::max)(a_radius - kNavmeshInset, a_radius * 0.6f), a_radius * 0.5f }) {
 				for (std::int32_t k = 0; k < 8; ++k) {
 					const float a = kPi * 2.0f * static_cast<float>(k) / 8.0f;
 					const auto  z = FloorAt(a_tris, a_x + r * std::cos(a), a_y + r * std::sin(a), *centre);
@@ -336,7 +365,55 @@ namespace RP::Placement
 		}
 	}
 
+	namespace
+	{
+		struct Pending
+		{
+			std::vector<std::uint32_t>            actors;
+			std::string                           position;
+			std::string                           tags;
+			bool                                  ours{ false };
+			std::chrono::steady_clock::time_point due{};
+		};
+		std::mutex           g_pendingLock;
+		std::vector<Pending> g_pending;
+	}
+
+	void RunSurvey(const std::vector<std::uint32_t>& a_actors, std::string_view a_position, std::string_view a_tags,
+		bool a_ours);
+
 	void Survey(const std::vector<std::uint32_t>& a_actors, std::string_view a_position, std::string_view a_tags,
+		bool a_ours)
+	{
+		// Measured when the actors are in place, not at the first animation.
+		std::scoped_lock lock{ g_pendingLock };
+		if (g_pending.size() < 16) {
+			g_pending.push_back(Pending{ a_actors, std::string{ a_position }, std::string{ a_tags }, a_ours,
+				std::chrono::steady_clock::now() + kSurveyDelay });
+		}
+	}
+
+	void Pump()
+	{
+		std::vector<Pending> due;
+		{
+			std::scoped_lock lock{ g_pendingLock };
+			const auto now = std::chrono::steady_clock::now();
+			for (auto it = g_pending.begin(); it != g_pending.end();) {
+				if (it->due <= now) {
+					due.push_back(std::move(*it));
+					it = g_pending.erase(it);
+				} else {
+					++it;
+				}
+			}
+		}
+		for (const auto& job : due) {
+			RunSurvey(job.actors, job.position, job.tags, job.ours);
+		}
+	}
+
+	void RunSurvey(const std::vector<std::uint32_t>& a_actors, std::string_view a_position, std::string_view a_tags,
 		bool a_ours)
 	{
 		std::vector<RE::Actor*>    actors;
@@ -389,7 +466,7 @@ namespace RP::Placement
 		}
 		const auto found = Scan(cells, centre, feet, radius, true);
 
-		// Did AAF use the spot we chose? The scene's centre against it.
+		// Did AAF use the spot we chose? The scene's centre against it, a few seconds in.
 		std::string ours;
 		if (a_ours && chosen.pair == key) {
 			ours = std::format(" | our spot for request {} was ({:.0f}, {:.0f}): the scene's centre is {:.0f}u from it",

@@ -77,17 +77,22 @@ ID = {name: i for i, name in enumerate(MORPHS)}
 #
 # Pleasure_3's 85 is the next suspect if this is not enough.
 MOUTH = frozenset(
-    ["Jaw Forward", "Jaw Open", "Left Jaw", "Right Jaw",
+    # MEASURED 2026-09-24 (anatomy's probe=1, 14 lines: 6 on faces Rapport held, 8
+    # vanilla): the MFG ids a line's lip sync actually moves, minus 3/26, 4/27 and
+    # 14/37 -- the brows and cheeks, which moved only because anatomy's A-26 reaction
+    # and scene faces write them mid-line. The first guess also handed over the frowns,
+    # the sideways jaw and Lip Corner Out, which no line ever moved: dropped.
+    ["Jaw Forward", "Jaw Open",
      "Lower Lip Funnel", "Upper Lip Funnel",
      "Lower Lip Roll In", "Lower Lip Roll Out",
      "Upper Lip Roll In", "Upper Lip Roll Out",
      "Pucker", "Sticky Lips", "Tongue To Roof"]
     + ["%s %s" % (side, part)
        for side in ("Left", "Right")
-       for part in ("Lip Corner In", "Lip Corner Out",
+       for part in ("Lip Corner In",
                     "Lower Lip Down", "Lower Lip Up",
                     "Upper Lip Down", "Upper Lip Up",
-                    "Smile", "Frown")])
+                    "Smile")])
 assert MOUTH <= set(MORPHS), sorted(MOUTH - set(MORPHS))
 
 
@@ -318,12 +323,15 @@ SETS = [
      True, 100),
 
     ("Rapport_Oral",
-     "Mouth working around something: funnelled lips, the jaw a little open -- "
-     "Anatomy's contact mouth opens it to fit while something is in it.",
+     "Mouth working around something, eyes up at him: heavy lids, the inner brows "
+     "raised and drawn together -- pleading (owner poll, 2026-09-24: 'dont see our "
+     "special expressions on blowjob'). Anatomy's contact mouth opens the jaw to fit. "
+     "The eyes and brows are PROTECTED from the styles: see PROTECTED.",
      [("Jaw Open", 35), ("Lower Lip Funnel", 60),
       ("Upper Lip Funnel", 60), ("Pucker", 40), ("Upper Lip Roll Out", 70),
-      ("Lower Lip Roll Out", 50)]
-     + sym("Upper Eye Lid Down", 50) + sym("Lower Eye Lid Down", 40),
+      ("Lower Lip Roll Out", 50), ("Brow Squeeze", 35)]
+     + sym("Upper Eye Lid Down", 55) + sym("Lower Eye Lid Down", 30)
+     + sym("Middle Brow Up", 75) + sym("Outer Brow Down", 20) + sym("Cheek Up", 25),
      True, 70),
 
     ("Rapport_Kiss",
@@ -394,6 +402,18 @@ def check_styles_match_the_plugin():
     print("kStyles = %d in both the plugin and this file" % declared)
 
 
+# A set whose eyes and brows ARE the act: the styles (a person's own way of
+# reacting) may not override them there. Rapport_Oral lost its heavy-lidded look to
+# style 1's wide eyes on Ivy -- the owner saw no oral face at all (2026-09-24).
+PROTECTED = {"Rapport_Oral"}
+
+
+def unprotected(set_id, extra):
+    if set_id not in PROTECTED:
+        return extra
+    return [(name, value) for name, value in extra if "Eye Lid" not in name and "Brow" not in name]
+
+
 def main():
     check_styles_match_the_plugin()
     out = io.StringIO()
@@ -414,6 +434,7 @@ def main():
                         for tag, how, layer in STYLES]
 
         for suffix, how, extra in variants:
+            extra = unprotected(setID, extra)
             name_v = setID + suffix
             emitted.append(name_v)
             out.write("<!-- %s -->\n" % (note + how))
