@@ -50,6 +50,23 @@ namespace RP::DebugTriggers
 			return std::sqrt(dx * dx + dy * dy + dz * dz);
 		}
 
+		// In the part of the world the player is in -- ActorScan's InPlayersWorld, whose
+		// comment has the scar: an interior just left stays loaded, 3D and all, and
+		// distances taken between two interiors that do not share coordinates put
+		// somebody in another building "right in front of you".
+		[[nodiscard]] bool InPlayersWorld(RE::Actor& a_actor, RE::PlayerCharacter& a_player)
+		{
+			auto* cell = a_actor.GetParentCell();
+			auto* here = a_player.GetParentCell();
+			if (!cell || !here) {
+				return false;
+			}
+			if (cell == here) {
+				return true;
+			}
+			return !cell->IsInterior() && !here->IsInterior() && cell->worldSpace && cell->worldSpace == here->worldSpace;
+		}
+
 		// The rules no button skips: "" when this actor may take part at all.
 		[[nodiscard]] std::string HardRule(RE::Actor* a_actor)
 		{
@@ -57,7 +74,7 @@ namespace RP::DebugTriggers
 				return "is nobody";
 			}
 			if (a_actor->GetFormID() == kPlayer) {
-				return {};
+				return a_actor->IsInCombat() ? std::string{ "(you) are fighting" } : std::string{};
 			}
 			if (a_actor->IsChild()) {
 				return "is a child - never";
@@ -165,7 +182,11 @@ namespace RP::DebugTriggers
 		for (const auto* list : { &lists->highActorHandles, &lists->middleHighActorHandles }) {
 			for (const auto& handle : *list) {
 				const auto actor = handle.get();
-				if (!actor || actor.get() == player || !actor->Get3D() || actor->IsDead(true)) {
+				// Never a child: the one "in front of you" is who every trigger in all three
+				// mods acts on, and adults only is a hard rule (DESIGN) -- not a filter left
+				// to each caller to remember.
+				if (!actor || actor.get() == player || !actor->Get3D() || actor->IsDead(true) || actor->IsChild() ||
+					!InPlayersWorld(*actor, *player)) {
 					continue;
 				}
 				if (Distance(player, actor.get()) > a_maxDistance) {
@@ -237,6 +258,13 @@ namespace RP::DebugTriggers
 			return busy;
 		}
 		if (!a_force) {
+			// What stops the stand-in before it looks at anyone (Scheduler.cpp).
+			if (PapyrusLink::GetSingleton().AutonomyPaused()) {
+				return Refuse(a_force, "autonomy is paused (mailbox) - nothing starts on its own");
+			}
+			if (Config::GetSingleton().dryRun) {
+				return Refuse(a_force, "DryRun is on in Rapport.ini - the stand-in only watches");
+			}
 			if (const auto why = Resting(a_target); !why.empty()) {
 				return Refuse(a_force, why);
 			}

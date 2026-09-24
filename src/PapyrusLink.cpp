@@ -1401,7 +1401,13 @@ namespace RP
 				continue;
 			}
 			std::string_view why;
-			if (actor->IsDead(true)) {
+			// Adults only (DESIGN hard rule), HERE, in the funnel every request passes:
+			// every addon, the stand-in, the player's lane and the debug triggers. It was
+			// left to each caller's own filters, and one caller (a debug trigger) had none
+			// (review of R-23, 2026-09-24).
+			if (actor->IsChild()) {
+				why = "is a child - never";
+			} else if (actor->IsDead(true)) {
 				why = "is dead";
 			} else if (!actor->Get3D()) {
 				why = "is not loaded";
