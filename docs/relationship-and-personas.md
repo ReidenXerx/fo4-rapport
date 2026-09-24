@@ -758,6 +758,8 @@ and decides which situation each belongs to - exactly as N-2 predicted.
   not carry to dialogue**: an actor in conversation is not in an AAF scene, nothing
   is blocking their face, and a talking head with a still mouth is conspicuous.
   Open question 6 stands, and it stands harder for Overture than it did for R-9.
+  **Settled 2026-09-24:** every line ships lip sync, scene barks included (the owner; V-5 is superseded,
+  see VOICE-GUIDELINES.md). Overture's lines already had it.
 
 ---
 
@@ -1136,6 +1138,9 @@ chose anything. The owner chose "steer + safety net":
   the shy rule changes what they do, not where.
 - Its `include` goes to AAF as `includeTags` (ANY of them), but only when the pair has a man. Measured with beds
   and the markers out: F+M keeps 131 of 185 positions with the list, M+M 29 of 57.
+- A SHY pair (a reticent member) gets no act list either. `includeTags` is an allow-list: asking for the acts
+  would take away the hug or the kiss that the shy rule exists to leave possible (the sonnet review found the
+  two rules colliding). Shyness changes what, not where: the beds stay out.
 - Two women never get the list. 8 of their 24 positions carry one of those tags (2 on the ground), so asking
   would squeeze F+F down to those.
 - **Any pose, the owner's standing rule:** "If for some reason we didn't find sufficient pose we fallback to any

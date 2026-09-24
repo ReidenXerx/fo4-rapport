@@ -369,11 +369,25 @@ namespace RP
 		std::string              _nonSexTags;
 		std::vector<std::string> _nonSexAllowedFor;
 
-		// The any-pose fallback, as pair keys (lower form id in the high half).
-		// Atomics, not _lock: the bridge's natives set them, the refusal and the start
-		// read them, each on whatever thread its event arrived on. Mutable because
-		// ExcludeTagsFor, a const reader of the config, is also what resets them.
-		mutable std::atomic<std::uint64_t> _filtersSentFor{ 0 };   // this start carried Rapport's filters
-		mutable std::atomic<std::uint64_t> _anyPoseFor{ 0 };       // AAF found nothing with them on
+		// The any-pose fallback, as pair keys (lower form id in the high half). Not
+		// _lock: the bridge's natives set these, the refusal and the start read them,
+		// each on whatever thread its event arrived on. Mutable because ExcludeTagsFor,
+		// a const reader of the config, is also what resets the first.
+		//
+		// _filtersSentFor is ONE start's: every start clears it first
+		// (ChooseSceneStart), and so does every way a request ends (End) -- a request
+		// the watchdog or a load abandons must not leave it for another pair's refusal
+		// to find (sonnet review, 2026-09-24).
+		//
+		// _anyPose is a SET: one slot let a second pair's [034] erase the first pair's
+		// fallback before it was used, and that pair then failed twice.
+		mutable std::atomic<std::uint64_t>   _filtersSentFor{ 0 };   // this start carried Rapport's filters
+		mutable std::mutex                   _anyPoseLock;
+		std::unordered_set<std::uint64_t>    _anyPose;                // AAF found nothing with them on
+
+		[[nodiscard]] bool OnAnyPose(std::uint64_t a_key) const;
+		// "<id> is <persona>" for the first member shy enough that a kiss can be the
+		// whole scene (nonSex.allowedFor), or empty. The player has no persona (R-11).
+		[[nodiscard]] std::string ShyIn(std::uint32_t a_first, std::uint32_t a_second) const;
 	};
 }

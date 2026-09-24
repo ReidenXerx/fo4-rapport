@@ -237,6 +237,18 @@ and that walk is not the scene: request to scene start measured 12.5 seconds in 
 
 ## includeTags is an AND, and failures come back down OnSceneInit
 
+> **CORRECTED — the first half of this section is wrong.**
+> - `includeTags` is ANY-of and `combinedTags` is ALL-of: AAF's author (aaf-under-the-hood's top note,
+>   aaf-sot §0 C), and AAF's own SceneSettings docs ("If any of these tags are present on a position, it
+>   will be INCLUDED").
+> - Tag matching itself was later measured working: 28-39 matches (memory: aaf-tag-matching-works). The
+>   refusal below is real, but it came from the ChangePosition era, whose 26/26 refusals are unexplained
+>   whatever the tags.
+> - Rapport's quickie now sends its act list as `includeTags` on StartScene, on ANY-of (R-25, 2026-09-24).
+>   If that ever `[034]`s, the pair's next start asks for nothing (the any-pose rule), and Rapport.log
+>   says "AAF found nothing with Rapport's filters on". That line is the measurement to watch.
+> - The second half, refusals arriving as a 4-argument OnSceneInit, stands.
+
 Two things learned the hard way on the first staged scene, within ninety seconds of each other.
 
 **`includeTags` means "an animation carrying ALL of these", not "any of these".** Asking for five

@@ -298,15 +298,33 @@ namespace RP
 		return first == scenario->stages.end() ? nullptr : &*first;
 	}
 
+	bool Scenarios::OnAnyPose(std::uint64_t a_key) const
+	{
+		std::scoped_lock lock{ _anyPoseLock };
+		return _anyPose.contains(a_key);
+	}
+
+	std::string Scenarios::ShyIn(std::uint32_t a_first, std::uint32_t a_second) const
+	{
+		for (const auto id : { a_first, a_second }) {
+			if (id == 0 || id == 0x14) {
+				continue;
+			}
+			const auto persona = Lower(Barks::GetSingleton().PersonaOf(id));
+			if (!persona.empty() && std::ranges::find(_nonSexAllowedFor, persona) != _nonSexAllowedFor.end()) {
+				return std::format("{:08X} is {}", id, persona);
+			}
+		}
+		return {};
+	}
+
 	std::string Scenarios::ExcludeTagsFor(
 		std::string_view a_given, std::uint32_t a_first, std::uint32_t a_second,
 		std::string_view a_scenario) const
 	{
-		// Every start the bridge makes without a position asks this FIRST, so this is
-		// where what the last one carried is forgotten.
 		const auto key = PairKey(a_first, a_second);
 		_filtersSentFor.store(0);
-		if (_anyPoseFor.load() == key) {
+		if (OnAnyPose(key)) {
 			logger::info(
 				"unconstrained start: {:08X} and {:08X} got nothing from AAF with Rapport's filters last time - any "
 				"pose now, AAF's own exclusions alone (a scene never fails twice over our filters)",
@@ -314,19 +332,8 @@ namespace RP
 			return {};
 		}
 
-		// Either one of them shy enough for a kiss to be the whole scene. The player has
-		// no persona (R-11), so only an NPC can make the pair an exception.
-		std::string shy;
-		for (const auto id : { a_first, a_second }) {
-			if (id == 0 || id == 0x14) {
-				continue;
-			}
-			const auto persona = Lower(Barks::GetSingleton().PersonaOf(id));
-			if (!persona.empty() && std::ranges::find(_nonSexAllowedFor, persona) != _nonSexAllowedFor.end()) {
-				shy = std::format("{:08X} is {}", id, persona);
-				break;
-			}
-		}
+		// Either one of them shy enough for a kiss to be the whole scene.
+		const auto shy = ShyIn(a_first, a_second);
 		const bool nonSex = shy.empty() && !Trim(_nonSexTags).empty();
 
 		const auto* style = StyleOf(a_scenario);
@@ -373,12 +380,22 @@ namespace RP
 	{
 		// The any-pose fallback asks for nothing -- ExcludeTagsFor, asked first, has said so.
 		const auto key = PairKey(a_first, a_second);
-		if (_anyPoseFor.load() == key) {
+		if (OnAnyPose(key)) {
 			return {};
 		}
 		const auto* style = StyleOf(a_scenario);
 		const auto  include = style ? Trim(style->include) : std::string_view{};
 		if (include.empty()) {
+			return {};
+		}
+
+		// A shy pair asks for no act either. The act list is an ALLOW-list (any of these,
+		// nothing else), so asking for it would take away the hug or the kiss the shy
+		// rule exists to leave possible -- the owner's "allow nonsex for ... personas that
+		// could be too shy". The beds stay out: shyness changes what, not where.
+		if (const auto shy = ShyIn(a_first, a_second); !shy.empty()) {
+			logger::info("unconstrained start: \"{}\" asks for no act - {}, so a hug or a kiss may still come",
+				a_scenario, shy);
 			return {};
 		}
 
@@ -886,6 +903,11 @@ namespace RP
 	std::string Scenarios::ChooseSceneStart(
 		std::string_view a_id, std::uint32_t a_first, std::uint32_t a_second)
 	{
+		// Every start the bridge makes asks this first, tree or not: whatever an earlier
+		// start carried is not this one's. A tree start never sends Rapport's filters, so
+		// its [034] must find nothing here to blame.
+		_filtersSentFor.store(0);
+
 		NamedLock lock{ _lock, "scenarios" };
 
 		_chosenPosition.clear();
@@ -1038,7 +1060,10 @@ namespace RP
 		// own "nothing matched" ([034]) says anything about the filters: an actor already
 		// busy, or AAF not ready, would otherwise cost the next scene its style.
 		if (const auto sent = _filtersSentFor.exchange(0); sent != 0 && a_why.find("[034]") != std::string_view::npos) {
-			_anyPoseFor.store(sent);
+			{
+				std::scoped_lock lock{ _anyPoseLock };
+				_anyPose.insert(sent);
+			}
 			logger::warn(
 				"scenarios: AAF found nothing with Rapport's filters on ({}) - this pair's next start asks for "
 				"nothing and takes any pose, until a scene of theirs starts",
@@ -1067,8 +1092,12 @@ namespace RP
 	void Scenarios::NoteSceneStarted(std::uint32_t a_first, std::uint32_t a_second)
 	{
 		_filtersSentFor.store(0);
-		if (const auto key = PairKey(a_first, a_second); _anyPoseFor.load() == key) {
-			_anyPoseFor.store(0);
+		bool back = false;
+		{
+			std::scoped_lock lock{ _anyPoseLock };
+			back = _anyPose.erase(PairKey(a_first, a_second)) > 0;
+		}
+		if (back) {
 			logger::info("scenarios: {:08X} and {:08X} have a scene again - their next start uses Rapport's "
 						 "filters again",
 				a_first, a_second);
@@ -1130,6 +1159,11 @@ namespace RP
 
 	void Scenarios::End()
 	{
+		// However the request ended -- over, refused (NoteSceneRefused has already read
+		// it), abandoned by the watchdog, or a load -- what it carried dies with it.
+		// _anyPose survives: it is about a PAIR, and only that pair's next scene clears it.
+		_filtersSentFor.store(0);
+
 		NamedLock lock{ _lock, "scenarios" };
 		if (_running) {
 			logger::info("scenario \"{}\": over", _running->id);
