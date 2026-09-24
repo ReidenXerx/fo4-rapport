@@ -1228,7 +1228,7 @@ hand AAF a marker there, for OUR scenes only. The AAF menu starts its own scenes
 Our scenes only. Just before StartScene, the bridge asks `Core.SceneSpot(slot0, slot1, position)`:
 - **Furniture:** a position whose tree needs furniture is left to AAF, which places it on the furniture.
 - **Already clear:** if AAF's own spot (slot 0's feet) is clear for the footprint, nothing moves.
-- **Otherwise it searches.** Rings every 40u out to 320u, 12 points a ring; the first spot that passes
+- **Otherwise it searches.** Rings every 30u out to 330u, 16 points a ring; the first spot that passes
   all three tests wins:
   - **on the floor:** the footprint lies on the cell's NAVMESH, meaning its centre and 16 ring points at
     r and r/2 are all within 24u of level. The navmesh is walkable floor, baked around statics and
@@ -1244,3 +1244,20 @@ Our scenes only. Just before StartScene, the bridge asks `Core.SceneSpot(slot0, 
 - **Every decision is a "placement: request N: ..." line.** The first animation's survey then logs how
   far the scene's centre landed from our spot: that line is the measurement of whether AAF honours
   `locationObject` for a ground position (UNVERIFIED until the owner plays one).
+
+**Stage 3, the first night's log (2026-09-25, four requests of ours).**
+- **AAF honours the spot.** Requests 2 and 3 were moved 60u and 150u. Both scenes played 0u from our
+  spot, with nothing in the way. VERIFIED.
+- **Two were left to AAF.** Requests 1 and 4 were in small rooms. For request 1, only 5 of 176 candidates
+  even had enough floor, and every one of those had something in it.
+- **The owner watched both left-alone scenes and said they "looked fine".** One was a spooning pair with
+  containers 38u into its r 110; the other a standing 69 with a container 39u in. The footprint is a
+  circle, but a lying pair is a line, so an object that far in stands beside them.
+  - **So a hit counts only when it reaches the inner 60% of the radius** (depth > 0.4 r, at least 8u; 44u
+    at r 110). The moves that night were for 46-110u, and they still count.
+- **The owner's call on cramped rooms: the LEAST-BAD spot.**
+  - When no spot is clear, take the one that is on the floor, level and reachable and has the shallowest
+    deepest intrusion. Use it only if it beats AAF's own spot by 20u.
+  - The pose never changes for this. Changing it was the rejected alternative, because it is gameplay.
+  - The log says "moved ...u to the LEAST-BAD one", or why the least-bad spot was not worth the move.
+- **Log fix:** the list after "N in the way" now names only what N counts, plus "N brushing it".

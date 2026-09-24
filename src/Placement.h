@@ -31,7 +31,11 @@ namespace RP::Placement
 	//   - the chosen position needs furniture (AAF places it on the furniture itself);
 	//   - AAF's own spot is already clear;
 	//   - the cell's navmesh cannot be read (no guessing about floors and walls);
-	//   - nothing clear is found within reach (the any-pose rule: never fail a scene over this).
+	//   - nothing clear is found within reach AND no walkable spot on the floor beats AAF's by
+	//     20u of intrusion. Otherwise the LEAST-BAD spot is used (owner, 2026-09-25). Either
+	//     way the scene is never failed over this (the any-pose rule).
+	// A hit counts as "in the way" only when it reaches the inner 60% of the footprint: the
+	// owner saw 38u and 39u intrusions at r 110 look fine.
 	// A spot is CLEAR when a ring of points around it, at the footprint's radius and half of it,
 	// all stand on the cell's navmesh within a step of one another -- walkable floor, which the
 	// baked navmesh already routes around statics and furniture -- AND no solid object's bounds

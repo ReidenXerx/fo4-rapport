@@ -20,6 +20,15 @@ namespace RP::Placement
 
 		// An intrusion shallower than this is a brush, not a clip.
 		constexpr float kTolerated = 8.0f;
+		// ...and so is one that stays in the footprint's outer part. The footprint is a
+		// circle, but the bodies are not: a spooning pair lies along one line, and a box
+		// 38u into its r 110 stood beside them. The owner watched that scene and a
+		// standing 69 with a container 39u in, and both "looked fine" (2026-09-25). So a
+		// hit clips only when it reaches the inner 60% of the radius (44u at r 110). The
+		// moves that same night were for hits of 46-110u, and they still count.
+		constexpr float kOuterShare = 0.4f;
+		// A least-bad spot must beat AAF's own by at least this much to be worth the walk.
+		constexpr float kWorthMoving = 20.0f;
 
 		// The search for a clear spot: rings every kStep units out to kReach, kAngles points
 		// a ring. Far enough to leave a room's clutter, near enough that AAF's walk is short.
@@ -145,12 +154,15 @@ namespace RP::Placement
 			std::vector<Hit> hits;
 			std::uint32_t    enclosing{ 0 };
 			std::uint32_t    looked{ 0 };
+			float            tolerated{ kTolerated };   // set by Scan from the footprint
 
 			[[nodiscard]] std::size_t Blocking() const
 			{
 				return static_cast<std::size_t>(
-					std::ranges::count_if(hits, [](const Hit& h) { return h.depth > kTolerated; }));
+					std::ranges::count_if(hits, [&](const Hit& h) { return h.depth > tolerated; }));
 			}
+			// The deepest intrusion, 0 when nothing reaches in: how bad a spot is.
+			[[nodiscard]] float Worst() const { return hits.empty() ? 0.0f : hits.front().depth; }
 			[[nodiscard]] std::string List(std::size_t a_max = 8) const
 			{
 				// What Blocking() counts, and only that: a list longer than its count read as a
@@ -158,7 +170,7 @@ namespace RP::Placement
 				std::string out;
 				std::size_t shown = 0, brushes = 0;
 				for (const auto& hit : hits) {
-					if (hit.depth <= kTolerated) {
+					if (hit.depth <= tolerated) {
 						++brushes;
 					} else if (shown < a_max) {
 						out += (shown++ ? "; " : "") + hit.what;
@@ -177,6 +189,7 @@ namespace RP::Placement
 			bool a_describe)
 		{
 			Intrusions out;
+			out.tolerated = (std::max)(kTolerated, a_radius * kOuterShare);
 			const float low = a_feet + kBandLow;
 			const float high = a_feet + kBandHigh;
 			for (auto* cell : a_cells) {
@@ -542,6 +555,25 @@ namespace RP::Placement
 		// counted, so a failed search says what stood in the way.
 		std::map<std::string, std::uint32_t> rejected;
 		std::uint32_t                        tried = 0;
+		const float                          facing = a_slot0->data.angle.z * 180.0f / kPi;
+		const auto remember = [&](const RE::NiPoint3& a_spot) {
+			std::scoped_lock           lock{ g_lock };
+			std::vector<std::uint32_t> ids{ a_slot0->GetFormID() };
+			if (a_slot1) {
+				ids.push_back(a_slot1->GetFormID());
+			}
+			g_chosen = Chosen{ PairKey(ids), a_spot, a_request };
+		};
+		// The owner's call when no spot is clear (2026-09-25): the least-bad one -- on the
+		// floor, walkable, with the shallowest intrusion -- if it clearly beats AAF's own.
+		struct LeastBad
+		{
+			RE::NiPoint3  spot{};
+			float         worst{ 0.0f };
+			float         distance{ 0.0f };
+			std::uint32_t candidate{ 0 };
+		};
+		std::optional<LeastBad> leastBad;
 		for (float d = kStep; d <= kReach; d += kStep) {
 			for (std::int32_t k = 0; k < kAngles; ++k) {
 				const float a = kPi * 2.0f * static_cast<float>(k) / static_cast<float>(kAngles);
@@ -558,27 +590,23 @@ namespace RP::Placement
 				const auto         there = Scan(cells, spot, *floor, radius, false);
 				if (there.Blocking() > 0) {
 					++rejected["an object in the footprint"];
+					// Only a spot that would beat the best so far is worth the walk test.
+					if ((!leastBad || there.Worst() < leastBad->worst) && Reachable(tris, from, x, y)) {
+						leastBad = LeastBad{ spot, there.Worst(), d, tried };
+					}
 					continue;
 				}
 				if (!Reachable(tris, from, x, y)) {
 					++rejected["no straight walk to it"];
 					continue;
 				}
-				const float facing = a_slot0->data.angle.z * 180.0f / kPi;
 				logger::info(
 					"placement: request {}: AAF's spot ({:.0f}, {:.0f}, {:.0f}) has {} in the way ({}) - moved {:.0f}u to "
 					"({:.0f}, {:.0f}, {:.0f}), clear for r {:.0f}, level, reachable (candidate {} of {}, {} navmesh "
 					"triangle(s))",
 					a_request, from.x, from.y, from.z, here.Blocking(), here.List(3), d, x, y, *floor, radius, tried,
 					static_cast<int>(kReach / kStep) * kAngles, tris.size());
-				{
-					std::scoped_lock lock{ g_lock };
-					std::vector<std::uint32_t> ids{ a_slot0->GetFormID() };
-					if (a_slot1) {
-						ids.push_back(a_slot1->GetFormID());
-					}
-					g_chosen = Chosen{ PairKey(ids), spot, a_request };
-				}
+				remember(spot);
 				return { x, y, *floor, facing };
 			}
 		}
@@ -586,10 +614,24 @@ namespace RP::Placement
 		for (const auto& [reason, n] : rejected) {
 			summary += std::format("{}{} x{}", summary.empty() ? "" : ", ", reason, n);
 		}
+		if (leastBad && leastBad->worst + kWorthMoving <= here.Worst()) {
+			const auto there = Scan(cells, leastBad->spot, leastBad->spot.z, radius, true);
+			logger::info(
+				"placement: request {}: AAF's spot ({:.0f}, {:.0f}, {:.0f}) has {} in the way ({}; worst {:.0f}u), and no "
+				"clear spot within {:.0f}u ({} tried: {}) - moved {:.0f}u to the LEAST-BAD one ({:.0f}, {:.0f}, {:.0f}), "
+				"worst {:.0f}u ({}), level, reachable (candidate {})",
+				a_request, from.x, from.y, from.z, here.Blocking(), here.List(3), here.Worst(), kReach, tried, summary,
+				leastBad->distance, leastBad->spot.x, leastBad->spot.y, leastBad->spot.z, leastBad->worst, there.List(3),
+				leastBad->candidate);
+			remember(leastBad->spot);
+			return { leastBad->spot.x, leastBad->spot.y, leastBad->spot.z, facing };
+		}
 		logger::info(
-			"placement: request {}: AAF's spot has {} in the way ({}), and no clear spot within {:.0f}u ({} tried: {}) - "
-			"left to AAF",
-			a_request, here.Blocking(), here.List(3), kReach, tried, summary);
+			"placement: request {}: AAF's spot has {} in the way ({}; worst {:.0f}u), and no clear spot within {:.0f}u ({} "
+			"tried: {}){} - left to AAF",
+			a_request, here.Blocking(), here.List(3), here.Worst(), kReach, tried, summary,
+			leastBad ? std::format("; the least-bad one, worst {:.0f}u, is not {:.0f}u better", leastBad->worst, kWorthMoving)
+					 : std::string{});
 		return {};
 	}
 }
