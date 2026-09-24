@@ -1261,3 +1261,27 @@ Our scenes only. Just before StartScene, the bridge asks `Core.SceneSpot(slot0, 
   - The pose never changes for this. Changing it was the rejected alternative, because it is gameplay.
   - The log says "moved ...u to the LEAST-BAD one", or why the least-bad spot was not worth the move.
 - **Log fix:** the list after "N in the way" now names only what N counts, plus "N brushing it".
+
+## R-27 - Sexual orientation (owner poll, 2026-09-25)
+
+The owner: "Besides persona characters also should have SEXUAL ORIENTATION. We need figure out this
+mechanic."
+
+**Settled by poll:**
+- **Mix:** straight 70%, bi 20%, gay 10% among ordinary NPCs.
+- **Hard line:** a straight man never agrees to sex with a man, whatever the bond. When asked, the NPC says
+  so in character, so the player learns who is into whom. There is no "win them over": the rejected
+  alternative was a strong bond that bends it.
+- **Romanceable companions are playersexual,** as in vanilla: open to the player whatever the player's
+  sex. Toward NPCs they have a real orientation. Ivy stays as her author wrote her.
+
+**The shape (to build):**
+- **Derived, like personas (R-7).** Orientation comes from the form id, so it is the same on every machine,
+  costs nothing in the save, and needs no cleanup. It uses a different mix of the id than the persona does,
+  so the two are not correlated. Named characters are pinned in `personas.json`, like persona pins (R-21).
+- **Rapport owns it; the consumers read it.**
+  - Chemistry pairs NPCs only when both are attracted to each other's sex.
+  - Overture answers a player of the wrong sex with a refusal line.
+- **Gameplay, not mechanics** (R-22's principle). It applies to scenes our mods start. A scene started from
+  the AAF menu stays free.
+- The player has no orientation (R-11). The player's choices are the player's own.
