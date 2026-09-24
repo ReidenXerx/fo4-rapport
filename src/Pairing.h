@@ -68,9 +68,13 @@ namespace RP
 
 	// Ranks every non-hostile pair within range. Pure measurement, no side effects:
 	// nothing here touches an actor, starts anything, or writes state.
+	//
+	// a_attraction: leave out a pair that orientation says is no pair (R-27, a hard line).
+	// Only a FORCED debug trigger passes false.
 	[[nodiscard]] std::vector<ScoredPair> RankPairs(
 		const std::vector<RE::Actor*>&   a_candidates,
 		const std::vector<RE::NiPoint3>& a_observerPositions,
 		const PairWeights&               a_weights,
-		std::size_t                      a_keep);
+		std::size_t                      a_keep,
+		bool                             a_attraction = true);
 }

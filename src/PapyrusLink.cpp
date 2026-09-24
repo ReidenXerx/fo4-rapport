@@ -3,6 +3,7 @@
 
 #include "Narrator.h"
 #include "Names.h"
+#include "Orientation.h"
 #include "Traits.h"
 
 #include "Candidates.h"
@@ -1166,6 +1167,22 @@ namespace
 		return std::string{ RP::Barks::GetSingleton().PersonaOf(static_cast<std::uint32_t>(a_formID)) };
 	}
 
+	// R-27. The player has none (R-11), so "" for 0x14, like PersonaOf.
+	RE::BSFixedString Papyrus_OrientationOf(std::monostate, std::int32_t a_formID)
+	{
+		if (a_formID == 0x14) {
+			return std::string{};
+		}
+		return std::string{ RP::Orientation::Name(RP::Orientation::GetSingleton().Of(static_cast<std::uint32_t>(a_formID))) };
+	}
+
+	// R-27: would the first agree to sex with the second, by orientation alone.
+	bool Papyrus_Attracted(std::monostate, std::int32_t a_who, std::int32_t a_with)
+	{
+		return RP::Orientation::GetSingleton().Attracted(RE::TESForm::GetFormByID<RE::Actor>(static_cast<std::uint32_t>(a_who)),
+			RE::TESForm::GetFormByID<RE::Actor>(static_cast<std::uint32_t>(a_with)));
+	}
+
 	// An addon's own number per actor, kept in the save on its behalf so it does
 	// not have to build a second co-save for one float. Rapport never reads it.
 	float Papyrus_GetNeed(std::monostate, std::int32_t a_formID)
@@ -1422,6 +1439,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "IsPartnerPair"sv, Papyrus_IsPartnerPair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteVanillaRelationship"sv, Papyrus_NoteVanillaRelationship, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "PersonaOf"sv, Papyrus_PersonaOf, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "OrientationOf"sv, Papyrus_OrientationOf, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "Attracted"sv, Papyrus_Attracted, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ObserversNear"sv, Papyrus_ObserversNear, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "GetNeed"sv, Papyrus_GetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SetNeed"sv, Papyrus_SetNeed, std::nullopt, false);

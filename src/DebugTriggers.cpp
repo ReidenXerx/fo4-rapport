@@ -3,6 +3,7 @@
 #include "ActorScan.h"
 #include "Config.h"
 #include "Ledger.h"
+#include "Orientation.h"
 #include "Pairing.h"
 #include "PapyrusLink.h"
 #include "Scenarios.h"
@@ -242,6 +243,9 @@ namespace RP::DebugTriggers
 			// The bar, for two NPCs. The player is never scored: a scene with the
 			// player is the player's choice, and the stand-in never picks them.
 			const bool withPlayer = a_first->GetFormID() == kPlayer || a_second->GetFormID() == kPlayer;
+			if (!Orientation::GetSingleton().Mutual(a_first, a_second)) {
+				return Refuse(a_force, std::format("not a pair: {} (R-27)", Orientation::GetSingleton().WhyNot(a_first, a_second)));
+			}
 			if (!withPlayer) {
 				const auto  scan = Scan();
 				const auto& weights = Config::GetSingleton().Weights();
@@ -312,7 +316,7 @@ namespace RP::DebugTriggers
 
 		const auto& weights = Config::GetSingleton().Weights();
 		const auto  every = candidates.size() * candidates.size();
-		const auto  ranked = RankPairs(candidates, scan.ObserverPositions(), weights, every);
+		const auto  ranked = RankPairs(candidates, scan.ObserverPositions(), weights, every, !a_force);
 		const auto  best = std::ranges::find_if(ranked, [&](const ScoredPair& p) {
 			return p.first == a_target || p.second == a_target;
 		});
@@ -421,7 +425,7 @@ namespace RP::DebugTriggers
 
 		const auto& weights = Config::GetSingleton().Weights();
 		const auto  every = candidates.size() * candidates.size();
-		const auto  ranked = RankPairs(candidates, scan.ObserverPositions(), weights, every);
+		const auto  ranked = RankPairs(candidates, scan.ObserverPositions(), weights, every, !a_force);
 		const auto  best = std::ranges::find_if(ranked, [&](const ScoredPair& p) {
 			const auto a = Female(p.first);
 			const auto b = Female(p.second);

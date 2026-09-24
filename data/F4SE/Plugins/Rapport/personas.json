@@ -1,53 +1,62 @@
 {
   "_": "Hand-kept persona pins (R-13). Every NPC has a persona derived from its form id; an entry here overrides it. plugin + id are what xEdit shows (the id without the load-order byte); either the actor REFERENCE or its base NPC works. persona must be one of barks.json's personas: mercantile, romantic, vulgar, reticent. This file is never generated.",
   "_companions": "The base game's companions, pinned by the owner's approval of Overture's O-26 table (2026-09-24, fo4-overture docs/decisions.md O-39). Each id is the NPC_ record that carries CompanionActorScript, found by scanning Fallout4.esm, DLCCoast.esm and DLCNukaWorld.esm for it rather than taken from memory. Codsworth, Nick Valentine and Strong were never in the table: Overture's approach does not open for them (Codsworth and Strong lack ActorTypeNPC; Nick is a Gen-2 synth, which it excludes by keyword).",
+  "_orientation": "R-27 (owner poll, 2026-09-25): every NPC's orientation is derived from the form id, 70% straight / 20% bi / 10% gay. An entry may pin \"orientation\": \"straight\" | \"bi\" | \"gay\", and/or \"playersexual\": true -- open to the PLAYER whatever the player's sex, as the base game's romances are; toward everyone else the derived (or pinned) orientation holds. Playersexual here: every companion the base game lets you romance (Cait, Curie, Danse, Hancock, MacCready, Piper, Preston, X6-88) and Ivy. Deacon, Old Longfellow and Gage are not romanceable, so their derived orientation applies to the player too. An entry may carry an orientation and no persona.",
   "overrides": [
     {
       "plugin": "CompanionIvy.esm",
       "id": "000803",
       "persona": "vulgar",
+      "playersexual": true,
       "note": "Ivy (IVYCOMP NPC_, not the _NPC_IVY voice type at 000801), owner poll 2026-09-21"
     },
     {
       "plugin": "Fallout4.esm",
       "id": "079249",
       "persona": "vulgar",
+      "playersexual": true,
       "note": "Cait (CompanionCait), O-26"
     },
     {
       "plugin": "Fallout4.esm",
       "id": "022613",
       "persona": "vulgar",
+      "playersexual": true,
       "note": "Hancock (Hancock), O-26"
     },
     {
       "plugin": "Fallout4.esm",
       "id": "002F1E",
       "persona": "romantic",
+      "playersexual": true,
       "note": "Piper (CompanionPiper), O-26"
     },
     {
       "plugin": "Fallout4.esm",
       "id": "019FD9",
       "persona": "romantic",
+      "playersexual": true,
       "note": "Preston Garvey (PrestonGarvey), O-26"
     },
     {
       "plugin": "Fallout4.esm",
       "id": "027686",
       "persona": "romantic",
+      "playersexual": true,
       "note": "Curie (CompanionCurie), O-26"
     },
     {
       "plugin": "Fallout4.esm",
       "id": "102249",
       "persona": "romantic",
+      "playersexual": true,
       "note": "Curie's placed actor (CurieRef), pinned as well: she changes body mid-story, and the reference is what stays"
     },
     {
       "plugin": "Fallout4.esm",
       "id": "027683",
       "persona": "reticent",
+      "playersexual": true,
       "note": "Paladin Danse (BoSPaladinDanse), O-26"
     },
     {
@@ -60,6 +69,7 @@
       "plugin": "Fallout4.esm",
       "id": "0BBEE6",
       "persona": "reticent",
+      "playersexual": true,
       "note": "X6-88 (CompanionX6-88), O-26"
     },
     {
@@ -72,6 +82,7 @@
       "plugin": "Fallout4.esm",
       "id": "02740E",
       "persona": "mercantile",
+      "playersexual": true,
       "note": "MacCready (CompanionMacCready), O-26"
     },
     {

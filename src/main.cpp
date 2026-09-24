@@ -3,6 +3,7 @@
 #include "Mailbox.h"
 #include "Aftermath.h"
 #include "Barks.h"
+#include "Orientation.h"
 #include "Narrator.h"
 #include "Names.h"
 #include "Voices.h"
@@ -138,6 +139,7 @@ namespace
 			RP::FaceAuthority::GetSingleton().Load();
 			RP::Voices::GetSingleton().Load();
 			RP::Barks::GetSingleton().Load();
+			RP::Orientation::GetSingleton().Load();
 			RP::Narrator::GetSingleton().Load();
 			RP::Names::GetSingleton().Load();
 			RP::Ledger::RegisterDeathSink();

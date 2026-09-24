@@ -517,6 +517,14 @@ Int Function ObserversNear(Int aiFormID) Global Native
 
 String Function PersonaOf(Int aiFormID) Global Native
 
+; R-27 sexual orientation: "straight", "bi" or "gay", derived from the form id (70/20/10)
+; unless personas.json pins it. "" for the player, who has none. ApiVersion 201+.
+String Function OrientationOf(Int aiFormID) Global Native
+; Would aiWho agree to sex with aiWith, by orientation alone? A hard line (owner). Always
+; True for the player as aiWho, and for a playersexual companion when aiWith is the player.
+; Rapport's own pairing already leaves out a pair where either answer is False. ApiVersion 201+.
+Bool Function Attracted(Int aiWho, Int aiWith) Global Native
+
 ; Requests involving this actor that AAF turned down, and how long ago the last one
 ; was. Use BOTH: a cumulative count with no recency would avoid an actor forever
 ; over two failures a week ago, and recency alone cannot tell a one-off from an NPC

@@ -37,6 +37,8 @@ set(SOURCES
 	"src/ActorScan.cpp"
 	"src/Pairing.h"
 	"src/Pairing.cpp"
+	"src/Orientation.h"
+	"src/Orientation.cpp"
 	"src/DebugHub.h"
 	"src/DebugHub.cpp"
 	"src/NamedLock.h"

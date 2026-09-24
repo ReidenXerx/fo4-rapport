@@ -133,6 +133,9 @@ namespace RP
 			try {
 			const auto plugin = entry.value("plugin", std::string{});
 			const auto persona = entry.value("persona", std::string{});
+			if (persona.empty() && (entry.contains("orientation") || entry.contains("playersexual"))) {
+				continue;   // an orientation pin only (R-27): Orientation reads it
+			}
 			std::uint32_t id = 0;
 			if (const auto raw = entry.find("id"); raw != entry.end()) {
 				id = raw->is_string() ? static_cast<std::uint32_t>(std::stoul(raw->get<std::string>(), nullptr, 16))

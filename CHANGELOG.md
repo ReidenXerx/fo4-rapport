@@ -2,6 +2,16 @@
 
 ## 0.2.1 (unreleased)
 
+- **Sexual orientation.** Every NPC is straight, bi or gay. Seven in ten are straight, two in
+  ten bi and one in ten gay, and the same person is always the same, on every machine and
+  every save. Rapport never pairs two people who would not want each other. There's no
+  bond that bends this. The companions you can romance are open to you whatever your sex,
+  just as in the base game, and have an orientation of their own toward everyone else. A
+  character's orientation can be set by hand in `personas.json`
+  (`"orientation": "straight" | "bi" | "gay"`, `"playersexual": true`). Scenes started from
+  the AAF menu are never refused over it. Addons read it through `OrientationOf` and
+  `Attracted`.
+
 - **Names for the nameless.** The first time a mod built on Rapport introduces someone who
   has no name of their own (a Settler, a Drifter, a Diamond City Resident), they get a first
   name and a surname. The same person always gets the same name, and it survives saves. People

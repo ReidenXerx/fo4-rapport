@@ -1,5 +1,7 @@
 #include "Pairing.h"
 
+#include "Orientation.h"
+
 namespace
 {
 	[[nodiscard]] float Distance(const RE::NiPoint3& a_lhs, const RE::NiPoint3& a_rhs) noexcept
@@ -96,7 +98,8 @@ namespace RP
 		const std::vector<RE::Actor*>&   a_candidates,
 		const std::vector<RE::NiPoint3>& a_observerPositions,
 		const PairWeights&               a_weights,
-		std::size_t                      a_keep)
+		std::size_t                      a_keep,
+		bool                             a_attraction)
 	{
 		std::vector<ScoredPair> ranked;
 		if (a_candidates.size() < 2) {
@@ -125,6 +128,10 @@ namespace RP
 
 				// Two people who would shoot each other are not a pair, at any score.
 				if (first->GetHostileToActor(second) || second->GetHostileToActor(first)) {
+					continue;
+				}
+				// Nor two people who would not want each other (R-27, owner: a hard line).
+				if (a_attraction && !Orientation::GetSingleton().Mutual(first, second)) {
 					continue;
 				}
 
