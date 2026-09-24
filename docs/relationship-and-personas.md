@@ -915,3 +915,117 @@ she changes body mid-story and the reference is what stays.
 
 **Why the pins matter.** They choose Chemistry's weights (R-15) and every Overture line these companions
 say, including the vulgar persona's, which O-40 made explicit.
+
+## R-22 - Every AAF scene gets Rapport's treatment, not just Rapport's own (owner, 2026-09-24)
+
+**The gap.** The owner started scenes from AAF's own menu and saw stony faces. Every scene feature ran
+for Rapport's own request and nothing else:
+- `PapyrusLink::OnSceneStarted` and `OnSceneEnded` return early for any scene that is not the one in
+  flight.
+- Meanwhile the takeover (A-11) stops CumOverlays' and Commonwealth Moisturizer's AAF listeners for EVERY
+  scene.
+
+So an AAF-menu scene, or any other mod's, got no face, no Rapport voice and NO CUM AT ALL while Rapport was
+installed.
+
+**The owner's answers:**
+- Asked through the anatomy session: "Yes, all AAF scenes" for faces.
+- On the cum: "its ok we disabling default cum moiz listener bc we need have our ruling all the time just
+  also do it on ALL aaf scenes". The takeover stays, and Rapport's aftermath covers every scene.
+- Poll, 2026-09-24:
+
+| question | answer |
+| --- | --- |
+| do other AAF scenes count in the relationship records (bond, "a scene together" for lovers, jealousy, a companion's wanting, the Narrator's milestones)? | **only the player's own, started from the AAF menu** (recommended). Other mods' scenes -- autonomy, harassment, anything non-consensual -- change no relationship |
+| do Rapport's voices play on other AAF scenes? | **both** (recommended): the pair's barks and the bystanders' reactions |
+
+**What identifies a scene, per AAF's own API documentation** (the moddingham wiki; read, never copied
+into this repo):
+- Every event carries the scene's actors at `[1]` (an `Actor[]` packed in a Var) and its LOCATION form id:
+  `[3]` on OnSceneInit, `[5]` on the animation, stage and end events. The location is the ground actor or
+  the furniture the scene is placed on.
+- The bridge's "scene id" has always been that location id. It is unique per concurrent scene, so it
+  stays the key.
+- `meta` is whatever string the starting mod set. Rapport sets `Rapport,autonomy`, which makes "ours" a
+  test of what the scene says, and not only of who is in it.
+- `isNPCControlled` is false when the player drives the scene.
+- A menu scene is read as: the player is in it, no mod's meta, and not NPC-controlled. **ASSUMED until
+  measured**: the bridge logs every event's arguments, so the first AAF-menu scene settles it.
+
+**Build order:**
+1. Faces and aftermath.
+2. The voices.
+3. The records, after the menu scene has been measured.
+
+**Forced scenes get the same treatment (owner poll, 2026-09-24).** Other mods' scenes can be non-consensual
+(harassment, Violate-style), and DESIGN.md lists non-consensual content as a non-goal of Rapport's own
+autonomy. Asked whether those scenes should get Rapport's pleasure faces, no face, or a separate distressed
+face, the owner answered: **"We apply pleasure also for them turning it into bdsm and not rape so we even
+fix it!"**
+- Every AAF scene, forced ones included, gets the same pleasure-to-climax faces.
+- The voices of stage 2 follow the same rule.
+- The reading is the owner's: Rapport's pleasure reframes such a scene as consensual BDSM play.
+- DESIGN.md's non-goal still stands for what Rapport STARTS. Its scenarios keep excluding Rough, Aggressive
+  and Dom9, and only what other mods start is re-faced.
+
+**Stage A as built (src/ForeignScenes.*, three microscope waves).** These are engineering readings, not owner
+decisions. The numbers marked ASSUMED are for tuning.
+- **Which scenes.** The bridge forwards any scene no request of ours claimed, except the dev verb's
+  `Rapport,control`. It is "ours" (left alone) only when it carries `Rapport,autonomy` AND holds the pair in
+  flight. A scene of ours whose request was already given up is treated like anybody's.
+- **Who.**
+  - Children are ignored completely (DESIGN hard rule; the owner restated it on 2026-09-24: "no any
+    interactions with them", and "they will not pay attention to sex like adults do when being observers").
+    - A child BYSTANDER changes nothing. ActorScan drops children before it counts observers, so they never
+      make a place less private. Watchers never pick one, and a child's voice is always silent.
+    - A child among a scene's own ACTORS, in AAF's actor list, means Rapport does not touch that scene at
+      all. It gives no face or cum to anyone, and anything it put on the adults before the child was read
+      comes off.
+  - A race Rapport does not dress (races.json): no face and no cum, but it stays in the scene. Who an act
+    landed on is decided with everybody there. A man with a female creature is a pair, so the cum is hers,
+    and she gets none.
+  - One actor is in one AAF scene at a time. A member who turns up in another scene, or in Rapport's own,
+    finishes every other record holding them.
+- **The face.**
+  - Nothing before the first animation. AAF's walk happens BEFORE its OnSceneInit (OnWalkInit comes about
+    10 s earlier), and the first animation follows the init within 0.10-0.33 s (measured,
+    docs/runs/2026-09-18-first-complete-chain.log). A face at the init would be overwritten before it showed.
+  - From the first animation, the act's family at a level from expressions.json's schedule, measured by:
+    - tree steps for a tree;
+    - AAF's own duration for a timed scene;
+    - 150 s for a loop (ASSUMED).
+  - The climax comes from a climax tag only, and after it the level never falls.
+  - After the end, the afterglow, cleared after the same seconds as Rapport's own.
+  - Skin heat is per actor and only climbs.
+- **The cum.** It is decided once, from the last act, when the scene ends, and only if the scene ever
+  animated: a walk given up on leaves nothing.
+- **Ends that go missing.**
+  - A timed, NPC-controlled scene with no tree that is well past its length (3x, or +300 s) is taken for
+    over. Its cum is decided then, and the rest of it is left alone. A player-controlled scene never is: the
+    player can hold their own scene open.
+  - A scene not animating 180 s after its start is taken for never begun (ASSUMED, and very long, given
+    the 0.1-0.3 s above).
+  - A finished scene is remembered for 120 s with who was in it, including Rapport's own. That memory survives
+    a new scene taking the place: back-to-back scenes on the same victim share a ground location, and the old
+    one's late or duplicate end can come after the new one began.
+  - An end or animation is told apart from the new scene's by WHO it names. The actors are read from AAF's
+    own array, whereas what an end's position means has never been measured for a tree, or after the player
+    changes position. An end naming someone the running scene lacks, and only people a finished scene had,
+    is that finished scene's. With the same cast it is always the running scene's: swallowing a running
+    scene's real end would leave its face on and lose its cum, which is worse than a rare second layer.
+  - Someone moving straight into the next scene keeps their face and their sweat until that scene dresses
+    them ("a body can walk out of one scene still sweating into the next"). A next scene that names no act
+    takes their face off.
+- **Known residual:** the bridge claims an animation event for Rapport's own scene by location alone. The
+  late animation of an earlier scene whose ground location was one of our actors would be taken for ours
+  and feed one stale set of tags. It would have to arrive after our 10 s walk, and the next animation
+  overwrites it, so it is left alone. An actor check would not catch it anyway: both scenes share the actor
+  whose id is the location.
+- **Not handled:** AAF joins and exits, where an actor joins a running scene or leaves it (events carry
+  exitingActors at `[6]` and joinedActor at `[8]`). Members only grow, and nobody has measured whether a join's
+  OnSceneInit arrives at the parent scene's location. If it does, it would look like a new scene. Mods rarely
+  use joins; Violate-style chains start separate scenes.
+- **Open, for the owner:**
+  - A same-sex pair still gets the cum on both (A-21's "both"). With a creature it reduces to the human.
+  - The slot order that would settle both is readable now, but unmeasured for a same-sex pair.
+  - Whether Rapport's MFG block fights other mods' AAF_BlockMFG keywords is unmeasured.

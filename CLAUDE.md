@@ -123,9 +123,12 @@ Any work touching TTS, voice types, `.fuz` files or the bark bank follows the
 numbered `V-#` rules there. They are measured, not preferences, and two of them
 exist because the obvious choice is wrong:
 
-- **`V-1` — never `eleven_v3`.** It paraphrases: 0/3 verbatim against v2's 3/3.
-  These lines ship with subtitles, so a model that rewrites them desyncs the
-  screen from the audio.
+- **`V-1` — neither model is verbatim-safe: gate EVERY render.** Measured per line on
+  the bank, `eleven_v3` got 28/36 and `eleven_multilingual_v2` 16/36, and they fail on
+  different lines. So `render-barks.py` transcribes every take back and refuses one
+  whose words drifted. These lines ship with subtitles, and a take that rewrites them
+  desyncs the screen from the audio. (This summary once said "never `eleven_v3`",
+  from three samples; the guidelines corrected that on 2026-09-21.)
 - **`V-9` — an agent may not pick a voice.** Designing, organising and rendering
   are yours; deciding which preview *sounds* right is the owner's, by ear.
   `render-barks.py` skips `"chosen": null` rather than guessing.

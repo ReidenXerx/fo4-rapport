@@ -160,7 +160,39 @@ namespace RP
 		// Form ids currently wearing a Rapport expression. Small, and only
 		// non-empty during and just after a scene -- which is exactly when a save
 		// is most likely to strand one.
-		void CollectClear(std::vector<Order>& a_out, std::string_view a_why);
+		//
+		// a_spareForeign: leave alone anybody a scene Rapport did not start is still
+		// playing on (R-22). Only our own afterglow passes it -- that clear sweeps
+		// the whole list on purpose, and must not take a face off somebody else's
+		// scene mid-act. A load and the panic switch clear everybody.
+		void CollectClear(std::vector<Order>& a_out, std::string_view a_why, bool a_spareForeign = false);
+
+		// ---- scenes Rapport did not start (R-22) ------------------------------
+		// ForeignScenes drives those faces. This layer keeps their actors on the
+		// wearing list -- so a save taken mid-scene clears them on the load, exactly
+		// as for our own -- and spares them in our own afterglow's clear.
+		void HoldForeign(std::uint32_t a_formID);
+
+		// Clears these actors' faces and whatever heat they WEAR, takes them off the
+		// list, and appends the orders to a_out for the caller to send. Whether or not
+		// they are still on the list: a load or the panic switch may have swept it while
+		// their scene still had a face on them, and a missed clear is a face locked for
+		// good where a redundant one costs two calls. An actor our own scene has taken
+		// since is left to it.
+		void ReleaseForeign(const std::vector<std::uint32_t>& a_formIDs, std::vector<Order>& a_out,
+			std::string_view a_why);
+
+		// Each actor's heat climbs to the level given if it is higher than what that
+		// actor wears -- per ACTOR, because the overlay is on a body, not a scene, and a
+		// body can walk out of one scene still sweating into the next (R-22).
+		void RaiseHeat(const std::vector<std::pair<std::uint32_t, int>>& a_targets, std::vector<Order>& a_out);
+
+		// expressions.json's steps read as levels: (fraction, 0 anticipation .. 3). A
+		// timed climax step reads as 3 -- only a climax TAG gives the climax face.
+		[[nodiscard]] std::vector<std::pair<float, int>> IntensitySchedule() const;
+
+		[[nodiscard]] std::string AfterSet() const;
+		[[nodiscard]] float       DazedSeconds() const;
 		static void Send(const std::vector<Order>& a_orders);
 
 		[[nodiscard]] std::vector<std::uint32_t> Wearing() const;
@@ -186,6 +218,17 @@ namespace RP
 		// call another subsystem while holding this one's lock. The poll died
 		// inside exactly that call.
 		void Collect(std::string_view a_setID, std::vector<Order>& a_out);
+
+		// Under _lock: a_formID's heat climbs to a_level if that is higher than what it
+		// wears; the set it wears comes off first, because AAF stacks overlays.
+		void ClimbHeat(std::uint32_t a_formID, int a_level, std::vector<Order>& a_out);
+
+		// Under _lock: the heat a_formID wears comes off. With no record -- after a load
+		// -- every level is swept, because an overlay nothing removes is on for good.
+		void TakeOffHeat(std::uint32_t a_formID, std::vector<Order>& a_out);
+
+		// "Rapport_Heat_2" -> 2; anything else 0.
+		[[nodiscard]] static int LevelOfHeat(std::string_view a_heatSet);
 
 		mutable std::timed_mutex _lock;
 
@@ -228,5 +271,16 @@ namespace RP
 		int _heatLevel{ 0 };
 
 		std::vector<std::uint32_t> _wearing;
+
+		// The subset of _wearing a foreign scene holds right now (R-22).
+		std::vector<std::uint32_t> _foreignHeld;
+
+		// The heat overlay each actor wears now, whoever put it on. Not saved.
+		std::unordered_map<std::uint32_t, std::string> _heatOn;
+
+		// Actors whose heat nobody tracked this session: the wearing list a save brought
+		// back. Only THEY are swept at every level; anybody else with no _heatOn entry is
+		// known to wear none, and sweeping them cost three calls for nothing.
+		std::unordered_set<std::uint32_t> _heatUnknown;
 	};
 }

@@ -46,6 +46,8 @@ set(SOURCES
 	"src/Morphs.cpp"
 	"src/Expressions.h"
 	"src/Expressions.cpp"
+	"src/ForeignScenes.h"
+	"src/ForeignScenes.cpp"
 	"src/Ledger.h"
 	"src/Ledger.cpp"
 	"src/AAFHealth.h"

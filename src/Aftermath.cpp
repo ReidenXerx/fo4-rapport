@@ -34,6 +34,27 @@ namespace
 		}
 		return tags;
 	}
+
+	// What part an act's tags say it landed on: one only a woman has, or one anybody
+	// has. ONE list, read by the pair rule and the group rule alike, so the two can
+	// never disagree about what counts as landing somewhere.
+	struct Parts
+	{
+		bool female{ false };
+		bool either{ false };
+	};
+
+	[[nodiscard]] Parts PartsOf(std::string_view a_tags)
+	{
+		const auto lowered = Lower(a_tags);
+		const auto has = [&](std::string_view a_part) {
+			return lowered.find(a_part) != std::string::npos;
+		};
+		return Parts{
+			has("tovagina"sv) || has("tonipples"sv) || has("cunnilingus"sv) || has("vaginato"sv),
+			has("tomouth"sv) || has("toanus"sv) || has("blowjob"sv) || has("analingus"sv) || has("anusto"sv)
+		};
+	}
 }
 
 namespace RP
@@ -282,15 +303,9 @@ namespace RP
 	std::vector<std::uint32_t> Aftermath::ReceiversOf(
 		std::string_view a_tags, std::uint32_t a_first, std::uint32_t a_second) const
 	{
-		const auto lowered = Lower(a_tags);
-		const auto has = [&](std::string_view a_part) {
-			return lowered.find(a_part) != std::string::npos;
-		};
-
-		const auto onAFemalePart = has("tovagina"sv) || has("tonipples"sv) ||
-		                           has("cunnilingus"sv) || has("vaginato"sv);
-		const auto onEitherPart = has("tomouth"sv) || has("toanus"sv) ||
-		                          has("blowjob"sv) || has("analingus"sv) || has("anusto"sv);
+		const auto parts = PartsOf(a_tags);
+		const auto onAFemalePart = parts.female;
+		const auto onEitherPart = parts.either;
 		if (!onAFemalePart && !onEitherPart) {
 			return {};
 		}
@@ -475,6 +490,143 @@ namespace RP
 					mark.asked = true;
 				}
 			}
+		}
+	}
+
+	bool Aftermath::NamesAnAftermath(std::string_view a_tags) const
+	{
+		NamedLock lock{ _lock, "aftermath" };
+		return !SetsFor(a_tags).empty();
+	}
+
+	std::vector<std::uint32_t> Aftermath::GroupReceiversOf(
+		std::string_view a_tags, const std::vector<std::uint32_t>& a_actors) const
+	{
+		const auto parts = PartsOf(a_tags);
+		if (!parts.female && !parts.either) {
+			return {};
+		}
+
+		std::vector<std::uint32_t> everybody;
+		std::vector<std::uint32_t> women;
+		for (const auto formID : a_actors) {
+			if (formID == 0) {
+				continue;
+			}
+			everybody.push_back(formID);
+			const auto found = _sex.find(formID);
+			if (found != _sex.end() && found->second == 1) {
+				women.push_back(formID);
+			}
+		}
+		if (everybody.size() == 1) {
+			// Alone: whatever the tags leave lands on them -- unless the part is one only
+			// a woman has and they are known not to be one, the pair rule's own guard.
+			if (parts.female && !parts.either && women.empty()) {
+				const auto found = _sex.find(everybody.front());
+				if (found != _sex.end() && found->second == 0) {
+					return {};
+				}
+			}
+			return everybody;
+		}
+		if (!women.empty()) {
+			return women;
+		}
+		// A part only a woman has, and no woman here: the tag names nobody present.
+		if (parts.female && !parts.either) {
+			return {};
+		}
+		return everybody;
+	}
+
+	void Aftermath::OnForeignSceneEnded(const std::vector<std::uint32_t>& a_actors,
+		const std::vector<std::int32_t>& a_sexes, const std::vector<bool>& a_dressable, std::string_view a_allTags,
+		std::string_view a_lastActTags, std::string_view a_where)
+	{
+		std::vector<Order> outgoing;
+		{
+			NamedLock lock{ _lock, "aftermath" };
+			if (!_enabled) {
+				return;
+			}
+			if (a_allTags.empty()) {
+				logger::info("aftermath: {} ended without an animation tag reaching us - nothing applied", a_where);
+				return;
+			}
+
+			// Known for certain here: the plugin opened AAF's own actor array.
+			for (std::size_t i = 0; i < a_actors.size() && i < a_sexes.size(); ++i) {
+				if (a_actors[i] != 0 && a_sexes[i] >= 0) {
+					_sex[a_actors[i]] = a_sexes[i];
+				}
+			}
+
+			// WHO, before what -- the pair rule for a pair, exactly as for our own
+			// scenes, and the group rule for anything else.
+			auto receivers = a_actors.size() == 2 ? ReceiversOf(a_lastActTags, a_actors[0], a_actors[1])
+			                                      : GroupReceiversOf(a_lastActTags, a_actors);
+			if (receivers.empty()) {
+				logger::info("aftermath: {} - the tags name no act that leaves anything on anybody (tags: {})",
+					a_where, a_allTags);
+				return;
+			}
+			// Decided with everybody there; given only to those Rapport dresses (races.json).
+			std::erase_if(receivers, [&](std::uint32_t a_formID) {
+				for (std::size_t i = 0; i < a_actors.size() && i < a_dressable.size(); ++i) {
+					if (a_actors[i] == a_formID) {
+						return !a_dressable[i];
+					}
+				}
+				return false;
+			});
+			if (receivers.empty()) {
+				logger::info("aftermath: {} - the act landed on somebody of a race Rapport does not dress (tags: {})",
+					a_where, a_lastActTags);
+				return;
+			}
+
+			// The LAST act, not every act, as for our own scenes.
+			const auto sets = SetsFor(a_lastActTags);
+			if (sets.empty()) {
+				logger::info("aftermath: {} - nothing to leave behind (tags: {})", a_where, a_allTags);
+				return;
+			}
+			const auto now = Ledger::GameHours();
+			if (now < 0.0f) {
+				logger::warn("aftermath: {} - no game clock yet, nothing applied", a_where);
+				return;
+			}
+			const auto expires = now + _hours;
+			const auto regions = RegionsFor(sets);
+			if (regions.empty()) {
+				logger::info("aftermath: {} - the sets name no place Moisturizer knows (tags: {})", a_where, a_allTags);
+				return;
+			}
+
+			std::string who;
+			for (const auto formID : receivers) {
+				Apply(formID, "CMkz:" + regions, expires);
+				who += who.empty() ? std::format("{:08X}", formID) : std::format(" and {:08X}", formID);
+			}
+			logger::info("aftermath: {} - {} keep(s) Moisturizer [{}] until hour {:.1f} (now {:.1f})", a_where, who,
+				regions, expires, now);
+
+			// Asked now, as for our own scenes; Tick re-offers anything the bridge had
+			// to defer because its actor was not loaded any more.
+			for (const auto formID : receivers) {
+				for (auto& mark : _marks) {
+					if (mark.formID == formID && !mark.asked) {
+						outgoing.push_back(Order{ Order::Kind::kApplyMoisturizer, mark.formID, mark.setID });
+						mark.asked = true;
+					}
+				}
+			}
+		}
+
+		// Outside our lock: PapyrusLink takes its own.
+		for (const auto& order : outgoing) {
+			PapyrusLink::GetSingleton().QueueOrder(order);
 		}
 	}
 

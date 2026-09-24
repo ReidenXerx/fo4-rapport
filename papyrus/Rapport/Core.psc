@@ -56,6 +56,31 @@ Function NoteActorBusy(Int aiFormID) Global Native
 Function NoteSceneLive(Int aiSceneID) Global Native
 Function NoteSceneEnded(Int aiSceneID) Global Native
 
+; R-22 (owner, 2026-09-24): every AAF scene gets Rapport's faces and aftermath, not
+; only the ones it started -- the AAF menu's, other mods'. The bridge forwards the
+; three events of any scene no request of ours claimed, the dev verb's controlled
+; start excepted. aiLocation is AAF's location
+; form id, the one key every event of a scene carries. akActors is AAF's Actor[]
+; exactly as it arrived, packed in a Var: Papyrus cannot cast a Var to an array, so
+; the plugin opens it, in AAF's own slot order.
+; afDuration is AAF's own [6]: a timed scene with no tree ENDS on it, so it is the
+; scene's real length; -1 means none (a loop).
+Function ForeignSceneStarted(Int aiLocation, Var akActors, String asPosition, String asTags, String asMeta, Bool abNPCControlled, Float afDuration) Global Native
+Function ForeignSceneAnimation(Int aiLocation, Var akActors, String asPosition, String asTags) Global Native
+Function ForeignSceneEnded(Int aiLocation, Var akActors, String asPosition, String asTags) Global Native
+
+; The end of one of OUR scenes, which the bridge claimed. The plugin remembers it
+; like any end -- where, and who was in it -- so a duplicate, arriving unclaimed
+; with the request already released, cannot leave the cum a second time.
+Function OwnSceneEnded(Int aiLocation, Var akActors) Global Native
+
+; Does AAF's actor Var name actors, none of them this one? The bridge asks before it
+; takes an event for a request whose scene has not started yet: one whose actors
+; leave OUR actor out is not ours. Asked this way round so that every failure --
+; an unreadable Var, or this native not bound (an older plugin) -- answers False,
+; and the meta alone decides.
+Bool Function ActorsExclude(Var akActors, Int aiFormID) Global Native
+
 ; Starts the clock on how long we have been listening. Nothing is called stale
 ; until a scene that began before we connected could no longer be running.
 Function NoteBridgeConnected() Global Native

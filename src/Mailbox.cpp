@@ -874,7 +874,7 @@ namespace RP
 		}
 
 		return std::format(
-			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, gametime, passtime, freeze, thaw, state, god, reload, travel, quit, request, pause, resume, say, console",
+			"ERR unknown verb \"{}\" - try: ping, health, nearby, stranded, heal, who, bring, goto, look, watch, gametime, passtime, freeze, thaw, state, god, reload, travel, quit, request, pause, resume, say, console, rank, bond, query, actordata, startpos, changepos",
 			verb);
 	}
 

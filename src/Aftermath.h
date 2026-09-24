@@ -96,6 +96,21 @@ namespace RP
 		// orders. Clears the accumulated tags either way.
 		void OnSceneEnded(std::uint32_t a_first, std::uint32_t a_second);
 
+		// Does this animation's tag list name an act that leaves something behind?
+		[[nodiscard]] bool NamesAnAftermath(std::string_view a_tags) const;
+
+		// A scene Rapport did not start ended (R-22): the AAF menu's, another mod's.
+		// Its tags travel here whole, because the accumulator above belongs to our
+		// own scene and the two can run at once. a_actors are in the order AAF's actor
+		// array lists them (documented as the slot order on OnAnimationStart only; not
+		// yet measured on the other events), with their sexes beside them -- the plugin
+		// opened the array itself, so the sexes are certain here. a_dressable, beside
+		// them too: false for a race Rapport does not dress. Who the act landed on is
+		// decided with everybody; only the dressable are given anything.
+		void OnForeignSceneEnded(const std::vector<std::uint32_t>& a_actors, const std::vector<std::int32_t>& a_sexes,
+			const std::vector<bool>& a_dressable, std::string_view a_allTags, std::string_view a_lastActTags,
+			std::string_view a_where);
+
 		// Queues a removal for everything whose hour has passed, and a (re-)apply
 		// for anything standing on an actor who is here and has not been asked for
 		// yet this session. Called on the tick, with the ids the scan just saw.
@@ -174,6 +189,13 @@ namespace RP
 		// act at all, which is a kiss and really should leave nothing.
 		[[nodiscard]] std::vector<std::uint32_t> ReceiversOf(
 			std::string_view a_tags, std::uint32_t a_first, std::uint32_t a_second) const;
+
+		// The same question for one actor or three and more (R-22, a reading for the
+		// owner to overrule): alone, anything the tags leave lands on them; in a
+		// group, the tags' receiving part decides -- the women if the act names a
+		// part, and everybody when it names one anybody has and no woman is there.
+		[[nodiscard]] std::vector<std::uint32_t> GroupReceiversOf(
+			std::string_view a_tags, const std::vector<std::uint32_t>& a_actors) const;
 
 		// Everything heard this scene, for the log: it is what separates "no
 		// animation ever told us anything" from "nothing it told us was an act".

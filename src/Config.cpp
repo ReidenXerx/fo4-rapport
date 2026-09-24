@@ -107,6 +107,8 @@ namespace RP
 					staleFlagGraceSeconds = Clamp(std::stof(value), 0.0f, 3600.0f);
 				} else if (key == "BlockAnimationFaces") {
 					blockAnimationFaces = value != "0";
+				} else if (key == "ForeignFaces") {
+					foreignFaces = value != "0";
 				} else if (key == "AAFReviveGraceSeconds") {
 					aafReviveGraceSeconds = Clamp(std::stof(value), 0.0f, 600.0f);
 				} else if (key == "AAFReviveRetrySeconds") {

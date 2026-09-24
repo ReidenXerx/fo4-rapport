@@ -149,6 +149,16 @@ namespace RP
 		_nextStep = 0;
 		_tags.clear();
 		_sawSexTag = false;
+		// This scene's own high-water mark. One started in the last one's afterglow
+		// was measured against the old level, and a scenario's heat (CollectHeat
+		// gates on it) never rose above it -- no sweat at all.
+		_heatApplied.clear();
+		_heatLevel = 0;
+		// One actor, one AAF scene: whatever scene of somebody else's held these two
+		// is over (ForeignScenes::OwnSceneStarted), and their faces are ours now.
+		// Left listed, our own afterglow would spare them for good.
+		std::erase(_foreignHeld, a_first);
+		std::erase(_foreignHeld, a_second);
 
 		logger::info("expressions: driving {:08X} and {:08X} over {:.0f}s", a_first, a_second, _duration);
 	}
@@ -566,12 +576,9 @@ namespace RP
 			if (formID == 0) {
 				continue;
 			}
-			if (!_heatApplied.empty()) {
-				a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, _heatApplied });
-			}
-			if (!heat.empty()) {
-				a_out.push_back(Order{ Order::Kind::kApplyOverlay, formID, heat });
-			}
+			// Per actor: what comes off is what THIS body wears, which may be a level
+			// another scene left on it (R-22), not the level this scene last set.
+			ClimbHeat(formID, level, a_out);
 			// Registered here as well as in Collect. Without this a scenario that
 			// ended badly -- before OnSceneEnded ran its Dazed pass, which is the
 			// only other thing that adds them -- leaves two actors wearing an
@@ -601,18 +608,11 @@ namespace RP
 			a_out.push_back(
 				Order{ Order::Kind::kApplyExpression, formID, VariantFor(a_setID, formID) });
 
-			if (shift) {
-				// Off before on. AAF has no notion of replacing an overlay set --
-				// applying a second one leaves both, and the sets differ only in
-				// how heavy they are, so the result is the sum of every level the
-				// scene passed through rather than the one it is at.
-				if (!_heatApplied.empty()) {
-					a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, _heatApplied });
-				}
-				if (!heat.empty()) {
-					a_out.push_back(Order{ Order::Kind::kApplyOverlay, formID, heat });
-				}
-			}
+			// Per actor (R-22): an actor can arrive wearing a level another scene left,
+			// and what comes off must be what is ON them. Off before on inside, because
+			// AAF has no notion of replacing an overlay set -- applying a second one
+			// leaves both.
+			ClimbHeat(formID, level, a_out);
 
 			if (std::ranges::find(_wearing, formID) == _wearing.end()) {
 				_wearing.push_back(formID);
@@ -648,7 +648,9 @@ namespace RP
 			// over. This is the whole reason the wearing list is in the save.
 			if (_clearPending) {
 				_clearPending = false;
-				CollectClear(outgoing, "a save was made while a scene was running");
+				// Sparing the scenes of somebody else's that started SINCE the load: a
+				// load forgets every hold, so any listed now is this session's own face.
+				CollectClear(outgoing, "a save was made while a scene was running", true);
 			}
 
 			if (_running && !_stoodDown) {
@@ -683,8 +685,10 @@ namespace RP
 					_dazing = false;
 					// Clear EVERYONE on the list, not just this scene's two. If an
 					// earlier scene ended badly its actors are still on it, and
-					// this is the only thing that ever takes a face off.
-					CollectClear(outgoing, "the afterglow is over");
+					// this is the only thing that ever takes a face off. Everyone
+					// but those a scene of somebody else's is still playing on
+					// (R-22): their scene takes its own faces off when it ends.
+					CollectClear(outgoing, "the afterglow is over", true);
 				}
 			}
 		}
@@ -700,40 +704,177 @@ namespace RP
 		}
 	}
 
-	void Expressions::CollectClear(std::vector<Order>& a_out, std::string_view a_why)
+	void Expressions::CollectClear(std::vector<Order>& a_out, std::string_view a_why, bool a_spareForeign)
 	{
 		if (_wearing.empty()) {
 			return;
 		}
+		std::vector<std::uint32_t> spared;
 		for (const auto formID : _wearing) {
-			a_out.push_back(Order{ Order::Kind::kClearExpression, formID, _clearSet });
-			// The one that is ON when we know which, and only sweep all levels
-			// when we do not.
-			//
-			// "Removing a set that was never applied costs an order and does
-			// nothing" was wrong about the cost. Every AAF call costs a POLL --
-			// the bridge drains one order per tick, because a Papyrus stack does
-			// not return from an AAF call -- so sweeping three levels for two
-			// actors is six polls of exposure instead of two. The player fast
-			// travelled inside that window, the actors unloaded mid-drain, and
-			// the bridge stopped polling entirely. Three times the calls is three
-			// times the chance of being caught mid-flight.
-			//
-			// The sweep still earns its place in the case it was written for:
-			// after a LOAD, _heatApplied is empty while an overlay may still be
-			// on the actor, and an overlay nothing removes is on them for good.
-			if (!_heatApplied.empty()) {
-				a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, _heatApplied });
-			} else {
-				for (int level = 1; level <= kHeatLevels; ++level) {
-					a_out.push_back(Order{ Order::Kind::kRemoveOverlay, formID, HeatSetFor(level) });
-				}
+			if (a_spareForeign && std::ranges::find(_foreignHeld, formID) != _foreignHeld.end()) {
+				spared.push_back(formID);
+				continue;
 			}
+			a_out.push_back(Order{ Order::Kind::kClearExpression, formID, _clearSet });
+			TakeOffHeat(formID, a_out);
 		}
 		_heatApplied.clear();
 		_heatLevel = 0;
-		logger::info("expressions: clearing {} face(s) - {}", _wearing.size(), a_why);
-		_wearing.clear();
+		logger::info("expressions: clearing {} face(s) - {}{}", _wearing.size() - spared.size(), a_why,
+			spared.empty() ? std::string{}
+						   : std::format("; {} spared, still in a scene Rapport did not start", spared.size()));
+		_wearing = std::move(spared);
+		if (!a_spareForeign) {
+			_foreignHeld.clear();
+		}
+	}
+
+	void Expressions::HoldForeign(std::uint32_t a_formID)
+	{
+		if (a_formID == 0) {
+			return;
+		}
+		NamedLock lock{ _lock, "expressions" };
+		if (std::ranges::find(_foreignHeld, a_formID) == _foreignHeld.end()) {
+			_foreignHeld.push_back(a_formID);
+		}
+		if (std::ranges::find(_wearing, a_formID) == _wearing.end()) {
+			_wearing.push_back(a_formID);
+		}
+	}
+
+	void Expressions::ReleaseForeign(const std::vector<std::uint32_t>& a_formIDs, std::vector<Order>& a_out,
+		std::string_view a_why)
+	{
+		NamedLock lock{ _lock, "expressions" };
+		std::size_t cleared = 0;
+		for (const auto formID : a_formIDs) {
+			std::erase(_foreignHeld, formID);
+
+			// Freed by that scene and taken by one of ours since: the face is ours now,
+			// and ours -- with the heat -- comes off with our own afterglow.
+			if ((_running || _dazing) && (formID == _first || formID == _second)) {
+				continue;
+			}
+			// Cleared whether or not the list still names them: a load or the panic
+			// switch may have swept the list while their scene had a face on them.
+			std::erase(_wearing, formID);
+			a_out.push_back(Order{ Order::Kind::kClearExpression, formID, _clearSet });
+			TakeOffHeat(formID, a_out);
+			++cleared;
+		}
+		if (cleared > 0) {
+			logger::info("expressions: clearing {} face(s) - {}", cleared, a_why);
+		}
+	}
+
+	void Expressions::RaiseHeat(const std::vector<std::pair<std::uint32_t, int>>& a_targets, std::vector<Order>& a_out)
+	{
+		if (a_targets.empty()) {
+			return;
+		}
+		NamedLock lock{ _lock, "expressions" };
+		for (const auto& [formID, level] : a_targets) {
+			if (formID == 0) {
+				continue;
+			}
+			ClimbHeat(formID, level, a_out);
+			// On the list for as long as they wear it, so a save taken now clears it on
+			// the load -- the same reason every face is.
+			if (std::ranges::find(_wearing, formID) == _wearing.end()) {
+				_wearing.push_back(formID);
+			}
+		}
+	}
+
+	std::vector<std::pair<float, int>> Expressions::IntensitySchedule() const
+	{
+		NamedLock lock{ _lock, "expressions" };
+		std::vector<std::pair<float, int>> out;
+		for (const auto& step : _steps) {
+			int level = 1;
+			if (step.set == "Rapport_Anticipation"sv) {
+				level = 0;
+			} else if (step.set == "Rapport_Pleasure_1"sv) {
+				level = 1;
+			} else if (step.set == "Rapport_Pleasure_2"sv) {
+				level = 2;
+			} else if (step.set == "Rapport_Pleasure_3"sv || step.set == "Rapport_Climax"sv) {
+				// A climax on a timer arrived a minute early once (section 17): only
+				// a climax TAG gives the climax face, so its step is simply the top.
+				level = 3;
+			}
+			out.emplace_back(step.at, level);
+		}
+		return out;
+	}
+
+	int Expressions::LevelOfHeat(std::string_view a_heatSet)
+	{
+		for (int level = kHeatLevels; level >= 1; --level) {
+			if (a_heatSet == HeatSetFor(level)) {
+				return level;
+			}
+		}
+		return 0;
+	}
+
+	void Expressions::ClimbHeat(std::uint32_t a_formID, int a_level, std::vector<Order>& a_out)
+	{
+		if (a_formID == 0 || a_level <= 0) {
+			return;   // -1 leaves the skin alone, and 0 puts nothing on
+		}
+		const auto on = _heatOn.find(a_formID);
+		const int  wearing = on != _heatOn.end() ? LevelOfHeat(on->second) : 0;
+		if (a_level <= wearing) {
+			return;   // heat climbs and never falls (docs/aaf-under-the-hood.md, section 21)
+		}
+		if (on != _heatOn.end()) {
+			a_out.push_back(Order{ Order::Kind::kRemoveOverlay, a_formID, on->second });
+		}
+		auto set = HeatSetFor(a_level);
+		a_out.push_back(Order{ Order::Kind::kApplyOverlay, a_formID, set });
+		_heatOn.insert_or_assign(a_formID, std::move(set));
+	}
+
+	void Expressions::TakeOffHeat(std::uint32_t a_formID, std::vector<Order>& a_out)
+	{
+		// The one that is ON when we know which, and only sweep all levels when we do
+		// not.
+		//
+		// "Removing a set that was never applied costs an order and does nothing" was
+		// wrong about the cost: every AAF call costs a poll's worth of exposure, and a
+		// fast travel landing mid-drain once stopped the bridge (section 24). So the
+		// exact set when this layer knows it -- and the sweep only in the case it was
+		// written for: after a LOAD the record is empty while an overlay may still be
+		// on the actor, and an overlay nothing removes is on them for good.
+		//
+		// The sweep FIRST: a level put on since the load is known, but the save's may
+		// still be under it, and removing only the known one left that for good.
+		if (_heatUnknown.erase(a_formID) > 0) {
+			for (int level = 1; level <= kHeatLevels; ++level) {
+				a_out.push_back(Order{ Order::Kind::kRemoveOverlay, a_formID, HeatSetFor(level) });
+			}
+			_heatOn.erase(a_formID);
+			return;
+		}
+		if (const auto on = _heatOn.find(a_formID); on != _heatOn.end()) {
+			a_out.push_back(Order{ Order::Kind::kRemoveOverlay, a_formID, on->second });
+			_heatOn.erase(on);
+		}
+		// Otherwise tracked this session and wearing none: nothing to take off.
+	}
+
+	std::string Expressions::AfterSet() const
+	{
+		NamedLock lock{ _lock, "expressions" };
+		return _afterSet;
+	}
+
+	float Expressions::DazedSeconds() const
+	{
+		NamedLock lock{ _lock, "expressions" };
+		return _dazedSeconds;
 	}
 
 	void Expressions::StandDown()
@@ -782,6 +923,9 @@ namespace RP
 		NamedLock lock{ _lock, "expressions" };
 		_wearing = std::move(a_wearing);
 		_clearPending = !_wearing.empty();
+		// Nothing this session says what heat these wear: the clear sweeps every level.
+		_heatUnknown.clear();
+		_heatUnknown.insert(_wearing.begin(), _wearing.end());
 		// Deliberately not queued here: the bridge is not listening yet. The first
 		// pump after the handshake does it, and the log says why.
 		if (!_wearing.empty()) {
@@ -804,5 +948,13 @@ namespace RP
 		_tags.clear();
 		_sawSexTag = false;
 		_wearing.clear();
+		_foreignHeld.clear();
+		// The heat bookkeeping too: a load while our scene was running or dazing left
+		// _heatApplied/_heatLevel naming the old world's level, so the next scene's heat
+		// was measured against it and the load's clear removed the wrong set.
+		_heatApplied.clear();
+		_heatLevel = 0;
+		_heatOn.clear();
+		_heatUnknown.clear();
 	}
 }

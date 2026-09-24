@@ -63,6 +63,12 @@ namespace RP
 		// and comes off with it.
 		bool          blockAnimationFaces{ true };
 
+		// R-22: faces and skin heat on AAF scenes Rapport did not start (the AAF menu's,
+		// other mods'). Off leaves those faces to whatever else sets them; the aftermath
+		// stays on regardless, because the takeover (A-11) switched off the listeners that
+		// would otherwise have given those scenes theirs.
+		bool          foreignFaces{ true };
+
 		// How long after a scene an actor is left out of the running, in GAME
 		// hours. This is the stand-in's policy, not the framework's: the ledger
 		// records when a scene happened and takes no view on what is too soon.

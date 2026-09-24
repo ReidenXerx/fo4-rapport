@@ -17,6 +17,13 @@ Scriptname Rapport:Bridge extends Quest
 ; side, where it already lived for the watchdog, and Papyrus only ever asks.
 Int Property kPollTimer = 1 AutoReadOnly
 
+; The meta Rapport hands AAF with every scene it starts, which AAF echoes on every
+; event of that scene -- how a scene of ours is told from anybody else's (R-22). ONE
+; spelling, read by the setter and by every test, so the two cannot drift apart.
+String Property kOurMeta = "Rapport,autonomy" AutoReadOnly
+; The dev verb's controlled start (startpos): a clean control, left untreated.
+String Property kControlMeta = "Rapport,control" AutoReadOnly
+
 Struct Request
   Int id
   Actor first
@@ -466,7 +473,7 @@ Function DoStartScene(Int aiRequest)
 	settings.skipWalk = false
 	settings.isNPCControlled = true
 	settings.preventFurniture = false
-	settings.meta = "Rapport,autonomy"   ; so a scene of ours is identifiable as ours
+	settings.meta = kOurMeta   ; so a scene of ours is identifiable as ours
 
 	; DO NOT set startEquipmentSet or stopEquipmentSet here, and do not call
 	; ApplyEquipmentSet during a scene. Setting a start set REPLACES AAF's own
@@ -589,7 +596,7 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 			; flight until the 780-second watchdog: thirteen minutes of both actors
 			; flagged busy in AAF and every tick answering "a scene is already
 			; running", which looks exactly like a wedge and was taken for one.
-			If akArgs.Length > 3 && (akArgs[3] as String) == "Rapport,autonomy"
+			If akArgs.Length > 3 && (akArgs[3] as String) == kOurMeta
 				If Rapport:Core.RefusedOurScene("AAF refused the scene: " + akArgs[1])
 					Rapport:Core.Trace("bridge: that refusal was ours - the request is failed rather than left to time out")
 					; And out of our own list, now rather than at the next poll.
@@ -599,11 +606,11 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 		EndIf
 		Return
 	EndIf
-	; EVERY scene, not only ours. We track the SCENE, not its actors: args[1] holds
-	; the actors but it is an array of arrays, and Papyrus cannot cast a Var to a
-	; Var[] -- "cannot cast a var to a var[], types are incompatible". The only way
-	; to read it is the implicit string rendering TraceArgs relies on, and scraping
-	; a debug rendering for form ids is not evidence worth building on.
+	; EVERY scene, not only ours. We track the SCENE here, not its actors: args[1] is
+	; AAF's Actor[] packed in a Var, and Papyrus cannot cast a Var to an array ("cannot
+	; cast a var to a var[], types are incompatible"). The PLUGIN can open it -- R-22's
+	; natives take the Var whole (ForeignSceneStarted, ActorsExclude) -- so anything
+	; that needs the actors asks the plugin rather than scraping TraceArgs' rendering.
 	;
 	; The id alone is enough for a CONSERVATIVE rule: a busy flag is only ever
 	; called stale when NO scene is running anywhere. If some other mod has a scene
@@ -628,6 +635,32 @@ Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 		Rapport:Core.SceneStarted(_inFlight[index].id)
 
 	EndIf
+
+	; R-22: any scene no request of ours claimed -- the AAF menu's, another mod's, or
+	; one of our own whose request was already given up -- gets Rapport's faces and
+	; aftermath too; the plugin keeps its own record of it, keyed by the location id
+	; in [3]. Only the dev verb's controlled start is left untreated. Every argument
+	; is type-tested before it is read: a failed cast assigns None (rule 3).
+	If index < 0 && !Self.CarriesMeta(akArgs, kControlMeta) && akArgs[3] is Int
+		String position = ""
+		If akArgs[9] is String
+			position = akArgs[9] as String
+		EndIf
+		String meta = ""
+		If akArgs[5] is String
+			meta = akArgs[5] as String
+		EndIf
+		Bool npcControlled = false
+		If akArgs[7] is Bool
+			npcControlled = akArgs[7] as Bool
+		EndIf
+		; [6] is the scene's length: a timed scene with no tree ends on it (aaf-sot H).
+		Float duration = -1.0
+		If akArgs[6] is Float
+			duration = akArgs[6] as Float
+		EndIf
+		Rapport:Core.ForeignSceneStarted(akArgs[3] as Int, akArgs[1], position, akArgs[10] as String, meta, npcControlled, duration)
+	EndIf
 EndEvent
 
 Event AAF:AAF_API.OnAnimationStart(AAF:AAF_API akSender, Var[] akArgs)
@@ -645,22 +678,22 @@ Event AAF:AAF_API.OnAnimationStart(AAF:AAF_API akSender, Var[] akArgs)
 			Rapport:Core.NoteSceneTags(akArgs[3] as String)
 
 		EndIf
+		Self.ForwardForeignAnimation(akArgs, index)
 	EndIf
 EndEvent
 
 
-; NOTE: the actor SLOT ORDER is not read.
+; NOTE: our OWN scenes still do not read the actor SLOT ORDER.
 ;
 ; akArgs[1] is AAF's actor list in the order it placed them, and slot 0 is the
-; receiving role in 559 of 562 two-actor animations -- it would settle a same-sex
-; pair, which sex alone cannot. But it is a Var holding a packed array, Papyrus
-; refuses "var as Var[]", and the function that unpacks it is an F4SE addition to
-; Utility that is not in the vanilla Utility.pex. Declaring a native signature
-; that cannot be verified fails at RUNTIME rather than at compile time, which is
-; a worse trade than leaving a same-sex scene with nothing on either actor.
+; receiving role in 559 of 562 two-actor animations -- MEASURED ON MIXED PAIRS, where
+; slot 0 is the woman anyway; for a same-sex pair it is unmeasured. Papyrus cannot
+; open the packed array ("var as Var[]"), but since R-22 the plugin can (the natives
+; take the Var whole), so this is now a choice, not a limit.
 ;
-; So: mixed pairs are resolved by sex, same-sex pairs are left alone and said so
-; in the log.
+; So far: mixed pairs are resolved by sex, and a same-sex pair's aftermath goes on
+; both, the owner's call (A-21) -- unchanged until slot 0 is measured on a same-sex
+; pair.
 
 Event AAF:AAF_API.OnAnimationStop(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnAnimationStop", akArgs)
@@ -681,8 +714,39 @@ Event AAF:AAF_API.OnSceneEnd(AAF:AAF_API akSender, Var[] akArgs)
 	EndWhile
 
 	Int index = Self.FindRequestByActors(akArgs)
-	If index >= 0
-		Self.Release(index, "")
+	; An END is ours only if it also carries our meta. A ground scene's location is one
+	; of its actors, so another scene's end can carry an Int equal to our id: the late
+	; end of the scene our actor was in before ours, taken for ours, would release our
+	; request mid-act. Ours carries it at [4] -- measured
+	; (docs/runs/2026-09-18-first-complete-chain.log). Asked of ends only: that
+	; OnAnimationChange carries it is documented but never measured, and a tree step of
+	; ours refused would be forwarded as somebody else's, onto our own pair.
+	If index >= 0 && !Self.CarriesMeta(akArgs, kOurMeta)
+		index = -1
+	EndIf
+	If index >= 0 && index < _inFlight.Length
+		; Taken out in the same stretch that found it -- nothing between the two calls a
+		; native, and every native call suspends this stack -- so a second end of the
+		; same scene in lockstep finds nothing to take.
+		Request entry = _inFlight[index]
+		_inFlight.Remove(index, 1)
+		; Then remembered like any end, FIRST, before anything else here yields: a
+		; duplicate of it would arrive unclaimed and be forwarded below, and must find
+		; this scene already finished rather than leave the cum a second time.
+		If akArgs.Length > 5 && akArgs[5] is Int
+			Rapport:Core.OwnSceneEnded(akArgs[5] as Int, akArgs[1])
+		EndIf
+		Self.EndRequest(entry, "")
+	EndIf
+
+	; R-22: the end of a scene no request of ours claimed. The plugin finishes its
+	; faces and decides what the scene left behind, from the tags it collected.
+	If index < 0 && akArgs != None && akArgs.Length > 5 && !Self.CarriesMeta(akArgs, kControlMeta) && akArgs[5] is Int
+		String position = ""
+		If akArgs[2] is String
+			position = akArgs[2] as String
+		EndIf
+		Rapport:Core.ForeignSceneEnded(akArgs[5] as Int, akArgs[1], position, akArgs[3] as String)
 	EndIf
 EndEvent
 
@@ -710,6 +774,7 @@ Event AAF:AAF_API.OnAnimationChange(AAF:AAF_API akSender, Var[] akArgs)
 			Rapport:Core.NoteScenePosition(akArgs[2] as String)
 			Rapport:Core.NoteSceneTags(akArgs[3] as String)
 		EndIf
+		Self.ForwardForeignAnimation(akArgs, index)
 	EndIf
 EndEvent
 
@@ -1550,7 +1615,7 @@ Function StartScenePos(Int aiFirstID, String asPosition, String asSecondID)
 
 	AAF:AAF_API:SceneSettings settings = _api.GetSceneSettings()
 	settings.position = asPosition
-	settings.meta = "Rapport,control"
+	settings.meta = kControlMeta
 
 	Actor[] actors = Self.ForAAF(akFirst, akSecond)
 	Rapport:Core.Trace("startpos: starting [" + asPosition + "] for " + Rapport:Core.FormIdText(aiFirstID) + " + " + asSecondID)
@@ -1739,10 +1804,62 @@ Int Function FindRequestByActors(Var[] akArgs)
 
 	; Before OnSceneInit has told us the id there is nothing to match on, and while
 	; MaxConcurrentScenes is 1 there is at most one candidate.
-	If _inFlight.Length == 1
-		Return 0
+	;
+	; ONLY before, and ONLY an event of OUR scene. This used to fall back for ANY
+	; event whenever one request was in flight: after our id was known, every event
+	; of anybody else's scene still landed on our request (its tags fed our face and
+	; aftermath, its OnSceneEnd released our request mid-scene); and during our walk
+	; -- 10.5 s, every time, before our OnSceneInit -- another scene's init could bind
+	; our request to ITS location for good. So an event may be taken for ours before
+	; our id is known only if it carries our meta and does not leave our first actor
+	; out. That also refuses a late event from an earlier scene of ours (an end has
+	; arrived 94 s late) -- but only one that did not have this request's first actor:
+	; one that did cannot be told apart here.
+	If _inFlight.Length == 1 && _inFlight[0].sceneID == 0 && Self.CarriesMeta(akArgs, kOurMeta)
+		Actor first = _inFlight[0].first
+		If first == None || akArgs.Length < 2 || !Rapport:Core.ActorsExclude(akArgs[1], first.GetFormID())
+			Return 0
+		EndIf
 	EndIf
 	Return -1
+EndFunction
+
+; Does any argument carry this exact meta string? Scanned rather than read from one
+; slot: the meta sits at [5] on OnSceneInit, [4] on the animation and end events and
+; [3] on a refusal (AAF's API documentation; the refusal measured, section 22 of
+; docs/aaf-under-the-hood.md), and a scan survives a layout we have not seen. String
+; comparison is case-insensitive in Papyrus, which is fine here.
+Bool Function CarriesMeta(Var[] akArgs, String asMeta)
+	If akArgs == None
+		Return false
+	EndIf
+	Int a = 0
+	While a < akArgs.Length
+		Var arg = akArgs[a]
+		a += 1
+		If arg is String
+			If (arg as String) == asMeta
+				Return true
+			EndIf
+		EndIf
+	EndWhile
+	Return false
+EndFunction
+
+; R-22: an animation of a scene no request of ours claimed, to the plugin. [5] is
+; the location id every event of a scene carries, [2] the position, [3] its tags.
+Function ForwardForeignAnimation(Var[] akArgs, Int aiIndex)
+	If aiIndex >= 0 || akArgs == None || akArgs.Length < 6
+		Return
+	EndIf
+	If Self.CarriesMeta(akArgs, kControlMeta) || !(akArgs[5] is Int)
+		Return
+	EndIf
+	String position = ""
+	If akArgs[2] is String
+		position = akArgs[2] as String
+	EndIf
+	Rapport:Core.ForeignSceneAnimation(akArgs[5] as Int, akArgs[1], position, akArgs[3] as String)
 EndFunction
 
 ; Every entry the plugin is no longer waiting on, out -- its actors let go, as
@@ -1765,20 +1882,32 @@ Function DropStaleRequests(Int aiInFlight)
 EndFunction
 
 Function Release(Int aiIndex, String asWhy)
+	; The index was found on a stack that may have been suspended since, by any native
+	; call on the way here: two ends of one scene in lockstep would both find it, and
+	; the second must find nothing rather than release whatever sits there now.
+	If aiIndex < 0 || aiIndex >= _inFlight.Length
+		Return
+	EndIf
 	Request entry = _inFlight[aiIndex]
 
 	_inFlight.Remove(aiIndex, 1)
 
+	Self.EndRequest(entry, asWhy)
+EndFunction
+
+; What ending a request means, once it is out of _inFlight: "" is a scene that ended
+; and is recorded; anything else is why it failed.
+Function EndRequest(Request akEntry, String asWhy)
 	If asWhy == ""
-		Rapport:Core.SceneEnded(entry.id)
+		Rapport:Core.SceneEnded(akEntry.id)
 		; AFTER SceneEnded, which recorded it: a listener reads the new bond.
 		Actor player = Game.GetPlayer()
-		If entry.first == player || entry.second == player
+		If akEntry.first == player || akEntry.second == player
 			Var[] args = new Var[1]
-			If entry.first == player
-				args[0] = entry.second
+			If akEntry.first == player
+				args[0] = akEntry.second
 			Else
-				args[0] = entry.first
+				args[0] = akEntry.first
 			EndIf
 			; The mangled name, explicitly -- see the declaration.
 			Self.SendCustomEvent("rapport:bridge_OnPlayerSceneRecorded", args)
@@ -1786,9 +1915,9 @@ Function Release(Int aiIndex, String asWhy)
 	Else
 		; A request that failed leaves AAF's busy flag behind. Clearing it is the
 		; difference between one wasted attempt and an NPC nobody can ever use.
-		Self.ReleaseActor(entry.first)
-		Self.ReleaseActor(entry.second)
-		Rapport:Core.RequestFailed(entry.id, asWhy)
+		Self.ReleaseActor(akEntry.first)
+		Self.ReleaseActor(akEntry.second)
+		Rapport:Core.RequestFailed(akEntry.id, asWhy)
 	EndIf
 EndFunction
 

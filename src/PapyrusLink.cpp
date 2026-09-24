@@ -11,6 +11,7 @@
 #include "Barks.h"
 #include "Watchers.h"
 #include "Expressions.h"
+#include "ForeignScenes.h"
 #include "AAFHealth.h"
 #include "Crowd.h"
 #include "Ledger.h"
@@ -95,6 +96,190 @@ namespace
 	void Papyrus_NoteBridgeConnected(std::monostate)
 	{
 		RP::PapyrusLink::GetSingleton().NoteBridgeConnected();
+	}
+
+	// ---- scenes Rapport did not start (R-22) -----------------------------------
+	// The bridge hands AAF's actor array over exactly as it arrived, packed in a Var,
+	// because Papyrus cannot cast a Var to an array ("cannot cast a var to a var[]").
+	// A native can open it, and on the Papyrus thread -- the one calling this -- the
+	// Actors inside are real, so their sexes are read here rather than guessed later.
+	//
+	// AAF's API documents the slot as "Actor[] as a Var"; a Var inside the Var and an
+	// array of arrays are both walked, a little deeper than documented, because a
+	// shape we did not expect should yield the actors in it rather than nothing.
+	void CollectMembers(const RE::BSScript::Variable& a_var, std::vector<RP::ForeignScenes::Member>& a_out, int a_depth)
+	{
+		if (a_depth > 3) {
+			return;
+		}
+		if (a_var.is<RE::BSScript::Variable>()) {
+			if (const auto inner = RE::BSScript::get<RE::BSScript::Variable>(a_var)) {
+				CollectMembers(*inner, a_out, a_depth + 1);
+			}
+			return;
+		}
+		if (a_var.is<RE::BSScript::Array>()) {
+			if (!RE::BSScript::IsValidArray<RE::BSScript::Array>(a_var)) {
+				return;
+			}
+			const auto array = RE::BSScript::get<RE::BSScript::Array>(a_var);
+			// By INDEX, not a range-for: CommonLibF4's Array::end() is nullptr for an empty
+			// but allocated array while begin() is its buffer, so a range-for over one walks
+			// off the end into garbage -- inside a native, which is the game's crash.
+			for (std::uint32_t i = 0; i < array->size(); ++i) {
+				CollectMembers((*array)[i], a_out, a_depth + 1);
+			}
+			return;
+		}
+		if (!a_var.is<RE::BSScript::Object>()) {
+			return;
+		}
+		const auto object = RE::BSScript::get<RE::BSScript::Object>(a_var);
+		const auto game = RE::GameVM::GetSingleton();
+		const auto vm = game ? game->GetVM() : nullptr;
+		if (!object || !vm) {
+			return;
+		}
+		// Only an ACTOR, and only a loaded one: the handle's type is checked before the
+		// object is asked for, so a reference of another kind is skipped rather than
+		// handed to an unpacker that asserts on it.
+		const auto& handles = vm->GetObjectHandlePolicy();
+		const auto  handle = object->GetHandle();
+		const auto  actorType = static_cast<std::uint32_t>(RE::Actor::FORM_ID);
+		if (!handles.HandleIsType(actorType, handle) || !handles.IsHandleLoaded(handle)) {
+			return;
+		}
+		auto* actor = static_cast<RE::Actor*>(handles.GetObjectForHandle(actorType, handle));
+		if (!actor) {
+			return;
+		}
+		RP::ForeignScenes::Member member;
+		member.formID = actor->GetFormID();
+		auto* npc = actor->GetNPC();   // not const: GetSex() is not declared const here
+		member.sex = npc ? static_cast<std::int32_t>(npc->GetSex()) : -1;
+		member.player = actor == RE::PlayerCharacter::GetSingleton();
+		member.child = actor->IsChild();
+		// The player is not a race question: they are in the scene because they chose it.
+		member.raceAllowed = member.player || RP::Config::GetSingleton().IsRaceAllowed(actor->race);
+		a_out.push_back(member);
+	}
+
+	std::vector<RP::ForeignScenes::Member> Members(const RE::BSScript::Variable* a_actors)
+	{
+		std::vector<RP::ForeignScenes::Member> members;
+		if (a_actors) {
+			CollectMembers(*a_actors, members, 0);
+		}
+
+		// Once a session, what the Var actually held: the first raw-Var native in the
+		// repo, so the first run in game is its proof (or its bug report).
+		static std::atomic_bool reported{ false };
+		if (!reported.exchange(true)) {
+			logger::info("R-22: AAF's actor Var arrived as raw type {} ({}), and {} actor(s) were read from it",
+				a_actors ? static_cast<int>(a_actors->GetType().GetRawType()) : -1,
+				!a_actors                                       ? "no Var at all"
+				: a_actors->is<RE::BSScript::Array>()           ? "an array"
+				: a_actors->is<RE::BSScript::Variable>()        ? "a Var inside the Var"
+				: a_actors->is<RE::BSScript::Object>()          ? "a single object"
+																: "something else",
+				members.size());
+		}
+		// Once each: a shape that named somebody twice would turn a pair into a group
+		// and switch the aftermath to the group rule.
+		std::vector<RP::ForeignScenes::Member> unique;
+		for (const auto& member : members) {
+			if (std::ranges::none_of(unique, [&](const auto& m) { return m.formID == member.formID; })) {
+				unique.push_back(member);
+			}
+		}
+		return unique;
+	}
+
+	std::string Text(const RE::BSFixedString& a_text)
+	{
+		return a_text.empty() ? std::string{} : std::string{ a_text.c_str() };
+	}
+
+	// Every one of these guarded, against anything thrown, as the pump is: an exception
+	// crossing back into the VM would take the event -- and whatever else was on that
+	// stack -- down with it.
+	void Papyrus_ForeignSceneStarted(std::monostate, std::int32_t a_location, const RE::BSScript::Variable* a_actors,
+		RE::BSFixedString a_position, RE::BSFixedString a_tags, RE::BSFixedString a_meta, bool a_npcControlled,
+		float a_duration)
+	{
+		try {
+			RP::ForeignScenes::GetSingleton().Started(a_location, Members(a_actors), Text(a_position), Text(a_tags),
+				Text(a_meta), a_npcControlled, a_duration);
+		} catch (const std::exception& e) {
+			logger::critical("ForeignSceneStarted threw: {}", e.what());
+		} catch (...) {
+			logger::critical("ForeignSceneStarted threw something that is not a std::exception");
+		}
+	}
+
+	// Does AAF's actor Var name actors, none of them this one? The bridge's refusal
+	// test for a request whose scene has not started yet: an event naming actors, none
+	// of them ours, is not ours.
+	//
+	// Asked as EXCLUDE so that every failure answers false and the meta alone decides,
+	// exactly as before this test existed: a Var that yields nobody readable -- this is
+	// the first native in the repo to take a raw Var -- and the native itself when it is
+	// not bound at all, a new script over an older plugin, because false is what an
+	// unbound native gives back. A strict test failing would stop every scene of OUR
+	// OWN from being claimed, far worse than the rare misattribution it guards against.
+	bool Papyrus_ActorsExclude(std::monostate, const RE::BSScript::Variable* a_actors, std::int32_t a_formID)
+	{
+		try {
+			const auto members = Members(a_actors);
+			return !members.empty() && std::ranges::none_of(members, [&](const RP::ForeignScenes::Member& m) {
+				return m.formID == static_cast<std::uint32_t>(a_formID);
+			});
+		} catch (const std::exception& e) {
+			logger::critical("ActorsExclude threw: {} - answering false, the meta decides", e.what());
+			return false;
+		} catch (...) {
+			logger::critical("ActorsExclude threw something that is not a std::exception - answering false");
+			return false;
+		}
+	}
+
+	void Papyrus_ForeignSceneAnimation(std::monostate, std::int32_t a_location, const RE::BSScript::Variable* a_actors,
+		RE::BSFixedString a_position, RE::BSFixedString a_tags)
+	{
+		try {
+			RP::ForeignScenes::GetSingleton().Animation(a_location, Members(a_actors), Text(a_position), Text(a_tags));
+		} catch (const std::exception& e) {
+			logger::critical("ForeignSceneAnimation threw: {}", e.what());
+		} catch (...) {
+			logger::critical("ForeignSceneAnimation threw something that is not a std::exception");
+		}
+	}
+
+	void Papyrus_ForeignSceneEnded(std::monostate, std::int32_t a_location, const RE::BSScript::Variable* a_actors,
+		RE::BSFixedString a_position, RE::BSFixedString a_tags)
+	{
+		try {
+			RP::ForeignScenes::GetSingleton().Ended(a_location, Members(a_actors), Text(a_position), Text(a_tags));
+		} catch (const std::exception& e) {
+			logger::critical("ForeignSceneEnded threw: {}", e.what());
+		} catch (...) {
+			logger::critical("ForeignSceneEnded threw something that is not a std::exception");
+		}
+	}
+
+	// The end of one of OUR scenes, claimed by the bridge: remembered by the foreign
+	// side like any end, with who was in it, so a duplicate -- which would arrive
+	// unclaimed, the request released -- cannot leave the cum a second time, even after
+	// another scene has taken the place.
+	void Papyrus_OwnSceneEnded(std::monostate, std::int32_t a_location, const RE::BSScript::Variable* a_actors)
+	{
+		try {
+			RP::ForeignScenes::GetSingleton().OwnSceneEnded(a_location, Members(a_actors));
+		} catch (const std::exception& e) {
+			logger::critical("OwnSceneEnded threw: {}", e.what());
+		} catch (...) {
+			logger::critical("OwnSceneEnded threw something that is not a std::exception");
+		}
 	}
 
 	bool Papyrus_BlockFaces(std::monostate)
@@ -182,6 +367,7 @@ namespace
 			RP::AAFHealth::GetSingleton().Pump();
 			RP::Scenarios::GetSingleton().Pump();
 			RP::Expressions::GetSingleton().Pump();
+			RP::ForeignScenes::GetSingleton().Pump();
 			RP::Barks::GetSingleton().Pump();
 			RP::Morphs::GetSingleton().Pump();
 			if (watching) {
@@ -1006,6 +1192,11 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorBusy"sv, Papyrus_NoteActorBusy, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneLive"sv, Papyrus_NoteSceneLive, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneEnded"sv, Papyrus_NoteSceneEnded, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ForeignSceneStarted"sv, Papyrus_ForeignSceneStarted, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ForeignSceneAnimation"sv, Papyrus_ForeignSceneAnimation, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ForeignSceneEnded"sv, Papyrus_ForeignSceneEnded, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "OwnSceneEnded"sv, Papyrus_OwnSceneEnded, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ActorsExclude"sv, Papyrus_ActorsExclude, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteBridgeConnected"sv, Papyrus_NoteBridgeConnected, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BlockFaces"sv, Papyrus_BlockFaces, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneRefused"sv, Papyrus_SceneRefused, std::nullopt, false);
@@ -1393,6 +1584,9 @@ namespace RP
 		Barks::GetSingleton().OnSceneEnded();
 		Watchers::GetSingleton().OnSceneEnded();
 		Scenarios::GetSingleton().End();
+		// Somebody else's scenes too (R-22): forgotten, not cleared -- their faces are
+		// on the wearing list, which the arriving save's own record governs.
+		ForeignScenes::GetSingleton().Reset();
 		ClearInFlight();
 		_sceneInFlight.store(false);
 
@@ -1620,6 +1814,13 @@ namespace RP
 		_sceneStartedAt = std::chrono::steady_clock::now();
 		_sceneRunning = true;
 		_stopAsked = false;
+
+		// One actor, one AAF scene: a record of somebody else's scene still holding
+		// either of these two missed its end, and the poll would go on putting its
+		// faces over ours (R-22). Before the expression layer takes them.
+		ForeignScenes::GetSingleton().OwnSceneStarted(
+			static_cast<std::uint32_t>(_inFlightFirst),
+			static_cast<std::uint32_t>(_inFlightSecond));
 
 		// A scenario, if the caller named one, drives the stages AND the faces --
 		// which is why the expression layer is told to stand down for this scene
