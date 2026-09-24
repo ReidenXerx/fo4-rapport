@@ -153,9 +153,19 @@ namespace RP::Placement
 			}
 			[[nodiscard]] std::string List(std::size_t a_max = 8) const
 			{
+				// What Blocking() counts, and only that: a list longer than its count read as a
+				// miscount (request 3, 2026-09-25: "2 in the way" over three names, one 1u in).
 				std::string out;
-				for (std::size_t i = 0; i < hits.size() && i < a_max; ++i) {
-					out += (i ? "; " : "") + hits[i].what;
+				std::size_t shown = 0, brushes = 0;
+				for (const auto& hit : hits) {
+					if (hit.depth <= kTolerated) {
+						++brushes;
+					} else if (shown < a_max) {
+						out += (shown++ ? "; " : "") + hit.what;
+					}
+				}
+				if (brushes) {
+					out += std::format("{}{} brushing it", out.empty() ? "" : "; ", brushes);
 				}
 				return out;
 			}
@@ -476,7 +486,7 @@ namespace RP::Placement
 			"placement: {} scene '{}' at ({:.0f}, {:.0f}, {:.0f}), footprint r {:.0f}, z +{:.0f}..+{:.0f}: {} in the way{}{} "
 			"({} solid object(s) checked in {} cell(s){}){}",
 			a_ours ? "our" : "a foreign", a_position, centre.x, centre.y, feet, radius, kBandLow, kBandHigh,
-			found.hits.size(), found.hits.empty() ? "" : " - ", found.List(), found.looked, cells.size(),
+			found.Blocking(), found.hits.empty() ? "" : " - ", found.List(), found.looked, cells.size(),
 			found.enclosing ? std::format(", {} enclosing piece(s) not counted", found.enclosing) : std::string{}, ours);
 	}
 
