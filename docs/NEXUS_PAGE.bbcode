@@ -1,4 +1,4 @@
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@889e5602a6a4de0f710c21c3e17c367dd28fcb0e/docs/img/hero.jpg[/img][/center]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/hero.jpg[/img][/center]
 
 [center][size=4][b]An F4SE framework for AAF. It runs the scene: the two people talk to each other, bystanders notice, faces follow the act, and everyone remembers who they were with.[/b][/size][/center]
 
@@ -12,13 +12,13 @@
 
 [center][size=4][b][url=https://pixeldrain.com/u/7ZnoDbUt]▶ Watch the demo[/url][/b][/size] (1:16, the Third Rail: voiced lines, subtitles, bystanders)[/center]
 
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@889e5602a6a4de0f710c21c3e17c367dd28fcb0e/docs/img/divider.png[/img][/center]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/divider.png[/img][/center]
 
 [size=5][b][color=#ffb62e]What it is[/color][/b][/size]
 
 [b]Rapport is a framework, not a story.[/b] AAF plays animations; Rapport runs the scene around them. It decides [i]how[/i] a scene goes, and addons decide [i]when[/i]: [url=https://www.nexusmods.com/fallout4/mods/109225]Chemistry[/url] lets NPCs find each other, and Overture lets you walk up to someone and try your luck. Without an addon, Rapport's own simple stand-in starts the odd scene so you can see it work.
 
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@889e5602a6a4de0f710c21c3e17c367dd28fcb0e/docs/img/family.jpg[/img][/center]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/family.jpg[/img][/center]
 
 [size=5][b][color=#ffb62e]What you get[/color][/b][/size]
 
@@ -36,32 +36,32 @@
 
 Piper, Hancock, Cait and every character with a unique actor would normally be silent: nobody can record new lines in their real voice. Rapport solved it with the technology that tells voices apart on a phone line.
 
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@889e5602a6a4de0f710c21c3e17c367dd28fcb0e/docs/img/voices-map.jpg[/img][/center]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/voices-map.jpg[/img][/center]
 
 A [url=https://en.wikipedia.org/wiki/Speaker_recognition]speaker-recognition[/url] model ([url=https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb]SpeechBrain ECAPA[/url]) listened to the game's own recordings and turned each of 629 voice types into a fingerprint of how it sounds. A vector search then found, for each unique voice, the closest of the 32 we recorded. They borrow it [b]for that one line only[/b]: talk to them afterwards and they are exactly themselves. Who may borrow at all is decided by rules, not scores, so a child, a robot or the wrong sex never happens. Every recording was transcribed back by machine and checked against its subtitle: what you hear is what you read.
 
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@889e5602a6a4de0f710c21c3e17c367dd28fcb0e/docs/img/divider.png[/img][/center]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/divider.png[/img][/center]
 
 [size=5][b][color=#ffb62e]New in 0.2.1[/color][/b][/size]
 
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@889e5602a6a4de0f710c21c3e17c367dd28fcb0e/docs/img/new.jpg[/img][/center]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/new.jpg[/img][/center]
 
 [list]
-[*][b]Faces that live[/b]: eye contact, faces that change with the personality and with the act, and a face that drifts instead of freezing. This needs the [b]Anatomy engine[/b], a separate mod coming soon; without it you get the ordinary Rapport faces. A "Bodies & faces" MCM page holds its settings.
+[*][b]Faces that live[/b]: eye contact, faces that change with the personality and with the act, and a face that drifts instead of freezing (built, not yet seen in game). This needs the [b]Anatomy engine[/b], a separate mod coming soon; without it you get the ordinary Rapport faces. A "Bodies & faces" MCM page holds its settings.
 [*][b]A voice in addon dialogue.[/b] When a mod gives a named character a line with no recording in their voice, it is spoken in the closest one, the same way as above.
 [*][b]A door for new mods[/b]: scenes with you, lovers, the Narrator speaking for addons, and API 201. Overture is the first mod built on it.
 [*][b]Fixes:[/b] the MCM menu now saves; AAF's leftover body morphs are cleared after a scene; nobody in a cell you just left is paired or counted as a witness; a refused request no longer lingers for minutes.
 [/list]
 
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@889e5602a6a4de0f710c21c3e17c367dd28fcb0e/docs/img/glances.jpg[/img][/center]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/glances.jpg[/img][/center]
 
-With the Anatomy engine, the two of them look into each other's eyes: rarely at first, more often as the scene builds, and one long look of 6-9 seconds as it peaks.
+With the Anatomy engine, the two of them look into each other's eyes, 4-7 seconds at a time, more often as the scene builds.
 
 [b]0.2.2[/b] adds the rule above, never pairs anyone unconscious, restrained, bleeding out or frozen, and gives mods API 202.
 
 Every change, with the small ones too, is in the [b]Changelog[/b] tab and the sticky posts.
 
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@889e5602a6a4de0f710c21c3e17c367dd28fcb0e/docs/img/divider.png[/img][/center]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/divider.png[/img][/center]
 
 [size=5][b][color=#ffb62e]Open source, and built in public[/color][/b][/size]
 
@@ -97,7 +97,7 @@ Every change, with the small ones too, is in the [b]Changelog[/b] tab and the st
 [b]Can I just watch, without anything starting?[/b]
 [spoiler]Yes: [font=Courier New]DryRun=1[/font] in Rapport.ini. Rapport scores and reports everything to Rapport.log and starts nothing.[/spoiler]
 
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@889e5602a6a4de0f710c21c3e17c367dd28fcb0e/docs/img/divider.png[/img][/center]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/divider.png[/img][/center]
 
 [size=5][b][color=#ffb62e]Credits[/color][/b][/size]
 
