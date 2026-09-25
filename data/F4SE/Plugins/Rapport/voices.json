@@ -11460,28 +11460,6 @@
     }
    },
    {
-    "voice": "PlayerVoiceFemale01",
-    "master": "Fallout4.esm",
-    "id": 101879,
-    "score": 0.337,
-    "as": {
-     "voice": "FemaleEvenToned",
-     "master": "Fallout4.esm",
-     "id": 80605
-    }
-   },
-   {
-    "voice": "PlayerVoiceMale01",
-    "master": "Fallout4.esm",
-    "id": 101876,
-    "score": 0.355,
-    "as": {
-     "voice": "MaleEvenToned",
-     "master": "Fallout4.esm",
-     "id": 80594
-    }
-   },
-   {
     "voice": "RadioVoiceEyebotAnnouncer",
     "master": "Fallout4.esm",
     "id": 920415,

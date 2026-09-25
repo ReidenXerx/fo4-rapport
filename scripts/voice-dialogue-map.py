@@ -64,6 +64,12 @@ def main():
     for n in names:
         if n in targets or n not in inv:
             continue
+        # The PLAYER's voice never borrows: the player's lines are text by design (Overture O-2/O-3), and a
+        # player INFO given a file would otherwise speak in an NPC's voice. Seen 2026-09-25: PlayerVoiceMale01
+        # was mapped to MaleEvenToned (harmless only because no player INFO had a file).
+        if n.lower().startswith("playervoice"):
+            silent += 1
+            continue
         row = inv[n]
         if row["rendered"]:
             # The bark map never judges our own 32 (they speak as themselves there), so its

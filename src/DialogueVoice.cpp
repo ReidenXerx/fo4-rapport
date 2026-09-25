@@ -17,19 +17,23 @@ namespace RP::DialogueVoice
 		using Build_t = bool(void*, char*, RE::BGSVoiceType*, void*, RE::TESTopicInfo*);
 		REL::Relocation<Build_t> g_build;
 
-		std::mutex                        g_saidLock;
-		std::unordered_set<std::uint32_t> g_said;   // one log line per voice type
+		std::mutex                      g_saidLock;
+		std::unordered_set<std::string> g_said;   // one log line per voice type AND line
 
-		void SayOnce(const RE::BGSVoiceType* a_voice, std::string_view a_what)
+		// Per line, not per voice type: the first run logged the Mayor's wordless "..." greeting and
+		// then nothing, so whether his next line borrowed could not be read (2026-09-25).
+		void SayOnce(const RE::BGSVoiceType* a_voice, std::string_view a_path, std::string_view a_what)
 		{
 			const auto id = a_voice ? a_voice->GetFormID() : 0u;
+			const auto file = a_path.substr(a_path.find_last_of('\\') + 1);
 			{
 				std::scoped_lock lock{ g_saidLock };
-				if (!g_said.insert(id).second) {
+				if (g_said.size() > 4096 || !g_said.insert(std::format("{:08X}{}", id, file)).second) {
 					return;
 				}
 			}
-			logger::info("dialogue voice: {:08X} ({}) - {}", id, a_voice ? a_voice->GetFormEditorID() : "?", a_what);
+			logger::info("dialogue voice: {:08X} ({}) line {} - {}", id, a_voice ? a_voice->GetFormEditorID() : "?", file,
+				a_what);
 		}
 
 		// The plugin folder of a path the builder made, or "" if it is not that shape.
@@ -72,17 +76,17 @@ namespace RP::DialogueVoice
 				const auto as = voices.DialogueBorrow(a_voice->GetFormID());
 				auto*      borrowed = as ? RE::TESForm::GetFormByID<RE::BGSVoiceType>(as) : nullptr;
 				if (!borrowed) {
-					SayOnce(a_voice, "no file of its own and nothing to borrow - subtitle only");
+					SayOnce(a_voice, path, "no file of its own and nothing to borrow - subtitle only");
 					return built;
 				}
 				char alt[kPathSize]{};
 				if (!g_build(a_response, alt, borrowed, a_topic, a_info) || !HasAudio(alt)) {
-					SayOnce(a_voice, std::format("borrows {} but that has no file here either - subtitle only",
-										 borrowed->GetFormEditorID()));
+					SayOnce(a_voice, path, std::format("borrows {} but that has no file here either - subtitle only",
+											   borrowed->GetFormEditorID()));
 					return built;
 				}
+				SayOnce(a_voice, path, std::format("speaks it as {}", borrowed->GetFormEditorID()));
 				strcpy_s(a_path, kPathSize, alt);
-				SayOnce(a_voice, std::format("speaks dialogue lines as {}", borrowed->GetFormEditorID()));
 			} catch (const std::exception& e) {
 				logger::error("dialogue voice: {} - the engine's own path kept", e.what());
 			}

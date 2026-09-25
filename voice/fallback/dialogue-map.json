@@ -14,18 +14,6 @@
   "DLC03TrapperMale01"
  ],
  "borrow": {
-  "PlayerVoiceFemale01": {
-   "master": "Fallout4.esm",
-   "id": 101879,
-   "as": "FemaleEvenToned",
-   "score": 0.337
-  },
-  "PlayerVoiceMale01": {
-   "master": "Fallout4.esm",
-   "id": 101876,
-   "as": "MaleEvenToned",
-   "score": 0.355
-  },
   "NPCMNickValentine": {
    "master": "Fallout4.esm",
    "id": 144184,
