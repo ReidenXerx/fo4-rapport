@@ -8373,6 +8373,30 @@
       "ov3_mercantile_nottype_f1": "eleven_v3",
       "ov3_reticent_nottype_f1": "eleven_v3",
       "ov3_vulgar_nottype_f1": "eleven_v3"
+    },
+    "PlayerVoiceFemale01": {
+      "pl_offer_s1": "eleven_v3",
+      "pl_offer_s2": "eleven_v3",
+      "pl_charm_s2": "eleven_v3",
+      "pl_charm_s1": "eleven_v3",
+      "pl_blunt_s2": "eleven_v3",
+      "pl_blunt_s1": "eleven_v3",
+      "pl_later": "eleven_v3",
+      "pl_offer_s3": "eleven_v3",
+      "pl_blunt_s3": "eleven_v3",
+      "pl_charm_s3": "eleven_v3"
+    },
+    "PlayerVoiceMale01": {
+      "pl_offer_s1": "eleven_v3",
+      "pl_offer_s2": "eleven_v3",
+      "pl_charm_s1": "eleven_v3",
+      "pl_blunt_s2": "eleven_v3",
+      "pl_charm_s2": "eleven_v3",
+      "pl_blunt_s1": "eleven_v3",
+      "pl_charm_s3": "eleven_v3",
+      "pl_offer_s3": "eleven_v3",
+      "pl_later": "eleven_v3",
+      "pl_blunt_s3": "eleven_v3"
     }
   },
   "text": {
@@ -10377,6 +10401,30 @@
       "ov3_mercantile_nottype_f1": "Nice try, sweetheart, but women are not a market I deal in.",
       "ov3_reticent_nottype_f1": "I... no. It is not you. I just do not feel that way about women.",
       "ov3_vulgar_nottype_f1": "Put that pussy away, you desperate slut. It does fuck all for me."
+    },
+    "PlayerVoiceFemale01": {
+      "pl_offer_s1": "I brought you something.",
+      "pl_offer_s2": "I kept the good one back for you.",
+      "pl_charm_s2": "I keep finding reasons to walk past here.",
+      "pl_charm_s1": "Nobody out here looks at you properly, do they.",
+      "pl_blunt_s2": "I want to hear what you sound like when you come.",
+      "pl_blunt_s1": "I want to fuck you. Here, against that wall, I don't care.",
+      "pl_later": "Later.",
+      "pl_offer_s3": "Name your price for the night.",
+      "pl_blunt_s3": "Enough talking. Let's fuck.",
+      "pl_charm_s3": "Come away with me tonight. Just us."
+    },
+    "PlayerVoiceMale01": {
+      "pl_offer_s1": "I brought you something.",
+      "pl_offer_s2": "I kept the good one back for you.",
+      "pl_charm_s1": "Nobody out here looks at you properly, do they.",
+      "pl_blunt_s2": "I want to hear what you sound like when you come.",
+      "pl_charm_s2": "I keep finding reasons to walk past here.",
+      "pl_blunt_s1": "I want to fuck you. Here, against that wall, I don't care.",
+      "pl_charm_s3": "Come away with me tonight. Just us.",
+      "pl_offer_s3": "Name your price for the night.",
+      "pl_later": "Later.",
+      "pl_blunt_s3": "Enough talking. Let's fuck."
     }
   }
 }

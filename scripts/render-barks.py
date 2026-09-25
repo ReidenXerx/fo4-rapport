@@ -229,6 +229,11 @@ def main() -> int:
     s2 = json.loads((ROOT / "voice/v2-safety.json").read_text(encoding="utf-8"))["rates"]
 
     chosen = {vt: d["chosen"] for vt, d in types.items() if d.get("chosen")}
+    # The PLAYER's voices (O-45) speak only the player's bank, and only when named: a plain run
+    # renders Rapport's barks, which the player never says (R-11).
+    player_voices = {vt for vt, d in types.items() if d.get("player")}
+    named = set(v.strip() for v in (a.voices or "").split(",") if v.strip()) | ({a.only} if a.only else set())
+    chosen = {vt: v for vt, v in chosen.items() if vt not in player_voices or vt in named}
     if a.only:
         if a.only not in chosen:
             sys.exit(f"{a.only} has no chosen voice. Chosen: {', '.join(sorted(chosen)) or 'none'}")
@@ -262,6 +267,8 @@ def main() -> int:
     for vt in sorted(chosen):
         g = gender_of(vt)
         for ln in lines:
+            if (vt in player_voices) != (ln.get("kind") == "player"):
+                continue   # the player says the player's lines; nobody else does
             # A line with explicit self-reference exists in an m and an f variant;
             # a voice renders only its own. Neutral lines have no gender and are
             # rendered by everybody.

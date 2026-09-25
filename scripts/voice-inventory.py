@@ -80,7 +80,9 @@ def main():
                 files[parts[3]].append({"archive": a, "name": name, "size": usz or psz})
         fh.close()
 
-    rendered = {p.name.lower() for p in (ROOT / "voice/out").iterdir() if p.is_dir()}
+    # The player's voices (O-45) are not Rapport's own: nobody borrows them, and the player never barks.
+    rendered = {p.name.lower() for p in (ROOT / "voice/out").iterdir()
+                if p.is_dir() and not p.name.lower().startswith("playervoice")}
     rows = []
     for key, clips in files.items():
         meta = vt.get(key)

@@ -849,6 +849,22 @@
       "chosen_loud": "LYGB1jRWDycC11ZzLWpv",
       "chosen_loud_preview": 2,
       "description_loud": "A cool professional American criminal woman in her thirties, slick and transactional. Speaks up so the whole room hears it, pitched to carry across a crowd, with the easy volume of somebody who does not mind at all being overheard."
+    },
+    "PlayerVoiceFemale01": {
+      "player": true,
+      "chosen": "mI8dldNdWOrK1BdR3OtC",
+      "chosen_name": "Rapport PlayerVoiceFemale01",
+      "chosen_preview": "F3",
+      "description": "An American woman in her early thirties, educated and composed, with a warm, slightly husky mid-range voice. Confident and direct with a dry edge. Speaks low and close to someone she wants, clear enunciation, natural unhurried pace.",
+      "note": "O-45 (owner poll 2026-09-25): the player's voice for Overture's player lines. Designed from this description, no actor samples. Rendered only when named with --voices, and only the player bank."
+    },
+    "PlayerVoiceMale01": {
+      "player": true,
+      "chosen": "Elz3b902AXRS4qnJiGac",
+      "chosen_name": "Rapport PlayerVoiceMale01",
+      "chosen_preview": "M3",
+      "description": "An American man in his early thirties, a calm, confident baritone with a warm, slightly rough edge. Steady and self-assured, a former soldier who has seen too much. Speaks low and close to someone he wants, natural unhurried pace.",
+      "note": "O-45 (owner poll 2026-09-25): the player's voice for Overture's player lines. Designed from this description, no actor samples. Rendered only when named with --voices, and only the player bank."
     }
   }
 }
