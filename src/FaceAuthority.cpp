@@ -468,7 +468,7 @@ namespace RP
 		message.lipSpeed = number("lipSpeed", 1.0f, 0.25f, 3.0f);
 		message.shaftScale = number("shaftScale", 0.85f, 0.6f, 1.2f);
 		message.headMin = number("headMin", 1.2f, 1.0f, 2.0f);
-		message.headMax = (std::max)(message.headMin, number("headMax", 1.4f, 1.0f, 2.0f));
+		message.headMax = (std::max)(message.headMin, number("headMax", 1.25f, 1.0f, 2.0f));
 		message.reactScale = number("reactScale", 1.0f, 0.0f, 2.0f);
 		if (const auto messaging = F4SE::GetMessagingInterface()) {
 			messaging->Dispatch(kKnobs, &message, sizeof(message), kPeer);
