@@ -28,6 +28,14 @@ namespace RP
 		// compile against. Costs one stat per 20s pass.
 		[[nodiscard]] bool ChangedSinceLastCheck();
 
+		// An ADDON's MCM setting, read from the files rather than from MCM's own store (owner's game,
+		// 2026-09-25: Overture's MCM.GetModSettingInt answered 0 for a key its shipped settings.ini
+		// has, on 3 of 4 loads, even 10 s after the load -- and Overture then ran with scenes OFF).
+		// a_key is MCM's "name:Section" form. The player's Data/MCM/Settings/<mod>.ini wins, then the
+		// shipped Data/MCM/Config/<mod>/settings.ini; nothing in either is nullopt. Cached by file
+		// time, so a slider moved in the menu is seen on the next read. Any thread.
+		[[nodiscard]] std::optional<double> ModSetting(std::string_view a_mod, std::string_view a_key);
+
 		// A switch read from an overlaid document: true/false OR a number (MCM's 0/1
 		// for a key the json lacked). nlohmann's value<bool> throws on a number, and a
 		// throw at data ready crosses into F4SE and takes the game with it.

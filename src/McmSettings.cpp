@@ -92,6 +92,73 @@ namespace RP::McmSettings
 		}
 	}
 
+	namespace
+	{
+		struct Parsed
+		{
+			std::filesystem::file_time_type                    stamp{};
+			std::unordered_map<std::string, double>             values;   // "name:Section"
+		};
+		std::mutex                                     g_parsedLock;
+		std::unordered_map<std::string, Parsed>        g_parsed;          // by path
+
+		[[nodiscard]] const Parsed* Read(const std::filesystem::path& a_path)
+		{
+			std::error_code ec;
+			const auto      stamp = std::filesystem::last_write_time(a_path, ec);
+			if (ec) {
+				return nullptr;
+			}
+			auto& entry = g_parsed[a_path.string()];
+			if (entry.stamp == stamp && !entry.values.empty()) {
+				return &entry;
+			}
+			entry = Parsed{ stamp, {} };
+			std::ifstream file{ a_path };
+			std::string   line;
+			std::string   section;
+			while (std::getline(file, line)) {
+				const auto text = Trim(line);
+				if (text.empty() || text.front() == ';' || text.front() == '#') {
+					continue;
+				}
+				if (text.front() == '[' && text.back() == ']') {
+					section = Trim(std::string_view{ text }.substr(1, text.size() - 2));
+					continue;
+				}
+				const auto equals = text.find('=');
+				if (equals == std::string::npos) {
+					continue;
+				}
+				try {
+					entry.values[Trim(std::string_view{ text }.substr(0, equals)) + ":" + section] =
+						std::stod(Trim(std::string_view{ text }.substr(equals + 1)));
+				} catch (const std::exception&) {
+					// a string setting: not a number, not for these natives
+				}
+			}
+			return &entry;
+		}
+	}
+
+	std::optional<double> ModSetting(std::string_view a_mod, std::string_view a_key)
+	{
+		if (a_mod.empty() || a_mod.find_first_of("/\\.:") != std::string_view::npos) {
+			return std::nullopt;   // a mod NAME, never a path
+		}
+		const std::string key{ a_key };
+		std::scoped_lock  lock{ g_parsedLock };
+		for (const auto& path : { std::filesystem::path{ "Data" } / "MCM" / "Settings" / (std::string{ a_mod } + ".ini"),
+				 std::filesystem::path{ "Data" } / "MCM" / "Config" / std::string{ a_mod } / "settings.ini" }) {
+			if (const auto* parsed = Read(path)) {
+				if (const auto it = parsed->values.find(key); it != parsed->values.end()) {
+					return it->second;
+				}
+			}
+		}
+		return std::nullopt;
+	}
+
 	bool ChangedSinceLastCheck()
 	{
 		std::error_code ec;

@@ -525,6 +525,14 @@ String Function OrientationOf(Int aiFormID) Global Native
 ; Rapport's own pairing already leaves out a pair where either answer is False. ApiVersion 201+.
 Bool Function Attracted(Int aiWho, Int aiWith) Global Native
 
+; An addon's MCM setting, read from the FILES: the player's Data/MCM/Settings/<asMod>.ini, then the
+; shipped Data/MCM/Config/<asMod>/settings.ini. asKey is MCM's "name:Section" form. The default when
+; neither has it. MCM's own GetModSetting* answered 0 for a key the shipped ini has on most loads of
+; the owner's game (2026-09-25); these do not depend on MCM having loaded anything. ApiVersion 201+.
+Float Function ModSettingFloat(String asMod, String asKey, Float afDefault) Global Native
+Int Function ModSettingInt(String asMod, String asKey, Int aiDefault) Global Native
+Bool Function ModSettingBool(String asMod, String asKey, Bool abDefault) Global Native
+
 ; Requests involving this actor that AAF turned down, and how long ago the last one
 ; was. Use BOTH: a cumulative count with no recency would avoid an actor forever
 ; over two failures a week ago, and recency alone cannot tell a one-off from an NPC

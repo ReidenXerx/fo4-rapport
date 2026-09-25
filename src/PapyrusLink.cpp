@@ -2,6 +2,7 @@
 #include "Placement.h"
 
 #include "Narrator.h"
+#include "McmSettings.h"
 #include "Names.h"
 #include "Orientation.h"
 #include "Traits.h"
@@ -1167,6 +1168,25 @@ namespace
 		return std::string{ RP::Barks::GetSingleton().PersonaOf(static_cast<std::uint32_t>(a_formID)) };
 	}
 
+	// An addon's MCM setting from the files (McmSettings::ModSetting), or the default.
+	float Papyrus_ModSettingFloat(std::monostate, RE::BSFixedString a_mod, RE::BSFixedString a_key, float a_default)
+	{
+		const auto v = RP::McmSettings::ModSetting(a_mod.c_str(), a_key.c_str());
+		return v ? static_cast<float>(*v) : a_default;
+	}
+
+	std::int32_t Papyrus_ModSettingInt(std::monostate, RE::BSFixedString a_mod, RE::BSFixedString a_key, std::int32_t a_default)
+	{
+		const auto v = RP::McmSettings::ModSetting(a_mod.c_str(), a_key.c_str());
+		return v ? static_cast<std::int32_t>(std::llround(*v)) : a_default;
+	}
+
+	bool Papyrus_ModSettingBool(std::monostate, RE::BSFixedString a_mod, RE::BSFixedString a_key, bool a_default)
+	{
+		const auto v = RP::McmSettings::ModSetting(a_mod.c_str(), a_key.c_str());
+		return v ? *v != 0.0 : a_default;
+	}
+
 	// R-27. The player has none (R-11), so "" for 0x14, like PersonaOf.
 	RE::BSFixedString Papyrus_OrientationOf(std::monostate, std::int32_t a_formID)
 	{
@@ -1441,6 +1461,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "PersonaOf"sv, Papyrus_PersonaOf, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OrientationOf"sv, Papyrus_OrientationOf, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "Attracted"sv, Papyrus_Attracted, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ModSettingFloat"sv, Papyrus_ModSettingFloat, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ModSettingInt"sv, Papyrus_ModSettingInt, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ModSettingBool"sv, Papyrus_ModSettingBool, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ObserversNear"sv, Papyrus_ObserversNear, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "GetNeed"sv, Papyrus_GetNeed, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SetNeed"sv, Papyrus_SetNeed, std::nullopt, false);
