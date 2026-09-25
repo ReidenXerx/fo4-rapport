@@ -91,6 +91,9 @@ namespace RP
 			std::uint64_t owned{ 0 };
 			std::array<float, kSlots> values{};
 			bool clear{ false };
+			// The world it was built in (_generation): a load bumps it, and a Send built for the
+			// world just left is dropped at the wire instead of landing after the clear-all.
+			std::uint32_t generation{ 0 };
 			// The same face at full depth, for Anatomy to blend toward by its own depth
 			// signal: sent as 'RFAD' right after the RFAS it belongs to.
 			bool                      deep{ false };
@@ -136,14 +139,17 @@ namespace RP
 			bool                      face{ false };
 			std::uint64_t             faceMask{ 0 };
 			std::array<float, kSlots> faceValues{};
+			std::uint32_t             generation{ 0 };   // as Send::generation
 		};
 		[[nodiscard]] std::vector<Glance> DueGlances(Clock::time_point a_now);
 		mutable std::timed_mutex          _glanceLock;   // _nextGlance, _glanceBase, _nextRoll, _eyesBusy,
 		                                                  // _longLook, _dice
 		static void                       Dispatch(const Glance& a_glance);
+		static std::mutex&                WireLock();
 
 		mutable std::timed_mutex _lock;
 		std::atomic_bool         _peer{ false };
+		std::atomic<std::uint32_t> _generation{ 0 };   // bumped by Reset, under _lock
 		std::atomic_bool         _loaded{ false };
 		std::uint32_t            _peerVersion{ 0 };
 		// The hello's feature bits. Bit 1: while the engine plays a line on a held face,

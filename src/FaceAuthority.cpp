@@ -362,6 +362,7 @@ namespace RP
 		                    (a_order.kind == Order::Kind::kApplyExpression && IsClear(a_order.setID));
 		Send send;
 		send.formID = a_order.formID;
+		send.generation = _generation.load();
 		bool stopGlance = false;
 		// Who wears it, asked BEFORE our lock: Barks has a lock of its own.
 		std::string persona;
@@ -427,7 +428,9 @@ namespace RP
 		Dispatch(send);
 		// A face let go ends any glance it was in the middle of ('RFAG' target 0 = stop).
 		if (stopGlance && (_peerFeatures.load() & kGlances)) {
-			Dispatch(Glance{ a_order.formID, 0, 0, 0.0f });
+			Glance stop{ a_order.formID, 0, 0, 0.0f };
+			stop.generation = send.generation;
+			Dispatch(stop);
 		}
 	}
 
@@ -450,6 +453,7 @@ namespace RP
 				held.speaking = false;
 				Send send;
 				send.formID = formID;
+				send.generation = _generation.load();
 				send.owned = MaskFor(held);
 				DeepOf(held, send);
 				if (ValuesFor(held, send.values)) {
@@ -475,6 +479,7 @@ namespace RP
 						std::uniform_real_distribution<float>{ kDriftMin, kDriftMax }(_driftDice) * 1000.0f));
 					Send send;
 					send.formID = formID;
+					send.generation = _generation.load();
 					send.owned = MaskFor(held);
 					DeepOf(held, send);   // an RFAS drops the deep face on their side: it goes again
 					if (ValuesFor(held, send.values)) {
@@ -507,11 +512,13 @@ namespace RP
 		const bool        faces = (_peerFeatures.load() & kGlanceFaces) != 0;
 		std::vector<Seen> seen;
 		std::unordered_map<std::string, Deep> rollFaces;   // a copy, for the same reason as Seen::face
+		std::uint32_t                         generation = 0;
 		{
 			NamedLock lock{ _lock, "face authority" };
 			if (!lock) {
 				return {};
 			}
+			generation = _generation.load();
 			if (faces) {
 				if (const auto roll = _glanceFaces.find("roll"); roll != _glanceFaces.end()) {
 					rollFaces = roll->second;
@@ -669,7 +676,17 @@ namespace RP
 			busy = a_now + std::chrono::milliseconds(static_cast<int>(seconds * 1000.0f));
 			out.push_back(glance);
 		}
+		for (auto& glance : out) {
+			glance.generation = generation;
+		}
 		return out;
+	}
+
+	// Everything that goes to Anatomy about a face or a glance goes through here, one at a time.
+	std::mutex& FaceAuthority::WireLock()
+	{
+		static std::mutex wire;
+		return wire;
 	}
 
 	void FaceAuthority::Dispatch(const Glance& a_glance)
@@ -677,6 +694,10 @@ namespace RP
 		const auto messaging = F4SE::GetMessagingInterface();
 		if (!messaging) {
 			return;
+		}
+		const std::scoped_lock one{ WireLock() };
+		if (a_glance.generation != GetSingleton()._generation.load()) {
+			return;   // as Dispatch(Send): a glance from the world just left
 		}
 		// The face first: Anatomy attaches it to the looker's next glance within 2 s.
 		if (a_glance.face && a_glance.target != 0) {
@@ -742,6 +763,9 @@ namespace RP
 		{
 			NamedLock lock{ _lock, "face authority" };
 			_held.clear();
+			// A new world: anything built for the old one is stale from here (release review:
+			// a Pump could build a face, lose the race to the clear-all below, and land after it).
+			_generation.fetch_add(1);
 		}
 		// And tell the other side, formID 0 = everyone. It drops every hold on a load by
 		// itself; this is the anatomy session's belt-and-braces (2026-09-24), for a hold
@@ -749,6 +773,7 @@ namespace RP
 		if (Available()) {
 			Send send;
 			send.clear = true;
+			send.generation = _generation.load();
 			Dispatch(send);
 		}
 		// Every load, not only the hello (anatomy session, 2026-09-25): cheap, and it can
@@ -764,8 +789,12 @@ namespace RP
 		}
 		// One message, or one RFAS+RFAD pair, at a time: a clear from another thread may not
 		// land between an RFAS and its RFAD. Not _lock -- the receiver takes its own lock.
-		static std::mutex sending;
-		const std::scoped_lock one{ sending };
+		const std::scoped_lock one{ WireLock() };
+		// Built before the last load: its world is gone and the clear-all is already out (or
+		// waiting on this lock, so it goes after anything that passes this check).
+		if (a_send.generation != GetSingleton()._generation.load()) {
+			return;
+		}
 		if (a_send.clear) {
 			ClearMessage message{ kVersion, a_send.formID };
 			messaging->Dispatch(kClear, &message, sizeof(message), kPeer);
