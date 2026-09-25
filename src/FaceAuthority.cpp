@@ -493,6 +493,9 @@ namespace RP
 			send.clear = true;
 			Dispatch(send);
 		}
+		// Every load, not only the hello (anatomy session, 2026-09-25): cheap, and it can
+		// never leave the fork on knobs from a session the player has since changed.
+		SendKnobs();
 	}
 
 	void FaceAuthority::Dispatch(const Send& a_send)
