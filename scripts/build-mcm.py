@@ -32,6 +32,10 @@ PAGES = [
         ("text", "How Rapport scores a pair. With Chemistry installed, Chemistry makes the decision and adds its "
                  "own bonuses on top of this score; without it, Rapport's own trigger starts a scene when the best "
                  "pair clears the bar."),
+        ("section", "Starting"),
+        ("button", "Start now", "Rapport and the mods built on it wait until you leave Vault 111. If an "
+         "alternate start mod means they never started, press this: they start now, in this save.",
+         {"type": "CallGlobalFunction", "script": "Rapport:Core", "function": "StartNow", "params": []}),
         ("section", "The bar"),
         ("Scoring", "minimumScore", scoring, "Score needed (Rapport's own trigger)",
          "The score the best pair must reach before Rapport's built-in trigger starts a scene. Chemistry has its "

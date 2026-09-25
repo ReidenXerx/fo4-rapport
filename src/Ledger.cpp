@@ -1,4 +1,5 @@
 #include "Ledger.h"
+#include "Story.h"
 
 #include "Narrator.h"
 
@@ -28,6 +29,9 @@ namespace
 	constexpr auto kPairRecord = FourCC("PAIR");
 	// Who has been introduced (Names): only the WHO -- the name itself is derived.
 	constexpr auto kNameRecord = FourCC("NAME");
+	// The player started our mods by hand (Story::StartNow): one byte, written only when
+	// set. An older Rapport skips the record; an older save simply has none.
+	constexpr auto kStoryRecord = FourCC("STRY");
 	constexpr std::uint32_t kVersion = 1;
 	// The names record has its own version, for the reason the pair table does
 	// (below). v1 held ids only; v2 holds (id, base) so a reused id reads as
@@ -675,6 +679,7 @@ namespace RP
 
 	void F4SEAPI Ledger::OnRevert(const F4SE::SerializationInterface*)
 	{
+		Story::g_startedByHand.store(false);   // a new game or another save: its own word
 		// Fires before a load and on a new game. Everything in memory belongs to
 		// the character being left behind; keeping any of it would carry one
 		// playthrough's history into another.
@@ -804,6 +809,11 @@ namespace RP
 
 		// Who has been introduced. The names are derived; this list is what makes a
 		// stranger stay a stranger until they have told the player theirs.
+		if (Story::g_startedByHand.load() && a_intfc->OpenRecord(kStoryRecord, kVersion)) {
+			const std::uint8_t started = 1;
+			a_intfc->WriteRecordData(started);
+		}
+
 		const auto introduced = Names::GetSingleton().Introduced();
 		if (a_intfc->OpenRecord(kNameRecord, kNameVersion)) {
 			const auto nameCount = static_cast<std::uint32_t>(introduced.size());
@@ -974,6 +984,14 @@ namespace RP
 			}
 			if (type == kNameRecord) {
 				LoadNames(a_intfc, version, length);
+				continue;
+			}
+			if (type == kStoryRecord) {
+				std::uint8_t started = 0;
+				if (a_intfc->ReadRecordData(started) && started) {
+					Story::g_startedByHand.store(true);
+					logger::info("ledger: this save was started by hand - the game's opening holds nothing back");
+				}
 				continue;
 			}
 			if (type == kPairRecord) {

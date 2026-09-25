@@ -286,6 +286,22 @@ Int Function BridgeSilentTicks() Global Native
 ; Where the bridge's poll got to (steps 1-10, Bridge.OnTimer), and that the medic's own
 ; clock still runs. Read back only by the stall alarm, to say which of its causes it is.
 Function PollMark(Int aiStep) Global Native
+
+; The game's opening (MQ101, character creation to the vault door): True while nothing of
+; Rapport's may start. API 202 (Rapport 0.2.2).
+Bool Function OpeningRunning() Global Native
+; The player's own "start now", kept in this save. True when the opening was holding
+; things back. StartNow below is the MCM button's way in; addons may call either.
+Bool Function StartStoryNow() Global Native
+
+; The "Start now" button on Rapport's, Chemistry's and Overture's MCM pages.
+Function StartNow() Global
+	If Rapport:Core.StartStoryNow()
+		Debug.MessageBox("Started. The game's opening was still running, so Rapport and the mods built on it were waiting for you to leave Vault 111. They start now, and this save remembers it.")
+	Else
+		Debug.MessageBox("Already running: the game's opening is over, so nothing was waiting. This save now also remembers that you started it by hand.")
+	EndIf
+EndFunction
 Function NoteMedicBeat() Global Native
 
 ; Give up on the scene in flight: forget the request, end the scenario, take the

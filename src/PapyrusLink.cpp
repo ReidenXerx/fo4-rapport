@@ -1087,6 +1087,17 @@ namespace
 
 	// major*10000 + minor*100 + patch. An addon checks this on connect and says so
 	// plainly when Rapport is too old, instead of failing native by native.
+	// The game's opening (Story.h), for addons, and the player's way past it by hand.
+	bool Papyrus_OpeningRunning(std::monostate)
+	{
+		return RP::Story::OpeningRunning();
+	}
+
+	bool Papyrus_StartStoryNow(std::monostate)
+	{
+		return RP::Story::StartNow();
+	}
+
 	std::int32_t Papyrus_ApiVersion(std::monostate)
 	{
 		return RP_VERSION_MAJOR * 10000 + RP_VERSION_MINOR * 100 + RP_VERSION_PATCH;
@@ -1466,6 +1477,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "PreviewBond"sv, Papyrus_PreviewBond, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CandidateGeneration"sv, Papyrus_CandidateGeneration, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ApiVersion"sv, Papyrus_ApiVersion, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "OpeningRunning"sv, Papyrus_OpeningRunning, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "StartStoryNow"sv, Papyrus_StartStoryNow, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "IsAffairPair"sv, Papyrus_IsAffairPair, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "IsPairSeeded"sv, Papyrus_IsPairSeeded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SeedBond"sv, Papyrus_SeedBond, std::nullopt, false);

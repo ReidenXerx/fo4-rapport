@@ -15,6 +15,21 @@
         },
         {
           "type": "section",
+          "text": "Starting"
+        },
+        {
+          "type": "button",
+          "text": "Start now",
+          "help": "Rapport and the mods built on it wait until you leave Vault 111. If an alternate start mod means they never started, press this: they start now, in this save.",
+          "action": {
+            "type": "CallGlobalFunction",
+            "script": "Rapport:Core",
+            "function": "StartNow",
+            "params": []
+          }
+        },
+        {
+          "type": "section",
           "text": "The bar"
         },
         {
