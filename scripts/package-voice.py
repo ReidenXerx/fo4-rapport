@@ -72,12 +72,19 @@ def main() -> int:
     voice_root = staging / "Sound" / "Voice" / make_dialogue.PLUGIN
 
     wanted, missing_src, no_lip = {}, [], []
+    types = json.loads((ROOT / "voice" / "voices.json").read_text(encoding="utf-8"))["types"]
+    player_voices = {vt for vt, d in types.items() if d.get("player")}
     for vt_dir in sorted((ROOT / "voice/out").iterdir()):
         # voice/out is its own git repository now: .git (and any dot-folder) is not a
         # voice type, and walking it reported 205 "unrendered" lines that hid real ones.
         if not vt_dir.is_dir() or vt_dir.name.startswith("."):
             continue
         if not vt_dir.is_dir():
+            continue
+        # The PLAYER's voices (O-45) hold the player's own lines for an addon (Overture ships
+        # them itself). The player never says a scene bark (R-11), so none of these is Rapport's
+        # to ship, and every bark "missing" there is missing by design - as render-barks.py has it.
+        if vt_dir.name in player_voices:
             continue
         for lid, info in by_id.items():
             src = vt_dir / f"{lid}.fuz"
