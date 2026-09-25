@@ -479,10 +479,14 @@ PLEASURE_DEEP_BY = {
     "reticent|m": deep_face(80, 0, 50, 35, 95, 55, 45, 45),
 }
 ORAL_DEEP_BY = {
-    # Taking it eagerly: brows up and in, eyes half open and watering up at him.
-    "vulgar|*": deep_face(60, 55, 0, 20, 50, 40, 25, 45),
-    # The pleading look intensifies rather than turning into a wince.
-    "romantic|*": deep_face(60, 90, 0, 25, 70, 30, 20, 35),
+    # EVERY persona keeps the frown at depth -- brows drawn together and down -- which the
+    # owner called "very immersive" (A-29, 2026-09-25). The first cut raised the brows for
+    # these two instead, and the owner saw "deep brows reactions disappeared during blowjob".
+    # The persona lives in the eyes and cheeks, not in the frown.
+    # Taking it eagerly: the frown, with the eyes still half open on him.
+    "vulgar|*": deep_face(85, 0, 55, 30, 50, 40, 35, 55),
+    # The pleading gives way to the frown, eyes shut, a little of the lift left in the inner brows.
+    "romantic|*": deep_face(85, 15, 50, 25, 85, 45, 25, 40),
     # The wince (the generic DEEP) is the reticent's; the mercantile keeps it too.
 }
 DEEP_BY = {
