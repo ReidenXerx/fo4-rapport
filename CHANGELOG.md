@@ -2,6 +2,30 @@
 
 ## 0.2.1 (unreleased)
 
+- **Scenes don't start inside the furniture.** Before one of Rapport's scenes starts, Rapport
+  checks the spot AAF would use. If a table, a shelf or clutter is in the way, it finds a clear,
+  level spot on the floor that the actors can walk to, within a few steps, and hands AAF that spot
+  instead. In a cramped room with nothing fully clear, it picks the spot with the least in the way.
+  Scenes on furniture (beds, chairs) are left to AAF, and so are scenes you start from the AAF menu.
+  Every decision is one line in `Rapport.log`.
+- **Faces that live** (with Anatomy installed). Everything below plays through Anatomy's plugin;
+  without it, the faces are the same as before.
+  - They look into each other's eyes: 4 to 7 seconds at a time, more often as it builds. The look
+    at the moment of climax is long, and there are eye rolls at the peaks.
+  - The face changes with the look: pleading, a smirk, a shy half-smile, a knowing smile, by the
+    kind of person they are.
+  - How deep it goes shows in the face, differently for each person: a romantic melts, a vulgar
+    one narrows her eyes on him, a reticent one winces and hides it, and men grimace.
+  - A face no longer holds still for minutes: every 15-30 seconds it drifts to a sibling (eyes
+    shut in bliss, a bitten lip, a gasp) and back.
+- **Anatomy's settings in Rapport's MCM.** A new "Bodies & faces" page holds Anatomy's switches
+  and sliders (aim, shape, lip fit, the face's reactions, head size), so face and body settings
+  live in one place. Rapport passes them to Anatomy's plugin. Without Anatomy the page does
+  nothing.
+- **Addon settings read reliably.** MCM's own settings store sometimes answered as if a mod's
+  settings file were missing, so an addon ran on its built-in numbers (Overture with scenes
+  switched off). Rapport now reads MCM settings from the files, and addons read theirs through it:
+  `Core.ModSettingFloat`, `ModSettingInt` and `ModSettingBool`.
 - **Dialogue in a borrowed voice.** When an addon's conversation line (Overture's) has no
   recording in the speaker's own voice, a named NPC like Mayor McDonough used to answer in
   subtitles only. Now the line is looked up again in the closest voice that addon did record,

@@ -128,6 +128,29 @@ Copy-Into -From 'build\esp\Rapport_Moisturizer.esp' -To '.' | Out-Null
 # modified and these can be deleted at any time.
 Copy-Into -From 'data\AAF' -To 'AAF' -Tree -Required | Out-Null
 
+# DEV SWITCHES IN THE INI FILES (release review, 2026-09-25): the committed Rapport_settings.ini
+# had debug_to_papyrus_log = true and Rapport.ini had Verbose = 1 -- both documented "ship off",
+# neither guarded. Set in the STAGED copies, then read back, like debug.json above.
+function Set-IniValues([string] $path, [hashtable] $want) {
+    if (-not (Test-Path $path)) { throw "MISSING: $path -- cannot verify its dev switches are off." }
+    $text = [System.IO.File]::ReadAllText($path)
+    foreach ($key in $want.Keys) {
+        $pattern = '(?im)^(\s*' + [regex]::Escape($key) + '\s*=\s*)[^\r\n;]*'
+        if ($text -notmatch $pattern) { throw "$path has no '$key' line - refusing to guess what it ships with." }
+        $text = [regex]::Replace($text, $pattern, '${1}' + $want[$key])
+    }
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($path, $text, $utf8NoBom)
+    $back = [System.IO.File]::ReadAllText($path)
+    foreach ($key in $want.Keys) {
+        $m = [regex]::Match($back, '(?im)^\s*' + [regex]::Escape($key) + '\s*=\s*([^\r\n;]*)')
+        if ($m.Groups[1].Value.Trim() -ne $want[$key]) { throw "$path still has $key = $($m.Groups[1].Value.Trim())" }
+    }
+    Write-Host "  $(Split-Path $path -Leaf): verified $(($want.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', ')"
+}
+Set-IniValues (Join-Path $stage 'AAF\Rapport_settings.ini') @{ 'debug_to_papyrus_log' = 'false' }
+Set-IniValues (Join-Path $stage 'F4SE\Plugins\Rapport.ini') @{ 'Verbose' = '0'; 'DevMailbox' = '0'; 'DevConsole' = '0'; 'PanicClear' = '0' }
+
 # The overlay assets -- the only art Rapport ships, and all of it generated.
 Copy-Into -From 'data\F4SE\Plugins\F4EE' -To 'F4SE\Plugins\F4EE' -Tree -Required | Out-Null
 Copy-Into -From 'data\Materials' -To 'Materials' -Tree -Required | Out-Null
@@ -146,6 +169,10 @@ $bank = Join-Path $root 'voice\out'
 if (-not (Test-Path (Join-Path $bank '.git'))) { throw "voice\out is not the voice repository - clone ReidenXerx/fo4-rapport-voice there." }
 $dirty = git -C $bank status --porcelain
 if ($dirty) { throw "voice\out has uncommitted renders - commit and push them to fo4-rapport-voice first." }
+# ...and PUSHED: an unpushed commit cannot be rebuilt from a clean clone either (release review).
+$ahead = git -C $bank rev-list --count '@{u}..HEAD' 2>$null
+if ($LASTEXITCODE -ne 0) { throw "voice\out has no upstream to compare with - push it to fo4-rapport-voice first." }
+if ([int]$ahead -gt 0) { throw "voice\out is $ahead commit(s) ahead of fo4-rapport-voice - push them first." }
 
 python (Join-Path $root 'scripts\package-voice.py') $stage
 if ($LASTEXITCODE -ne 0) {
