@@ -300,7 +300,12 @@ namespace RP
 			// there is nothing worth acting on.
 			Candidates::GetSingleton().Publish(ranked);
 
-			if (ranked.empty()) {
+			// The pass's detail is Verbose only (owner, 2026-09-26): five or six lines every
+			// twenty seconds, in every loaded area, whether or not anything happens. The tick
+			// line above stays; a scene that starts says who and why on its own.
+			if (!Config::GetSingleton().verbose) {
+				// nothing more
+			} else if (ranked.empty()) {
 				logger::info("   no viable pair ({} candidates, {} watching)",
 					candidates.size(), _scan.ObserverPositions().size());
 			} else {

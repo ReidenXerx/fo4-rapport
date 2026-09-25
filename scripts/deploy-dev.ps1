@@ -51,8 +51,8 @@ Copy-Item (Join-Path $root 'data\F4SE\Plugins\Rapport.ini') $plugins -Force
 # games. Flipping it in the staging copy after the copy is the one place the
 # distinction between "the dev build" and "the build" actually lives.
 $devIni = Join-Path $plugins 'Rapport.ini'
-(Get-Content $devIni) -replace '^DevMailbox=0', 'DevMailbox=1' | Set-Content $devIni -Encoding ASCII
-Write-Host '  dev command channel: ON in staging (repo default stays 0)'
+(Get-Content $devIni) -replace '^DevMailbox=0', 'DevMailbox=1' -replace '^Verbose = 0', 'Verbose = 1' | Set-Content $devIni -Encoding ASCII
+Write-Host '  dev command channel and verbose log: ON in staging (repo defaults stay 0)'
 Copy-Item (Join-Path $root 'data\F4SE\Plugins\Rapport\*.json') (Join-Path $plugins 'Rapport') -Force
 
 # The plugin and the compiled Papyrus. Both are built, not committed: the esp is

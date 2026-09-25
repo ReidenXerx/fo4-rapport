@@ -483,7 +483,10 @@ namespace
 		// negatives -- no deadlock, no exception, no step -- which rules out our
 		// locks and our exceptions but leaves "was Pump even entered?" unanswered.
 		// The counter above proves the NATIVE was called; this proves the body was.
-		const auto watching = RP::PapyrusLink::GetSingleton().Busy();
+		// Verbose only (owner, 2026-09-26: "expensive debug loggings" off in releases):
+		// two lines every poll through a whole scene, 40 a minute, each flushed. The
+		// stall alarm's PollMark evidence answers the same question without a line.
+		const auto watching = RP::Config::GetSingleton().verbose && RP::PapyrusLink::GetSingleton().Busy();
 		if (watching) {
 			logger::info("pump: entering with a scene in flight");
 		}
