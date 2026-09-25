@@ -12,6 +12,7 @@ namespace RP
 		constexpr std::uint32_t kDeep = 0x52464144;    // 'RFAD': the held face at full depth
 		constexpr std::uint32_t kKnobs = 0x5246414B;   // 'RFAK': Anatomy's knobs from Rapport's MCM
 		constexpr std::uint32_t kGlance = 0x52464147;  // 'RFAG': a glance into the partner's eyes
+		constexpr std::uint32_t kGlanceFace = 0x52464158;  // 'RFAX': the face during the next glance
 		constexpr std::uint32_t kVersion = 1;
 		constexpr const char*   kPeer = "OCBPC plugin";   // Anatomy's cbp.dll, by its F4SE name
 
@@ -19,6 +20,24 @@ namespace RP
 		constexpr std::uint32_t kEngineLines = 1u << 1;   // lines keep the mouth, for their real length
 		constexpr std::uint32_t kDepthBlend = 1u << 3;    // blends toward our deep face by depth
 		constexpr std::uint32_t kGlances = 1u << 4;       // turns the eyes to a partner on 'RFAG'
+		constexpr std::uint32_t kGlanceFaces = 1u << 7;   // wears an 'RFAX' face for its glance
+		constexpr std::uint32_t kEasedFaces = 1u << 8;    // eases a held face's change over 250 ms
+
+		// Faces that don't freeze (owner, 2026-09-25): a held face moves to a sibling this often.
+		constexpr float kDriftMin = 15.0f;
+		constexpr float kDriftMax = 30.0f;
+
+		// "Rapport_Pleasure_2_3" -> "Rapport_Pleasure_2": every emitted set ends in its style.
+		[[nodiscard]] std::string BaseOf(const std::string& a_setID)
+		{
+			const auto cut = a_setID.rfind('_');
+			if (cut == std::string::npos || cut + 1 >= a_setID.size() ||
+				!std::all_of(a_setID.begin() + static_cast<std::ptrdiff_t>(cut) + 1, a_setID.end(),
+					[](unsigned char c) { return std::isdigit(c); })) {
+				return a_setID;
+			}
+			return a_setID.substr(0, cut);
+		}
 
 		// A glance's partner stands this close (the two of a scene are an arm's length apart).
 		constexpr float kPartnerReach = 220.0f;
@@ -72,7 +91,7 @@ namespace RP
 		{
 			float everyMin, everyMax, forMin, forMax;
 		};
-		[[nodiscard]] GlanceStyle StyleFor(std::string_view a_persona, bool a_oral)
+		[[nodiscard]] GlanceStyle StyleFor(std::string_view a_persona, bool a_oral, std::string_view a_base)
 		{
 			// The owner's example: during a blowjob, time to time, for 1-2 seconds.
 			GlanceStyle style{ 6.0f, 15.0f, 1.0f, 2.0f };
@@ -88,6 +107,26 @@ namespace RP
 				style.everyMin *= 1.5f;
 				style.everyMax *= 1.5f;
 			}
+			// Glances follow arousal (owner, 2026-09-25): rare at first, more as it builds, and at
+			// the peak they are held -- the long look of Climax starts on its own (DueGlances).
+			float every = 1.0f, hold = 1.0f;
+			if (a_base == "Rapport_Anticipation"sv) {
+				every = 2.0f;
+			} else if (a_base == "Rapport_Pleasure_1"sv) {
+				every = 1.4f;
+			} else if (a_base == "Rapport_Pleasure_3"sv) {
+				every = 0.75f;
+				hold = 1.2f;
+			} else if (a_base == "Rapport_Climax"sv) {
+				every = 0.6f;
+				hold = 1.6f;
+			} else if (a_base == "Rapport_Dazed"sv) {
+				every = 1.3f;
+			}
+			style.everyMin *= every;
+			style.everyMax *= every;
+			style.forMin *= hold;
+			style.forMax *= hold;
 			return style;
 		}
 
@@ -128,6 +167,8 @@ namespace RP
 
 		std::unordered_map<std::string, std::array<float, kSlots>> sets;
 		std::unordered_map<std::string, Deep>                      deep;
+		std::unordered_map<std::string, std::unordered_map<std::string, Deep>> deepBy, glanceFaces;
+		std::unordered_map<std::string, std::vector<Deep>>                     drift;
 		std::uint64_t                                              mouth = 0;
 		std::uint32_t                                              morphs = 50;
 		try {
@@ -162,6 +203,33 @@ namespace RP
 					deep.emplace(setID, entry);
 				}
 			}
+			const auto face = [&](const nlohmann::json& a_settings) {
+				Deep out;
+				for (const auto& [morph, intensity] : a_settings.items()) {
+					const auto id = static_cast<std::size_t>(std::stoul(morph));
+					if (id < morphs) {
+						out.values[id] = std::clamp(intensity.get<float>() / 100.0f, 0.0f, 1.0f);
+						out.mask |= std::uint64_t{ 1 } << id;
+					}
+				}
+				return out;
+			};
+			// The expression pass: optional, each one, so an older faces.json still loads.
+			for (const auto& [base, who] : document.value("deepBy", nlohmann::json::object()).items()) {
+				for (const auto& [key, settings] : who.items()) {
+					deepBy[base].emplace(key, face(settings));
+				}
+			}
+			for (const auto& [base, siblings] : document.value("drift", nlohmann::json::object()).items()) {
+				for (const auto& [name, settings] : siblings.items()) {
+					drift[base].push_back(face(settings));
+				}
+			}
+			for (const auto& [context, byPersona] : document.value("glance", nlohmann::json::object()).items()) {
+				for (const auto& [persona, settings] : byPersona.items()) {
+					glanceFaces[context].emplace(persona, face(settings));
+				}
+			}
 		} catch (const std::exception& e) {
 			logger::error("face authority: {} has a shape this plugin cannot read ({}) - the AAF path alone",
 				PathText(path), e.what());
@@ -172,13 +240,17 @@ namespace RP
 			NamedLock lock{ _lock, "face authority" };
 			_sets = std::move(sets);
 			_deep = std::move(deep);
+			_deepBy = std::move(deepBy);
+			_drift = std::move(drift);
+			_glanceFaces = std::move(glanceFaces);
 			_mouth = mouth;
 			_morphs = morphs;
 			_unknown.clear();
 		}
 		_loaded.store(true);
-		logger::info("face authority: {} set(s) of {} morph(s), {} of them the mouth, {} with a deep face; Anatomy {}",
-			_sets.size(), morphs, std::popcount(mouth), _deep.size(),
+		logger::info("face authority: {} set(s) of {} morph(s), {} of them the mouth, {} with a deep face, {} base(s) "
+					 "with per-person deep faces, {} that drift, {} glance face context(s); Anatomy {}",
+			_sets.size(), morphs, std::popcount(mouth), _deep.size(), _deepBy.size(), _drift.size(), _glanceFaces.size(),
 			_peer.load() ? "answered - Rapport rules the faces it holds"
 						 : "has not answered (yet) - the AAF path alone until it does");
 	}
@@ -206,6 +278,9 @@ namespace RP
 			(a_features & kDepthBlend) ? "ON" : "not offered by this cbp.dll",
 			(a_features & kGlances) ? "ON - held faces look at their partner now and then"
 									: "not offered by this cbp.dll yet");
+		logger::info("face authority: glance faces {}; eased faces {} (faces that don't freeze {})",
+			(a_features & kGlanceFaces) ? "ON" : "not offered", (a_features & kEasedFaces) ? "ON" : "not offered",
+			(a_features & kEasedFaces) ? "ON" : "off without it");
 	}
 
 	bool FaceAuthority::ValuesOf(const std::string& a_setID, std::array<float, kSlots>& a_out)
@@ -222,16 +297,50 @@ namespace RP
 		return false;
 	}
 
-	void FaceAuthority::DeepOf(const std::string& a_setID, Send& a_send) const
+	void FaceAuthority::DeepOf(const Held& a_held, Send& a_send) const
 	{
 		if (!(_peerFeatures.load() & kDepthBlend)) {
 			return;
 		}
-		if (const auto found = _deep.find(a_setID); found != _deep.end()) {
-			a_send.deep = true;
-			a_send.deepMask = found->second.mask;
-			a_send.deepValues = found->second.values;
+		const Deep* chosen = nullptr;
+		if (const auto who = _deepBy.find(a_held.base); who != _deepBy.end()) {
+			const std::string sex = a_held.sex ? std::string(1, a_held.sex) : "*";
+			for (const auto& key : { a_held.persona + "|" + sex, a_held.persona + "|*", "*|" + sex }) {
+				if (const auto it = who->second.find(key); it != who->second.end()) {
+					chosen = &it->second;
+					break;
+				}
+			}
 		}
+		if (!chosen) {
+			if (const auto found = _deep.find(a_held.setID); found != _deep.end()) {
+				chosen = &found->second;
+			}
+		}
+		if (chosen) {
+			a_send.deep = true;
+			a_send.deepMask = chosen->mask;
+			a_send.deepValues = chosen->values;
+		}
+	}
+
+	bool FaceAuthority::ValuesFor(const Held& a_held, std::array<float, kSlots>& a_out)
+	{
+		if (!ValuesOf(a_held.setID, a_out)) {
+			return false;
+		}
+		if (a_held.drift >= 0) {
+			if (const auto found = _drift.find(a_held.base);
+				found != _drift.end() && a_held.drift < static_cast<int>(found->second.size())) {
+				const auto& sibling = found->second[static_cast<std::size_t>(a_held.drift)];
+				for (std::size_t id = 0; id < kSlots; ++id) {
+					if (sibling.mask & (std::uint64_t{ 1 } << id)) {
+						a_out[id] = sibling.values[id];
+					}
+				}
+			}
+		}
+		return true;
 	}
 
 	std::uint64_t FaceAuthority::MaskFor(const Held& a_held) const noexcept
@@ -250,6 +359,17 @@ namespace RP
 		Send send;
 		send.formID = a_order.formID;
 		bool stopGlance = false;
+		// Who wears it, asked BEFORE our lock: Barks has a lock of its own.
+		std::string persona;
+		char        sex = 0;
+		if (a_order.kind == Order::Kind::kApplyExpression && !clears) {
+			persona = a_order.formID == 0x14 ? std::string{} : Barks::GetSingleton().PersonaOf(a_order.formID);
+			if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_order.formID)) {
+				if (auto* npc = actor->GetNPC()) {
+					sex = npc->GetSex() == RE::SEX::kFemale ? 'f' : 'm';
+				}
+			}
+		}
 		{
 			NamedLock lock{ _lock, "face authority" };
 			if (!lock) {
@@ -267,8 +387,14 @@ namespace RP
 				}
 				auto& held = _held[a_order.formID];
 				held.setID = a_order.setID;
+				held.base = BaseOf(a_order.setID);
+				held.persona = persona;
+				held.sex = sex;
+				held.drift = -1;   // a new face starts as itself
+				held.nextDrift = Clock::now() + std::chrono::milliseconds(static_cast<int>(
+					std::uniform_real_distribution<float>{ kDriftMin, kDriftMax }(_driftDice) * 1000.0f));
 				send.owned = MaskFor(held);
-				DeepOf(held.setID, send);
+				DeepOf(held, send);
 			} else if (a_order.kind == Order::Kind::kSayTopic) {
 				// Their side hands the mouth to the line itself, for as long as the engine
 				// plays it -- better than any guess here, and any line, not just ours.
@@ -283,12 +409,12 @@ namespace RP
 				}
 				auto& held = found->second;
 				held.speakingUntil = Clock::now() + kSpeakingWindow;
-				if (held.speaking || !ValuesOf(held.setID, send.values)) {
+				if (held.speaking || !ValuesFor(held, send.values)) {
 					return;   // already speaking: the window was only extended
 				}
 				held.speaking = true;
 				send.owned = MaskFor(held);
-				DeepOf(held.setID, send);
+				DeepOf(held, send);
 			} else {
 				return;
 			}
@@ -321,9 +447,35 @@ namespace RP
 				Send send;
 				send.formID = formID;
 				send.owned = MaskFor(held);
-				DeepOf(held.setID, send);
-				if (ValuesOf(held.setID, send.values)) {
+				DeepOf(held, send);
+				if (ValuesFor(held, send.values)) {
 					sends.push_back(send);
+				}
+			}
+			// Faces that don't freeze (owner, 2026-09-25): now and then a held face moves to a
+			// sibling -- bliss, a bitten lip, a gasp, open eyes -- or back to itself. Only when
+			// Anatomy eases the change (bit 8): a snap every 20 s would be worse than a still face.
+			if (_peerFeatures.load() & kEasedFaces) {
+				for (auto& [formID, held] : _held) {
+					const auto siblings = _drift.find(held.base);
+					if (held.speaking || siblings == _drift.end() || siblings->second.empty() || now < held.nextDrift) {
+						continue;
+					}
+					const int count = static_cast<int>(siblings->second.size());
+					int       pick = std::uniform_int_distribution<int>{ -1, count - 1 }(_driftDice);
+					if (pick == held.drift) {
+						pick = pick + 1 < count ? pick + 1 : -1;   // always a change
+					}
+					held.drift = pick;
+					held.nextDrift = now + std::chrono::milliseconds(static_cast<int>(
+						std::uniform_real_distribution<float>{ kDriftMin, kDriftMax }(_driftDice) * 1000.0f));
+					Send send;
+					send.formID = formID;
+					send.owned = MaskFor(held);
+					DeepOf(held, send);   // an RFAS drops the deep face on their side: it goes again
+					if (ValuesFor(held, send.values)) {
+						sends.push_back(send);
+					}
 				}
 			}
 		}
@@ -344,7 +496,11 @@ namespace RP
 			std::uint32_t formID;
 			bool          oral;
 			bool          speaking;
+			std::string   base;
+			std::string   persona;
+			std::optional<Deep> face;   // a COPY: Load may replace _glanceFaces once our lock is let go
 		};
+		const bool        faces = (_peerFeatures.load() & kGlanceFaces) != 0;
 		std::vector<Seen> seen;
 		{
 			NamedLock lock{ _lock, "face authority" };
@@ -352,7 +508,20 @@ namespace RP
 				return {};
 			}
 			for (const auto& [formID, held] : _held) {
-				seen.push_back(Seen{ formID, held.setID.starts_with("Rapport_Oral"sv), held.speaking });
+				const bool  oral = held.base == "Rapport_Oral"sv;
+				std::optional<Deep> face;
+				if (faces) {
+					if (const auto context = _glanceFaces.find(oral ? "oral" : "face"); context != _glanceFaces.end()) {
+						auto it = context->second.find(held.persona);
+						if (it == context->second.end()) {
+							it = context->second.find("romantic");   // the player, or anyone without a persona
+						}
+						if (it != context->second.end()) {
+							face = it->second;
+						}
+					}
+				}
+				seen.push_back(Seen{ formID, oral, held.speaking, held.base, held.persona, face });
 			}
 		}
 		std::vector<Glance> out;
@@ -360,9 +529,11 @@ namespace RP
 		if (!glanceLock) {
 			return out;
 		}
-		std::erase_if(_nextGlance, [&](const auto& a_entry) {
+		const auto gone = [&](const auto& a_entry) {
 			return std::ranges::none_of(seen, [&](const Seen& a_seen) { return a_seen.formID == a_entry.first; });
-		});
+		};
+		std::erase_if(_nextGlance, gone);
+		std::erase_if(_glanceBase, gone);
 		// Where everyone is, once: the partner test compares every pair.
 		std::vector<std::pair<std::uint32_t, RE::NiPoint3>> where;
 		for (const auto& one : seen) {
@@ -394,29 +565,44 @@ namespace RP
 			return std::chrono::milliseconds(
 				static_cast<int>(std::uniform_real_distribution<float>{ a_lo, a_hi }(_dice) * 1000.0f));
 		};
-		for (const auto& [formID, oral, speaking] : seen) {
-			// The player's eyes are the camera's; a speaking face is busy with its line.
-			if (formID == 0x14 || speaking) {
+		for (const auto& [formID, oral, speaking, base, persona, face] : seen) {
+			// The player's eyes are the camera's; a speaking face is busy with its line; a kiss is
+			// too close to look into anyone's eyes.
+			if (formID == 0x14 || speaking || base == "Rapport_Kiss"sv) {
 				continue;
 			}
+			// The peak: the moment Climax begins, a long held look, whatever the schedule said.
+			auto&      lastBase = _glanceBase[formID];
+			const bool peak = base == "Rapport_Climax"sv && lastBase != base;
+			lastBase = base;
 			auto [next, fresh] = _nextGlance.try_emplace(formID, a_now);
-			if (!fresh && a_now < next->second) {
-				continue;   // not due: no persona asked, no lock of Barks' taken
+			if (!peak && !fresh && a_now < next->second) {
+				continue;   // not due
 			}
-			const auto style = StyleFor(Barks::GetSingleton().PersonaOf(formID), oral);
-			if (fresh) {
+			const auto style = StyleFor(persona, oral, base);
+			if (fresh && !peak) {
 				// The first look comes after a while, not the moment the face is put on.
 				next->second = a_now + randomMs(style.everyMin, style.everyMax);
 				continue;
 			}
 			const auto  partner = nearestTo(formID);
-			const float seconds = std::uniform_real_distribution<float>{ style.forMin, style.forMax }(_dice);
+			const float seconds = peak ? std::uniform_real_distribution<float>{ 3.0f, 4.5f }(_dice)
+			                           : std::uniform_real_distribution<float>{ style.forMin, style.forMax }(_dice);
 			next->second = a_now + std::chrono::milliseconds(static_cast<int>(seconds * 1000.0f)) +
 			               randomMs(style.everyMin, style.everyMax);
 			if (partner == 0 || nearestTo(partner) != formID) {
 				continue;   // nobody close, or the closest one is someone else's partner
 			}
-			out.push_back(Glance{ formID, partner, static_cast<std::uint32_t>(seconds * 1000.0f), oral ? 0.95f : 0.85f });
+			Glance glance{ formID, partner, static_cast<std::uint32_t>(seconds * 1000.0f), oral ? 0.95f : 0.85f };
+			if (face) {
+				glance.face = true;
+				glance.faceMask = face->mask;
+				glance.faceValues = face->values;
+			}
+			if (peak) {
+				logger::info("glance: {:08X} holds {:08X}'s eyes for {:.1f} s as it peaks", formID, partner, seconds);
+			}
+			out.push_back(glance);
 		}
 		return out;
 	}
@@ -426,6 +612,12 @@ namespace RP
 		const auto messaging = F4SE::GetMessagingInterface();
 		if (!messaging) {
 			return;
+		}
+		// The face first: Anatomy attaches it to the looker's next glance within 2 s.
+		if (a_glance.face && a_glance.target != 0) {
+			SetMessage face{ kVersion, a_glance.looker, a_glance.faceMask, {} };
+			std::ranges::copy(a_glance.faceValues, face.value);
+			messaging->Dispatch(kGlanceFace, &face, sizeof(face), kPeer);
 		}
 		GlanceMessage message{ kVersion, a_glance.looker, a_glance.target, a_glance.durationMs, a_glance.lidsOpen, 0 };
 		messaging->Dispatch(kGlance, &message, sizeof(message), kPeer);

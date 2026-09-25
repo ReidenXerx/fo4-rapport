@@ -446,6 +446,116 @@ DEEP.update({
     "Rapport_Pleasure_2": pleasure_deep(0.85),
     "Rapport_Pleasure_3": pleasure_deep(1.00),
 })
+# ---- THE EXPRESSION PASS (owner, 2026-09-25: "make more variety of expressions overall ...
+# use these our innovations fully"). Three tables that only Anatomy's plugin can wear; the AAF
+# path never sees them. A persona is R-8's; a sex is the actor's own ('f' / 'm').
+#
+# DEEP_BY: the face at full depth, per person, laid over the generic DEEP. Keys are
+# "persona|sex", with "*" for any; the most specific that exists wins (persona|sex,
+# persona|*, *|sex), then the generic DEEP. The per-stage factor of pleasure_deep applies.
+def deep_face(squeeze, mid_up, mid_down, outer_down, lid_down, lid_up_low, nose, cheek):
+    return ([("Brow Squeeze", squeeze)]
+            + sym("Middle Brow Up", mid_up) + sym("Middle Brow Down", mid_down)
+            + [("Left Brow Outer Up", 0), ("Right Outer Brow Up", 0)]
+            + sym("Outer Brow Down", outer_down)
+            + sym("Upper Eye Lid Down", lid_down) + sym("Upper Eye Lid Up", 0)
+            + sym("Lower Eye Lid Up", lid_up_low) + sym("Lower Eye Lid Down", 0)
+            + sym("Nose Up", nose) + sym("Cheek Up", cheek))
+
+
+PLEASURE_DEEP_BY = {
+    # She melts: the inner brows float up, the eyes close softly.
+    "romantic|*": deep_face(30, 90, 0, 15, 85, 25, 15, 55),
+    # Hungry: brows pulled down and in, eyes NARROWED on him, not shut; a snarl in the nose.
+    "vulgar|*": deep_face(70, 0, 40, 30, 45, 60, 55, 60),
+    # Winces and hides it: squeezed shut, the brows up in spite of herself.
+    "reticent|*": deep_face(80, 60, 0, 20, 100, 50, 40, 40),
+    # Composed until it cracks: less of everything, the lids going.
+    "mercantile|*": deep_face(45, 50, 0, 20, 65, 30, 20, 40),
+    # A man grimaces rather than frowns: brows down hard, eyes squinting, nose up.
+    "*|m": deep_face(75, 0, 60, 40, 70, 55, 50, 50),
+    # ... and the vulgar man keeps watching.
+    "vulgar|m": deep_face(70, 0, 55, 35, 40, 60, 55, 55),
+    "reticent|m": deep_face(80, 0, 50, 35, 95, 55, 45, 45),
+}
+ORAL_DEEP_BY = {
+    # Taking it eagerly: brows up and in, eyes half open and watering up at him.
+    "vulgar|*": deep_face(60, 55, 0, 20, 50, 40, 25, 45),
+    # The pleading look intensifies rather than turning into a wince.
+    "romantic|*": deep_face(60, 90, 0, 25, 70, 30, 20, 35),
+    # The wince (the generic DEEP) is the reticent's; the mercantile keeps it too.
+}
+DEEP_BY = {
+    "Rapport_Oral": ORAL_DEEP_BY,
+    "Rapport_Pleasure_1": {k: scale(v, 0.70) for k, v in PLEASURE_DEEP_BY.items()},
+    "Rapport_Pleasure_2": {k: scale(v, 0.85) for k, v in PLEASURE_DEEP_BY.items()},
+    "Rapport_Pleasure_3": PLEASURE_DEEP_BY,
+}
+
+# DRIFT: so no face holds for minutes. Every 15-30 s a held face of these sets moves to one
+# of its siblings (or back to itself), each laid OVER the held face (its style included),
+# by the set's own level. Anatomy eases the change (hello bit 8); without that it never
+# drifts. The mouth ones only ever reach a free mouth: while something is in it the
+# contact mouth wins, and a speaking actor's mouth is the line's.
+def drift_siblings(level):
+    k = level / 100.0
+    return {
+        # eyes shut in bliss, the brows floating
+        "bliss": scale(sym("Upper Eye Lid Down", 95) + sym("Middle Brow Up", 70) + sym("Cheek Up", 40), k),
+        # the lip caught in the teeth
+        "bite": scale([("Lower Lip Roll In", 65), ("Sticky Lips", 35), ("Brow Squeeze", 35)]
+                      + sym("Upper Eye Lid Down", 60), k),
+        # a gasp: the mouth opens, the lids fly up, the brows too
+        "gasp": [("Jaw Open", int(round(20 + 30 * k)))] + scale(sym("Upper Eye Lid Down", 0)
+                 + sym("Upper Eye Lid Up", 45) + sym("Middle Brow Up", 85), k),
+        # open-eyed, looking at nothing, taking it in
+        "open": scale(sym("Upper Eye Lid Down", 15) + sym("Lower Eye Lid Down", 25)
+                      + sym("Middle Brow Up", 45) + sym("Lip Corner Out", 30), k),
+    }
+
+
+DRIFT = {"Rapport_Anticipation": drift_siblings(25), "Rapport_Pleasure_1": drift_siblings(35),
+         "Rapport_Pleasure_2": drift_siblings(60), "Rapport_Pleasure_3": drift_siblings(85)}
+
+# GLANCE: the face during a glance into the partner's eyes ('RFAX', hello bit 7), per context
+# and persona. Eased in and out by Anatomy over the glance; its lids layer opens the eyes.
+GLANCE = {
+    "oral": {
+        "romantic": [("Brow Squeeze", 45)] + sym("Middle Brow Up", 90) + sym("Outer Brow Down", 20)
+                    + sym("Lower Eye Lid Down", 20) + sym("Cheek Up", 20),               # pleading
+        "reticent": [("Brow Squeeze", 50)] + sym("Middle Brow Up", 80) + sym("Outer Brow Down", 25)
+                    + sym("Lower Eye Lid Down", 10) + sym("Cheek Up", 25),               # pleading, unsure
+        "vulgar": [("Brow Squeeze", 20), ("Left Brow Outer Up", 50), ("Right Outer Brow Up", 50)]
+                  + sym("Middle Brow Up", 60) + sym("Lower Eye Lid Up", 30) + sym("Cheek Up", 35)
+                  + sym("Nose Up", 20),                                                  # hungry
+        "mercantile": [("Left Brow Outer Up", 55), ("Right Middle Brow Down", 25)]
+                      + sym("Lower Eye Lid Up", 35) + sym("Cheek Up", 25),               # knowing
+    },
+    "face": {
+        "romantic": sym("Smile", 45) + sym("Cheek Up", 45) + sym("Middle Brow Up", 50)
+                    + sym("Lower Eye Lid Up", 30),                                       # a soft smile
+        "reticent": sym("Smile", 25) + sym("Middle Brow Up", 45) + sym("Lower Eye Lid Up", 20)
+                    + sym("Cheek Up", 25),                                               # a shy half-smile
+        "vulgar": [("Left Smile", 60), ("Right Smile", 15), ("Left Lip Corner Out", 30), ("Left Nose Up", 25)]
+                  + sym("Lower Eye Lid Up", 55) + sym("Outer Brow Down", 25),            # a smirk, eyes narrowed
+        "mercantile": [("Left Smile", 35), ("Right Smile", 20), ("Left Brow Outer Up", 45)]
+                      + sym("Lower Eye Lid Up", 30) + sym("Cheek Up", 30),               # a knowing smile
+    },
+}
+
+for _table in (DEEP_BY,):
+    for _set, _faces in _table.items():
+        assert _set in {entry[0] for entry in SETS}, _set
+        for _k, _face in _faces.items():
+            assert not {n for n, _ in _face} & set(MOUTH), f"a deep face may not blend a mouth morph ({_set} {_k})"
+for _set in DRIFT:
+    assert _set in {entry[0] for entry in SETS}, _set
+for _ctx in GLANCE.values():
+    for _face in _ctx.values():
+        assert {n for n, _ in _face} <= set(MORPHS)
+        # The blink lids are Anatomy's lids layer during a glance.
+        assert not {n for n, _ in _face} & {"Left Upper Eye Lid Down", "Right Upper Eye Lid Down"}
+
 # A renamed set would otherwise lose its deep face without a word.
 assert set(DEEP) <= {entry[0] for entry in SETS}, "DEEP names a set SETS does not have"
 assert not {name for face in DEEP.values() for name, _ in face} & set(MOUTH), \
@@ -526,6 +636,11 @@ def main():
         # The face at full depth, by the same set names, for the sets that have one:
         # every morph listed is blended, and only those. See DEEP.
         "deep": deep,
+        # The expression pass (2026-09-25), all keyed by BASE set, not the styled name:
+        # per-person deep faces, drift siblings, and glance faces. See DEEP_BY, DRIFT, GLANCE.
+        "deepBy": {s: {k: {str(ID[n]): v for n, v in f} for k, f in faces_.items()} for s, faces_ in DEEP_BY.items()},
+        "drift": {s: {k: {str(ID[n]): v for n, v in f} for k, f in sib.items()} for s, sib in DRIFT.items()},
+        "glance": {c: {p: {str(ID[n]): v for n, v in f} for p, f in faces_.items()} for c, faces_ in GLANCE.items()},
     }
     with io.open(faces_path, 'w', encoding="utf-8", newline="\n") as fh:
         fh.write(json.dumps(document, indent=1) + "\n")

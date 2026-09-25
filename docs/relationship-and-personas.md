@@ -1285,3 +1285,52 @@ mechanic."
 - **Gameplay, not mechanics** (R-22's principle). It applies to scenes our mods start. A scene started from
   the AAF menu stays free.
 - The player has no orientation (R-11). The player's choices are the player's own.
+
+## R-28 - The expression pass: faces that live (owner, 2026-09-25)
+
+The owner, through the anatomy session: "make more variety of expressions overall ... use these our innovations
+fully to reveal potential of it". On the glances: "HUGE on perception ... it starts looking like a REAL PEOPLE".
+They picked all four directions by poll ("everything! ... use your imagination").
+
+**1. The face changes with the glance.** The glance face is sent as 'RFAX' just before its 'RFAG' (hello
+bit 7). Anatomy eases it in over 150 ms and out over the glance's last 250 ms. Mouth ids are used only while
+the mouth is free, and the blink lids stay Anatomy's.
+- **During oral:** romantic pleads, reticent pleads unsure, vulgar looks hungry with the brows up, mercantile
+  looks knowing.
+- **Face to face:** romantic gives a soft smile, reticent a shy half-smile, vulgar a smirk with narrowed
+  eyes, mercantile a knowing smile.
+- A player, or anyone without a persona, gets the romantic face.
+
+**2. Glances follow arousal.** How often she looks, by stage:
+- Anticipation: every ×2.0;
+- Pleasure 1: ×1.4;
+- Pleasure 2: ×1.0;
+- Pleasure 3: ×0.75, held ×1.2;
+- Climax: ×0.6, held ×1.6;
+- Dazed: ×1.3.
+
+The moment Climax begins, there is one long look of 3-4.5 s. There are no glances during a kiss, when the
+faces are too close.
+
+**3. Depth looks different per person.** These are laid over the generic deep face and chosen by persona and
+sex, the most specific first.
+- **Pleasure depth:**
+  - romantic melts;
+  - vulgar narrows its eyes on him, hungry;
+  - reticent winces and hides it;
+  - mercantile stays composed until it cracks.
+- **A man grimaces** instead: brows down hard, a squint, the nose up. A vulgar man keeps watching; a
+  reticent one shuts his eyes.
+- **Oral depth:** vulgar is eager, romantic pleads harder. Reticent and mercantile keep the wince.
+- Pleasure 1 and 2 reach it at ×0.70 and ×0.85. Anatomy blends it by depth for both actors, each by their
+  own depth.
+
+**4. Faces that don't freeze.** Every 15-30 s, a held Anticipation or Pleasure face moves to a sibling or
+back to itself: eyes shut in bliss, a bitten lip, a gasp, or open eyes taking it in. It is sent as RFAS
+followed by its RFAD. It runs only when Anatomy eases held-face changes over 250 ms (hello bit 8): a snap
+every 20 s would be worse than a still face.
+
+**Where:** tools/make_mfg.py `DEEP_BY`, `DRIFT` and `GLANCE` write faces.json's `deepBy`, `drift` and
+`glance` keys. src/FaceAuthority.cpp holds DeepOf, ValuesFor, Pump's drift and DueGlances. Only Anatomy's
+plugin can wear any of this; the AAF path is unchanged. Every value is ASSUMED, for the owner to judge in
+game.

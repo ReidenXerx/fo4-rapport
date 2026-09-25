@@ -76,6 +76,13 @@ namespace RP
 			std::string       setID;
 			Clock::time_point speakingUntil{};
 			bool              speaking{ false };
+			// The expression pass (2026-09-25): who wears it, read when it is put on (outside our
+			// lock), and which drift sibling it shows now (-1 = the set itself).
+			std::string       base;      // the set without its style: Rapport_Pleasure_2
+			std::string       persona;   // R-8's, "" for the player
+			char              sex{ 0 };  // 'f', 'm', 0 unknown
+			int               drift{ -1 };
+			Clock::time_point nextDrift{};
 		};
 
 		struct Send
@@ -101,9 +108,12 @@ namespace RP
 		// The values of a set, found under our lock. False when faces.json never
 		// named it, which is said once.
 		[[nodiscard]] bool ValuesOf(const std::string& a_setID, std::array<float, kSlots>& a_out);
+		// The held face as it should show NOW: its set, with its drift sibling laid over.
+		[[nodiscard]] bool ValuesFor(const Held& a_held, std::array<float, kSlots>& a_out);
 		[[nodiscard]] std::uint64_t MaskFor(const Held& a_held) const noexcept;
-		// Puts the set's deep face on a_send, when it has one and Anatomy blends. Under our lock.
-		void DeepOf(const std::string& a_setID, Send& a_send) const;
+		// Puts the held face's deep face on a_send, when Anatomy blends: the most specific of
+		// persona|sex, persona|*, *|sex for its base set, else the generic one. Under our lock.
+		void DeepOf(const Held& a_held, Send& a_send) const;
 
 		static void Dispatch(const Send& a_send);
 
@@ -121,9 +131,13 @@ namespace RP
 			std::uint32_t target{ 0 };
 			std::uint32_t durationMs{ 0 };
 			float         lidsOpen{ 0.0f };
+			// The face for that moment ('RFAX', sent just before the RFAG; hello bit 7).
+			bool                      face{ false };
+			std::uint64_t             faceMask{ 0 };
+			std::array<float, kSlots> faceValues{};
 		};
 		[[nodiscard]] std::vector<Glance> DueGlances(Clock::time_point a_now);
-		mutable std::timed_mutex          _glanceLock;   // _nextGlance, _dice
+		mutable std::timed_mutex          _glanceLock;   // _nextGlance, _glanceBase, _dice
 		static void                       Dispatch(const Glance& a_glance);
 
 		mutable std::timed_mutex _lock;
@@ -140,9 +154,15 @@ namespace RP
 		std::uint64_t            _mouth{ 0 };
 		std::unordered_map<std::string, std::array<float, kSlots>> _sets;
 		std::unordered_map<std::string, Deep>                      _deep;
+		// The expression pass, from faces.json (tools/make_mfg.py DEEP_BY, DRIFT, GLANCE).
+		std::unordered_map<std::string, std::unordered_map<std::string, Deep>> _deepBy;        // base -> who
+		std::unordered_map<std::string, std::vector<Deep>>                     _drift;         // base -> siblings
+		std::unordered_map<std::string, std::unordered_map<std::string, Deep>> _glanceFaces;   // oral|face -> persona
+		std::mt19937                                                            _driftDice{ std::random_device{}() };
 		std::unordered_set<std::string>                            _unknown;   // said once each
 		std::unordered_map<std::uint32_t, Held>                    _held;
 		std::unordered_map<std::uint32_t, Clock::time_point>       _nextGlance;   // per held actor
+		std::unordered_map<std::uint32_t, std::string>             _glanceBase;   // the base each was last seen in
 		std::mt19937                                               _dice{ std::random_device{}() };
 	};
 }
