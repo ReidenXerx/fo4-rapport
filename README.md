@@ -38,15 +38,15 @@ game**. That distinction is kept honestly and is worth reading before relying on
 | Faces and overlays | LooksMenu / F4EE — AAF's overlay and morph calls go through it |
 | Animation packs | Whatever you already have. Rapport reads their XML rather than requiring a particular pack. |
 
-**Optional, for the aftermath feature only** — one of:
+**Optional, for the aftermath feature only:**
 
-- **CumOverlays** v1.4 — flat LooksMenu textures on the body. There is no face or mouth template
-  among its 57, so on that backend the oral region lands on the chest.
-- **Commonwealth Moisturizer** — BodySlide-conformed worn geometry with morphing headparts. It does
-  faces, which is why `"backend": "auto"` prefers it. Run its FOMOD for your body and build the
+- **Commonwealth Moisturizer** — BodySlide-conformed worn geometry with morphing headparts, so it can
+  put something on a face. It is the only aftermath backend. Run its FOMOD for your body and build the
   semen outfit in BodySlide with **Build Morphs** ticked; Rapport checks for the resulting `.tri` at
   startup and says which situation you are in, because a mesh with no morph data looks exactly like
   a broken mod.
+- **CumOverlays** is no longer supported: it paints a flat texture and cannot do a face. If it is
+  installed, Rapport silences its listener so it cannot paint over the meshes.
 
 With neither installed the aftermath feature turns itself off and says so in the log. Nothing else
 is affected.
