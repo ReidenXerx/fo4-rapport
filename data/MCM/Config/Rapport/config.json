@@ -411,201 +411,136 @@
       ]
     },
     {
-      "pageDisplayName": "Debug",
+      "pageDisplayName": "Bodies & faces",
       "content": [
         {
           "type": "text",
-          "text": "Scenes on demand, for testing. Face the actor you mean, then click - or bind a key below and press it in game. FORCED skips the score bar, cooldowns, privacy and time of day; REAL obeys every rule and says on the HUD which one refused. Adults only, one scene at a time - always."
+          "text": "Anatomy's body and face work, set here. These reach Anatomy's plugin by message; without Anatomy installed they change nothing."
         },
         {
           "type": "section",
-          "text": "A scene with you"
+          "text": "What it does"
         },
         {
-          "type": "button",
-          "text": "A scene with the one I face - FORCED",
-          "help": "You and the actor you are facing (a few steps away), through Rapport's own scene request. Skips the score bar, cooldowns, privacy and time of day.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "SceneWithMeForced",
-            "params": []
+          "type": "switcher",
+          "id": "bAim:Anatomy",
+          "text": "Aim",
+          "help": "The penis finds the opening it is meant for.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
           }
         },
         {
-          "type": "button",
-          "text": "A scene with the one I face - REAL",
-          "help": "The same, obeying every rule a real request obeys (their cooldown included). The HUD says which rule refused.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "SceneWithMeReal",
-            "params": []
+          "type": "switcher",
+          "id": "bShape:Anatomy",
+          "text": "Shape",
+          "help": "A slimmer shaft and a fuller head, per man.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
           }
         },
         {
-          "type": "section",
-          "text": "A scene for them"
-        },
-        {
-          "type": "button",
-          "text": "The one I face + their best partner - FORCED",
-          "help": "The actor you are facing, with the partner Rapport's own pairing ranks best nearby. Skips the score bar, cooldowns, privacy and time of day.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "SceneForThemForced",
-            "params": []
+          "type": "switcher",
+          "id": "bLipFit:Anatomy",
+          "text": "Lips fit",
+          "help": "Lips close around what is between them.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
           }
         },
         {
-          "type": "button",
-          "text": "The one I face + their best partner - REAL",
-          "help": "The same, only if that pair clears the bar and nobody is resting - exactly as autonomy would decide. The HUD says why not.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "SceneForThemReal",
-            "params": []
+          "type": "switcher",
+          "id": "bFaceReaction:Anatomy",
+          "text": "Face reacts during oral",
+          "help": "Brows, cheeks and nose react while something is in the mouth.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "switcher",
+          "id": "bDeepFace:Anatomy",
+          "text": "Deeper, stronger face",
+          "help": "The face moves toward its deep version as the penis goes deeper - in the mouth, the vagina or the anus.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
           }
         },
         {
           "type": "section",
-          "text": "A pair of one kind"
+          "text": "Tuning"
         },
         {
-          "type": "text",
-          "text": "The best pair of that kind near you. Face someone to make them one of the two - or face nobody and let Rapport rank everyone in range."
-        },
-        {
-          "type": "button",
-          "text": "Best F+F pair nearby - FORCED",
-          "help": "The best-ranked pair of two women near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "PairFFForced",
-            "params": []
+          "type": "slider",
+          "id": "fLipClearance:Anatomy",
+          "text": "Lip clearance",
+          "help": "Room left between the lips and the shaft.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 0.2,
+            "step": 0.01,
+            "sourceType": "ModSettingFloat"
           }
         },
         {
-          "type": "button",
-          "text": "Best F+F pair nearby - REAL",
-          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "PairFFReal",
-            "params": []
+          "type": "slider",
+          "id": "fLipSpeed:Anatomy",
+          "text": "Lip speed",
+          "help": "How fast the lips follow (1 = the default rate).",
+          "valueOptions": {
+            "min": 0.25,
+            "max": 3.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
           }
         },
         {
-          "type": "button",
-          "text": "Best F+M pair nearby - FORCED",
-          "help": "The best-ranked pair of a woman and a man near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "PairFMForced",
-            "params": []
+          "type": "slider",
+          "id": "fShaftScale:Anatomy",
+          "text": "Shaft thickness",
+          "help": "Below about 0.7 the aim's collision gets thin.",
+          "valueOptions": {
+            "min": 0.6,
+            "max": 1.2,
+            "step": 0.01,
+            "sourceType": "ModSettingFloat"
           }
         },
         {
-          "type": "button",
-          "text": "Best F+M pair nearby - REAL",
-          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "PairFMReal",
-            "params": []
+          "type": "slider",
+          "id": "fHeadMin:Anatomy",
+          "text": "Head size, smallest",
+          "help": "Each man's head size is chosen between these two.",
+          "valueOptions": {
+            "min": 1.0,
+            "max": 2.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
           }
         },
         {
-          "type": "button",
-          "text": "Best M+M pair nearby - FORCED",
-          "help": "The best-ranked pair of two men near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "PairMMForced",
-            "params": []
+          "type": "slider",
+          "id": "fHeadMax:Anatomy",
+          "text": "Head size, largest",
+          "help": "If this is below the smallest, the smallest is used for both.",
+          "valueOptions": {
+            "min": 1.0,
+            "max": 2.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
           }
         },
         {
-          "type": "button",
-          "text": "Best M+M pair nearby - REAL",
-          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not.",
-          "action": {
-            "type": "CallGlobalFunction",
-            "script": "Rapport:DebugTriggers",
-            "function": "PairMMReal",
-            "params": []
+          "type": "slider",
+          "id": "fReactScale:Anatomy",
+          "text": "Face reaction strength",
+          "help": "0 turns the reaction off, 2 doubles it.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 2.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
           }
-        },
-        {
-          "type": "section",
-          "text": "Hotkeys"
-        },
-        {
-          "id": "RapportSceneWithMeForced",
-          "text": "With me - forced",
-          "type": "hotkey",
-          "help": "You and the actor you are facing (a few steps away), through Rapport's own scene request. Skips the score bar, cooldowns, privacy and time of day."
-        },
-        {
-          "id": "RapportSceneWithMeReal",
-          "text": "With me - real",
-          "type": "hotkey",
-          "help": "The same, obeying every rule a real request obeys (their cooldown included). The HUD says which rule refused."
-        },
-        {
-          "id": "RapportSceneForThemForced",
-          "text": "For them - forced",
-          "type": "hotkey",
-          "help": "The actor you are facing, with the partner Rapport's own pairing ranks best nearby. Skips the score bar, cooldowns, privacy and time of day."
-        },
-        {
-          "id": "RapportSceneForThemReal",
-          "text": "For them - real",
-          "type": "hotkey",
-          "help": "The same, only if that pair clears the bar and nobody is resting - exactly as autonomy would decide. The HUD says why not."
-        },
-        {
-          "id": "RapportPairFFForced",
-          "text": "F+F - forced",
-          "type": "hotkey",
-          "help": "The best-ranked pair of two women near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day."
-        },
-        {
-          "id": "RapportPairFFReal",
-          "text": "F+F - real",
-          "type": "hotkey",
-          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not."
-        },
-        {
-          "id": "RapportPairFMForced",
-          "text": "F+M - forced",
-          "type": "hotkey",
-          "help": "The best-ranked pair of a woman and a man near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day."
-        },
-        {
-          "id": "RapportPairFMReal",
-          "text": "F+M - real",
-          "type": "hotkey",
-          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not."
-        },
-        {
-          "id": "RapportPairMMForced",
-          "text": "M+M - forced",
-          "type": "hotkey",
-          "help": "The best-ranked pair of two men near you. If the one you face fits, they are one of the two. Skips the score bar, cooldowns, privacy and time of day."
-        },
-        {
-          "id": "RapportPairMMReal",
-          "text": "M+M - real",
-          "type": "hotkey",
-          "help": "The same, only if that pair clears the bar and nobody is resting. The HUD says why not."
         }
       ]
     }

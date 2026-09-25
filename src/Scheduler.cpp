@@ -1,5 +1,7 @@
 #include "Scheduler.h"
 
+#include "FaceAuthority.h"
+
 #include "Crowd.h"
 
 #include "Candidates.h"
@@ -151,6 +153,8 @@ namespace RP
 			Narrator::GetSingleton().Load();
 			// The names switch too: the census runs once, so this only rereads the switch.
 			Names::GetSingleton().Load();
+			// Anatomy's knobs live on Rapport's MCM page; its plugin only learns them by message.
+			FaceAuthority::GetSingleton().SendKnobs();
 		}
 
 		const auto& counters = _scan.Counters();

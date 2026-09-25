@@ -18,6 +18,9 @@ namespace RP
 	//   'RFAS' Rapport -> OCBPC  { u32 version=1; u32 formID; u64 owned; float value[54]; }
 	//   'RFAC' Rapport -> OCBPC  { u32 version=1; u32 formID; }   (0 = everyone)
 	//   'RFAH' OCBPC -> Rapport  { u32 version; u32 features; }   at PostPostLoad
+	//   'RFAK' Rapport -> OCBPC  { u32 version=1; u32 enabled; float lipClearance, lipSpeed, shaftScale,
+	//          headMin, headMax, reactScale; }  enabled: 0 aim, 1 shape, 2 lip fit, 3 oral reaction,
+	//          4 deep face. Its knobs in Rapport's MCM; without it, its own ini values stand.
 	//   'RFAD' Rapport -> OCBPC  { u32 version=1; u32 formID; u64 blend; float value[54]; }
 	//          the held face at full depth, right after its RFAS; only with feature bit 3.
 	//          Their side: value = lerp(held, deep, depth) for every id in blend.
@@ -56,6 +59,11 @@ namespace RP
 		// A load. Anatomy drops every authority on a load too, and Rapport clears
 		// every face it held, so this only forgets.
 		void Reset();
+
+		// Anatomy's knobs, which live in Rapport's MCM ("Bodies & faces"; owner, 2026-09-25):
+		// anatomy.json with the player's MCM choices laid over it, sent as 'RFAK'. Called on the
+		// hello and when MCM settings change. Sent only once Anatomy has answered.
+		void SendKnobs();
 
 	private:
 		using Clock = std::chrono::steady_clock;

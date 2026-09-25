@@ -1,5 +1,7 @@
 #include "FaceAuthority.h"
 
+#include "McmSettings.h"
+
 namespace RP
 {
 	namespace
@@ -7,6 +9,7 @@ namespace RP
 		constexpr std::uint32_t kSet = 0x52464153;     // 'RFAS'
 		constexpr std::uint32_t kClear = 0x52464143;   // 'RFAC'
 		constexpr std::uint32_t kDeep = 0x52464144;    // 'RFAD': the held face at full depth
+		constexpr std::uint32_t kKnobs = 0x5246414B;   // 'RFAK': Anatomy's knobs from Rapport's MCM
 		constexpr std::uint32_t kVersion = 1;
 		constexpr const char*   kPeer = "OCBPC plugin";   // Anatomy's cbp.dll, by its F4SE name
 
@@ -30,6 +33,20 @@ namespace RP
 			float         value[54];
 		};
 		static_assert(sizeof(SetMessage) == 232);
+
+		// Agreed with the anatomy session, 2026-09-25: 32 bytes, append-only after version.
+		struct KnobMessage
+		{
+			std::uint32_t version;
+			std::uint32_t enabled;
+			float         lipClearance;
+			float         lipSpeed;
+			float         shaftScale;
+			float         headMin;
+			float         headMax;
+			float         reactScale;
+		};
+		static_assert(sizeof(KnobMessage) == 32);
 
 		struct ClearMessage
 		{
@@ -141,6 +158,7 @@ namespace RP
 			_loaded.load() ? "Rapport rules the faces it holds" : "authority begins once faces.json is read",
 			(a_features & kEngineLines) ? "the engine's own, for their real length"
 										: "Rapport gives the mouth back for 9 s per line");
+		SendKnobs();
 		logger::info("face authority: depth blend {}", (a_features & kDepthBlend)
 														   ? "ON - a held oral face follows the depth in the mouth"
 														   : "not offered by this cbp.dll - the oral face holds still");
@@ -262,6 +280,53 @@ namespace RP
 		for (const auto& send : sends) {
 			Dispatch(send);
 		}
+	}
+
+	void FaceAuthority::SendKnobs()
+	{
+		if (!_peer.load()) {
+			return;   // nobody to tell; the hello sends them
+		}
+		const auto     path = std::filesystem::path{ "Data" } / "F4SE" / "Plugins" / "Rapport" / "anatomy.json";
+		nlohmann::json doc = nlohmann::json::object();
+		std::ifstream  file{ path };
+		if (!file) {
+			logger::info("anatomy knobs: no {} - Anatomy keeps its own ini", PathText(path));
+			return;
+		}
+		try {
+			file >> doc;
+		} catch (const std::exception& e) {
+			logger::error("anatomy knobs: {} is not valid json ({}) - Anatomy keeps its own ini", PathText(path), e.what());
+			return;
+		}
+		McmSettings::Overlay("Anatomy", doc);
+		const auto number = [&](const char* a_key, float a_default, float a_lo, float a_hi) {
+			const auto  it = doc.find(a_key);
+			const float v = it != doc.end() && it->is_number() ? it->get<float>() : a_default;
+			return std::clamp(v, a_lo, a_hi);
+		};
+		KnobMessage message{};
+		message.version = kVersion;
+		constexpr const char* kBits[] = { "aim", "shape", "lipFit", "faceReaction", "deepFace" };
+		for (std::uint32_t i = 0; i < std::size(kBits); ++i) {
+			if (McmSettings::ReadBool(doc, kBits[i], true)) {
+				message.enabled |= 1u << i;
+			}
+		}
+		message.lipClearance = number("lipClearance", 0.05f, 0.0f, 0.2f);
+		message.lipSpeed = number("lipSpeed", 1.0f, 0.25f, 3.0f);
+		message.shaftScale = number("shaftScale", 0.85f, 0.6f, 1.2f);
+		message.headMin = number("headMin", 1.2f, 1.0f, 2.0f);
+		message.headMax = (std::max)(message.headMin, number("headMax", 1.4f, 1.0f, 2.0f));
+		message.reactScale = number("reactScale", 1.0f, 0.0f, 2.0f);
+		if (const auto messaging = F4SE::GetMessagingInterface()) {
+			messaging->Dispatch(kKnobs, &message, sizeof(message), kPeer);
+		}
+		logger::info("anatomy knobs: sent (enabled {:05b}, clearance {:.2f}, lip speed {:.2f}, shaft {:.2f}, head "
+					 "{:.2f}..{:.2f}, reaction {:.2f})",
+			message.enabled, message.lipClearance, message.lipSpeed, message.shaftScale, message.headMin,
+			message.headMax, message.reactScale);
 	}
 
 	void FaceAuthority::Reset()

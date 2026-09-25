@@ -1,0 +1,14 @@
+{
+  "_": "Anatomy's cbp.dll knobs, kept in Rapport's MCM (owner, 2026-09-25: one place for face and body knobs). Sent to 'OCBPC plugin' as 'RFAK' after its hello and whenever an MCM setting changes; without the message it keeps its own ocbp.ini values, which these defaults mirror. scripts/build-mcm.py builds the 'Bodies & faces' page from this file.",
+  "aim": true,
+  "shape": true,
+  "lipFit": true,
+  "faceReaction": true,
+  "deepFace": true,
+  "lipClearance": 0.05,
+  "lipSpeed": 1.0,
+  "shaftScale": 0.85,
+  "headMin": 1.2,
+  "headMax": 1.4,
+  "reactScale": 1.0
+}
