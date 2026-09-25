@@ -14,12 +14,32 @@ namespace RP::McmSettings
 
 		[[nodiscard]] std::string Trim(std::string_view a_text)
 		{
+			// A UTF-8 byte-order mark would hide the first [Section] and file every key under ""
+			// -- the same "settings not read" failure this reader exists to end (release review).
+			if (a_text.starts_with("\xEF\xBB\xBF")) {
+				a_text.remove_prefix(3);
+			}
 			constexpr std::string_view blank = " \t\r\n";
 			const auto                 first = a_text.find_first_not_of(blank);
 			if (first == std::string_view::npos) {
 				return {};
 			}
 			return std::string{ a_text.substr(first, a_text.find_last_not_of(blank) - first + 1) };
+		}
+
+		// "[Section]", also with a comment after it ("[Meta] ; proof"), which used to be read as
+		// no header at all and leave every key below it under the section before.
+		[[nodiscard]] bool SectionOf(const std::string& a_text, std::string& a_section)
+		{
+			if (a_text.empty() || a_text.front() != '[') {
+				return false;
+			}
+			const auto close = a_text.find(']');
+			if (close == std::string::npos) {
+				return false;
+			}
+			a_section = Trim(std::string_view{ a_text }.substr(1, close - 1));
+			return true;
 		}
 	}
 
@@ -37,8 +57,7 @@ namespace RP::McmSettings
 			if (text.empty() || text.front() == ';' || text.front() == '#') {
 				continue;
 			}
-			if (text.front() == '[' && text.back() == ']') {
-				section = Trim(std::string_view{ text }.substr(1, text.size() - 2));
+			if (SectionOf(text, section)) {
 				continue;
 			}
 			const auto equals = text.find('=');
@@ -98,6 +117,7 @@ namespace RP::McmSettings
 		{
 			std::filesystem::file_time_type                    stamp{};
 			std::unordered_map<std::string, double>             values;   // "name:Section"
+			bool                                                parsed{ false };   // an empty file is cached too
 		};
 		std::mutex                                     g_parsedLock;
 		std::unordered_map<std::string, Parsed>        g_parsed;          // by path
@@ -110,10 +130,10 @@ namespace RP::McmSettings
 				return nullptr;
 			}
 			auto& entry = g_parsed[a_path.string()];
-			if (entry.stamp == stamp && !entry.values.empty()) {
+			if (entry.parsed && entry.stamp == stamp) {
 				return &entry;
 			}
-			entry = Parsed{ stamp, {} };
+			entry = Parsed{ stamp, {}, true };
 			std::ifstream file{ a_path };
 			std::string   line;
 			std::string   section;
@@ -122,8 +142,7 @@ namespace RP::McmSettings
 				if (text.empty() || text.front() == ';' || text.front() == '#') {
 					continue;
 				}
-				if (text.front() == '[' && text.back() == ']') {
-					section = Trim(std::string_view{ text }.substr(1, text.size() - 2));
+				if (SectionOf(text, section)) {
 					continue;
 				}
 				const auto equals = text.find('=');
