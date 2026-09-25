@@ -701,6 +701,16 @@ namespace
 	// still running when the bridge is not, so everything it needs has to be
 	// answerable without touching the bridge. These two are that.
 
+	void Papyrus_PollMark(std::monostate, std::int32_t a_step)
+	{
+		RP::PapyrusLink::GetSingleton().NotePollStep(a_step);
+	}
+
+	void Papyrus_NoteMedicBeat(std::monostate)
+	{
+		RP::PapyrusLink::GetSingleton().NoteMedicBeat();
+	}
+
 	std::int32_t Papyrus_BridgeSilentTicks(std::monostate)
 	{
 		return static_cast<std::int32_t>(RP::PapyrusLink::GetSingleton().SilentTicks());
@@ -1401,6 +1411,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "RequeueOrder"sv, Papyrus_RequeueOrder, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "FormIdText"sv, Papyrus_FormIdText, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BridgeSilentTicks"sv, Papyrus_BridgeSilentTicks, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "PollMark"sv, Papyrus_PollMark, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteMedicBeat"sv, Papyrus_NoteMedicBeat, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "AbandonInFlight"sv, Papyrus_AbandonInFlight, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerFront"sv, Papyrus_MoisturizerFront, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "MoisturizerOral"sv, Papyrus_MoisturizerOral, std::nullopt, false);
@@ -2473,6 +2485,83 @@ namespace RP
 		return true;
 	}
 
+	namespace
+	{
+		std::int64_t NowMs()
+		{
+			return std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::steady_clock::now().time_since_epoch())
+			    .count();
+		}
+
+		// Rapport:Bridge.OnTimer's PollMark steps, in order.
+		std::string_view PollStepName(std::int32_t a_step)
+		{
+			switch (a_step) {
+			case 1: return "entered (next poll already scheduled)";
+			case 2: return "handshake checked";
+			case 3: return "asked AAF its version";
+			case 4: return "asked AAF its status (next: Pump)";
+			case 5: return "Pump returned";
+			case 6: return "the scene clock checked (StopScene asked if due)";
+			case 7: return "stale requests dropped";
+			case 8: return "a new request begun (StartScene asked if one was taken)";
+			case 9: return "watchers swept";
+			case 10: return "orders drained - the poll finished";
+			default: return "never marked";
+			}
+		}
+	}
+
+	void PapyrusLink::NotePollStep(std::int32_t a_step)
+	{
+		if (a_step == 1) {
+			_pollEntries.fetch_add(1);
+		}
+		_pollStep.store(a_step);
+		_pollStepAtMs.store(NowMs());
+	}
+
+	void PapyrusLink::NoteMedicBeat()
+	{
+		_medicBeats.fetch_add(1);
+		_medicBeatAtMs.store(NowMs());
+	}
+
+	// The three causes a silent poll has, told apart:
+	//   - polls still ENTER but never reach Pump: a stack hangs at the named step,
+	//     and a fresh one hangs there again every PollSeconds;
+	//   - no entries, the medic still beats: the bridge's own clock or lock is gone
+	//     (the medic's re-arm is the cure);
+	//   - no entries and no medic beat: no Papyrus timer runs at all - a menu that
+	//     pauses the game, or the VM itself.
+	std::string PapyrusLink::StallEvidence() const
+	{
+		const auto now = NowMs();
+		const auto ago = [now](std::int64_t a_at) {
+			return a_at == 0 ? std::string{ "never" } : std::format("{:.0f}s ago", (now - a_at) / 1000.0);
+		};
+		const auto step = _pollStep.load();
+		std::string menus;
+		if (const auto ui = RE::UI::GetSingleton()) {
+			for (const auto name : { "PauseMenu"sv, "PipboyMenu"sv, "Console"sv, "LoadingMenu"sv, "DialogueMenu"sv,
+					 "ContainerMenu"sv, "BarterMenu"sv, "WorkshopMenu"sv, "LooksMenu"sv, "MessageBoxMenu"sv }) {
+				if (ui->GetMenuOpen(RE::BSFixedString{ name })) {
+					menus += menus.empty() ? "" : ", ";
+					menus += name;
+				}
+			}
+			menus = std::format("menuMode {}, freezeFramePause {}, open: {}", ui->menuMode, ui->freezeFramePause,
+				menus.empty() ? "none of the pausing ones" : menus);
+		} else {
+			menus = "UI not available";
+		}
+		return std::format(
+			"evidence: polls entered since the last Pump {}, last step {} '{}' {}; medic {} beat(s), last {}; {}",
+			_pollEntries.load() - _entriesAtLastPump, step, PollStepName(step), ago(_pollStepAtMs.load()),
+			_medicBeats.load(), ago(_medicBeatAtMs.load()), menus);
+	}
+
 	void PapyrusLink::CheckBridgeAlive()
 	{
 		const auto pumps = _pumps.load();
@@ -2481,14 +2570,24 @@ namespace RP
 
 		if (moved) {
 			if (_stallReported) {
-				logger::info("the bridge is answering again after {} poll(s) total", pumps);
+				logger::info("the bridge is answering again after {} poll(s) total - {}", pumps, StallEvidence());
 				_stallReported = false;
 			}
+			_entriesAtLastPump = _pollEntries.load();
 			_silentTicks = 0;
 			return;
 		}
 
-		if (!_bridgeReady.load() || _stallReported) {
+		if (!_bridgeReady.load()) {
+			return;
+		}
+		if (_stallReported) {
+			// Said again every third tick (about a minute) while it lasts: the first line
+			// shows the moment it went quiet, these show whether a menu closing, the
+			// medic's re-arm or nothing at all changed it.
+			if (++_stallTicksSinceReport % 3 == 0) {
+				logger::warn("the bridge is still silent - {}", StallEvidence());
+			}
 			return;
 		}
 
@@ -2502,6 +2601,8 @@ namespace RP
 		}
 
 		_stallReported = true;
+		_stallTicksSinceReport = 0;
+		logger::error("{}", StallEvidence());
 		logger::error(
 			"THE BRIDGE HAS STOPPED POLLING. It last answered after {} poll(s) and has not asked "
 			"once in {} ticks, so nothing timed is happening: no expression, no overlay, no scene "

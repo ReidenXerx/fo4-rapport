@@ -194,6 +194,7 @@ Event OnTimer(Int aiTimerID)
 	; Scheduling the next poll before the work means a stack that never returns
 	; costs one poll rather than every poll after it.
 	Self.StartTimer(Rapport:Core.PollSeconds(), kPollTimer)
+	Rapport:Core.PollMark(1)
 
 	; Registrations do not survive a recompile, and _ready does survive the save,
 	; so the script alone can end up permanently deaf: connected in its own memory,
@@ -202,6 +203,7 @@ Event OnTimer(Int aiTimerID)
 	If Rapport:Core.NeedsHandshake()
 		Self.Connect()
 	EndIf
+	Rapport:Core.PollMark(2)
 
 	If _ready
 		; What AAF says about itself, FIRST, so the watchdog decides on a number
@@ -216,10 +218,13 @@ Event OnTimer(Int aiTimerID)
 			Rapport:Core.NoteAAFStatus(-1, hudReady)
 		Else
 			Rapport:Core.NoteAAFVersion(_api.GetVersion())
+			Rapport:Core.PollMark(3)
 			Rapport:Core.NoteAAFStatus(_api.GetAAFStatus(), hudReady)
 		EndIf
+		Rapport:Core.PollMark(4)
 
 		Rapport:Core.Pump()
+		Rapport:Core.PollMark(5)
 
 		; AAF does not end a scene when the duration it was given runs out, so we
 		; do. The plugin holds the clock and answers with a request id or nothing.
@@ -232,6 +237,7 @@ Event OnTimer(Int aiTimerID)
 			EndIf
 			Rapport:Core.NoteStopAsked()
 		EndIf
+		Rapport:Core.PollMark(6)
 
 		; The list against the plugin, BEFORE a new request joins it. One request is
 		; in flight at a time and the plugin knows which: any other entry here is one
@@ -241,15 +247,19 @@ Event OnTimer(Int aiTimerID)
 		; unrecorded (no bond, no history), and every scene after it added another
 		; (microscope pass 2).
 		Self.DropStaleRequests(Rapport:Core.InFlightRequest())
+		Rapport:Core.PollMark(7)
 
 		Int request = Rapport:Core.TakeRequest()
 		If request != 0
 			Self.BeginRequest(request, Rapport:Core.TakenFirstID(), Rapport:Core.TakenSecondID(), Rapport:Core.TakenDuration())
 		EndIf
+		Rapport:Core.PollMark(8)
 
 		; Before the drain, so a line a watcher wins is spoken on this same poll.
 		Self.SweepWatchers()
+		Rapport:Core.PollMark(9)
 		Self.DrainOverlayOrders()
+		Rapport:Core.PollMark(10)
 	EndIf
 EndEvent
 

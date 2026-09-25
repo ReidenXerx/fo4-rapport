@@ -159,6 +159,14 @@ namespace RP
 		// run could not tell those apart.
 		void NotePump() { _pumps.fetch_add(1); }
 
+		// WHERE the poll was, and whether anything else on a Papyrus clock still runs
+		// (2026-09-25: the poll and the medic both went quiet mid-scene while AAF's
+		// events kept arriving, and nothing said which of three causes it was). The
+		// bridge marks each step of its poll; the medic marks each beat. The stall
+		// alarm reads them back with the menus that were open.
+		void NotePollStep(std::int32_t a_step);
+		void NoteMedicBeat();
+
 		// Called once per scheduler tick. The bridge polls every PollSeconds and a
 		// tick is twenty seconds, so between two ticks the count MUST have moved.
 		// When it has not, the bridge has gone silent and nothing timed can happen
@@ -361,6 +369,14 @@ namespace RP
 		std::atomic<std::uint32_t> _pumps{ 0 };
 		std::uint32_t _pumpsAtLastTick{ 0 };
 		bool          _stallReported{ false };
+		std::uint32_t _stallTicksSinceReport{ 0 };
+		std::atomic<std::uint32_t> _pollEntries{ 0 };          // step 1 of the poll, every time
+		std::uint32_t              _entriesAtLastPump{ 0 };    // _pollEntries when _pumps last moved
+		std::atomic<std::int32_t>  _pollStep{ 0 };
+		std::atomic<std::int64_t>  _pollStepAtMs{ 0 };
+		std::atomic<std::uint32_t> _medicBeats{ 0 };
+		std::atomic<std::int64_t>  _medicBeatAtMs{ 0 };
+		[[nodiscard]] std::string StallEvidence() const;
 
 		// Consecutive ticks with no poll. ONE is not enough to shout about: a save
 		// or a fast travel's loading screen freezes the VM for longer than a tick,

@@ -69,6 +69,7 @@ Event OnTimer(Int aiTimerID)
 	; schedules at the end is a handler that stops scheduling the moment anything
 	; in it goes wrong -- and this is the script that must not stop.
 	Self.StartTimer(kBeatSeconds, kMedicTimer)
+	Rapport:Core.NoteMedicBeat()
 
 	Int silent = Rapport:Core.BridgeSilentTicks()
 	If silent < kSilentTicks

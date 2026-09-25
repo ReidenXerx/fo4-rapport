@@ -283,6 +283,11 @@ String Function FormIdText(Int aiFormID) Global Native
 ; roughly forty seconds of silence. 0 means it polled this tick.
 Int Function BridgeSilentTicks() Global Native
 
+; Where the bridge's poll got to (steps 1-10, Bridge.OnTimer), and that the medic's own
+; clock still runs. Read back only by the stall alarm, to say which of its causes it is.
+Function PollMark(Int aiStep) Global Native
+Function NoteMedicBeat() Global Native
+
 ; Give up on the scene in flight: forget the request, end the scenario, take the
 ; faces off and hand both actors back to AAF. Returns False when there was
 ; nothing in flight, which is how the medic tells a real heal from a re-armed
