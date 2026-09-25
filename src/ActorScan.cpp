@@ -1,6 +1,7 @@
 #include "ActorScan.h"
 
 #include "Config.h"
+#include "Story.h"
 
 namespace
 {
@@ -117,6 +118,10 @@ namespace RP
 		const auto player = RE::PlayerCharacter::GetSingleton();
 		const auto& config = Config::GetSingleton();
 
+		// Once per slice: the game's opening (Story.h) makes nobody a candidate. They are
+		// still counted as present, witnesses and loaded, as everyone always is.
+		const bool opening = Story::OpeningRunning();
+
 		std::size_t sinceClock = 0;
 		while (_cursor < _handles.size()) {
 			const auto handle = _handles[_cursor++];
@@ -155,8 +160,14 @@ namespace RP
 				// addon put in a scene must not be left carrying AAF's busy flag.
 				_loadedIDs.push_back(actor->GetFormID());
 
-				if (actor->IsInCombat()) {
+				if (opening) {
+					++_counters.opening;
+				} else if (actor->IsInCombat()) {
 					++_counters.inCombat;
+				} else if (actor->lifeState != 0) {
+					// Unconscious, restrained, bleeding out -- or frozen in a Vault 111 pod,
+					// which the Nexus report found paired up. Alive, and nobody who can agree.
+					++_counters.notAwake;
 				} else if (!config.IsRaceAllowed(actor->race)) {
 					++_counters.raceNotAllowed;
 					++_rejectedRaces[actor->race ? actor->race->GetFormID() : 0u];

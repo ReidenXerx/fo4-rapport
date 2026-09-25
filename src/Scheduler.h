@@ -34,6 +34,7 @@ namespace RP
 
 		ActorScan     _scan;   // main thread only
 		std::uint64_t _ticks{ 0 };
+		bool          _saidOpening{ false };   // the opening's line said once each way (Story.h)
 
 		// Timing counters, main thread only.
 		double _passMs{ 0.0 };

@@ -5,6 +5,7 @@
 #include "McmSettings.h"
 #include "Names.h"
 #include "Orientation.h"
+#include "Story.h"
 #include "Traits.h"
 
 #include "Candidates.h"
@@ -1566,6 +1567,10 @@ namespace RP
 				why = "is dead";
 			} else if (!actor->Get3D()) {
 				why = "is not loaded";
+			} else if (actor->lifeState != 0) {
+				// Unconscious, restrained, bleeding out, frozen in a pod: for every caller,
+				// forced ones included, as a child is -- nobody here can agree to anything.
+				why = Story::LifeStateName(actor->lifeState);
 			} else if (!playersOwn && actor->talkingToPlayer) {
 				why = "is talking to the player";
 			} else if (actor->boolFlags.any(RE::Actor::BOOL_FLAGS::kInRandomScene)) {
@@ -1577,6 +1582,13 @@ namespace RP
 				return refuse(name && *name ? std::format("{} ({:08X}) {}", name, actor->GetFormID(), why)
 				                            : std::format("{:08X} {}", actor->GetFormID(), why));
 			}
+		}
+		// THE GAME'S OPENING (owner poll, 2026-09-25): nothing of ours starts before the
+		// player leaves Vault 111 -- no addon, not the stand-in, not the player's own lane
+		// (Overture's greeting is held off by the same rule). Forced test doors excepted.
+		if (!a_bypassHold && Story::OpeningRunning()) {
+			logger::info("request refused: the game's opening is still running");
+			return refuse("the game's opening (War Never Changes) is still running - nothing starts before you leave Vault 111");
 		}
 		// ORIENTATION (R-27), here in the funnel, for every addon as well as our own pairing
 		// (owner, 2026-09-25: "enforce for addons"). A third-party mod asking for a pair that

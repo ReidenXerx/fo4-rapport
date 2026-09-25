@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.2 (unreleased)
+
+- **Nothing starts during the game's opening.** From character creation through pre-war
+  Sanctuary and Vault 111, nobody is a candidate and no scene starts, for any mod built on
+  Rapport. It all begins when you step out of the vault. Alternate starts that skip the opening
+  are unaffected, and so is MS Skip Prewar Sanctuary: it drops you in the vault, and scenes
+  begin when you leave it. This fixes the report of frozen Vault 111 dwellers pairing up.
+- **Nobody unconscious, restrained, bleeding out or frozen is paired**, and a scene is never
+  started with them, whoever asks.
+
 ## 0.2.1 (2026-09-25)
 
 - **Scenes don't start inside the furniture.** Before one of Rapport's scenes starts, Rapport

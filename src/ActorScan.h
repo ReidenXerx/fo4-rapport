@@ -18,6 +18,8 @@ namespace RP
 		std::uint32_t inDialogue{ 0 };       // talking to the PLAYER, and only that
 		std::uint32_t inRandomScene{ 0 };    // mid ambient NPC-to-NPC conversation
 		std::uint32_t questDriven{ 0 };      // a quest alias is running packages on them
+		std::uint32_t notAwake{ 0 };         // unconscious, restrained, bleeding out, frozen
+		std::uint32_t opening{ 0 };          // the game's opening is still running (Story.h)
 		std::uint32_t candidates{ 0 };
 	};
 

@@ -162,11 +162,19 @@ namespace RP
 
 		logger::info(
 			"tick {}: {} actors -> {} candidates in {} slice(s), {:.3f} ms total, worst slice {:.3f} ms "
-			"(stale {}, unloaded {}, elsewhere {}, child {}, dead {}, combat {}, out of range {}, race {}, dialogue {}, chatting {}, quest {})",
+			"(stale {}, unloaded {}, elsewhere {}, child {}, dead {}, combat {}, out of range {}, race {}, dialogue {}, chatting {}, quest {}, not awake {}, opening {})",
 			_ticks, _scan.Size(), counters.candidates, _scan.Slices(), _passMs, _worstSliceMs,
 			counters.stale, counters.notLoaded, counters.elsewhere, counters.child, counters.dead, counters.inCombat,
 			counters.outOfRange, counters.raceNotAllowed, counters.inDialogue, counters.inRandomScene,
-			counters.questDriven);
+			counters.questDriven, counters.notAwake, counters.opening);
+		if (counters.opening > 0 && !_saidOpening) {
+			_saidOpening = true;
+			logger::info("the game's opening (War Never Changes) is still running - nobody is a candidate "
+						 "and no scene starts until the player leaves Vault 111");
+		} else if (counters.opening == 0 && _saidOpening && counters.seen > 0) {
+			_saidOpening = false;
+			logger::info("the game's opening is over - candidates from here");
+		}
 
 		if (Config::GetSingleton().verbose && !_scan.RejectedRaces().empty()) {
 			std::vector<std::pair<std::uint32_t, std::uint32_t>> byCount{
