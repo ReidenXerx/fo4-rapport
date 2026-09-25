@@ -416,7 +416,7 @@ namespace RP
 			if (partner == 0 || nearestTo(partner) != formID) {
 				continue;   // nobody close, or the closest one is someone else's partner
 			}
-			out.push_back(Glance{ formID, partner, static_cast<std::uint32_t>(seconds * 1000.0f), oral ? 0.7f : 0.5f });
+			out.push_back(Glance{ formID, partner, static_cast<std::uint32_t>(seconds * 1000.0f), oral ? 0.95f : 0.85f });
 		}
 		return out;
 	}
