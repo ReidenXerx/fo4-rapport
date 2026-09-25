@@ -131,13 +131,15 @@ namespace RP
 			std::uint32_t target{ 0 };
 			std::uint32_t durationMs{ 0 };
 			float         lidsOpen{ 0.0f };
+			std::uint32_t flags{ 0 };   // bit 0: an eye ROLL (target = the looker; hello bit 9)
 			// The face for that moment ('RFAX', sent just before the RFAG; hello bit 7).
 			bool                      face{ false };
 			std::uint64_t             faceMask{ 0 };
 			std::array<float, kSlots> faceValues{};
 		};
 		[[nodiscard]] std::vector<Glance> DueGlances(Clock::time_point a_now);
-		mutable std::timed_mutex          _glanceLock;   // _nextGlance, _glanceBase, _dice
+		mutable std::timed_mutex          _glanceLock;   // _nextGlance, _glanceBase, _nextRoll, _eyesBusy,
+		                                                  // _longLook, _dice
 		static void                       Dispatch(const Glance& a_glance);
 
 		mutable std::timed_mutex _lock;
@@ -163,6 +165,9 @@ namespace RP
 		std::unordered_map<std::uint32_t, Held>                    _held;
 		std::unordered_map<std::uint32_t, Clock::time_point>       _nextGlance;   // per held actor
 		std::unordered_map<std::uint32_t, std::string>             _glanceBase;   // the base each was last seen in
+		std::unordered_map<std::uint32_t, Clock::time_point>       _nextRoll;     // eye rolls, per held actor
+		std::unordered_map<std::uint32_t, Clock::time_point>       _eyesBusy;     // a glance or roll until then
+		std::unordered_set<std::uint32_t>                          _longLook;     // the peak look, after its roll
 		std::mt19937                                               _dice{ std::random_device{}() };
 	};
 }

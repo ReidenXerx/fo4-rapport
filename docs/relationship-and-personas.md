@@ -1334,3 +1334,16 @@ every 20 s would be worse than a still face.
 `glance` keys. src/FaceAuthority.cpp holds DeepOf, ValuesFor, Pump's drift and DueGlances. Only Anatomy's
 plugin can wear any of this; the AAF path is unchanged. Every value is ASSUMED, for the owner to judge in
 game.
+
+**R-28, after the owner's first look (2026-09-25).**
+- **Longer eye contact:** "we need make eye contacts more lengthy i think. maybe 4-7 s to try". Glances now
+  last 4-7 s by default: romantic 4.5-7, vulgar 5-7.5, reticent 3.5-5.5. The peak look lasts 6-9 s, and
+  every glance is capped at Anatomy's 10 s. A new glance or roll never cuts off a running one.
+- **Eye rolls** ("rolling eyes bc its very sexy and humans do it often during sex"; hello bit 9). An RFAG with
+  flags bit 0 and target = the looker, and lidsOpen 0, so the half-closed lids show the whites.
+  - When: Pleasure 2 every ~45 s, Pleasure 3 ~25 s, Climax ~20 s, each for 0.8-1.5 s. Vulgar ×0.7,
+    reticent ×1.6, mercantile ×1.2.
+  - Each stage's first roll is timed from when that stage BEGINS.
+  - Climax opens with a 2-3 s roll, then the long look.
+  - With bit 7, a roll wears the "roll" face: brows up, the lower lids down, the mouth falling open where
+    it is free.

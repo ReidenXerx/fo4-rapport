@@ -22,6 +22,9 @@ namespace RP
 		constexpr std::uint32_t kGlances = 1u << 4;       // turns the eyes to a partner on 'RFAG'
 		constexpr std::uint32_t kGlanceFaces = 1u << 7;   // wears an 'RFAX' face for its glance
 		constexpr std::uint32_t kEasedFaces = 1u << 8;    // eases a held face's change over 250 ms
+		constexpr std::uint32_t kEyeRolls = 1u << 9;      // rolls the eyes up on an RFAG flagged kRoll
+		constexpr std::uint32_t kRoll = 1u << 0;          // RFAG flags: an eye roll, target = the looker
+		constexpr std::uint32_t kLongestGlanceMs = 10000; // Anatomy clamps there; so do we
 
 		// Faces that don't freeze (owner, 2026-09-25): a held face moves to a sibling this often.
 		constexpr float kDriftMin = 15.0f;
@@ -93,14 +96,15 @@ namespace RP
 		};
 		[[nodiscard]] GlanceStyle StyleFor(std::string_view a_persona, bool a_oral, std::string_view a_base)
 		{
-			// The owner's example: during a blowjob, time to time, for 1-2 seconds.
-			GlanceStyle style{ 6.0f, 15.0f, 1.0f, 2.0f };
+			// Eye contact that lasts (owner after the first test, 2026-09-25: "we need make eye
+			// contacts more lengthy i think. maybe 4-7 s to try"); the first cut was 1-2 s.
+			GlanceStyle style{ 6.0f, 15.0f, 4.0f, 7.0f };
 			if (a_persona == "vulgar"sv) {
-				style = { 5.0f, 11.0f, 1.5f, 3.0f };   // holds your eyes, wants you to see it
+				style = { 5.0f, 11.0f, 5.0f, 7.5f };   // holds your eyes, wants you to see it
 			} else if (a_persona == "reticent"sv) {
-				style = { 12.0f, 25.0f, 0.6f, 1.2f };  // a quick look, then away
+				style = { 12.0f, 25.0f, 3.5f, 5.5f };  // looks, then looks away first
 			} else if (a_persona == "romantic"sv) {
-				style = { 7.0f, 14.0f, 1.2f, 2.5f };
+				style = { 7.0f, 14.0f, 4.5f, 7.0f };
 			}
 			if (!a_oral) {
 				// Face to face or not, other acts look less often than the one where she looks UP.
@@ -278,9 +282,9 @@ namespace RP
 			(a_features & kDepthBlend) ? "ON" : "not offered by this cbp.dll",
 			(a_features & kGlances) ? "ON - held faces look at their partner now and then"
 									: "not offered by this cbp.dll yet");
-		logger::info("face authority: glance faces {}; eased faces {} (faces that don't freeze {})",
+		logger::info("face authority: glance faces {}; eased faces {} (faces that don't freeze {}); eye rolls {}",
 			(a_features & kGlanceFaces) ? "ON" : "not offered", (a_features & kEasedFaces) ? "ON" : "not offered",
-			(a_features & kEasedFaces) ? "ON" : "off without it");
+			(a_features & kEasedFaces) ? "ON" : "off without it", (a_features & kEyeRolls) ? "ON" : "not offered");
 	}
 
 	bool FaceAuthority::ValuesOf(const std::string& a_setID, std::array<float, kSlots>& a_out)
@@ -502,10 +506,16 @@ namespace RP
 		};
 		const bool        faces = (_peerFeatures.load() & kGlanceFaces) != 0;
 		std::vector<Seen> seen;
+		std::unordered_map<std::string, Deep> rollFaces;   // a copy, for the same reason as Seen::face
 		{
 			NamedLock lock{ _lock, "face authority" };
 			if (!lock) {
 				return {};
+			}
+			if (faces) {
+				if (const auto roll = _glanceFaces.find("roll"); roll != _glanceFaces.end()) {
+					rollFaces = roll->second;
+				}
 			}
 			for (const auto& [formID, held] : _held) {
 				const bool  oral = held.base == "Rapport_Oral"sv;
@@ -534,6 +544,12 @@ namespace RP
 		};
 		std::erase_if(_nextGlance, gone);
 		std::erase_if(_glanceBase, gone);
+		std::erase_if(_nextRoll, gone);
+		std::erase_if(_eyesBusy, gone);
+		std::erase_if(_longLook, [&](std::uint32_t a_id) {
+			return std::ranges::none_of(seen, [&](const Seen& a_seen) { return a_seen.formID == a_id; });
+		});
+		const bool rolls = (_peerFeatures.load() & kEyeRolls) != 0;
 		// Where everyone is, once: the partner test compares every pair.
 		std::vector<std::pair<std::uint32_t, RE::NiPoint3>> where;
 		for (const auto& one : seen) {
@@ -571,10 +587,56 @@ namespace RP
 			if (formID == 0x14 || speaking || base == "Rapport_Kiss"sv) {
 				continue;
 			}
-			// The peak: the moment Climax begins, a long held look, whatever the schedule said.
+			// The peak: the moment Climax begins, a long held look, whatever the schedule said --
+			// after a roll into it, where Anatomy rolls eyes.
 			auto&      lastBase = _glanceBase[formID];
-			const bool peak = base == "Rapport_Climax"sv && lastBase != base;
+			const bool changed = lastBase != base;
+			const bool peak = base == "Rapport_Climax"sv && changed;
 			lastBase = base;
+			auto& busy = _eyesBusy[formID];
+			if (rolls) {
+				// Eye rolls (owner: "rolling eyes bc its very sexy and humans do it often during sex"):
+				// at the pleasure peaks, short; into Climax, long. Personas roll as they are.
+				float every = 0.0f;
+				if (base == "Rapport_Pleasure_2"sv) {
+					every = 45.0f;
+				} else if (base == "Rapport_Pleasure_3"sv) {
+					every = 25.0f;
+				} else if (base == "Rapport_Climax"sv) {
+					every = 20.0f;
+				}
+				every *= persona == "vulgar"sv ? 0.7f : persona == "reticent"sv ? 1.6f : persona == "mercantile"sv ? 1.2f : 1.0f;
+				auto [nextRoll, freshRoll] = _nextRoll.try_emplace(formID, a_now);
+				if (every > 0.0f && !peak && (freshRoll || changed)) {
+					// A roll's clock starts when the stage that rolls BEGINS, not when the face was first
+					// put on: a long build-up must not make the first roll fire the moment it peaks.
+					nextRoll->second = a_now + randomMs(every * 0.5f, every);
+				} else if (every > 0.0f && (peak || (a_now >= nextRoll->second && a_now >= busy))) {
+					const float rollFor = (std::min)(static_cast<float>(kLongestGlanceMs) / 1000.0f,
+						peak ? std::uniform_real_distribution<float>{ 2.0f, 3.0f }(_dice)
+					         : std::uniform_real_distribution<float>{ 0.8f, 1.5f }(_dice));
+					Glance roll{ formID, formID, static_cast<std::uint32_t>(rollFor * 1000.0f), 0.0f, kRoll };
+					if (faces) {
+						if (const auto context = rollFaces.find("romantic"); context != rollFaces.end()) {
+							roll.face = true;
+							roll.faceMask = context->second.mask;
+							roll.faceValues = context->second.values;
+						}
+					}
+					out.push_back(roll);
+					busy = a_now + std::chrono::milliseconds(static_cast<int>(rollFor * 1000.0f));
+					nextRoll->second = busy + randomMs(every * 0.7f, every * 1.3f);
+					if (peak) {
+						// The long look comes straight after the roll, and keeps the peak's length.
+						_nextGlance[formID] = busy + std::chrono::milliseconds(300);
+						_longLook.insert(formID);
+						continue;
+					}
+				}
+			}
+			if (a_now < busy) {
+				continue;   // a roll or a glance is still playing; a new RFAG would cut it off
+			}
 			auto [next, fresh] = _nextGlance.try_emplace(formID, a_now);
 			if (!peak && !fresh && a_now < next->second) {
 				continue;   // not due
@@ -586,8 +648,10 @@ namespace RP
 				continue;
 			}
 			const auto  partner = nearestTo(formID);
-			const float seconds = peak ? std::uniform_real_distribution<float>{ 3.0f, 4.5f }(_dice)
-			                           : std::uniform_real_distribution<float>{ style.forMin, style.forMax }(_dice);
+			const bool  longLook = peak || _longLook.erase(formID) > 0;
+			const float seconds = (std::min)(static_cast<float>(kLongestGlanceMs) / 1000.0f,
+				longLook ? std::uniform_real_distribution<float>{ 6.0f, 9.0f }(_dice)
+			         : std::uniform_real_distribution<float>{ style.forMin, style.forMax }(_dice));
 			next->second = a_now + std::chrono::milliseconds(static_cast<int>(seconds * 1000.0f)) +
 			               randomMs(style.everyMin, style.everyMax);
 			if (partner == 0 || nearestTo(partner) != formID) {
@@ -599,9 +663,10 @@ namespace RP
 				glance.faceMask = face->mask;
 				glance.faceValues = face->values;
 			}
-			if (peak) {
+			if (longLook) {
 				logger::info("glance: {:08X} holds {:08X}'s eyes for {:.1f} s as it peaks", formID, partner, seconds);
 			}
+			busy = a_now + std::chrono::milliseconds(static_cast<int>(seconds * 1000.0f));
 			out.push_back(glance);
 		}
 		return out;
@@ -619,7 +684,8 @@ namespace RP
 			std::ranges::copy(a_glance.faceValues, face.value);
 			messaging->Dispatch(kGlanceFace, &face, sizeof(face), kPeer);
 		}
-		GlanceMessage message{ kVersion, a_glance.looker, a_glance.target, a_glance.durationMs, a_glance.lidsOpen, 0 };
+		GlanceMessage message{ kVersion, a_glance.looker, a_glance.target, a_glance.durationMs, a_glance.lidsOpen,
+			a_glance.flags };
 		messaging->Dispatch(kGlance, &message, sizeof(message), kPeer);
 		logger::debug("glance: {:08X} looks at {:08X} for {} ms", a_glance.looker, a_glance.target, a_glance.durationMs);
 	}

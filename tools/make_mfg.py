@@ -541,6 +541,14 @@ GLANCE = {
         "mercantile": [("Left Smile", 35), ("Right Smile", 20), ("Left Brow Outer Up", 45)]
                       + sym("Lower Eye Lid Up", 30) + sym("Cheek Up", 30),               # a knowing smile
     },
+    # An eye roll (owner, 2026-09-25: "rolling eyes bc its very sexy and humans do it often during
+    # sex"; hello bit 9): brows float up, the lower lids drop so the whites show under the half-closed
+    # upper lid the held face already has, and the mouth falls open on it where the mouth is free.
+    # Everyone's the same; "romantic" is the fallback every persona reaches.
+    "roll": {
+        "romantic": [("Brow Squeeze", 25), ("Jaw Open", 30)] + sym("Middle Brow Up", 85)
+                    + sym("Lower Eye Lid Down", 45) + sym("Lower Lip Down", 30) + sym("Cheek Up", 20),
+    },
 }
 
 for _table in (DEEP_BY,):
