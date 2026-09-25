@@ -3,6 +3,7 @@
 #include "Mailbox.h"
 #include "Aftermath.h"
 #include "Barks.h"
+#include "DialogueVoice.h"
 #include "Orientation.h"
 #include "Narrator.h"
 #include "Names.h"
@@ -235,6 +236,10 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	if (!RP::Ledger::Register(F4SE::GetSerializationInterface())) {
 		logger::error("nothing will be remembered between saves");
 	}
+
+	// The one engine hook Rapport owns: dialogue lines in a borrowed voice (DialogueVoice.h).
+	F4SE::AllocTrampoline(1 << 6);
+	RP::DialogueVoice::Install();
 
 	const auto messaging = F4SE::GetMessagingInterface();
 	if (!messaging || !messaging->RegisterListener(MessageHandler)) {

@@ -50,6 +50,13 @@ namespace RP
 		// the caller. Barks, observers, and every later speaker come through it.
 		void Speak(std::uint32_t a_speaker, std::uint32_t a_target, std::uint32_t a_topic) const;
 
+		// DIALOGUE (DialogueVoice.h; owner, 2026-09-25): an addon's conversation lines, which the
+		// engine voices by the speaker's own voice type. voices.json "dialogue" lists the plugins it
+		// applies to and, per voice type, the nearest voice THOSE plugins ship
+		// (scripts/voice-dialogue-map.py). 0: nothing to borrow.
+		[[nodiscard]] bool          IsDialoguePlugin(std::string_view a_plugin) const;
+		[[nodiscard]] std::uint32_t DialogueBorrow(std::uint32_t a_voiceType) const;
+
 	private:
 		[[nodiscard]] static std::uint32_t Resolve(const nlohmann::json& a_ref, std::string_view a_what);
 
@@ -60,5 +67,7 @@ namespace RP
 		std::unordered_set<std::uint32_t>                _speakingRaces;   // who may take the default
 		std::uint32_t                                    _unmappedFemale{ 0 };
 		std::uint32_t                                    _unmappedMale{ 0 };
+		std::vector<std::string>                         _dialoguePlugins;   // lower-case
+		std::unordered_map<std::uint32_t, std::uint32_t> _dialogue;          // voice type -> voice type
 	};
 }

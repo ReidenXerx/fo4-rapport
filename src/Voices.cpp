@@ -96,6 +96,25 @@ namespace RP
 		_unmappedFemale = Resolve(unmapped.value("female", nlohmann::json{}), "unmapped female default");
 		_unmappedMale = Resolve(unmapped.value("male", nlohmann::json{}), "unmapped male default");
 
+		_dialoguePlugins.clear();
+		_dialogue.clear();
+		if (const auto dialogue = document.find("dialogue"); dialogue != document.end() && dialogue->is_object()) {
+			for (const auto& plugin : dialogue->value("plugins", nlohmann::json::array())) {
+				auto name = plugin.get<std::string>();
+				std::ranges::transform(name, name.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+				_dialoguePlugins.push_back(std::move(name));
+			}
+			for (const auto& entry : dialogue->value("borrow", nlohmann::json::array())) {
+				const auto from = Resolve(entry, "dialogue voice");
+				const auto as = from ? Resolve(entry.value("as", nlohmann::json{}), "dialogue borrowed voice") : 0u;
+				if (from && as) {
+					_dialogue[from] = as;
+				}
+			}
+			logger::info("voices: dialogue lines of {} plugin(s) borrow for {} voice type(s)", _dialoguePlugins.size(),
+				_dialogue.size());
+		}
+
 		_enabled = document.value("enabled", true) && !_own.empty();
 		logger::info(
 			"voices: {} own, {} unique mapped ({} of them deliberately silent), {} speaking race(s), "
@@ -103,6 +122,30 @@ namespace RP
 			_own.size(), _borrow.size(), silent, _speakingRaces.size(),
 			_unmappedFemale ? "female" : "-", _unmappedMale ? "male" : "-",
 			_enabled ? "" : " - fallback is OFF");
+	}
+
+	bool Voices::IsDialoguePlugin(std::string_view a_plugin) const
+	{
+		if (a_plugin.empty()) {
+			return false;
+		}
+		NamedLock lock{ _lock, "voices" };
+		if (!lock) {
+			return false;   // on the engine's thread: no answer is "the engine's own voice"
+		}
+		return std::ranges::any_of(_dialoguePlugins, [&](const std::string& a_name) {
+			return a_name.size() == a_plugin.size() && _strnicmp(a_name.data(), a_plugin.data(), a_name.size()) == 0;
+		});
+	}
+
+	std::uint32_t Voices::DialogueBorrow(std::uint32_t a_voiceType) const
+	{
+		NamedLock lock{ _lock, "voices" };
+		if (!lock || !_enabled) {
+			return 0;
+		}
+		const auto found = _dialogue.find(a_voiceType);
+		return found == _dialogue.end() ? 0u : found->second;
 	}
 
 	std::uint32_t Voices::BorrowFor(std::uint32_t a_speaker) const

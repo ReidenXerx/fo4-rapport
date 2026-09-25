@@ -2,6 +2,13 @@
 
 ## 0.2.1 (unreleased)
 
+- **Dialogue in a borrowed voice.** When an addon's conversation line (Overture's) has no
+  recording in the speaker's own voice, a named NPC like Mayor McDonough used to answer in
+  subtitles only. Now the line is looked up again in the closest voice that addon did record,
+  chosen by the same voice fingerprints as the barks (the Mayor gets MaleRough). This only
+  happens for the addon's own lines, and only when the file is missing. The game's lines and
+  every other mod's lines are left alone. Voices that must stay silent (children, robots,
+  creatures) still do.
 - **Sexual orientation.** Every NPC is straight, bi or gay. Seven in ten are straight, two in
   ten bi and one in ten gay, and the same person is always the same, on every machine and
   every save. Rapport never pairs two people who would not want each other. There's no

@@ -39,6 +39,8 @@ set(SOURCES
 	"src/Pairing.cpp"
 	"src/Orientation.h"
 	"src/Orientation.cpp"
+	"src/DialogueVoice.h"
+	"src/DialogueVoice.cpp"
 	"src/DebugHub.h"
 	"src/DebugHub.cpp"
 	"src/NamedLock.h"

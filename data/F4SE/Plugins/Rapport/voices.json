@@ -6226,5 +6226,5393 @@
    "master": "Fallout4.esm",
    "id": 80594
   }
+ },
+ "dialogue": {
+  "plugins": [
+   "Overture.esp"
+  ],
+  "voices": [
+   {
+    "voice": "FemaleBoston",
+    "master": "Fallout4.esm",
+    "id": 144164
+   },
+   {
+    "voice": "FemaleEvenToned",
+    "master": "Fallout4.esm",
+    "id": 80605
+   },
+   {
+    "voice": "FemaleRough",
+    "master": "Fallout4.esm",
+    "id": 46
+   },
+   {
+    "voice": "MaleBoston",
+    "master": "Fallout4.esm",
+    "id": 144163
+   },
+   {
+    "voice": "MaleEvenToned",
+    "master": "Fallout4.esm",
+    "id": 80594
+   },
+   {
+    "voice": "MaleRough",
+    "master": "Fallout4.esm",
+    "id": 45
+   },
+   {
+    "voice": "MaleGhoul",
+    "master": "Fallout4.esm",
+    "id": 144161
+   },
+   {
+    "voice": "MaleOld",
+    "master": "Fallout4.esm",
+    "id": 846499
+   },
+   {
+    "voice": "RaiderMale02",
+    "master": "Fallout4.esm",
+    "id": 128459
+   },
+   {
+    "voice": "FemaleGhoul",
+    "master": "Fallout4.esm",
+    "id": 144162
+   },
+   {
+    "voice": "DLC03TrapperMale01",
+    "master": "DLCCoast.esm",
+    "id": 11685
+   }
+  ],
+  "borrow": [
+   {
+    "voice": "Announcer_AirportVoice",
+    "master": "Fallout4.esm",
+    "id": 1125660,
+    "score": 0.092,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "Announcer_PrydwenAirTrafficControl",
+    "master": "Fallout4.esm",
+    "id": 399124,
+    "score": 0.335,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "Announcer_PulowskiVoice",
+    "master": "Fallout4.esm",
+    "id": 926005,
+    "score": 0.19,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "Announcer_SBostonCheckpoint",
+    "master": "Fallout4.esm",
+    "id": 415290,
+    "score": 0.251,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "Announcer_WaldenPond",
+    "master": "Fallout4.esm",
+    "id": 1734303,
+    "score": 0.106,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "BoSFemale01",
+    "master": "Fallout4.esm",
+    "id": 490781,
+    "score": 0.36,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "BoSFemale02",
+    "master": "Fallout4.esm",
+    "id": 490782,
+    "score": 0.361,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "BoSMale01",
+    "master": "Fallout4.esm",
+    "id": 490779,
+    "score": 0.465,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "BoSMale02",
+    "master": "Fallout4.esm",
+    "id": 490780,
+    "score": 0.364,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "ChildrenOfAtomFemale01",
+    "master": "Fallout4.esm",
+    "id": 195457,
+    "score": 0.379,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "ChildrenOfAtomMale01",
+    "master": "Fallout4.esm",
+    "id": 195456,
+    "score": 0.35,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "ChildrenOfAtomMale02",
+    "master": "Fallout4.esm",
+    "id": 547292,
+    "score": 0.251,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC01NPCFMechanist",
+    "master": "DLCRobot.esm",
+    "id": 2228,
+    "score": 0.289,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC01NPCMJackson",
+    "master": "DLCRobot.esm",
+    "id": 65481,
+    "score": 0.41,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC01_Announcer_FacilityMainframeVoiceF",
+    "master": "DLCRobot.esm",
+    "id": 8657,
+    "score": 0.112,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC01_NPCFAniseCiroletti",
+    "master": "DLCRobot.esm",
+    "id": 42477,
+    "score": 0.333,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC01_NPCMJagger",
+    "master": "DLCRobot.esm",
+    "id": 65171,
+    "score": 0.303,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC01_NPCMThomasHarkin",
+    "master": "DLCRobot.esm",
+    "id": 42476,
+    "score": 0.332,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC01_NPCMTonyDelano",
+    "master": "DLCRobot.esm",
+    "id": 42475,
+    "score": 0.397,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC03CoAFemaleArchemist",
+    "master": "DLCCoast.esm",
+    "id": 17516,
+    "score": 0.325,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03CoAFemaleMotherOfFog",
+    "master": "DLCCoast.esm",
+    "id": 45020,
+    "score": 0.493,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC03CoAFemaleSisterAubert",
+    "master": "DLCCoast.esm",
+    "id": 33480,
+    "score": 0.298,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03CoAFemaleSisterMai",
+    "master": "DLCCoast.esm",
+    "id": 17518,
+    "score": 0.546,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC03CoAFemaleZealotTheil",
+    "master": "DLCCoast.esm",
+    "id": 17514,
+    "score": 0.306,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC03CoAMaleBrotherKane",
+    "master": "DLCCoast.esm",
+    "id": 17522,
+    "score": 0.28,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DLC03CoAMaleGrandZealotRichter",
+    "master": "DLCCoast.esm",
+    "id": 17510,
+    "score": 0.197,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "DLC03CoAMaleHighConfessorTektus",
+    "master": "DLCCoast.esm",
+    "id": 17507,
+    "score": 0.416,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC03CoAMaleHighConfessorTektusSYNTH",
+    "master": "DLCCoast.esm",
+    "id": 135854,
+    "score": 0.466,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC03CoAMaleZealotWare",
+    "master": "DLCCoast.esm",
+    "id": 17512,
+    "score": 0.467,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DLC03ComputerFemaleNucleusCountdown",
+    "master": "DLCCoast.esm",
+    "id": 98385,
+    "score": 0.157,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03FarHarborFF01HolotapeMale",
+    "master": "DLCCoast.esm",
+    "id": 192967,
+    "score": 0.341,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC03FemaleAster",
+    "master": "DLCCoast.esm",
+    "id": 21166,
+    "score": 0.269,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03FemaleCaptainAvery",
+    "master": "DLCCoast.esm",
+    "id": 23681,
+    "score": 0.333,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03FemaleCassieDalton",
+    "master": "DLCCoast.esm",
+    "id": 23690,
+    "score": 0.376,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03FemaleChase",
+    "master": "DLCCoast.esm",
+    "id": 21167,
+    "score": 0.289,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03FemaleDebby",
+    "master": "DLCCoast.esm",
+    "id": 296652,
+    "score": 0.55,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC03FemaleJule",
+    "master": "DLCCoast.esm",
+    "id": 21169,
+    "score": 0.263,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC03FemaleKasumiNakano",
+    "master": "DLCCoast.esm",
+    "id": 16072,
+    "score": 0.296,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03FemaleMariner",
+    "master": "DLCCoast.esm",
+    "id": 23688,
+    "score": 0.303,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03FemaleMiranda",
+    "master": "DLCCoast.esm",
+    "id": 21168,
+    "score": 0.273,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03FemaleMrsNakano",
+    "master": "DLCCoast.esm",
+    "id": 8718,
+    "score": 0.414,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC03FemaleRRContact",
+    "master": "DLCCoast.esm",
+    "id": 193530,
+    "score": 0.198,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC03FemaleSandraLee",
+    "master": "DLCCoast.esm",
+    "id": 23689,
+    "score": 0.269,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC03FemaleSisterGwyneth",
+    "master": "DLCCoast.esm",
+    "id": 134128,
+    "score": 0.228,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC03HolotapeFemaleFranny",
+    "master": "DLCCoast.esm",
+    "id": 207951,
+    "score": 0.301,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC03HolotapeMaleCaptainWabash",
+    "master": "DLCCoast.esm",
+    "id": 129753,
+    "score": 0.404,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC03HolotapeMaleConfessorMartin",
+    "master": "DLCCoast.esm",
+    "id": 226447,
+    "score": 0.168,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "DLC03MaleAllenLee",
+    "master": "DLCCoast.esm",
+    "id": 23693,
+    "score": 0.348,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC03MaleAndreMichaud",
+    "master": "DLCCoast.esm",
+    "id": 92221,
+    "score": 0.326,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "DLC03MaleBoSLarsen",
+    "master": "DLCCoast.esm",
+    "id": 198080,
+    "score": 0.291,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC03MaleBrooks",
+    "master": "DLCCoast.esm",
+    "id": 23694,
+    "score": 0.387,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "DLC03MaleCog",
+    "master": "DLCCoast.esm",
+    "id": 21171,
+    "score": 0.217,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "DLC03MaleCole",
+    "master": "DLCCoast.esm",
+    "id": 137049,
+    "score": 0.228,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DLC03MaleDejen",
+    "master": "DLCCoast.esm",
+    "id": 21173,
+    "score": 0.257,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC03MaleDiMA",
+    "master": "DLCCoast.esm",
+    "id": 21170,
+    "score": 0.345,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DLC03MaleFaraday",
+    "master": "DLCCoast.esm",
+    "id": 21172,
+    "score": 0.199,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC03MaleKye",
+    "master": "DLCCoast.esm",
+    "id": 82447,
+    "score": 0.302,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC03MaleLevi_ADV014",
+    "master": "DLCCoast.esm",
+    "id": 181072,
+    "score": 0.437,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC03MaleMacheteMike",
+    "master": "DLCCoast.esm",
+    "id": 286683,
+    "score": 0.796,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "DLC03MaleMaineAccent",
+    "master": "DLCCoast.esm",
+    "id": 23717,
+    "score": 0.309,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC03MaleMarkWilson_ADV019",
+    "master": "DLCCoast.esm",
+    "id": 181071,
+    "score": 0.41,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC03MaleMitch",
+    "master": "DLCCoast.esm",
+    "id": 23696,
+    "score": 0.459,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC03MaleMoseley",
+    "master": "DLCCoast.esm",
+    "id": 193529,
+    "score": 0.395,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "DLC03MaleMrNakano",
+    "master": "DLCCoast.esm",
+    "id": 8547,
+    "score": 0.307,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DLC03MaleNaveen",
+    "master": "DLCCoast.esm",
+    "id": 21174,
+    "score": 0.424,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "DLC03MaleOldLongfellow",
+    "master": "DLCCoast.esm",
+    "id": 36254,
+    "score": 0.408,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DLC03MaleTeddyWright",
+    "master": "DLCCoast.esm",
+    "id": 23691,
+    "score": 0.292,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC03MaleUncleKen",
+    "master": "DLCCoast.esm",
+    "id": 23695,
+    "score": 0.55,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC03TrapperMale02",
+    "master": "DLCCoast.esm",
+    "id": 11686,
+    "score": 0.428,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04GangDiscipleFemale01",
+    "master": "DLCNukaWorld.esm",
+    "id": 31990,
+    "score": 0.347,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC04GangDiscipleFemale02",
+    "master": "DLCNukaWorld.esm",
+    "id": 31989,
+    "score": 0.327,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC04GangDiscipleMale01",
+    "master": "DLCNukaWorld.esm",
+    "id": 31982,
+    "score": 0.42,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04GangOperatorFemale01",
+    "master": "DLCNukaWorld.esm",
+    "id": 31991,
+    "score": 0.415,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC04GangOperatorMale01",
+    "master": "DLCNukaWorld.esm",
+    "id": 31992,
+    "score": 0.232,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04GangOperatorMale02",
+    "master": "DLCNukaWorld.esm",
+    "id": 31993,
+    "score": 0.445,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04GangPackFemale01",
+    "master": "DLCNukaWorld.esm",
+    "id": 31994,
+    "score": 0.214,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC04GangPackMale01",
+    "master": "DLCNukaWorld.esm",
+    "id": 31995,
+    "score": 0.397,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04GangPackMale02",
+    "master": "DLCNukaWorld.esm",
+    "id": 31996,
+    "score": 0.361,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCFDaraHubbell",
+    "master": "DLCNukaWorld.esm",
+    "id": 52371,
+    "score": 0.331,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC04NPCFDixie",
+    "master": "DLCNukaWorld.esm",
+    "id": 42212,
+    "score": 0.407,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04NPCFEmersonGatesHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 291575,
+    "score": 0.744,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC04NPCFEvelynBlack_Holotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 297391,
+    "score": 0.317,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04NPCFKateHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 277437,
+    "score": 0.774,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC04NPCFKatelynAlden",
+    "master": "DLCNukaWorld.esm",
+    "id": 117609,
+    "score": 0.279,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04NPCFKaylor",
+    "master": "DLCNukaWorld.esm",
+    "id": 107148,
+    "score": 0.666,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04NPCFKristyGreenHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 291572,
+    "score": 0.217,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04NPCFLaurenPlummer",
+    "master": "DLCNukaWorld.esm",
+    "id": 117608,
+    "score": 0.459,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC04NPCFLeavittHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 260306,
+    "score": 0.429,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04NPCFLizzieWyath",
+    "master": "DLCNukaWorld.esm",
+    "id": 69208,
+    "score": 0.142,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC04NPCFMackenzieBridgeman",
+    "master": "DLCNukaWorld.esm",
+    "id": 117606,
+    "score": 0.281,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC04NPCFMagsBlack",
+    "master": "DLCNukaWorld.esm",
+    "id": 54252,
+    "score": 0.338,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DLC04NPCFMagsBlackYoungHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 297389,
+    "score": 0.377,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04NPCFMajaAdamsHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 291577,
+    "score": 0.239,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04NPCFNisha",
+    "master": "DLCNukaWorld.esm",
+    "id": 42211,
+    "score": 0.238,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04NPCFRachelHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 268205,
+    "score": 0.868,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC04NPCFRobinHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 276967,
+    "score": 0.362,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC04NPCFSergeantLanierHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 291578,
+    "score": 0.809,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04NPCFSergeantMarcksHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 234785,
+    "score": 0.325,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04NPCFShelbieChase",
+    "master": "DLCNukaWorld.esm",
+    "id": 117607,
+    "score": 0.348,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04NPCFSierraPetrovita",
+    "master": "DLCNukaWorld.esm",
+    "id": 80449,
+    "score": 0.315,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04NPCFTraveler01",
+    "master": "DLCNukaWorld.esm",
+    "id": 155495,
+    "score": 0.746,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04NPCFTraveler02",
+    "master": "DLCNukaWorld.esm",
+    "id": 155496,
+    "score": 0.268,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04NPCMAaronCorbett",
+    "master": "DLCNukaWorld.esm",
+    "id": 117610,
+    "score": 0.259,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCMBennellHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 260311,
+    "score": 0.262,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMBraxtonHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 281954,
+    "score": 0.431,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCMCalebHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 304733,
+    "score": 0.339,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "DLC04NPCMChipMorse",
+    "master": "DLCNukaWorld.esm",
+    "id": 117611,
+    "score": 0.699,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMChipmunkHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 276965,
+    "score": 0.378,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMCito",
+    "master": "DLCNukaWorld.esm",
+    "id": 210891,
+    "score": 0.364,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMClarkHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 260156,
+    "score": 0.367,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMColter",
+    "master": "DLCNukaWorld.esm",
+    "id": 42252,
+    "score": 0.32,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "DLC04NPCMCorporalDowneyHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 291579,
+    "score": 0.776,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "DLC04NPCMDelWalshHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 267775,
+    "score": 0.315,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "DLC04NPCMDrHein_Holotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 244195,
+    "score": 0.743,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DLC04NPCMDustyPolanskiHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 291576,
+    "score": 0.726,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMEvan",
+    "master": "DLCNukaWorld.esm",
+    "id": 306230,
+    "score": 0.316,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCMFritsch",
+    "master": "DLCNukaWorld.esm",
+    "id": 201279,
+    "score": 0.275,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMGage",
+    "master": "DLCNukaWorld.esm",
+    "id": 40077,
+    "score": 0.735,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMHarvey",
+    "master": "DLCNukaWorld.esm",
+    "id": 32090,
+    "score": 0.417,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMIanHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 234784,
+    "score": 0.418,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCMJesseMcDanielHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 291571,
+    "score": 0.265,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMJohnCalebBradberton",
+    "master": "DLCNukaWorld.esm",
+    "id": 80450,
+    "score": 0.757,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCMKeithDawkins",
+    "master": "DLCNukaWorld.esm",
+    "id": 117613,
+    "score": 0.265,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMLuisBatemenHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 291573,
+    "score": 0.2,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "DLC04NPCMMQ04Sinner",
+    "master": "DLCNukaWorld.esm",
+    "id": 110604,
+    "score": 0.571,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMMaddox",
+    "master": "DLCNukaWorld.esm",
+    "id": 117612,
+    "score": 0.203,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMMarkFalconeHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 291574,
+    "score": 0.699,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCMMason",
+    "master": "DLCNukaWorld.esm",
+    "id": 62519,
+    "score": 0.43,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCMMcDermotGhoulHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 274046,
+    "score": 0.507,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCMMeachamHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 260305,
+    "score": 0.363,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMMedfordHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 260310,
+    "score": 0.435,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMOswald",
+    "master": "DLCNukaWorld.esm",
+    "id": 95203,
+    "score": 0.482,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04NPCMRabbitHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 276966,
+    "score": 0.284,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMSamHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 277438,
+    "score": 0.286,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMSanchezHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 277443,
+    "score": 0.315,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMSavoy",
+    "master": "DLCNukaWorld.esm",
+    "id": 42213,
+    "score": 0.262,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMShank",
+    "master": "DLCNukaWorld.esm",
+    "id": 56289,
+    "score": 0.475,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "DLC04NPCMTraveler01",
+    "master": "DLCNukaWorld.esm",
+    "id": 155493,
+    "score": 0.352,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DLC04NPCMTraveler02",
+    "master": "DLCNukaWorld.esm",
+    "id": 155494,
+    "score": 0.435,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04NPCMVictorHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 277446,
+    "score": 0.675,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "DLC04NPCMWeylanHolotape",
+    "master": "DLCNukaWorld.esm",
+    "id": 69904,
+    "score": 0.4,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "DLC04NPCMWilliamBlack",
+    "master": "DLCNukaWorld.esm",
+    "id": 54254,
+    "score": 0.347,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "DLC04POISC07NPCFKaliDunmore",
+    "master": "DLCNukaWorld.esm",
+    "id": 273230,
+    "score": 0.15,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04POISC07NPCFMoniqueDunmore",
+    "master": "DLCNukaWorld.esm",
+    "id": 273227,
+    "score": 0.307,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04POISC07NPCMBrettDunmore",
+    "master": "DLCNukaWorld.esm",
+    "id": 273217,
+    "score": 0.318,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DLC04TraderFemale",
+    "master": "DLCNukaWorld.esm",
+    "id": 156181,
+    "score": 0.187,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04TraderMale",
+    "master": "DLCNukaWorld.esm",
+    "id": 156180,
+    "score": 0.418,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_BottlingPlant_NPCF",
+    "master": "DLCNukaWorld.esm",
+    "id": 221079,
+    "score": 0.124,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_ElevatorVoice",
+    "master": "DLCNukaWorld.esm",
+    "id": 129732,
+    "score": 0.243,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_MQ00_NPCMRadio",
+    "master": "DLCNukaWorld.esm",
+    "id": 32093,
+    "score": 0.181,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_MQ00_NPCMRadioBottle",
+    "master": "DLCNukaWorld.esm",
+    "id": 88740,
+    "score": 0.194,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_NukaGalaxy_NPCF",
+    "master": "DLCNukaWorld.esm",
+    "id": 126506,
+    "score": 0.547,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_NukaGalaxy_NPCFNukaGirl",
+    "master": "DLCNukaWorld.esm",
+    "id": 126507,
+    "score": 0.206,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_NukaGalaxy_NPCFNukaGirlWithStatic_DO_NOT_RECORD",
+    "master": "DLCNukaWorld.esm",
+    "id": 230427,
+    "score": 0.176,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_NukaGalaxy_NPCM",
+    "master": "DLCNukaWorld.esm",
+    "id": 126505,
+    "score": 0.581,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_NukaGalaxy_NPCMWithStatic_DO_NOT_RECORD",
+    "master": "DLCNukaWorld.esm",
+    "id": 230426,
+    "score": 0.241,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_NukaPark",
+    "master": "DLCNukaWorld.esm",
+    "id": 91128,
+    "score": 0.263,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DLC04_Announcer_RaiderRadio_NPCM",
+    "master": "DLCNukaWorld.esm",
+    "id": 42420,
+    "score": 0.195,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DLC06FemaleOverseer",
+    "master": "DLCworkshop03.esm",
+    "id": 18475,
+    "score": 0.384,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "DLC06MaleClem",
+    "master": "DLCworkshop03.esm",
+    "id": 18904,
+    "score": 0.183,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DN010_Guard",
+    "master": "Fallout4.esm",
+    "id": 434983,
+    "score": 0.397,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "DN010_Mayor",
+    "master": "Fallout4.esm",
+    "id": 434981,
+    "score": 0.352,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DN010_MayorWife",
+    "master": "Fallout4.esm",
+    "id": 434982,
+    "score": 0.189,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "DN041_NPCMHolotape01Actor",
+    "master": "Fallout4.esm",
+    "id": 1634657,
+    "score": 0.424,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "DN088_NPCFJacquelineSpencer",
+    "master": "Fallout4.esm",
+    "id": 574469,
+    "score": 0.323,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DN088_NPCFSylviaCooper",
+    "master": "Fallout4.esm",
+    "id": 574468,
+    "score": 0.333,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "DN088_NPCMBertStrickland",
+    "master": "Fallout4.esm",
+    "id": 574465,
+    "score": 0.459,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "DN088_NPCMGeraldSpencer",
+    "master": "Fallout4.esm",
+    "id": 574466,
+    "score": 0.562,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "DN088_NPCMPeteOwens",
+    "master": "Fallout4.esm",
+    "id": 574467,
+    "score": 0.363,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "DN154_NPCMMarcWilson",
+    "master": "Fallout4.esm",
+    "id": 776072,
+    "score": 0.432,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "DN157NorwegianGhoulMale01",
+    "master": "Fallout4.esm",
+    "id": 295223,
+    "score": 0.255,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "DN157NorwegianGhoulMale02",
+    "master": "Fallout4.esm",
+    "id": 295224,
+    "score": 0.371,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "FemaleOld",
+    "master": "Fallout4.esm",
+    "id": 846498,
+    "score": 0.261,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "GuardFemaleVault81",
+    "master": "Fallout4.esm",
+    "id": 868284,
+    "score": 0.312,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "GuardMaleDiamondCity01",
+    "master": "Fallout4.esm",
+    "id": 698579,
+    "score": 0.307,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "GuardMaleDiamondCity02",
+    "master": "Fallout4.esm",
+    "id": 1008059,
+    "score": 0.35,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "GuardMaleVault81",
+    "master": "Fallout4.esm",
+    "id": 410863,
+    "score": 0.282,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "GunnersFemale01",
+    "master": "Fallout4.esm",
+    "id": 539772,
+    "score": 0.293,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "GunnersFemaleMS05PvtHart",
+    "master": "Fallout4.esm",
+    "id": 1476068,
+    "score": 0.241,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "GunnersMale01",
+    "master": "Fallout4.esm",
+    "id": 539770,
+    "score": 0.39,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "GunnersMale02",
+    "master": "Fallout4.esm",
+    "id": 539771,
+    "score": 0.268,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "GunnersMaleMS05MajorJefferies",
+    "master": "Fallout4.esm",
+    "id": 1476067,
+    "score": 0.269,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "GunnersMaleMS05SgtLee",
+    "master": "Fallout4.esm",
+    "id": 1476066,
+    "score": 0.516,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "HoloFLadiesAuxBecka",
+    "master": "Fallout4.esm",
+    "id": 1692380,
+    "score": 0.802,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "HoloFLadiesAuxGemma",
+    "master": "Fallout4.esm",
+    "id": 1692382,
+    "score": 0.568,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "HoloFLadiesAuxSue",
+    "master": "Fallout4.esm",
+    "id": 1692381,
+    "score": 0.675,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "HoloFTheControlPeters",
+    "master": "Fallout4.esm",
+    "id": 1692394,
+    "score": 0.199,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "HolotapeCITAdminVoice01",
+    "master": "Fallout4.esm",
+    "id": 1899344,
+    "score": 0.381,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "HolotapeCITArcjetExecVoice01",
+    "master": "Fallout4.esm",
+    "id": 1899346,
+    "score": 0.291,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "HolotapeCITProfVoice01",
+    "master": "Fallout4.esm",
+    "id": 1899343,
+    "score": 0.388,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "HolotapeCITStudentVoice01",
+    "master": "Fallout4.esm",
+    "id": 1899340,
+    "score": 0.179,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "HolotapeCITStudentVoice02",
+    "master": "Fallout4.esm",
+    "id": 1899341,
+    "score": 0.108,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "HolotapeCITStudentVoice03",
+    "master": "Fallout4.esm",
+    "id": 1899342,
+    "score": 0.313,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "HolotapeCommonGroundskeeper",
+    "master": "Fallout4.esm",
+    "id": 2214277,
+    "score": 0.21,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "HolotapeInstituteVoiceFemale01",
+    "master": "Fallout4.esm",
+    "id": 1851468,
+    "score": 0.276,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "HolotapeInstituteVoiceMale01",
+    "master": "Fallout4.esm",
+    "id": 1851382,
+    "score": 0.186,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "HolotapeInstituteVoiceMale02",
+    "master": "Fallout4.esm",
+    "id": 1897650,
+    "score": 0.272,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "HolotapeJunkjetTechnician",
+    "master": "Fallout4.esm",
+    "id": 2138655,
+    "score": 0.361,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "InstituteCourserMaleVoice",
+    "master": "Fallout4.esm",
+    "id": 1424927,
+    "score": 0.25,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "InstituteScientistFemaleVoice",
+    "master": "Fallout4.esm",
+    "id": 1188919,
+    "score": 0.257,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "InstituteScientistMaleVoice",
+    "master": "Fallout4.esm",
+    "id": 1188918,
+    "score": 0.367,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "MQ101InstAgentFemaleVoice",
+    "master": "Fallout4.esm",
+    "id": 850203,
+    "score": 0.382,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "MQ101InstAgentMaleVoice",
+    "master": "Fallout4.esm",
+    "id": 850202,
+    "score": 0.41,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "MQ101NeighborFemale01Voice",
+    "master": "Fallout4.esm",
+    "id": 850205,
+    "score": 0.474,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "MQ101NeighborFemale02Voice",
+    "master": "Fallout4.esm",
+    "id": 1178655,
+    "score": 0.454,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "MQ101NeighborFemaleBostonVoice",
+    "master": "Fallout4.esm",
+    "id": 1178653,
+    "score": 0.575,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "MQ101NeighborMale01Voice",
+    "master": "Fallout4.esm",
+    "id": 850204,
+    "score": 0.44,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "MQ101NeighborMale02Voice",
+    "master": "Fallout4.esm",
+    "id": 1178656,
+    "score": 0.326,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "MQ101NeighborMaleBostonVoice",
+    "master": "Fallout4.esm",
+    "id": 1178654,
+    "score": 0.58,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "MQ101PreWarSoldier01",
+    "master": "Fallout4.esm",
+    "id": 769919,
+    "score": 0.72,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "MQ101PreWarSoldier02",
+    "master": "Fallout4.esm",
+    "id": 831911,
+    "score": 0.446,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "MQ203MemoryA_DadVoice",
+    "master": "Fallout4.esm",
+    "id": 871122,
+    "score": 0.343,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "MQ203MemoryA_MomVoice",
+    "master": "Fallout4.esm",
+    "id": 871121,
+    "score": 0.239,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "MQ203MemoryB_SarahVoice",
+    "master": "Fallout4.esm",
+    "id": 871604,
+    "score": 0.771,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "MaleGhoulCombatant01",
+    "master": "Fallout4.esm",
+    "id": 539342,
+    "score": 0.662,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "MaleTriggerman01",
+    "master": "Fallout4.esm",
+    "id": 539341,
+    "score": 0.403,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "MuseumVoice1",
+    "master": "Fallout4.esm",
+    "id": 135877,
+    "score": 0.265,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "MuseumVoice2",
+    "master": "Fallout4.esm",
+    "id": 135879,
+    "score": 0.211,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "MuseumVoiceBritish1",
+    "master": "Fallout4.esm",
+    "id": 135880,
+    "score": 0.216,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "MuseumVoiceF1",
+    "master": "Fallout4.esm",
+    "id": 135878,
+    "score": 0.08,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFAlanaSecord",
+    "master": "Fallout4.esm",
+    "id": 430948,
+    "score": 0.296,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFAlexisCombes",
+    "master": "Fallout4.esm",
+    "id": 174232,
+    "score": 0.325,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFAllieFilmore",
+    "master": "Fallout4.esm",
+    "id": 430934,
+    "score": 0.269,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFAlyssaPark",
+    "master": "Fallout4.esm",
+    "id": 1330892,
+    "score": 0.413,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFAmeliaStockton",
+    "master": "Fallout4.esm",
+    "id": 237513,
+    "score": 0.209,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFAnnCodman",
+    "master": "Fallout4.esm",
+    "id": 106584,
+    "score": 0.135,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFAnneHargraves",
+    "master": "Fallout4.esm",
+    "id": 224621,
+    "score": 0.12,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFArcJetTech01",
+    "master": "Fallout4.esm",
+    "id": 1832701,
+    "score": 0.231,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFArcJetTech02",
+    "master": "Fallout4.esm",
+    "id": 1832705,
+    "score": 0.2,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFAvery",
+    "master": "Fallout4.esm",
+    "id": 924200,
+    "score": 0.464,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFBeckyFallon",
+    "master": "Fallout4.esm",
+    "id": 128588,
+    "score": 0.314,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFBoSKnightAstlin",
+    "master": "Fallout4.esm",
+    "id": 704156,
+    "score": 0.103,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFBoSKnightLucia",
+    "master": "Fallout4.esm",
+    "id": 704157,
+    "score": 0.24,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFBobbiNoNose",
+    "master": "Fallout4.esm",
+    "id": 140975,
+    "score": 0.363,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFBonnieTournquist",
+    "master": "Fallout4.esm",
+    "id": 1835905,
+    "score": 0.255,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFCait",
+    "master": "Fallout4.esm",
+    "id": 496202,
+    "score": 0.263,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFCathy",
+    "master": "Fallout4.esm",
+    "id": 106583,
+    "score": 0.422,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFCherylGlass",
+    "master": "Fallout4.esm",
+    "id": 1149657,
+    "score": 0.166,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFClairHutchins",
+    "master": "Fallout4.esm",
+    "id": 141019,
+    "score": 0.541,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFColette",
+    "master": "Fallout4.esm",
+    "id": 144173,
+    "score": 0.362,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFCricket",
+    "master": "Fallout4.esm",
+    "id": 1244367,
+    "score": 0.361,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFCurie",
+    "master": "Fallout4.esm",
+    "id": 1460159,
+    "score": 0.241,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFDN068Emma",
+    "master": "Fallout4.esm",
+    "id": 1451901,
+    "score": 0.307,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFDaisy",
+    "master": "Fallout4.esm",
+    "id": 141649,
+    "score": 0.532,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFDarcyPembroke",
+    "master": "Fallout4.esm",
+    "id": 144176,
+    "score": 0.344,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFDarla",
+    "master": "Fallout4.esm",
+    "id": 100996,
+    "score": 0.466,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFDesdemona",
+    "master": "Fallout4.esm",
+    "id": 285394,
+    "score": 0.238,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFDoctorAmari",
+    "master": "Fallout4.esm",
+    "id": 632449,
+    "score": 0.322,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFDoctorDuff",
+    "master": "Fallout4.esm",
+    "id": 144178,
+    "score": 0.408,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFDoctorPatricia",
+    "master": "Fallout4.esm",
+    "id": 992363,
+    "score": 0.36,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFElliePerkins",
+    "master": "Fallout4.esm",
+    "id": 139939,
+    "score": 0.334,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFEmogeneCabot",
+    "master": "Fallout4.esm",
+    "id": 294586,
+    "score": 0.264,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFEustace",
+    "master": "Fallout4.esm",
+    "id": 144179,
+    "score": 0.081,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFFahrenheit",
+    "master": "Fallout4.esm",
+    "id": 140823,
+    "score": 0.379,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFG9-81",
+    "master": "Fallout4.esm",
+    "id": 862714,
+    "score": 0.755,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFGeneva",
+    "master": "Fallout4.esm",
+    "id": 106573,
+    "owner": true,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFGibson",
+    "master": "Fallout4.esm",
+    "id": 316664,
+    "score": 0.665,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFGlory",
+    "master": "Fallout4.esm",
+    "id": 285392,
+    "score": 0.196,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFGwenMcNamara",
+    "master": "Fallout4.esm",
+    "id": 174237,
+    "score": 0.247,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFIrma",
+    "master": "Fallout4.esm",
+    "id": 141479,
+    "score": 0.417,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFK1-98",
+    "master": "Fallout4.esm",
+    "id": 323563,
+    "score": 0.306,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFKatherinePinn",
+    "master": "Fallout4.esm",
+    "id": 174240,
+    "score": 0.358,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFKendra",
+    "master": "Fallout4.esm",
+    "id": 303362,
+    "score": 0.393,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFMS07cKeypadVoice",
+    "master": "Fallout4.esm",
+    "id": 1507154,
+    "score": 0.126,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFMadisonLi",
+    "master": "Fallout4.esm",
+    "id": 430938,
+    "score": 0.409,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFMagnolia",
+    "master": "Fallout4.esm",
+    "id": 140937,
+    "score": 0.186,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFMagnolia_MuffledReverb",
+    "master": "Fallout4.esm",
+    "id": 1977725,
+    "score": 0.172,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFMagnolia_NormalReverb",
+    "master": "Fallout4.esm",
+    "id": 1977723,
+    "score": 0.188,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFMamaMurphy",
+    "master": "Fallout4.esm",
+    "id": 784805,
+    "score": 0.61,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFMandyStiles",
+    "master": "Fallout4.esm",
+    "id": 241097,
+    "score": 0.464,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFMarcyLong",
+    "master": "Fallout4.esm",
+    "id": 106465,
+    "score": 0.447,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFMariaSummerset",
+    "master": "Fallout4.esm",
+    "id": 174242,
+    "score": 0.248,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFMirandaSong",
+    "master": "Fallout4.esm",
+    "id": 1692538,
+    "score": 0.246,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFMrsAble",
+    "master": "Fallout4.esm",
+    "id": 777726,
+    "score": 0.285,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFMrsCallahan",
+    "master": "Fallout4.esm",
+    "id": 1417691,
+    "score": 0.419,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFMrsDonoghue",
+    "master": "Fallout4.esm",
+    "id": 777738,
+    "score": 0.374,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFMrsParker",
+    "master": "Fallout4.esm",
+    "id": 777732,
+    "score": 0.328,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFMrsSumner",
+    "master": "Fallout4.esm",
+    "id": 1191554,
+    "score": 0.385,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFMrsWashington",
+    "master": "Fallout4.esm",
+    "id": 777745,
+    "score": 0.323,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFMrsWhitfield",
+    "master": "Fallout4.esm",
+    "id": 1187119,
+    "score": 0.345,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFMsRosa",
+    "master": "Fallout4.esm",
+    "id": 777721,
+    "score": 0.317,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFMyrna",
+    "master": "Fallout4.esm",
+    "id": 106580,
+    "score": 0.511,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFNess",
+    "master": "Fallout4.esm",
+    "id": 308074,
+    "score": 0.391,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFParsonsGuardCaptain",
+    "master": "Fallout4.esm",
+    "id": 760705,
+    "score": 0.491,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFPennyFitzgerald",
+    "master": "Fallout4.esm",
+    "id": 341987,
+    "score": 0.44,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFPhyllisDaily",
+    "master": "Fallout4.esm",
+    "id": 137657,
+    "score": 0.402,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFPiper",
+    "master": "Fallout4.esm",
+    "id": 103050,
+    "score": 0.286,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFPolly",
+    "master": "Fallout4.esm",
+    "id": 144189,
+    "score": 0.443,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFPriscillaPenske",
+    "master": "Fallout4.esm",
+    "id": 174235,
+    "score": 0.197,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFProctorIngram",
+    "master": "Fallout4.esm",
+    "id": 410304,
+    "score": 0.321,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFProfessorScara",
+    "master": "Fallout4.esm",
+    "id": 734288,
+    "score": 0.384,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFRachel",
+    "master": "Fallout4.esm",
+    "id": 174244,
+    "score": 0.395,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFRonnieShaw",
+    "master": "Fallout4.esm",
+    "id": 392591,
+    "score": 0.413,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFRosalindOrman",
+    "master": "Fallout4.esm",
+    "id": 430947,
+    "score": 0.306,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFRoslynChambers",
+    "master": "Fallout4.esm",
+    "id": 758487,
+    "score": 0.303,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFRowdy",
+    "master": "Fallout4.esm",
+    "id": 563230,
+    "score": 0.289,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFRunawayGirl",
+    "master": "Fallout4.esm",
+    "id": 1079190,
+    "score": 0.303,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFSal",
+    "master": "Fallout4.esm",
+    "id": 704153,
+    "score": 0.44,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFScarlett",
+    "master": "Fallout4.esm",
+    "id": 307777,
+    "score": 0.105,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFScribeCollins",
+    "master": "Fallout4.esm",
+    "id": 324494,
+    "score": 0.16,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFScribeHaylen",
+    "master": "Fallout4.esm",
+    "id": 384594,
+    "score": 0.401,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFScribeNeriah",
+    "master": "Fallout4.esm",
+    "id": 410308,
+    "score": 0.341,
+    "as": {
+     "voice": "FemaleRough",
+     "master": "Fallout4.esm",
+     "id": 46
+    }
+   },
+   {
+    "voice": "NPCFSheila",
+    "master": "Fallout4.esm",
+    "id": 1012665,
+    "score": 0.483,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFSmilingKate",
+    "master": "Fallout4.esm",
+    "id": 284403,
+    "score": 0.535,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCFTaliaMcGovern",
+    "master": "Fallout4.esm",
+    "id": 237522,
+    "score": 0.423,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFTinaDeLuca",
+    "master": "Fallout4.esm",
+    "id": 174245,
+    "score": 0.298,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFTraderRylee",
+    "master": "Fallout4.esm",
+    "id": 776956,
+    "score": 0.262,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFVaultTecScientist01",
+    "master": "Fallout4.esm",
+    "id": 1435939,
+    "score": 0.374,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "NPCFVaultTecScientist02",
+    "master": "Fallout4.esm",
+    "id": 1545887,
+    "score": 0.277,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "NPCFWilhelminaCabot",
+    "master": "Fallout4.esm",
+    "id": 294588,
+    "score": 0.148,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "NPCMAJ",
+    "master": "Fallout4.esm",
+    "id": 912684,
+    "score": 0.407,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMAbbot",
+    "master": "Fallout4.esm",
+    "id": 106577,
+    "score": 0.324,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMAlanBinet",
+    "master": "Fallout4.esm",
+    "id": 430935,
+    "score": 0.425,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMArlenGlass",
+    "master": "Fallout4.esm",
+    "id": 152815,
+    "score": 0.345,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMArturo",
+    "master": "Fallout4.esm",
+    "id": 106576,
+    "score": 0.482,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMBarnes",
+    "master": "Fallout4.esm",
+    "id": 214658,
+    "score": 0.39,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMBarneyRook",
+    "master": "Fallout4.esm",
+    "id": 776230,
+    "score": 0.438,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMBlythe",
+    "master": "Fallout4.esm",
+    "id": 997093,
+    "score": 0.346,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMBoSInitiateClarke",
+    "master": "Fallout4.esm",
+    "id": 704159,
+    "score": 0.525,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMBoSPaladinBrandis",
+    "master": "Fallout4.esm",
+    "id": 704144,
+    "score": 0.387,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMBoSScribeFaris",
+    "master": "Fallout4.esm",
+    "id": 704155,
+    "score": 0.405,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMBobbyDeLuca",
+    "master": "Fallout4.esm",
+    "id": 174233,
+    "score": 0.463,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMBosKnightGavil",
+    "master": "Fallout4.esm",
+    "id": 704158,
+    "score": 0.241,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMBradford",
+    "master": "Fallout4.esm",
+    "id": 1753015,
+    "score": 0.443,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMBrendanVolkert",
+    "master": "Fallout4.esm",
+    "id": 1996588,
+    "score": 0.226,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMBrianFitzgerald",
+    "master": "Fallout4.esm",
+    "id": 237518,
+    "score": 0.468,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMBull",
+    "master": "Fallout4.esm",
+    "id": 972386,
+    "score": 0.55,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMBullet",
+    "master": "Fallout4.esm",
+    "id": 179862,
+    "score": 0.518,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMCalvinWhitaker",
+    "master": "Fallout4.esm",
+    "id": 1692535,
+    "score": 0.303,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMCaptainZao",
+    "master": "Fallout4.esm",
+    "id": 353126,
+    "score": 0.443,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMCaretaker",
+    "master": "Fallout4.esm",
+    "id": 736968,
+    "score": 0.467,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMClarenceCodman",
+    "master": "Fallout4.esm",
+    "id": 353125,
+    "score": 0.385,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMClaytonHoldren",
+    "master": "Fallout4.esm",
+    "id": 430942,
+    "score": 0.322,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMColonelSmith",
+    "master": "Fallout4.esm",
+    "id": 1081768,
+    "score": 0.17,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMDN019CultLeader",
+    "master": "Fallout4.esm",
+    "id": 799051,
+    "score": 0.355,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMDN033Hugo",
+    "master": "Fallout4.esm",
+    "id": 1294120,
+    "score": 0.426,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMDN033Management",
+    "master": "Fallout4.esm",
+    "id": 1312915,
+    "score": 0.275,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMDN033TimShoots",
+    "master": "Fallout4.esm",
+    "id": 1312913,
+    "score": 0.113,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMDN068Josh",
+    "master": "Fallout4.esm",
+    "id": 1451900,
+    "score": 0.358,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMDale",
+    "master": "Fallout4.esm",
+    "id": 1012666,
+    "score": 0.333,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMDannySullivan",
+    "master": "Fallout4.esm",
+    "id": 142657,
+    "score": 0.334,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMDavies",
+    "master": "Fallout4.esm",
+    "id": 320415,
+    "score": 0.331,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMDeacon",
+    "master": "Fallout4.esm",
+    "id": 285386,
+    "score": 0.444,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMDeanVolkert",
+    "master": "Fallout4.esm",
+    "id": 430944,
+    "score": 0.53,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMDocCrocker",
+    "master": "Fallout4.esm",
+    "id": 106578,
+    "score": 0.323,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMDocWeathers",
+    "master": "Fallout4.esm",
+    "id": 1244362,
+    "score": 0.392,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMDoctorCarrington",
+    "master": "Fallout4.esm",
+    "id": 285390,
+    "score": 0.342,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMDoctorSun",
+    "master": "Fallout4.esm",
+    "id": 134031,
+    "score": 0.472,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMDutchman",
+    "master": "Fallout4.esm",
+    "id": 885959,
+    "score": 0.334,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMEddieWinter",
+    "master": "Fallout4.esm",
+    "id": 616901,
+    "score": 0.45,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMEdwardDeegan",
+    "master": "Fallout4.esm",
+    "id": 294585,
+    "score": 0.52,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMElderMaxson",
+    "master": "Fallout4.esm",
+    "id": 410301,
+    "score": 0.442,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMEnricoThompson",
+    "master": "Fallout4.esm",
+    "id": 430940,
+    "score": 0.517,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMEvanWatson",
+    "master": "Fallout4.esm",
+    "id": 430946,
+    "score": 0.386,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMFensPhantom",
+    "master": "Fallout4.esm",
+    "id": 1620530,
+    "score": 0.257,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMFinn",
+    "master": "Fallout4.esm",
+    "id": 210310,
+    "score": 0.53,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMFredAllen",
+    "master": "Fallout4.esm",
+    "id": 141016,
+    "score": 0.382,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMGeneralGage",
+    "master": "Fallout4.esm",
+    "id": 1081767,
+    "score": 0.345,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMGeorgeCooper",
+    "master": "Fallout4.esm",
+    "id": 224620,
+    "score": 0.335,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMGerald",
+    "master": "Fallout4.esm",
+    "id": 1726559,
+    "score": 0.307,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMGlowingSeaPOIDB01Pilot01",
+    "master": "Fallout4.esm",
+    "id": 1636904,
+    "score": 0.339,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMGouger",
+    "master": "Fallout4.esm",
+    "id": 972387,
+    "score": 0.399,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMH2-22",
+    "master": "Fallout4.esm",
+    "id": 392956,
+    "score": 0.346,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMHam",
+    "master": "Fallout4.esm",
+    "id": 140941,
+    "score": 0.359,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMHancock",
+    "master": "Fallout4.esm",
+    "id": 140820,
+    "score": 0.464,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMHawthorne",
+    "master": "Fallout4.esm",
+    "id": 145442,
+    "score": 0.17,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMHenri",
+    "master": "Fallout4.esm",
+    "id": 1330949,
+    "score": 0.339,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMHenryCooke",
+    "master": "Fallout4.esm",
+    "id": 236085,
+    "score": 0.524,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMHoltCombes",
+    "master": "Fallout4.esm",
+    "id": 174238,
+    "score": 0.377,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMHonestDan",
+    "master": "Fallout4.esm",
+    "id": 341985,
+    "score": 0.284,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMHoratio",
+    "master": "Fallout4.esm",
+    "id": 174239,
+    "score": 0.144,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMIsaacKarlin",
+    "master": "Fallout4.esm",
+    "id": 430943,
+    "score": 0.273,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMJackCabot",
+    "master": "Fallout4.esm",
+    "id": 294584,
+    "score": 0.339,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMJacobForsythe",
+    "master": "Fallout4.esm",
+    "id": 174234,
+    "score": 0.324,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMJacobOrden",
+    "master": "Fallout4.esm",
+    "id": 237524,
+    "score": 0.49,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMJohn",
+    "master": "Fallout4.esm",
+    "id": 106582,
+    "score": 0.326,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMJunLong",
+    "master": "Fallout4.esm",
+    "id": 106464,
+    "score": 0.341,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMJustinAyo",
+    "master": "Fallout4.esm",
+    "id": 430936,
+    "score": 0.63,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMKellogg",
+    "master": "Fallout4.esm",
+    "id": 638061,
+    "score": 0.376,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMKentConnolly",
+    "master": "Fallout4.esm",
+    "id": 141483,
+    "score": 0.538,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMKnightCaptainCade",
+    "master": "Fallout4.esm",
+    "id": 410302,
+    "score": 0.282,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMKnightRhys",
+    "master": "Fallout4.esm",
+    "id": 384593,
+    "score": 0.31,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMLancerCaptainKells",
+    "master": "Fallout4.esm",
+    "id": 410303,
+    "score": 0.305,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMLawrenceHiggs",
+    "master": "Fallout4.esm",
+    "id": 430939,
+    "score": 0.459,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMLiamBinet",
+    "master": "Fallout4.esm",
+    "id": 688869,
+    "score": 0.286,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMLorenzoCabot",
+    "master": "Fallout4.esm",
+    "id": 294587,
+    "score": 0.346,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMLowRoadFranklin",
+    "master": "Fallout4.esm",
+    "id": 511353,
+    "score": 0.166,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMLucasMiller",
+    "master": "Fallout4.esm",
+    "id": 1248121,
+    "score": 0.357,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMMS07bMartyBullfinch",
+    "master": "Fallout4.esm",
+    "id": 1342800,
+    "score": 0.439,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMMacCready",
+    "master": "Fallout4.esm",
+    "id": 160784,
+    "score": 0.348,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMMalcolmLatimer",
+    "master": "Fallout4.esm",
+    "id": 195801,
+    "score": 0.35,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMManny",
+    "master": "Fallout4.esm",
+    "id": 346895,
+    "score": 0.334,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMMarkSummerset",
+    "master": "Fallout4.esm",
+    "id": 174241,
+    "score": 0.31,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMMarowski",
+    "master": "Fallout4.esm",
+    "id": 141025,
+    "score": 0.473,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMMaxLoken",
+    "master": "Fallout4.esm",
+    "id": 430945,
+    "score": 0.335,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMMayorMcDonough",
+    "master": "Fallout4.esm",
+    "id": 106571,
+    "score": 0.423,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMMcDonnell",
+    "master": "Fallout4.esm",
+    "id": 1734517,
+    "score": 0.494,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMMel",
+    "master": "Fallout4.esm",
+    "id": 336249,
+    "score": 0.225,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMMichaelTournquist",
+    "master": "Fallout4.esm",
+    "id": 1647264,
+    "score": 0.173,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMMinutemenRadioVoice",
+    "master": "Fallout4.esm",
+    "id": 698253,
+    "score": 0.212,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMMisterZwicky",
+    "master": "Fallout4.esm",
+    "id": 144182,
+    "score": 0.39,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMMoeCronin",
+    "master": "Fallout4.esm",
+    "id": 106581,
+    "score": 0.353,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMMrAble",
+    "master": "Fallout4.esm",
+    "id": 777724,
+    "score": 0.759,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMMrCallahan",
+    "master": "Fallout4.esm",
+    "id": 1417690,
+    "score": 0.336,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMMrDonoghue",
+    "master": "Fallout4.esm",
+    "id": 777736,
+    "score": 0.422,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMMrParker",
+    "master": "Fallout4.esm",
+    "id": 777730,
+    "score": 0.435,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMMrRussell",
+    "master": "Fallout4.esm",
+    "id": 1187117,
+    "score": 0.451,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMMrSmith",
+    "master": "Fallout4.esm",
+    "id": 1188540,
+    "score": 0.295,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMMrSumner",
+    "master": "Fallout4.esm",
+    "id": 1191553,
+    "score": 0.527,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMMrWashington",
+    "master": "Fallout4.esm",
+    "id": 777746,
+    "score": 0.244,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMMrWhitfield",
+    "master": "Fallout4.esm",
+    "id": 1187118,
+    "score": 0.254,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMNeilFreund",
+    "master": "Fallout4.esm",
+    "id": 1692537,
+    "score": 0.273,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMNelsonLatimer",
+    "master": "Fallout4.esm",
+    "id": 144183,
+    "score": 0.331,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMNewtonOberly",
+    "master": "Fallout4.esm",
+    "id": 430941,
+    "score": 0.304,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMNickValentine",
+    "master": "Fallout4.esm",
+    "id": 144184,
+    "score": 0.356,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMNorthy",
+    "master": "Fallout4.esm",
+    "id": 284407,
+    "score": 0.279,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMOldManStockton",
+    "master": "Fallout4.esm",
+    "id": 237516,
+    "score": 0.361,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMPaladinDanse",
+    "master": "Fallout4.esm",
+    "id": 161416,
+    "score": 0.395,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMParkerQuinn",
+    "master": "Fallout4.esm",
+    "id": 541671,
+    "score": 0.341,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMPastorClements",
+    "master": "Fallout4.esm",
+    "id": 106575,
+    "score": 0.209,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMPaulPembroke",
+    "master": "Fallout4.esm",
+    "id": 144187,
+    "score": 0.285,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMPerry",
+    "master": "Fallout4.esm",
+    "id": 1734516,
+    "score": 0.494,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMPickman",
+    "master": "Fallout4.esm",
+    "id": 306515,
+    "score": 0.306,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMPreWarSoldier1",
+    "master": "Fallout4.esm",
+    "id": 355797,
+    "score": 0.286,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMPrestonGarvey",
+    "master": "Fallout4.esm",
+    "id": 106462,
+    "score": 0.171,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMPrestonGarveyImpersonator",
+    "master": "Fallout4.esm",
+    "id": 1755080,
+    "score": 0.319,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMProctorQuinlan",
+    "master": "Fallout4.esm",
+    "id": 410305,
+    "score": 0.31,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMProctorTeagan",
+    "master": "Fallout4.esm",
+    "id": 410306,
+    "score": 0.495,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMReise",
+    "master": "Fallout4.esm",
+    "id": 1734518,
+    "score": 0.327,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMRexGoodman",
+    "master": "Fallout4.esm",
+    "id": 224619,
+    "score": 0.291,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMRickyDalton",
+    "master": "Fallout4.esm",
+    "id": 469513,
+    "score": 0.491,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMRoryRigwell",
+    "master": "Fallout4.esm",
+    "id": 1462953,
+    "score": 0.418,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMScottEdwards",
+    "master": "Fallout4.esm",
+    "id": 1692536,
+    "score": 0.218,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMShaun60",
+    "master": "Fallout4.esm",
+    "id": 356519,
+    "score": 0.23,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMSheffield",
+    "master": "Fallout4.esm",
+    "id": 144190,
+    "score": 0.428,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMSinjin",
+    "master": "Fallout4.esm",
+    "id": 284414,
+    "score": 0.519,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMSkinnyMalone",
+    "master": "Fallout4.esm",
+    "id": 100995,
+    "score": 0.465,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMSkylanesPilot01",
+    "master": "Fallout4.esm",
+    "id": 830349,
+    "score": 0.261,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMSkylanesPilot02",
+    "master": "Fallout4.esm",
+    "id": 830350,
+    "score": 0.234,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMSolomon",
+    "master": "Fallout4.esm",
+    "id": 106579,
+    "score": 0.367,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMStanSlavin",
+    "master": "Fallout4.esm",
+    "id": 141022,
+    "score": 0.554,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMStorytimeSimon",
+    "master": "Fallout4.esm",
+    "id": 1754397,
+    "score": 0.431,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMSturges",
+    "master": "Fallout4.esm",
+    "id": 106463,
+    "score": 0.252,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMSwanson",
+    "master": "Fallout4.esm",
+    "id": 225367,
+    "score": 0.493,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMTSWallace",
+    "master": "Fallout4.esm",
+    "id": 972388,
+    "score": 0.26,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMTVAnchorman",
+    "master": "Fallout4.esm",
+    "id": 763146,
+    "score": 0.313,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMTedHuntley",
+    "master": "Fallout4.esm",
+    "id": 237520,
+    "score": 0.298,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMTheodoreCollins",
+    "master": "Fallout4.esm",
+    "id": 776955,
+    "score": 0.229,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMTinkerTom",
+    "master": "Fallout4.esm",
+    "id": 285388,
+    "score": 0.167,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMTommyLonegan",
+    "master": "Fallout4.esm",
+    "id": 132942,
+    "score": 0.327,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMTravisMiles",
+    "master": "Fallout4.esm",
+    "id": 140509,
+    "score": 0.373,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMVadimBobrov",
+    "master": "Fallout4.esm",
+    "id": 144194,
+    "score": 0.229,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMVault111Security",
+    "master": "Fallout4.esm",
+    "id": 831964,
+    "score": 0.313,
+    "as": {
+     "voice": "MaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144163
+    }
+   },
+   {
+    "voice": "NPCMVaultTecRep",
+    "master": "Fallout4.esm",
+    "id": 704415,
+    "score": 0.275,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMVaultTecRepGhoul",
+    "master": "Fallout4.esm",
+    "id": 204722,
+    "score": 0.521,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMVaultTecScientist01",
+    "master": "Fallout4.esm",
+    "id": 831954,
+    "score": 0.397,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMVaultTecScientist02",
+    "master": "Fallout4.esm",
+    "id": 831958,
+    "score": 0.291,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMVaultTecScientist04",
+    "master": "Fallout4.esm",
+    "id": 1011721,
+    "score": 0.742,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMVaultTecScientist05",
+    "master": "Fallout4.esm",
+    "id": 1011722,
+    "score": 0.391,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMVaultTecScientist06",
+    "master": "Fallout4.esm",
+    "id": 1011723,
+    "score": 0.308,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMVaultTecScientist07",
+    "master": "Fallout4.esm",
+    "id": 1548119,
+    "score": 0.334,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMVirgilHuman",
+    "master": "Fallout4.esm",
+    "id": 1241092,
+    "score": 0.365,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMWayneTournquist",
+    "master": "Fallout4.esm",
+    "id": 1647265,
+    "score": 0.395,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "NPCMWickedTimVoice",
+    "master": "Fallout4.esm",
+    "id": 1014025,
+    "score": 0.385,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "NPCMWinlock",
+    "master": "Fallout4.esm",
+    "id": 214657,
+    "score": 0.4,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMX6-88",
+    "master": "Fallout4.esm",
+    "id": 769767,
+    "score": 0.318,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "NPCMYefimBobrov",
+    "master": "Fallout4.esm",
+    "id": 144196,
+    "score": 0.22,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "NPCMZ114",
+    "master": "Fallout4.esm",
+    "id": 862711,
+    "score": 0.408,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "NPCMZ2-47",
+    "master": "Fallout4.esm",
+    "id": 323565,
+    "score": 0.37,
+    "as": {
+     "voice": "MaleOld",
+     "master": "Fallout4.esm",
+     "id": 846499
+    }
+   },
+   {
+    "voice": "NPCMZeke",
+    "master": "Fallout4.esm",
+    "id": 563231,
+    "score": 0.282,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "PlayerVoiceFemale01",
+    "master": "Fallout4.esm",
+    "id": 101879,
+    "score": 0.337,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "PlayerVoiceMale01",
+    "master": "Fallout4.esm",
+    "id": 101876,
+    "score": 0.355,
+    "as": {
+     "voice": "MaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80594
+    }
+   },
+   {
+    "voice": "RadioVoiceEyebotAnnouncer",
+    "master": "Fallout4.esm",
+    "id": 920415,
+    "score": 0.287,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "RaiderFemale01",
+    "master": "Fallout4.esm",
+    "id": 137671,
+    "score": 0.448,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "RaiderMale01",
+    "master": "Fallout4.esm",
+    "id": 128458,
+    "score": 0.419,
+    "as": {
+     "voice": "MaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144161
+    }
+   },
+   {
+    "voice": "RailroadAgentMale01",
+    "master": "Fallout4.esm",
+    "id": 205009,
+    "score": 0.33,
+    "as": {
+     "voice": "RaiderMale02",
+     "master": "Fallout4.esm",
+     "id": 128459
+    }
+   },
+   {
+    "voice": "RelayTowerHumanFemaleVoice",
+    "master": "Fallout4.esm",
+    "id": 1632497,
+    "score": 0.352,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "RelayTowerHumanMaleVoice",
+    "master": "Fallout4.esm",
+    "id": 247343,
+    "score": 0.472,
+    "as": {
+     "voice": "DLC03TrapperMale01",
+     "master": "DLCCoast.esm",
+     "id": 11685
+    }
+   },
+   {
+    "voice": "SynthGen3Female01",
+    "master": "Fallout4.esm",
+    "id": 876620,
+    "score": 0.422,
+    "as": {
+     "voice": "FemaleBoston",
+     "master": "Fallout4.esm",
+     "id": 144164
+    }
+   },
+   {
+    "voice": "SynthGen3Female02",
+    "master": "Fallout4.esm",
+    "id": 876621,
+    "score": 0.896,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   },
+   {
+    "voice": "SynthGen3Male01",
+    "master": "Fallout4.esm",
+    "id": 876618,
+    "score": 0.27,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "SynthGen3Male02",
+    "master": "Fallout4.esm",
+    "id": 876619,
+    "score": 0.212,
+    "as": {
+     "voice": "MaleRough",
+     "master": "Fallout4.esm",
+     "id": 45
+    }
+   },
+   {
+    "voice": "Vault111Voice",
+    "master": "Fallout4.esm",
+    "id": 126307,
+    "score": 0.246,
+    "as": {
+     "voice": "FemaleGhoul",
+     "master": "Fallout4.esm",
+     "id": 144162
+    }
+   },
+   {
+    "voice": "_NPC_IVY",
+    "master": "CompanionIvy.esm",
+    "id": 2049,
+    "owner": true,
+    "as": {
+     "voice": "FemaleEvenToned",
+     "master": "Fallout4.esm",
+     "id": 80605
+    }
+   }
+  ]
  }
 }

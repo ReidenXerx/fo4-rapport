@@ -36,6 +36,9 @@ SPEAKING_RACES = [
     {"race": "GhoulRace", "master": "Fallout4.esm", "id": 0x0EAFB6},
 ]
 UNMAPPED = {"female": "FemaleEvenToned", "male": "MaleEvenToned"}
+# Plugins whose DIALOGUE lines borrow a voice when the speaker's own has no file (owner, 2026-09-25).
+# Rapport's engine hook reads this; any other plugin's lines are never touched.
+DIALOGUE_PLUGINS = ["Overture.esp"]
 
 
 def main() -> int:
@@ -101,6 +104,39 @@ def main() -> int:
             entry["why"] = "owner"
         borrow.append(entry)
 
+    # The dialogue map (voice-dialogue-map.py): the same measurement, restricted to the voices the
+    # dialogue plugin ships. The owner's word still wins: a veto (null) silences a voice here too, and a
+    # pairing by ear is kept when the dialogue plugin has that voice.
+    dialogue = None
+    dm_path = FB / "dialogue-map.json"
+    if dm_path.exists():
+        dm = json.loads(dm_path.read_text(encoding="utf-8"))
+        targets = dm["targets"]
+        absent = [t for t in targets if t not in own_by]
+        if absent:
+            errors.append(f"dialogue targets that are not voices we rendered: {absent}")
+        else:
+            d_borrow = []
+            for name, row in sorted(dm["borrow"].items()):
+                as_voice, entry = row["as"], {"voice": name, "master": row["master"], "id": row["id"]}
+                if name in overrides:
+                    if overrides[name] is None:
+                        continue
+                    if overrides[name] in targets:
+                        as_voice, entry["owner"] = overrides[name], True
+                if not entry.get("owner"):
+                    entry["score"] = row["score"]
+                entry["as"] = {"voice": as_voice, "master": own_by[as_voice]["master"], "id": own_by[as_voice]["id"]}
+                d_borrow.append(entry)
+            for m in mod_overrides:
+                if m.get("as") in targets:
+                    d_borrow.append({"voice": m["voice"], "master": m["master"], "id": int(str(m["id"]), 16),
+                                     "owner": True, "as": {"voice": m["as"], "master": own_by[m["as"]]["master"],
+                                                           "id": own_by[m["as"]]["id"]}})
+            dialogue = {"plugins": DIALOGUE_PLUGINS,
+                        "voices": [{"voice": t, "master": own_by[t]["master"], "id": own_by[t]["id"]} for t in targets],
+                        "borrow": d_borrow}
+
     unknown = [k for k in overrides if k not in mapping]
     if unknown:
         errors.append(f"overrides name voices the map does not have: {unknown[:5]}")
@@ -120,6 +156,8 @@ def main() -> int:
         "unmapped": {sex: {"voice": v, "master": own_by[v]["master"], "id": own_by[v]["id"]}
                      for sex, v in UNMAPPED.items()},
     }
+    if dialogue is not None:
+        table["dialogue"] = dialogue
     text = json.dumps(table, indent=1) + "\n"
     if a.check:
         if not OUT.exists() or OUT.read_text(encoding="utf-8") != text:
