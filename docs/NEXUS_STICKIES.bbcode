@@ -1,5 +1,5 @@
-=== STICKY: Every feature in Rapport 0.2.1 ===
-[b]Every feature in Rapport 0.2.1[/b]
+=== STICKY: Every feature in Rapport 0.2.2 ===
+[b]Every feature in Rapport 0.2.2[/b]
 The page tells the story; this is the complete list. Settings and the API have their own sticky posts.
 
 [b]Choosing a scene[/b]
@@ -8,6 +8,7 @@ The page tells the story; this is the complete list. Settings and the API have t
 [*]Only your part of the world counts: nobody in a cell you left is paired or counted as a witness.
 [*]Never a child, the dead, anyone in combat, talking to you, held by a quest or in an ambient conversation. Only humans, ghouls and synths are paired.
 [*]Two people who would shoot each other are never a pair, at any score. Orientation (new) is a hard line too.
+[*]New in 0.2.2: nothing starts during the game's opening, from character creation to the Vault 111 door, and nobody unconscious, restrained, bleeding out or frozen is paired. An unusual alternate start can press [i]Start now[/i] on MCM's first page.
 [*]Scores closeness, a shared faction, indoors, night, and the crowd (free up to 2 onlookers, then a rising cost). Whether you are nearby is not a factor.
 [/list]
 [b]Running it[/b]
@@ -96,7 +97,7 @@ MCM changes apply within 20 seconds, no restart. MCM is optional.
 
 === STICKY: For mod authors: the Rapport API (201) ===
 [b]For mod authors: the Rapport API[/b]
-Everything is in [i]Rapport:Core[/i] and [i]Rapport:Relations[/i]. Check [i]Core.ApiVersion()[/i] (201 for 0.2.1) before calling anything marked 201. Full reference: [url=https://github.com/ReidenXerx/fo4-rapport/blob/master/docs/relationship-api.md]docs/relationship-api.md[/url].
+Everything is in [i]Rapport:Core[/i] and [i]Rapport:Relations[/i]. Check [i]Core.ApiVersion()[/i] (201 for 0.2.1, 202 for 0.2.2) before calling anything marked 201 or 202. Full reference: [url=https://github.com/ReidenXerx/fo4-rapport/blob/master/docs/relationship-api.md]docs/relationship-api.md[/url].
 
 [b]Starting a scene[/b]
 [list]
@@ -125,6 +126,7 @@ Everything is in [i]Rapport:Core[/i] and [i]Rapport:Relations[/i]. Check [i]Core
 [*]ModSettingFloat / Int / Bool: read your own MCM settings from the files, which is more reliable than MCM's live API.
 [*]OnPlayerSceneRecorded: an event after a scene with the player is recorded.
 [/list]
+[b]New in 202[/b]: [b]OpeningRunning()[/b] (true until the player leaves Vault 111) and [b]StartStoryNow()[/b] (what MCM's Start now calls).
 A request is refused for a child, the dead, anyone not loaded, anyone in an ambient conversation or talking to the player (unless it is the player's own request), a mismatched orientation, or a scene already running.
 
 === STICKY: What's tested in game, and what needs you ===
@@ -144,5 +146,6 @@ We would rather tell you than have you find out.
 [*]Scenes with the player in them, including the held scene slot
 [*]Lovers, and everything that reads them
 [*]The OnPlayerSceneRecorded event
+[*]0.2.2: the opening rule, the unconscious/frozen rule, and Start now
 [/list]
 If you try any of these, reply here with what you saw and your Rapport.log. Good news counts as much as bad.
