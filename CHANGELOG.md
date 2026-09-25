@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.1 (unreleased)
+## 0.2.1 (2026-09-25)
 
 - **Scenes don't start inside the furniture.** Before one of Rapport's scenes starts, Rapport
   checks the spot AAF would use. If a table, a shelf or clutter is in the way, it finds a clear,
@@ -80,6 +80,10 @@
     in the seconds between Rapport's scan and the request. Rapport now checks again at the moment
     it asks.
   - Your own scene history no longer ages out of the save after a month without a scene.
+  - Pausing the game mid-scene, for example in a photo mode like ScreenArcherMenu, could make
+    Rapport decide its scene had stopped responding once you unpaused, and end it. Time spent
+    paused no longer counts, and Rapport says once in its log that the game is paused.
+  - A face or a glance from the place you just left can no longer land on someone after a load.
 
 **For addon authors:** `Rapport:Core.ApiVersion()` is 201. New: `NarrateLine` (your own
 narrator line, with `{first}` and `{second}` for the names), `Introduce` (names a nameless
