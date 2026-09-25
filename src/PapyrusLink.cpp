@@ -1566,6 +1566,16 @@ namespace RP
 				                            : std::format("{:08X} {}", actor->GetFormID(), why));
 			}
 		}
+		// ORIENTATION (R-27), here in the funnel, for every addon as well as our own pairing
+		// (owner, 2026-09-25: "enforce for addons"). A third-party mod asking for a pair that
+		// one of them would never want is refused like any other rule. Only the forced test
+		// doors -- a forced debug hotkey, fo4-mcp's mailbox -- step past it, the way they step
+		// past the player's hold: they exist to start the scene you asked for.
+		if (!a_bypassHold && !Orientation::GetSingleton().Mutual(a_first, a_second)) {
+			auto why = Orientation::GetSingleton().WhyNot(a_first, a_second);
+			logger::info("request refused: {}", why);
+			return refuse(std::move(why));
+		}
 		if (_sceneInFlight.exchange(true)) {
 			// Said now, where it used to be silent: the addon door's "see the line
 			// above" had no line above for this one.

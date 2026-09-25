@@ -1286,6 +1286,18 @@ mechanic."
   the AAF menu stays free.
 - The player has no orientation (R-11). The player's choices are the player's own.
 
+**Enforced at the door (owner poll, release review 2026-09-25).** `PapyrusLink::RequestScene` refuses a pair
+that is not mutually attracted, for every caller: Chemistry, Overture, Rapport's own stand-in and any
+third-party addon. The refusal reason is `Orientation::WhyNot` ("Piper is straight and Ivy is a woman"), in
+the log and in `LastRefusal()`. Only the forced test doors step past it, the same ones that step past the
+player's hold: a forced debug hotkey and fo4-mcp's mailbox. They exist to start the exact scene a tester
+asked for. The rejected option was leaving each addon to check for itself: an addon that forgot would start
+a scene the rule forbids.
+
+**The Narrator says why (owner poll, 2026-09-25).** When a companion turns the player down over orientation,
+the companion's own line is a plain refusal. The Narrator adds the reason once ("you're not her type"), so
+the player knows it is not bond or mood and does not keep asking.
+
 ## R-28 - The expression pass: faces that live (owner, 2026-09-25)
 
 The owner, through the anatomy session: "make more variety of expressions overall ... use these our innovations

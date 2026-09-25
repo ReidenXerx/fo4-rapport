@@ -40,8 +40,9 @@
   just as in the base game, and have an orientation of their own toward everyone else. A
   character's orientation can be set by hand in `personas.json`
   (`"orientation": "straight" | "bi" | "gay"`, `"playersexual": true`). Scenes started from
-  the AAF menu are never refused over it. Addons read it through `OrientationOf` and
-  `Attracted`.
+  the AAF menu are never refused over it. A scene another mod asks Rapport for is: the
+  request is refused, and `LastRefusal()` says who would not want whom. Addons read it
+  through `OrientationOf` and `Attracted`.
 
 - **Names for the nameless.** The first time a mod built on Rapport introduces someone who
   has no name of their own (a Settler, a Drifter, a Diamond City Resident), they get a first
