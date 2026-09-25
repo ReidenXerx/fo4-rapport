@@ -523,6 +523,36 @@ namespace RP::Placement
 		if (a_slot1 && a_slot1->GetParentCell() && a_slot1->GetParentCell() != cells.front()) {
 			cells.push_back(a_slot1->GetParentCell());
 		}
+		// OUTDOORS the search can reach past the scanned cells into a neighbour whose objects
+		// and navmesh it never read (release review, 2026-09-25) -- a spot there would be called
+		// clear with a wall of unseen clutter in it. Exterior cells are a fixed 4096-unit grid,
+		// so a footprint that leaves the scanned grid squares is refused rather than guessed.
+		constexpr float                          kCellSize = 4096.0f;
+		const bool                               outdoors = !cells.front()->IsInterior();
+		std::vector<std::pair<int, int>>         scannedSquares;
+		const auto squareOf = [&](float a_x, float a_y) {
+			return std::pair<int, int>{ static_cast<int>(std::floor(a_x / kCellSize)),
+				static_cast<int>(std::floor(a_y / kCellSize)) };
+		};
+		if (outdoors) {
+			scannedSquares.push_back(squareOf(a_slot0->GetPosition().x, a_slot0->GetPosition().y));
+			if (a_slot1) {
+				scannedSquares.push_back(squareOf(a_slot1->GetPosition().x, a_slot1->GetPosition().y));
+			}
+		}
+		const auto insideScanned = [&](float a_x, float a_y, float a_r) {
+			if (!outdoors) {
+				return true;
+			}
+			for (const float dx : { -a_r, a_r }) {
+				for (const float dy : { -a_r, a_r }) {
+					if (std::ranges::find(scannedSquares, squareOf(a_x + dx, a_y + dy)) == scannedSquares.end()) {
+						return false;
+					}
+				}
+			}
+			return true;
+		};
 
 		// AAF's own spot first: if it is clear, nothing moves.
 		const auto here = Scan(cells, from, from.z, radius, true);
@@ -581,6 +611,10 @@ namespace RP::Placement
 				const float y = from.y + d * std::sin(a);
 				++tried;
 				std::string reason;
+				if (!insideScanned(x, y, radius)) {
+					++rejected["crosses into a cell not scanned"];
+					continue;
+				}
 				const auto  floor = FootprintOnFloor(tris, x, y, from.z, radius, reason);
 				if (!floor) {
 					++rejected[reason.starts_with("its edge") ? "footprint leaves the floor" : reason.starts_with("not level") ? "not level" : reason];
