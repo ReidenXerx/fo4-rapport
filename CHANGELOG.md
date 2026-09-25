@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.2 (unreleased)
+## 0.2.2 (2026-09-26)
 
 - **Nothing starts during the game's opening.** From character creation through pre-war
   Sanctuary and Vault 111, nobody is a candidate and no scene starts, for any mod built on
@@ -9,6 +9,13 @@
   begin when you leave it. This fixes the report of frozen Vault 111 dwellers pairing up.
 - **Nobody unconscious, restrained, bleeding out or frozen is paired**, and a scene is never
   started with them, whoever asks.
+- **Start now.** If an unusual alternate start means nothing ever started, the "Start now" button
+  on the first MCM page (Rapport's, Chemistry's or Overture's) starts everything in that save.
+
+**For addon authors:** `Rapport:Core.ApiVersion()` is 202. New: `OpeningRunning()` (True while
+the game's opening holds everything back) and `StartStoryNow()` (the player's "start now", kept
+in the save). `RequestScene` refuses during the opening, and refuses anyone unconscious,
+restrained or bleeding out.
 
 ## 0.2.1 (2026-09-25)
 
