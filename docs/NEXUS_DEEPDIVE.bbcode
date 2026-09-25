@@ -1,0 +1,61 @@
+=== STICKY: How Rapport works inside (1 of 2): from a crowd to a scene ===
+[b]How Rapport works inside, part 1: from a crowd to a scene[/b]
+For players and modders who want the mechanism. The feature list and the settings are in the other stickies. Numbers are the shipped defaults; file names are from the source on GitHub.
+
+[b]The tick[/b] (Scheduler.cpp, ActorScan.cpp)
+[list]
+[*]Every [b]20 s[/b] (clamped 10-30), after a [b]60 s[/b] warm-up following a load or a new game, Rapport walks the game's own "high" and "middle-high" actor lists: the people the engine is actually simulating. The walk is cut into small time slices so a frame never pays for all of it.
+[*]Within [b]4096 units[/b] of the player, each actor is a candidate unless they are: a child (never, and not even a witness), dead, unloaded, in another cell, in combat, not a person (a race list), talking to the player, in an ambient NPC-to-NPC conversation, held by a quest that is running packages on them (settlement life is exempt: WorkshopParent, Min01), unconscious, restrained or bleeding out, or it is still the game's opening (the main quest before you leave Vault 111). Every rejection is counted in the log's tick line.
+[/list]
+
+[b]The pair score[/b] (Pairing.cpp, scoring.json)
+[list]
+[*]Two candidates within [b]1536 units[/b] of each other, not hostile, and mutually attracted (orientation is a hard gate, derived from the form id so it is the same on every machine).
+[*][font=Courier New]proximity 1.5 x (1 - distance/1536)^2[/font] + [font=Courier New]0.6[/font] shared faction + [font=Courier New]0.3[/font] indoors + [font=Courier New]0.25[/font] at night - [font=Courier New]0.2 x (watchers - 2)^1.5[/font] once more than 2 people within 900 units can see them.
+[*]Privacy is a price, never a veto; hostility is the only hard gate among the weights. The player is measured but weighted 0: the player is not a factor.
+[*]The bar is [b]0.90[/b]. On its own, Rapport's trigger starts a scene for the best pair over it. When an addon such as Chemistry takes the decision, Rapport stands down and publishes its best 24 pairs, with every signal, for the addon to weigh.
+[/list]
+
+[b]The door[/b] (PapyrusLink.cpp RequestScene)
+Every request, from any addon, passes one funnel that re-checks what the scan saw up to 20 s earlier. It refuses: nobody, a bridge that is not ready yet, a pair the player's own lane is holding, a child, the dead, the unloaded, anyone not awake, anyone talking to the player (except in the player's own request), anyone in an ambient conversation, the game's opening, a pair who would not want each other, and a second scene while one is in flight (one at a time). Each refusal is a sentence in the log and in [font=Courier New]LastRefusal()[/font].
+
+[b]Where it plays[/b] (Placement.cpp)
+Before AAF starts, Rapport checks the spot AAF would use: a footprint of radius [b]110 units[/b], [b]20-110 units[/b] above the floor, against every object and the navmesh. If something is in the way, it searches rings every [b]30 units[/b] out to [b]330[/b], [b]16[/b] directions each (176 spots), for one that is level, on the navmesh, and a straight walk for both. With nothing fully clear it takes the least-bad spot, and only if that beats AAF's by at least 20 units. Furniture scenes are left to AAF.
+
+[b]After the scene[/b]
+The pair's bond (the relationship store) rises by [b]15% of the distance left[/b], so the first scene means a lot and the fortieth little. Bonds start from the game's own relationships: rank x 0.15, plus 0.20 for a partner. A watchdog gives up on a scene nobody has heard about for 10 minutes plus 3.
+
+=== STICKY: How Rapport works inside (2 of 2): voices, faces, the bridge ===
+[b]How Rapport works inside, part 2: voices, faces, the bridge[/b]
+
+[b]Voices[/b] (render-barks.py, voice-similarity.py, Voices.cpp)
+[list]
+[*]32 voice types were recorded, 211 lines each, 6,656 files, with lip sync. Every take is [b]transcribed back and compared word for word[/b] with its subtitle before it may become a game file; a line no take says verbatim fails the build rather than shipping audio that disagrees with its subtitle.
+[*]Everyone else borrows. A speaker-recognition model (ECAPA) turned each of the game's 629 voice types into a fingerprint from its own vanilla recordings. An unrecorded voice borrows the recorded voice with the closest fingerprint (cosine similarity): same sex only, and only when every witness agrees what that sex is; never a child's voice; never a robot or creature; and a fingerprint under 0.12 similarity is treated as broken. 462 voice types borrow, 135 stay silent on purpose.
+[*]Dialogue from addons (Overture) borrows too: Rapport hooks the engine's voice-file path and, only when a line's own file is missing, points it at the borrowed voice's folder.
+[/list]
+
+[b]Faces[/b] (Expressions.cpp, FaceAuthority.cpp, faces.json)
+Each stage of a scene has a face (kiss, anticipation, three levels of pleasure, climax, dazed), set through AAF's expression sets. With the Anatomy engine installed, Rapport also hands it the face it is holding, as 54 morph values and a mask of which ones it owns, and the engine composes the layers:
+[list]
+[*]the engine's own lip sync keeps the mouth while a line plays;
+[*]a "deep" face blends in by depth;
+[*]a glance face rides on each look into the partner's eyes: 4-7 s at a time, more often as the scene builds (every 12-30 s at first, 3.6-9 s near the climax).
+[/list]
+Built, not yet seen in game: eye rolls at the peaks, a long 6-9 s look as the climax begins, and faces that shift every 15-30 s.
+
+[b]The bridge and its watchdogs[/b] (Bridge.psc, Medic.psc)
+[list]
+[*]A Papyrus quest polls every [b]3 s[/b]. It schedules its next poll first, then runs the native pump (faces, lines, morphs), stops a scene whose length has run (AAF does not end scenes by itself), takes at most one request, sweeps watchers for line of sight, and drains up to 8 queued orders, each on its own stack so none can block the next.
+[*]If the poll goes quiet for 2 ticks, the log says so with evidence: the last step reached, and which menus are open. A separate quest, the Medic, beats every [b]10 s[/b]: first it re-arms the poll, then it restarts the bridge's quest. A paused game (a menu, photo mode) is not counted as silence.
+[/list]
+
+[b]The API boundary[/b] (Core.psc, Relations.psc)
+[font=Courier New]Rapport:Core.ApiVersion()[/font] is major x 10000 + minor x 100 + patch: [b]202[/b] for 0.2.2. An addon checks it on connect.
+[list]
+[*]Decide: [font=Courier New]TakeOverDecisions[/font], [font=Courier New]Candidate*[/font], [font=Courier New]RequestScene[/font], [font=Courier New]LastRefusal[/font], [font=Courier New]CanRun[/font].
+[*]Know: relationships and bonds, lovers, personas, orientation, faithfulness, observers, [font=Courier New]OpeningRunning[/font].
+[*]Say: [font=Courier New]NarrateLine[/font], [font=Courier New]Introduce[/font] (a name for the nameless).
+[*]Settings: [font=Courier New]ModSettingFloat/Int/Bool[/font] read an addon's MCM files directly, because MCM's own store sometimes answered as if they were missing.
+[/list]
+Everything Rapport applies can be taken off by Rapport: [font=Courier New]PanicClear = 1[/font] in Rapport.ini removes it all on the next load.
