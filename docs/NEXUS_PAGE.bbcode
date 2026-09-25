@@ -1,0 +1,103 @@
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@6ab8b7665d7c2e33b10b7dd6762fdb04fe5b9054/docs/img/hero.jpg[/img][/center]
+
+[center][size=4][b]An F4SE framework for AAF. It runs the scene: the two people talk to each other, bystanders notice, faces follow the act, and everyone remembers who they were with.[/b][/size][/center]
+
+[center]
+[url=https://github.com/ReidenXerx/fo4-rapport/actions][img]https://img.shields.io/github/actions/workflow/status/ReidenXerx/fo4-rapport/build.yml?branch=master&label=build&style=for-the-badge&labelColor=2b2b2b&logo=githubactions&logoColor=white[/img][/url] [url=https://www.virustotal.com/gui/file/a35bdd7e050cd23faab1c71bd6dfdcb428a5abea57ae8986d505444a92133b45][img]https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FReidenXerx%2Ffo4-rapport%2Fmaster%2Fdocs%2Fvt-badge.json&style=for-the-badge&labelColor=2b2b2b&logo=virustotal&logoColor=white[/img][/url] [url=https://github.com/ReidenXerx/fo4-rapport/blob/master/LICENSE][img]https://img.shields.io/github/license/ReidenXerx/fo4-rapport?color=blue&style=for-the-badge&labelColor=2b2b2b[/img][/url] [url=https://github.com/ReidenXerx/fo4-rapport][img]https://img.shields.io/badge/source-GitHub-181717?style=for-the-badge&labelColor=2b2b2b&logo=github&logoColor=white[/img][/url]
+[url=https://github.com/ReidenXerx/fo4-rapport][img]https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FReidenXerx%2Ffo4-rapport%2Fbadges%2Floc.json&style=for-the-badge&labelColor=2b2b2b[/img][/url] [url=https://github.com/ReidenXerx/fo4-rapport/commits][img]https://img.shields.io/github/last-commit/ReidenXerx/fo4-rapport?label=last%20commit&style=for-the-badge&labelColor=2b2b2b[/img][/url]
+[img]https://img.shields.io/badge/Fallout%204-1.10.163%20%28old--gen%29-4a4a4a?style=for-the-badge&labelColor=2b2b2b[/img] [url=https://f4se.silverlock.org/][img]https://img.shields.io/badge/requires-F4SE-8a5a00?style=for-the-badge&labelColor=2b2b2b[/img][/url] [url=https://www.nexusmods.com/fallout4/mods/31304][img]https://img.shields.io/badge/requires-AAF-8a5a00?style=for-the-badge&labelColor=2b2b2b[/img][/url] [url=https://www.nexusmods.com/fallout4/mods/109225][img]https://img.shields.io/badge/addon-Chemistry-2f6f3f?style=for-the-badge&labelColor=2b2b2b[/img][/url] [url=https://github.com/ReidenXerx/fo4-overture][img]https://img.shields.io/badge/addon-Overture-2f6f3f?style=for-the-badge&labelColor=2b2b2b[/img][/url]
+[/center]
+
+[center][i]Built to work the way AAF intends, with thanks to [b]Dagobaking[/b], author of AAF, for his technical guidance. Our notes on AAF are [url=https://github.com/ReidenXerx/fo4-rapport/issues/1]reviewed by him[/url], and his word is final.[/i][/center]
+
+[center][size=4][b][url=https://pixeldrain.com/u/7ZnoDbUt]▶ Watch the demo[/url][/b][/size] (1:16, the Third Rail: voiced lines, subtitles, bystanders)[/center]
+
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@6ab8b7665d7c2e33b10b7dd6762fdb04fe5b9054/docs/img/divider.png[/img][/center]
+
+[size=5][b][color=#ffb62e]What it is[/color][/b][/size]
+
+[b]Rapport is a framework, not a story.[/b] AAF plays animations; Rapport runs the scene around them. It decides [i]how[/i] a scene goes, and addons decide [i]when[/i]: [url=https://www.nexusmods.com/fallout4/mods/109225]Chemistry[/url] lets NPCs find each other, and Overture lets you walk up to someone and try your luck. Without an addon, Rapport's own simple stand-in starts the odd scene so you can see it work.
+
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@6ab8b7665d7c2e33b10b7dd6762fdb04fe5b9054/docs/img/family.jpg[/img][/center]
+
+[size=5][b][color=#ffb62e]What you get[/color][/b][/size]
+
+[list]
+[*][b]They talk.[/b] One opens the scene and the other answers, voiced and subtitled, in the voice that NPC already has and the mood of the moment. A quick one behind the counter does not sound like a slow evening at home, and the same opener never plays twice in a row. [b]211 lines, recorded in all 32 of the game's voice types: 6,656 recordings.[/b]
+[*][b]Four personalities, and every NPC has one.[/b] The dealmaker, the romantic, the crude one, the shy one. It is fixed for that character forever, the same in every load order, and costs nothing in your save.
+[*][b]People notice.[/b] Walk past and heads turn. Anyone who can see it, or hear it through a wall, may say something: alone they mutter, in a crowd they play to the room, and nobody talks over anybody.
+[*][b]Faces that follow the act, on a vanilla install.[/b] AAF leaves most faces blank; Rapport drives them itself, building from anticipation to a climax and a dazed moment after, then takes them off again. Sweat builds through a scene. [b]No textures to install.[/b]
+[*][b]Relationships.[/b] Every pair has a bond from −1 to +1, seeded from the game's own relationships (spouses start close, then family, friends, co-workers), raised by every scene together, kept in your save and cleared on death.
+[*][b]The Narrator[/b] (optional, on by default): one HUD line saying who is about to have a scene and why, with the numbers if you want them.
+[*][b]Aftermath that lasts.[/b] With [b]Commonwealth Moisturizer[/b] installed, what a scene leaves behind stays for 12 game hours, on the right person, and survives a save.
+[/list]
+
+[size=4][b]How a character with their own actor still gets a voice[/b][/size]
+
+Piper, Hancock, Cait and every character with a unique actor would normally be silent: nobody can record new lines in their real voice. Rapport solved it with the technology that tells voices apart on a phone line.
+
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@6ab8b7665d7c2e33b10b7dd6762fdb04fe5b9054/docs/img/voices.jpg[/img][/center]
+
+A [url=https://en.wikipedia.org/wiki/Speaker_recognition]speaker-recognition[/url] model ([url=https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb]SpeechBrain ECAPA[/url]) listened to the game's own recordings and turned each of 629 voice types into a fingerprint of how it sounds. A vector search then found, for each unique voice, the closest of the 32 we recorded. They borrow it [b]for that one line only[/b]: talk to them afterwards and they are exactly themselves. Who may borrow at all is decided by rules, not scores, so a child, a robot or the wrong sex never happens. Every recording was transcribed back by machine and checked against its subtitle: what you hear is what you read.
+
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@6ab8b7665d7c2e33b10b7dd6762fdb04fe5b9054/docs/img/divider.png[/img][/center]
+
+[size=5][b][color=#ffb62e]New in 0.2.1[/color][/b][/size]
+
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@6ab8b7665d7c2e33b10b7dd6762fdb04fe5b9054/docs/img/new.jpg[/img][/center]
+
+[list]
+[*][b]Faces that live[/b]: eye contact, faces that change with the personality and with the act, and a face that drifts instead of freezing. This needs the [b]Anatomy engine[/b], a separate mod coming soon; without it you get the ordinary Rapport faces. A "Bodies & faces" MCM page holds its settings.
+[*][b]A voice in addon dialogue.[/b] When a mod gives a named character a line with no recording in their voice, it is spoken in the closest one, the same way as above.
+[*][b]A door for new mods[/b]: scenes with you, lovers, the Narrator speaking for addons, and API 201. Overture is the first mod built on it.
+[*][b]Fixes:[/b] the MCM menu now saves; AAF's leftover body morphs are cleared after a scene; nobody in a cell you just left is paired or counted as a witness; a refused request no longer lingers for minutes.
+[/list]
+
+Every change, with the small ones too, is in the [b]Changelog[/b] tab and the sticky posts.
+
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@6ab8b7665d7c2e33b10b7dd6762fdb04fe5b9054/docs/img/divider.png[/img][/center]
+
+[size=5][b][color=#ffb62e]Open source, and built in public[/color][/b][/size]
+
+[list]
+[*][b]Source:[/b] [url=https://github.com/ReidenXerx/fo4-rapport]github.com/ReidenXerx/fo4-rapport[/url], GPL-3.0, all of it. Every commit is built on a clean [url=https://github.com/ReidenXerx/fo4-rapport/actions]GitHub Actions[/url] runner, which publishes the DLL's SHA256 in a log nobody can edit afterwards.
+[*][b]Honest about the build:[/b] the DLL in the download is built on our machine, with a different compiler toolset than the public build, so their hashes differ. The public build proves the source compiles; it cannot prove your download byte for byte.
+[*][b]Scanned:[/b] the VirusTotal badge above is generated from the scan result and names the build it is about.
+[/list]
+
+[size=5][b][color=#ffb62e]Before you play[/color][/b][/size]
+
+[quote]
+[b]Don't fast travel in the ~10 seconds while two NPCs walk to each other to start a scene.[/b] Once the scene has started, fast travel is safe. The crash is inside AAF's interface while the area unloads; a mod gets no warning that a fast travel is coming, and no distance setting removes the window.
+
+[b]Old-gen only.[/b] Fallout 4 1.10.163 with F4SE. Rapport refuses to load on any other game version rather than guess at it.
+
+[b]Uninstalling?[/b] Set [font=Courier New]PanicClear=1[/font] in [font=Courier New]Data/F4SE/Plugins/Rapport.ini[/font] and load your save once first. It removes everything Rapport applied, faces and aftermath included. Nothing Rapport applies is something only Rapport can remove.
+[/quote]
+
+[size=5][b][color=#ffb62e]FAQ[/color][/b][/size]
+
+[b]Does it replace other mods?[/b]
+[spoiler]AAF Sex 'Em Up and AAF Autonomy Enhanced do the same job, so if either is installed Rapport stops their quests, never deleting anything, and logs why. Commonwealth Moisturizer's own scene listener is stopped the same way while Rapport drives the aftermath. Everything else AAF plays keeps working, and Rapport adds its faces and aftermath to those scenes too.[/spoiler]
+
+[b]Is every feature tested in game?[/b]
+[spoiler]No, and we say which. Faces, placement, the photo-mode pause, the Narrator and names were checked in game for 0.2.1, and voice in addon dialogue on one character so far. Scenes with the player and lovers are built but have not been run in a real game yet. The sticky post lists it all. If you try them, please tell us what happened.[/spoiler]
+
+[b]Where is the full list of features and settings?[/b]
+[spoiler]In the sticky posts: every feature, every MCM and Rapport.ini setting, and the API for mod authors.[/spoiler]
+
+[b]Can I just watch, without anything starting?[/b]
+[spoiler]Yes: [font=Courier New]DryRun=1[/font] in Rapport.ini. Rapport scores and reports everything to Rapport.log and starts nothing.[/spoiler]
+
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@6ab8b7665d7c2e33b10b7dd6762fdb04fe5b9054/docs/img/divider.png[/img][/center]
+
+[size=5][b][color=#ffb62e]Credits[/color][/b][/size]
+
+[list]
+[*][b]Dagobaking[/b] for [url=https://www.nexusmods.com/fallout4/mods/31304]AAF[/url], and for his guidance. Rapport exists because AAF does.
+[*][b]Commonwealth Moisturizer[/b] and its author, for the aftermath Rapport drives.
+[*][b]The F4SE team[/b] and the [b]CommonLibF4[/b] authors.
+[*][b]SpeechBrain[/b] for the speaker-recognition model behind the voice matching.
+[/list]
+
+Bugs go to the [b]Bugs[/b] tab, with [font=Courier New]Rapport.log[/font] from [font=Courier New]Documents/My Games/Fallout4/F4SE[/font].

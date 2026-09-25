@@ -1,0 +1,148 @@
+=== STICKY: Every feature in Rapport 0.2.1 ===
+[b]Every feature in Rapport 0.2.1[/b]
+The page tells the story; this is the complete list. Settings and the API have their own sticky posts.
+
+[b]Choosing a scene[/b]
+[list]
+[*]Looks at the world every 20 seconds, in slices of a quarter of a millisecond per frame, and rests during menus, loading screens and combat.
+[*]Only your part of the world counts: nobody in a cell you left is paired or counted as a witness.
+[*]Never a child, the dead, anyone in combat, talking to you, held by a quest or in an ambient conversation. Only humans, ghouls and synths are paired.
+[*]Two people who would shoot each other are never a pair, at any score. Orientation (new) is a hard line too.
+[*]Scores closeness, a shared faction, indoors, night, and the crowd (free up to 2 onlookers, then a rising cost). Whether you are nearby is not a factor.
+[/list]
+[b]Running it[/b]
+[list]
+[*]Picks one AAF position that has a proper ending and lets AAF play it through, because AAF's own position changes never worked (refused 26 of 26 times, measured).
+[*]Three kinds of scene: quickie (one stage, no beds or couches), at home (five stages to a finish), tender (three slow stages, nothing rough).
+[*]New: never starts a scene inside furniture. It finds a clear, level spot nearby, or the least-bad one in a cramped room; beds and chairs are left to AAF.
+[*]If AAF finds nothing that fits, that pair's next scene uses AAF's own defaults: a scene never fails twice over Rapport's filters.
+[*]An emergency stop after 10 minutes, so nobody is left stuck.
+[*]Notices AAF going silent after a load and restarts it the way AAF does itself (fixed upstream in AAF 1.7.8).
+[/list]
+[b]Voices[/b]
+[list]
+[*]211 lines in 32 voice types and 4 personalities: 6,656 recordings, each transcribed back and checked against its subtitle.
+[*]The pair open and answer; bystanders who can see it, or hear it through a wall, may comment, one at a time, each at most once per scene and every 5 minutes.
+[*]Characters with their own actor borrow the closest recorded voice, for that line only. Children, robots and creatures stay silent.
+[*]New: addon dialogue with no recording in a named character's voice is spoken in the closest one.
+[*]You never speak a Rapport line; the NPC does.
+[/list]
+[b]Faces and bodies[/b]
+[list]
+[*]49 facial expressions: anticipation, three steps of pleasure, climax, a dazed moment, then clear. A climax always wins, and the face never falls back after one.
+[*]Six styles per expression, so NPCs keep their own face. A kiss gets one face for its whole length.
+[*]Sweat that only builds through a scene.
+[*]New, with the Anatomy engine (coming soon): eye contact, faces by personality and by the act, faces that drift every 15-30 seconds, a long look and eye rolls at the peak.
+[*]New: AAF's leftover body morphs are cleared 25 seconds after a scene, which used to block BodyGen on that NPC for good.
+[/list]
+[b]Aftermath[/b] (with Commonwealth Moisturizer)
+[list]
+[*]Decided by the last act of the scene, on the receiving person in a mixed pair and on both in a same-sex pair, three layers by default.
+[*]Lasts 12 game hours and survives saves.
+[/list]
+[b]People and memory[/b]
+[list]
+[*]Every pair has a bond from −1 to +1, seeded from the game's own relationships and raised 15% of the way to +1 by every scene.
+[*]Four personalities and a faithfulness value per NPC, derived and never stored. 13 characters are pinned by hand, Ivy among them.
+[*]New: orientation (70% straight, 20% bi, 10% gay). Romanceable companions are open to you.
+[*]New: nameless NPCs a mod introduces get a permanent first and last name.
+[*]Blood relatives, partners and affairs are recorded as facts for other mods; Rapport never refuses over them.
+[/list]
+[b]The Narrator[/b]: one line per scene start, the numbers, optional lines for near misses, relationship turns and bystanders, a history, and (new) "you" for your own moments and lines for addons.
+
+=== STICKY: Rapport settings: MCM and Rapport.ini ===
+[b]Rapport settings: MCM and Rapport.ini[/b]
+MCM changes apply within 20 seconds, no restart. MCM is optional.
+
+[b]Scene choice[/b] (Rapport's own stand-in; Chemistry has its own)
+[list]
+[*][i]Score needed[/i] 0.90 · [i]Furthest apart[/i] 1536 units · [i]Closeness weight[/i] 1.5 · [i]Same faction[/i] 0.6 · [i]Indoors[/i] 0.3 · [i]Night[/i] 0.25
+[*][i]Onlooker radius[/i] 900 · [i]Free onlookers[/i] 2 · [i]Crowd penalty[/i] 0.2 each · [i]Crowd curve[/i] 1.5 · [i]Player watching[/i] 0 (not a factor, on purpose)
+[/list]
+[b]Voices[/b]
+[list]
+[*][i]Pair lines[/i] on · [i]Answer after[/i] 4.5 s
+[*][i]Bystander comments[/i] on · [i]Notice radius[/i] 900 · [i]Hearing radius[/i] 600 (through walls) · [i]Chance to comment[/i] 0.33
+[*][i]Start after[/i] 10 s · [i]Gap between comments[/i] 6 s · [i]Per-person cooldown[/i] 300 s
+[/list]
+[b]Narrator[/b]
+[list]
+[*][i]Narrator[/i] on · [i]Show the numbers[/i] on · [i]A scene starts[/i] on
+[*][i]Why nothing happened[/i] off · [i]Relationship turns[/i] off · [i]Bystanders react[/i] off
+[*][i]Addon moments[/i] on · [i]Names for the nameless[/i] on · [i]Show recent narration[/i] (button)
+[*][i]Between "why not" lines[/i] 300 s · [i]Same pair again after[/i] 1800 s
+[/list]
+[b]Bodies & faces[/b] (needs the Anatomy engine; does nothing without it)
+[list]
+[*][i]Aim[/i], [i]Shape[/i], [i]Lips fit[/i], [i]Face reacts during oral[/i], [i]Deeper, stronger face[/i]: all on
+[*][i]Lip clearance[/i] 0.05 · [i]Lip speed[/i] 1.0 · [i]Shaft thickness[/i] 0.85 · [i]Head size[/i] 1.2 to 1.25 · [i]Face reaction strength[/i] 1.0
+[/list]
+[b]Rapport.ini[/b] (Data/F4SE/Plugins, read once at startup)
+[list]
+[*][b]DryRun=1[/b]: score and report everything, start nothing.
+[*][b]PanicClear=1[/b]: on the next load, remove every face and mark Rapport applied and empty its records. Use it before uninstalling.
+[*]TickSeconds 20 · WarmupSeconds 60 after a load · ScanRadius 4096 · MaxConcurrentScenes 1
+[*]CooldownHours 24 per actor · BusyBackoffSeconds 300 for someone AAF refused · MaxSceneSeconds 600 (emergency stop)
+[*]PruneHours 720: forget an inactive actor's history (bonds and lovers are kept)
+[*]AAF watchdog: AAFReviveGraceSeconds 60, AAFReviveRetrySeconds 12, AAFReviveAttempts 3 (0 = off)
+[*]DriveFaces 1 · ForeignFaces 1 (faces on AAF scenes Rapport did not start)
+[/list]
+[b]Files you can edit[/b] (Data/F4SE/Plugins/Rapport)
+[list]
+[*][b]personas.json[/b]: pin a character's personality or orientation.
+[*][b]names.json[/b]: your own name lists, and names that are or are not generic labels.
+[*][b]act-overrides.json[/b]: correct what an animation is, if tags get it wrong; Rapport.log lists the unresolved ones ready to paste.
+[/list]
+
+=== STICKY: For mod authors: the Rapport API (201) ===
+[b]For mod authors: the Rapport API[/b]
+Everything is in [i]Rapport:Core[/i] and [i]Rapport:Relations[/i]. Check [i]Core.ApiVersion()[/i] (201 for 0.2.1) before calling anything marked 201. Full reference: [url=https://github.com/ReidenXerx/fo4-rapport/blob/master/docs/relationship-api.md]docs/relationship-api.md[/url].
+
+[b]Starting a scene[/b]
+[list]
+[*][b]Busy()[/b]: a scene is starting or running. Check first.
+[*][b]CanRun(scenario, a, b)[/b]: −1 unknown scenario, 0 nothing fits, 1 unconstrained, 2 no guaranteed ending, 3 good.
+[*][b]RequestScene(a, b, scenario)[/b]: false means try later; [b]LastRefusal()[/b] says why.
+[*][b]TakeOverDecisions(name)[/b]: say once, and Rapport's stand-in stops starting scenes.
+[/list]
+[b]Which two[/b]: Rapport publishes its ranked pairs every tick, by form id. CandidateCount, CandidateFirst/Second, CandidateScore, Distance, Observers, Interior, Night, SharedFaction, CandidateGeneration (read it before and after to catch a republish). ActorName(actor), since Papyrus has none.
+
+[b]Relationships and history[/b]
+[list]
+[*][b]Relations.BondBetween / AddBondBetween[/b]: the recommended read and write; seeds from the game's relationships first. Reasons: 3 dialogue, 4 gift, 5 other addon.
+[*]PairBond, PersonaOf, FaithfulnessOf, IsPartnerPair, IsIncestPair (a flag, never a refusal), IsAffairPair, NoteAffair
+[*]HoursSinceScene / Pair / Refusal (1e9 if never), LastPartner, SceneCount, PairSceneCount, RefusalCount
+[*]GetNeed / SetNeed: your own per-actor number, kept in Rapport's save for you
+[*]201: OrientationOf, Attracted (by orientation alone)
+[/list]
+[b]New in 201[/b]
+[list]
+[*]NarrateLine: your own storyteller line, with {first} {second} {they} {them} {their} filled in. Also NarrateBonus and NarrateNearMiss to explain a decision.
+[*]ReservePlayerScene / PlayerHoldsSlot: hold the one scene slot for the player and one NPC, for up to 120 s.
+[*]SetLovers / AreLovers / LoverOf / LoverCount / LoverAt: lovers apart from the game's spouses; a bond falling to −0.25 ends it, and so does death.
+[*]Introduce(actor): gives a nameless NPC their permanent name.
+[*]ObserversNear(actor): −1 means "can't tell", never "nobody".
+[*]ModSettingFloat / Int / Bool: read your own MCM settings from the files, which is more reliable than MCM's live API.
+[*]OnPlayerSceneRecorded: an event after a scene with the player is recorded.
+[/list]
+A request is refused for a child, the dead, anyone not loaded, anyone in an ambient conversation or talking to the player (unless it is the player's own request), a mismatched orientation, or a scene already running.
+
+=== STICKY: What's tested in game, and what needs you ===
+[b]What's tested in game, and what needs you[/b]
+We would rather tell you than have you find out.
+
+[b]Checked in game for 0.2.1[/b]
+[list]
+[*]Faces and eye contact with the Anatomy engine
+[*]Scenes moved off furniture to a clear spot
+[*]Pausing mid-scene (photo mode) no longer ends it
+[*]The Narrator and names for the nameless
+[*]A borrowed voice in addon dialogue, on one character so far
+[/list]
+[b]Built, not yet run in a real game[/b]
+[list]
+[*]Scenes with the player in them, including the held scene slot
+[*]Lovers, and everything that reads them
+[*]The OnPlayerSceneRecorded event
+[/list]
+If you try any of these, reply here with what you saw and your Rapport.log. Good news counts as much as bad.
