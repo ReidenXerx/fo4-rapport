@@ -423,6 +423,29 @@ DEEP = {
         + sym("Lower Eye Lid Up", 45) + sym("Lower Eye Lid Down", 0)
         + sym("Nose Up", 30) + sym("Cheek Up", 45),
 }
+
+# Deep in her vagina or anus (owner, 2026-09-25, through the anatomy session: "a reaction
+# like the oral deep face"). The same blend by the same depth signal; the pleasure sets
+# are what a penetrated actor holds, so their deep face is the PLEASURE frown rather than
+# the oral wince: inner brows up AND drawn together, eyes squeezed nearly shut, nose and
+# cheeks up. Each stage reaches it by its own intensity -- stage 1 is a softer version,
+# so a slow start does not peak on the first deep stroke. Climax is at its peak already.
+def pleasure_deep(factor):
+    face = ([("Brow Squeeze", 60)]
+            + sym("Middle Brow Up", 70) + sym("Middle Brow Down", 0)
+            + [("Left Brow Outer Up", 0), ("Right Outer Brow Up", 0)]
+            + sym("Outer Brow Down", 25)
+            + sym("Upper Eye Lid Down", 80) + sym("Upper Eye Lid Up", 0)
+            + sym("Lower Eye Lid Up", 40) + sym("Lower Eye Lid Down", 0)
+            + sym("Nose Up", 35) + sym("Cheek Up", 50))
+    return scale(face, factor)
+
+
+DEEP.update({
+    "Rapport_Pleasure_1": pleasure_deep(0.70),
+    "Rapport_Pleasure_2": pleasure_deep(0.85),
+    "Rapport_Pleasure_3": pleasure_deep(1.00),
+})
 # A renamed set would otherwise lose its deep face without a word.
 assert set(DEEP) <= {entry[0] for entry in SETS}, "DEEP names a set SETS does not have"
 assert not {name for face in DEEP.values() for name, _ in face} & set(MOUTH), \
