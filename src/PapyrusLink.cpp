@@ -2542,24 +2542,72 @@ namespace RP
 			return a_at == 0 ? std::string{ "never" } : std::format("{:.0f}s ago", (now - a_at) / 1000.0);
 		};
 		const auto step = _pollStep.load();
-		std::string menus;
+		const auto paused = GamePaused();
+		return std::format(
+			"evidence: polls entered since the last Pump {}, last step {} '{}' {}; medic {} beat(s), last {}; "
+			"paused: {}; open menus: {}; gameActive {}",
+			_pollEntries.load() - _entriesAtLastPump, step, PollStepName(step), ago(_pollStepAtMs.load()),
+			_medicBeats.load(), ago(_medicBeatAtMs.load()), paused.empty() ? "no" : paused, OpenMenus(),
+			// Reported, never used to excuse a stall: what it means with bAlwaysActive=1
+			// and the window in the background is unmeasured.
+			RE::Main::GetSingleton() ? RE::Main::GetSingleton()->gameActive : false);
+	}
+
+	// Every menu on the stack, by name, "(pauses)" on the ones that stop the game. A
+	// fixed list missed ScreenArcherMenu, SAM's photo mode, the first time it mattered.
+	std::string PapyrusLink::OpenMenus()
+	{
+		const auto ui = RE::UI::GetSingleton();
+		if (!ui) {
+			return "UI not available";
+		}
+		std::string out;
+		RE::BSAutoReadLock l{ RE::UI::GetMenuMapRWLock() };
+		for (const auto& [name, entry] : ui->menuMap) {
+			const auto& menu = entry.menu;
+			if (!menu || !menu->OnStack()) {
+				continue;
+			}
+			out += out.empty() ? "" : ", ";
+			out += name.c_str();
+			if (menu->menuFlags.all(RE::UI_MENU_FLAGS::kPausesGame)) {
+				out += " (pauses)";
+			}
+		}
+		return out.empty() ? "none" : out;
+	}
+
+	// Papyrus runs nothing while the game is paused -- not our timers, not anyone's.
+	// A photo mode (SAM) freezes the game without the pause menu, and read as a dead
+	// bridge it sent the medic after a scene that was only waiting (2026-09-25).
+	std::string PapyrusLink::GamePaused()
+	{
+		std::string why;
+		const auto add = [&why](std::string_view a_reason) {
+			why += why.empty() ? "" : ", ";
+			why += a_reason;
+		};
+		if (const auto main = RE::Main::GetSingleton()) {
+			if (main->freezeTime) {
+				add("game time frozen");
+			}
+		}
 		if (const auto ui = RE::UI::GetSingleton()) {
-			for (const auto name : { "PauseMenu"sv, "PipboyMenu"sv, "Console"sv, "LoadingMenu"sv, "DialogueMenu"sv,
-					 "ContainerMenu"sv, "BarterMenu"sv, "WorkshopMenu"sv, "LooksMenu"sv, "MessageBoxMenu"sv }) {
-				if (ui->GetMenuOpen(RE::BSFixedString{ name })) {
-					menus += menus.empty() ? "" : ", ";
-					menus += name;
+			if (ui->menuMode > 0) {
+				add(std::format("{} menu(s) in menu mode", ui->menuMode));
+			}
+			if (ui->freezeFramePause > 0) {
+				add("a freeze-frame pause");
+			}
+			RE::BSAutoReadLock l{ RE::UI::GetMenuMapRWLock() };
+			for (const auto& [name, entry] : ui->menuMap) {
+				const auto& menu = entry.menu;
+				if (menu && menu->OnStack() && menu->menuFlags.all(RE::UI_MENU_FLAGS::kPausesGame)) {
+					add(std::format("{} is open and pauses the game", name.c_str()));
 				}
 			}
-			menus = std::format("menuMode {}, freezeFramePause {}, open: {}", ui->menuMode, ui->freezeFramePause,
-				menus.empty() ? "none of the pausing ones" : menus);
-		} else {
-			menus = "UI not available";
 		}
-		return std::format(
-			"evidence: polls entered since the last Pump {}, last step {} '{}' {}; medic {} beat(s), last {}; {}",
-			_pollEntries.load() - _entriesAtLastPump, step, PollStepName(step), ago(_pollStepAtMs.load()),
-			_medicBeats.load(), ago(_medicBeatAtMs.load()), menus);
+		return why;
 	}
 
 	void PapyrusLink::CheckBridgeAlive()
@@ -2574,11 +2622,22 @@ namespace RP
 				_stallReported = false;
 			}
 			_entriesAtLastPump = _pollEntries.load();
-			_silentTicks = 0;
+			_silentTicks.store(0);
+			_pauseReported = false;
 			return;
 		}
 
 		if (!_bridgeReady.load()) {
+			return;
+		}
+		// A paused game runs no Papyrus: a tick spent paused is not silence, and it must
+		// not feed the medic's count, or unpausing mid-scene reads as a dead bridge and the
+		// scene is abandoned. Said once per pause, at info: it is not a fault.
+		if (const auto paused = GamePaused(); !paused.empty()) {
+			if (!_pauseReported) {
+				_pauseReported = true;
+				logger::info("the game is paused ({}) - Papyrus waits, and so does the bridge", paused);
+			}
 			return;
 		}
 		if (_stallReported) {
@@ -2596,7 +2655,7 @@ namespace RP
 		// as a failure, which is the most expensive kind of wrong a log can be,
 		// because it sends somebody looking for a bug that is not there.
 		constexpr std::uint32_t kSilentTicksBeforeAlarm = 2;
-		if (++_silentTicks < kSilentTicksBeforeAlarm) {
+		if (_silentTicks.fetch_add(1) + 1 < kSilentTicksBeforeAlarm) {
 			return;
 		}
 
@@ -2610,7 +2669,7 @@ namespace RP
 			"happened write the same log, which is why this is said out loud. If it comes back a "
 			"line will say so -- watch for an \"answering again\" line before treating this as "
 			"the fault.{}",
-			pumps, _silentTicks,
+			pumps, _silentTicks.load(),
 			_sceneInFlight.load()
 				? " A scene is in flight, and the most likely cause is the AAF call that started it:"
 				  " a Papyrus stack does not return from one."

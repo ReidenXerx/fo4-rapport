@@ -133,7 +133,7 @@ namespace RP
 		// of leaving it to time out thirteen minutes later. False when there was
 		// nothing in flight for the refusal to be about.
 		bool RefusedOurScene(std::string_view a_why);
-		[[nodiscard]] std::uint32_t SilentTicks() const noexcept { return _silentTicks; }
+		[[nodiscard]] std::uint32_t SilentTicks() const noexcept { return _silentTicks.load(); }
 		[[nodiscard]] std::uint32_t Heals() const noexcept { return _heals.load(); }
 
 		// The request whose scene has run for as long as we asked, or 0. AAF does
@@ -157,7 +157,14 @@ namespace RP
 		// Counted on every poll. A frozen count means the bridge stopped asking --
 		// which looks exactly like "the framework decided to do nothing", and this
 		// run could not tell those apart.
-		void NotePump() { _pumps.fetch_add(1); }
+		// A poll clears the silence AT ONCE, not at the next twenty-second tick: the
+		// medic reads it every ten seconds, and a count left over from a pause told it
+		// the bridge was still dead after it had come back (2026-09-25, SAM's photo mode).
+		void NotePump()
+		{
+			_pumps.fetch_add(1);
+			_silentTicks.store(0);
+		}
 
 		// WHERE the poll was, and whether anything else on a Papyrus clock still runs
 		// (2026-09-25: the poll and the medic both went quiet mid-scene while AAF's
@@ -377,12 +384,16 @@ namespace RP
 		std::atomic<std::uint32_t> _medicBeats{ 0 };
 		std::atomic<std::int64_t>  _medicBeatAtMs{ 0 };
 		[[nodiscard]] std::string StallEvidence() const;
+		// Why the game is not running Papyrus right now, or "" when it is.
+		[[nodiscard]] static std::string GamePaused();
+		[[nodiscard]] static std::string OpenMenus();
 
 		// Consecutive ticks with no poll. ONE is not enough to shout about: a save
 		// or a fast travel's loading screen freezes the VM for longer than a tick,
 		// and the bridge comes back on its own. Measured 2026-09-20: a 46-second
 		// gap across a load tripped the alarm and healed ten seconds later.
-		std::uint32_t _silentTicks{ 0 };
+		std::atomic<std::uint32_t> _silentTicks{ 0 };
+		bool                       _pauseReported{ false };
 
 		// How many times something was actually given up on rather than merely
 		// re-armed. Logged, and the number a bug report is worth having.
