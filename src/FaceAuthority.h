@@ -21,6 +21,8 @@ namespace RP
 	//   'RFAK' Rapport -> OCBPC  { u32 version=1; u32 enabled; float lipClearance, lipSpeed, shaftScale,
 	//          headMin, headMax, reactScale; }  enabled: 0 aim, 1 shape, 2 lip fit, 3 oral reaction,
 	//          4 deep face. Its knobs in Rapport's MCM; without it, its own ini values stand.
+	//   'RFAG' Rapport -> OCBPC  { u32 version=1; u32 looker; u32 target; u32 durationMs; float lidsOpen;
+	//          u32 flags; }  a glance into the partner's eyes; target 0 = stop. Only with feature bit 4.
 	//   'RFAD' Rapport -> OCBPC  { u32 version=1; u32 formID; u64 blend; float value[54]; }
 	//          the held face at full depth, right after its RFAS; only with feature bit 3.
 	//          Their side: value = lerp(held, deep, depth) for every id in blend.
@@ -105,6 +107,25 @@ namespace RP
 
 		static void Dispatch(const Send& a_send);
 
+		// GLANCES (owner, 2026-09-25: "glance in the partner eyes. for ex during blowjob time to time
+		// glances on 1-2 seconds maybe in another poses"). Rapport decides who, when and how long, by
+		// persona; Anatomy's plugin turns the eyes and opens the lids ('RFAG', hello bit 4). A held
+		// actor's partner is the held actor they are MUTUALLY nearest to: every actor in any AAF
+		// scene holds a Rapport face (R-22), and two partners are each other's nearest even when
+		// another scene plays close by (a bare nearest-neighbour could look into the next scene --
+		// review 2026-09-25). Called from Pump WITHOUT our lock: it snapshots under the lock and
+		// asks Barks for personas outside it, so no lock of Barks' is ever taken under ours.
+		struct Glance
+		{
+			std::uint32_t looker{ 0 };
+			std::uint32_t target{ 0 };
+			std::uint32_t durationMs{ 0 };
+			float         lidsOpen{ 0.0f };
+		};
+		[[nodiscard]] std::vector<Glance> DueGlances(Clock::time_point a_now);
+		mutable std::timed_mutex          _glanceLock;   // _nextGlance, _dice
+		static void                       Dispatch(const Glance& a_glance);
+
 		mutable std::timed_mutex _lock;
 		std::atomic_bool         _peer{ false };
 		std::atomic_bool         _loaded{ false };
@@ -121,5 +142,7 @@ namespace RP
 		std::unordered_map<std::string, Deep>                      _deep;
 		std::unordered_set<std::string>                            _unknown;   // said once each
 		std::unordered_map<std::uint32_t, Held>                    _held;
+		std::unordered_map<std::uint32_t, Clock::time_point>       _nextGlance;   // per held actor
+		std::mt19937                                               _dice{ std::random_device{}() };
 	};
 }
