@@ -21,6 +21,12 @@ namespace
 		       (static_cast<std::uint32_t>(a_code[3]) << 24);
 	}
 
+	// The last game-hour reading this session, to catch the clock stepping BACKWARDS
+	// inside one session (GameHours). Reset on every load or new game (OnRevert), where a
+	// jump is legitimate.
+	std::atomic<float>         g_lastClock{ -1.0f };
+	std::atomic<std::uint32_t> g_clockBackSaid{ 0 };
+
 	constexpr auto kPluginID = FourCC("RPRT");
 	constexpr auto kActorRecord = FourCC("ACTR");
 	constexpr auto kOverlayRecord = FourCC("OVRL");
@@ -114,7 +120,19 @@ namespace RP
 			// say "unknown" instead and let every caller decide.
 			return -1.0f;
 		}
-		return calendar->gameDaysPassed->GetValue() * 24.0f;
+		const float now = calendar->gameDaysPassed->GetValue() * 24.0f;
+		// Inside one session the game clock only moves forward. It stepped BACK on AE,
+		// 2026-09-27: a scene recorded at hour 784.1 and the next, three real minutes
+		// later, at 784.0, with no load between -- and Chemistry re-paired the same two
+		// 22 s after the first scene ended. Said with both of the engine's clocks, so the
+		// next time says what moved it.
+		const float last = g_lastClock.exchange(now);
+		if (last >= 0.0f && now < last - 0.01f && g_clockBackSaid.fetch_add(1) < 5) {
+			logger::warn("ledger: the game clock went BACK within this session, hour {:.3f} -> {:.3f} "
+						 "(GameDaysPassed {:.5f}, raw days {:.5f}, midnights {}) - rest keeps counting from the later hour",
+				last, now, calendar->gameDaysPassed->GetValue(), calendar->rawDaysPassed, calendar->midnightsPassed);
+		}
+		return now;
 	}
 
 	void Ledger::RecordScene(std::uint32_t a_first, std::uint32_t a_second)
@@ -509,11 +527,16 @@ namespace RP
 			return std::numeric_limits<float>::infinity();
 		}
 
-		// Game time can go backwards -- a player loading an older save inside the
-		// same session is the ordinary way. A negative gap would read as "just
-		// now" and hold the actor back for good, so treat it as long ago.
+		// A negative gap is "just now", never "long ago". It was infinity, for a player
+		// loading an older save -- but a load clears the ledger and reads that save's own
+		// records (OnRevert), so within a session a negative gap can only be the clock
+		// itself stepping back, and on AE it did (GameHours): infinity then made everyone
+		// rested at once, and Chemistry paired Geneva and her partner again 22 s after
+		// their scene (2026-09-27). "Just now" can only make a rest longer, never shorter,
+		// and it runs out on its own once the clock passes the recorded hour. The pair's
+		// own gap (HoursSincePair) already clamped this way.
 		const auto since = now - record.lastSceneAt;
-		return since < 0.0f ? std::numeric_limits<float>::infinity() : since;
+		return since < 0.0f ? 0.0f : since;
 	}
 
 	std::size_t Ledger::Size() const
@@ -684,6 +707,8 @@ namespace RP
 		// the character being left behind; keeping any of it would carry one
 		// playthrough's history into another.
 		GetSingleton().Clear();
+		g_lastClock.store(-1.0f);   // another save's clock: a jump here is legitimate
+		g_clockBackSaid.store(0);
 		Aftermath::GetSingleton().Clear();
 		Expressions::GetSingleton().Reset();
 		Names::GetSingleton().Clear();
