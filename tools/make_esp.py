@@ -46,6 +46,7 @@ MASTER = 'Fallout4.esm'
 
 # The first object id a new plugin may use; below 0x800 is reserved.
 QUEST_FORMID = 0x01000800
+TES4_LIGHT = 0x200   # the TES4 record flag that makes a plugin light (ESL)
 MESSAGE_FORMID = 0x01000801
 MEDIC_QUEST_FORMID = 0x01000802
 
@@ -170,7 +171,13 @@ def build(script_name, quest_edid, with_message):
     header_fields += field('MAST', zstring(MASTER))
     header_fields += field('DATA', struct.pack('<Q', 0))
 
-    header = record('TES4', 0, header_fields)
+    # The Moisturizer plugin is LIGHT (0x200, ESL): its one quest sits at 0x800, the
+    # range a light plugin holds, so it loads in the FE slot and takes no load-order
+    # index (asked for on Discord, 2026-09-26). The main plugin cannot be: its dialogue
+    # runs far past 0xFFF, and every voice file is named by its INFO's id.
+    header = record('TES4', 0, header_fields, flags=0 if with_message else TES4_LIGHT)
+    if not with_message and not 0x800 <= (QUEST_FORMID & 0x00FFFFFF) <= 0xFFF:
+        raise SystemExit(f'{QUEST_FORMID:08X} is outside 0x800-0xFFF, the only ids a light plugin holds.')
     return header + quest_group + extra
 
 
