@@ -11,6 +11,7 @@
 #include "Watchers.h"
 #include "Expressions.h"
 #include "FaceAuthority.h"
+#include "Layout.h"
 #include "Ledger.h"
 #include "Morphs.h"
 #include "Scenarios.h"
@@ -166,6 +167,12 @@ namespace
 			RP::PapyrusLink::GetSingleton().OnGameLoading();
 			[[fallthrough]];
 		case F4SE::MessagingInterface::kPostLoadGame:
+			// Before anything reads an actor: on a game version whose class layouts differ
+			// from what Rapport reads, it stays off for the session (Layout.h).
+			RP::Layout::Check();
+			if (!RP::Layout::Ok()) {
+				break;
+			}
 			// Said out loud on every load, including when it is nothing. F4SE only
 			// calls the load callback when the save HAS data for us, so a save
 			// written before this build logs not one line -- and "the ledger loaded

@@ -76,6 +76,8 @@ set(SOURCES
 	"src/DebugTriggers.cpp"
 	"src/FaceAuthority.h"
 	"src/FaceAuthority.cpp"
+	"src/Layout.h"
+	"src/Layout.cpp"
 	"src/Ledger.h"
 	"src/Ledger.cpp"
 	"src/AAFHealth.h"
