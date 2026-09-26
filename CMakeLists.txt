@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
 
+# vcpkg libraries linked INTO the dll. The dynamic default (x64-windows) made Rapport.dll import
+# fmt.dll, spdlog.dll and Zydis.dll, which no game folder has: F4SE "couldn't load plugin
+# (0000007E)" on AE, 2026-09-26, from a build directory configured without this. Set before
+# project(), where the vcpkg toolchain reads it, so no build directory can miss it.
+set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
+
 project(
 	Rapport
 	VERSION 0.2.2
