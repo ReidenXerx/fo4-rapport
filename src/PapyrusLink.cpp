@@ -1,4 +1,5 @@
 #include "PapyrusLink.h"
+#include "Layout.h"
 #include "Placement.h"
 
 #include "Narrator.h"
@@ -475,6 +476,10 @@ namespace
 	// pair of states three runs have now been spent telling apart.
 	void Papyrus_Pump(std::monostate)
 	{
+		// Off for the session on a game version whose layouts did not check out (Layout.h).
+		if (!RP::Layout::Ok()) {
+			return;
+		}
 		RP::Placement::Pump();
 		RP::PapyrusLink::GetSingleton().NotePump();
 
@@ -1271,6 +1276,11 @@ namespace
 	bool Papyrus_RequestScene(
 		std::monostate, RE::Actor* a_first, RE::Actor* a_second, RE::BSFixedString a_scenario)
 	{
+		// Off for the session on a game version whose layouts did not check out (Layout.h):
+		// every request, the player's own included, reads the actors that check was about.
+		if (!RP::Layout::Ok()) {
+			return false;
+		}
 		// THE PAUSE HAS TO BE HERE, not only in the scheduler.
 		//
 		// It was in the scheduler's stand-in branch, which sits AFTER the "an
