@@ -17,6 +17,8 @@
 [CmdletBinding()]
 param(
     [string] $Config  = 'Release',
+    # 'build' is the OG-only build; 'build-rd' the Runtime Database one (OG, NG, AE).
+    [string] $BuildDir = 'build',
     [string] $OutDir  = '',
     # Rebuilding a zip whose version already exists destroyed the only local copy
     # of what was published, and filled a zip named 0.1.1 with unreleased code.
@@ -75,7 +77,7 @@ function Copy-Into {
 Write-Host "Assembling Rapport $version"
 
 # The plugin and its configuration.
-Copy-Into -From "build\$Config\Rapport.dll" -To 'F4SE\Plugins' -Required | Out-Null
+Copy-Into -From "$BuildDir\$Config\Rapport.dll" -To 'F4SE\Plugins' -Required | Out-Null
 Copy-Into -From 'data\F4SE\Plugins\Rapport.ini' -To 'F4SE\Plugins' -Required | Out-Null
 Copy-Into -From 'data\F4SE\Plugins\Rapport' -To 'F4SE\Plugins\Rapport' -Tree -Required | Out-Null
 
@@ -122,6 +124,18 @@ Copy-Into -From 'build\papyrus\Rapport' -To 'Scripts\Rapport' -Tree -Required | 
 # those header fields. The dll's paths are trimmed in CMakeLists.txt instead.
 & python (Join-Path $PSScriptRoot 'strip-pex.py') (Join-Path $stage 'Scripts') 'Rapport'
 if ($LASTEXITCODE -ne 0) { throw 'strip-pex.py failed - nothing packaged.' }
+
+# And the dll: its source paths are trimmed at build time (CMakeLists.txt) and it is built
+# without a PDB path, but a build directory configured some other way would bring them back
+# unseen. Refuse the package if the dll names a user folder, this user or this computer
+# (silhouette's guard, 2026-09-26).
+$dllBytes = [System.IO.File]::ReadAllBytes((Join-Path $stage 'F4SE\Plugins\Rapport.dll'))
+$dllText  = [System.Text.Encoding]::ASCII.GetString($dllBytes)
+foreach ($needle in @(':\Users\', $env:USERNAME, $env:COMPUTERNAME)) {
+    if ($needle -and $dllText.IndexOf($needle, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
+        throw "Rapport.dll names this machine ('$needle') - nothing packaged. Check /d1trimfile and that no PDB path is linked in."
+    }
+}
 
 # The plugins. Rapport_Moisturizer.esp is optional BY DESIGN: the script inside
 # it names Commonwealth Moisturizer types, and a script naming a type nobody has
