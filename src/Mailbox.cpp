@@ -292,7 +292,7 @@ namespace RP
 					if (d > radius) {
 						continue;
 					}
-					const char* n = actor->GetDisplayFullName();
+					const char* n = RP::Compat::DisplayName(actor.get());
 					rows.push_back(Row{ d, actor->GetFormID(), (n && *n) ? n : "(unnamed)",
 						link.IsActorBusy(actor->GetFormID()), actor->Get3D() != nullptr });
 				}
@@ -558,6 +558,9 @@ namespace RP
 			// nothing -- the sibling tasks kQuickSave/kForceSave would overwrite
 			// a save slot and are deliberately not exposed. Overwriting somebody
 			// else's saves is a one-way door and not a test tool's business.
+#ifdef RP_RUNTIME_DATABASE
+			return "ERR reload is not in the Runtime Database build (no BGSSaveLoadManager there)";
+#else
 			auto* manager = RE::BGSSaveLoadManager::GetSingleton();
 			if (!manager) {
 				return "ERR no save/load manager";
@@ -565,6 +568,7 @@ namespace RP
 			manager->QueueSaveLoadTask(RE::BGSSaveLoadManager::QUEUED_TASK::kLoadMostRecentSave);
 			return "OK queued kLoadMostRecentSave - the MOST RECENT save, which may be an autosave, "
 				   "not the one you last chose by hand. Unsaved progress is gone.";
+#endif
 		}
 
 		if (verb == "travel") {

@@ -56,7 +56,7 @@ namespace RP
 				return "you";
 			}
 			auto*       actor = RE::TESForm::GetFormByID<RE::Actor>(a_formID);
-			const char* name = actor ? actor->GetDisplayFullName() : nullptr;
+			const char* name = actor ? RP::Compat::DisplayName(actor) : nullptr;
 			return name && *name ? std::string{ name } : std::string{ "someone" };
 		}
 
@@ -460,11 +460,11 @@ namespace RP
 		std::string them = "them";
 		std::string their = "their";
 		if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_second); actor && actor->GetNPC()) {
-			if (actor->GetNPC()->GetSex() == RE::SEX::kFemale) {
+			if (RP::Compat::Female(actor->GetNPC())) {
 				they = "she";
 				them = "her";
 				their = "her";
-			} else if (actor->GetNPC()->GetSex() == RE::SEX::kMale) {
+			} else if (RP::Compat::Male(actor->GetNPC())) {
 				they = "he";
 				them = "him";
 				their = "his";

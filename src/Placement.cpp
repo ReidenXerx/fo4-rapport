@@ -196,7 +196,7 @@ namespace RP::Placement
 				RE::BSAutoLock<RE::BSSpinLock> lock{ cell->spinLock };
 				for (const auto& held : cell->references) {
 					auto* ref = held.get();
-					if (!ref || ref->Is(RE::ENUM_FORM_ID::kACHR) || ref->IsDisabled() || ref->IsDeleted() || !ref->Get3D()) {
+					if (!ref || ref->Is(RE::ENUM_FORM_ID::kACHR) || RP::Compat::Disabled(ref) || ref->IsDeleted() || !ref->Get3D()) {
 						continue;
 					}
 					auto* base = ref->GetObjectReference();
@@ -236,7 +236,7 @@ namespace RP::Placement
 					if (a_describe) {
 						const auto* file = base->GetFile(0);
 						hit.what = std::format("{} {:08X} ({}) ref {:08X}, {:.0f}u in{}",
-							RE::TESForm::GetFormTypeString(base->GetFormType()), base->GetFormID(),
+							RP::Compat::FormTypeText(base), base->GetFormID(),
 							file ? file->GetFilename() : "?", ref->GetFormID(), a_radius - gap, inside ? ", AT the spot" : "");
 					}
 					out.hits.push_back(std::move(hit));
@@ -287,7 +287,23 @@ namespace RP::Placement
 		[[nodiscard]] std::vector<Tri> Navmesh(const std::vector<RE::TESObjectCELL*>& a_cells, std::string& a_why)
 		{
 			std::vector<Tri> tris;
+#ifdef RP_RUNTIME_DATABASE
+			// Resolved so that a miss is REPORTED: a plain relocation would stop the game on an
+			// id this runtime's database does not know. No vtable, no navmesh, no move.
+			static const auto vtableResolved = REL::IDDatabase::get().resolve(RE::VTABLE::NavMesh[0]);
+			if (!vtableResolved) {
+				a_why = std::format("the navmesh type has no address on this game version ({})",
+					REL::id_resolve_status_text(vtableResolved.status));
+				return {};
+			}
+			const struct
+			{
+				std::uintptr_t addr;
+				[[nodiscard]] std::uintptr_t address() const noexcept { return addr; }
+			} vtable{ REL::Module::get().base() + *vtableResolved.rva };
+#else
 			static REL::Relocation<std::uintptr_t> vtable{ RE::VTABLE::NavMesh[0] };
+#endif
 			for (auto* cell : a_cells) {
 				if (!cell->navMeshes) {
 					continue;

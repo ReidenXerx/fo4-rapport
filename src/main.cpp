@@ -205,6 +205,11 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a
 		return false;
 	}
 
+#ifdef RP_RUNTIME_DATABASE
+	// OG's F4SE asks this, and only ever runs on 1.10.163. NG's and AE's read
+	// F4SEPlugin_Version below instead.
+	return true;
+#else
 	// Every address this plugin resolves is an OG 1.10.163 id. Refusing any
 	// other runtime is the honest failure: the alternative is resolving
 	// addresses that mean something else.
@@ -213,17 +218,55 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a
 	}
 
 	return true;
+#endif
 }
+
+#ifdef RP_RUNTIME_DATABASE
+namespace
+{
+	// NG's and AE's F4SE load a plugin by this record. Addresses come from Runtime
+	// Database (signatures, not one executable's offsets); the class layouts Rapport
+	// reads are checked at run time, and a runtime whose layout differs turns the
+	// plugin off, never half on.
+	constexpr F4SE::PluginVersionData MakeVersionData() noexcept
+	{
+		F4SE::PluginVersionData data{};
+		data.pluginVersion = (RP_VERSION_MAJOR << 24) | (RP_VERSION_MINOR << 16) | (RP_VERSION_PATCH << 4);
+		constexpr std::string_view name = RP_PROJECT_NAME;
+		for (std::size_t i = 0; i < name.size() && i < std::size(data.name) - 1; ++i) {
+			data.name[i] = name[i];
+		}
+		data.addressIndependence = F4SE::PluginVersionData::kAddressIndependence_Signatures;
+		data.structureIndependence = F4SE::PluginVersionData::kStructureIndependence_1_10_980Layout |
+		                             F4SE::PluginVersionData::kStructureIndependence_1_11_137Layout;
+		return data;
+	}
+}
+
+extern "C" DLLEXPORT constinit F4SE::PluginVersionData F4SEPlugin_Version = MakeVersionData();
+#endif
 
 extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f4se)
 {
+#ifdef RP_RUNTIME_DATABASE
+	// CommonLibF4RD's Init installs no logger of its own; ours follows.
+	F4SE::Init(a_f4se);
+#else
 	// false: keep F4SE from installing its own logger over ours. Its logger names
 	// the file after GetPluginName(), which is empty for a classic Query/Load
 	// plugin — that is how this plugin's first run wrote to a file called ".log".
 	F4SE::Init(a_f4se, false);
+#endif
 
 	InitLogging();
 	logger::info("{} v{}", RP_PROJECT_NAME, RP_VERSION_STRING);
+#ifdef RP_RUNTIME_DATABASE
+	{
+		const auto& module = REL::Module::get();
+		const auto  family = module.is_ae() ? "AE" : module.is_ng() ? "NG" : "OG";
+		logger::info("runtime {} ({}), addresses through Runtime Database", module.version().string(), family);
+	}
+#endif
 
 	const auto papyrus = F4SE::GetPapyrusInterface();
 	if (!papyrus || !papyrus->Register(RP::PapyrusLink::RegisterNatives)) {

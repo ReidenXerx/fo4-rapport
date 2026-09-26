@@ -1,3 +1,6 @@
 [submodule "extern/CommonLibF4"]
 	path = extern/CommonLibF4
 	url = https://github.com/alandtse/CommonLibF4.git
+[submodule "extern/CommonLibF4RD"]
+	path = extern/CommonLibF4RD
+	url = https://github.com/Zzyxz/CommonLibF4RD.git

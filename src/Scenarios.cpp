@@ -410,7 +410,7 @@ namespace RP
 				known = false;
 				continue;
 			}
-			man = man || npc->GetSex() == RE::SEX::kMale;
+			man = man || RP::Compat::Male(npc);
 		}
 		if (!man || !known) {
 			logger::info("unconstrained start: \"{}\" asks for no act - {}", a_scenario,

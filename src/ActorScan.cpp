@@ -193,7 +193,7 @@ namespace RP
 					++_counters.questDriven;
 					// Who and which quest: a count cannot tell "the Minutemen hold every
 					// settler in Sanctuary" from "one courier is mid-delivery".
-					const char* name = actor->GetDisplayFullName();
+					const char* name = RP::Compat::DisplayName(actor);
 					const char* edid = quest ? quest->GetFormEditorID() : nullptr;
 					_questHeld.push_back(std::format("{} [{}]", name && *name ? name : "?",
 						edid && *edid ? std::string{ edid } : std::format("{:08X}", quest ? quest->GetFormID() : 0u)));

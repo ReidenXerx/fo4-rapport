@@ -8,12 +8,17 @@ project(
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE STRING "")
 
-# We target Fallout 4 OG 1.10.163 only. Next-gen and VR are deliberately off:
-# every RelocationID then resolves to the one runtime we test against.
-set(ENABLE_FALLOUT_F4 ON  CACHE BOOL "" FORCE)
-set(ENABLE_FALLOUT_NG OFF CACHE BOOL "" FORCE)
-set(ENABLE_FALLOUT_VR OFF CACHE BOOL "" FORCE)
-set(BUILD_TESTS       OFF CACHE BOOL "" FORCE)
+# One build for OG 1.10.163, NG 1.10.984 and AE 1.11.x through Runtime Database
+# (CommonLibF4RD, owner 2026-09-26): addresses resolved at run time from f4rd-runtime.bin,
+# the class layouts Rapport reads guarded at run time. OFF builds the classic OG-only
+# plugin on alandtse's CommonLibF4, which refuses any other runtime.
+option(RAPPORT_RUNTIME_DATABASE "Build on CommonLibF4RD for OG, NG and AE" ON)
+set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
+if(NOT RAPPORT_RUNTIME_DATABASE)
+	set(ENABLE_FALLOUT_F4 ON  CACHE BOOL "" FORCE)
+	set(ENABLE_FALLOUT_NG OFF CACHE BOOL "" FORCE)
+	set(ENABLE_FALLOUT_VR OFF CACHE BOOL "" FORCE)
+endif()
 
 # __FILE__ without this machine's folders (dev-vs-release check, 2026-09-26): the
 # compiler writes every source's full path into the dll, which named the Windows
@@ -25,7 +30,11 @@ if(MSVC)
 	add_compile_options("/d1trimfile:${RAPPORT_TRIM_PREFIX}")
 endif()
 
-add_subdirectory("extern/CommonLibF4/CommonLibF4" "CommonLibF4")
+if(RAPPORT_RUNTIME_DATABASE)
+	add_subdirectory("extern/CommonLibF4RD/CommonLibF4" "CommonLibF4")
+else()
+	add_subdirectory("extern/CommonLibF4/CommonLibF4" "CommonLibF4")
+endif()
 
 set(SOURCES
 	"src/PCH.h"
@@ -97,6 +106,7 @@ target_compile_definitions(
 		"RP_VERSION_MINOR=${PROJECT_VERSION_MINOR}"
 		"RP_VERSION_PATCH=${PROJECT_VERSION_PATCH}"
 		"RP_VERSION_STRING=\"${PROJECT_VERSION}\""
+		"$<$<BOOL:${RAPPORT_RUNTIME_DATABASE}>:RP_RUNTIME_DATABASE=1>"
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")

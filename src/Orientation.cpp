@@ -39,12 +39,12 @@ namespace RP
 			if (!npc) {
 				return std::nullopt;
 			}
-			return npc->GetSex() == RE::SEX::kFemale;
+			return RP::Compat::Female(npc);
 		}
 
 		[[nodiscard]] std::string ActorName(RE::Actor* a_actor)
 		{
-			const char* name = a_actor ? a_actor->GetDisplayFullName() : nullptr;
+			const char* name = a_actor ? RP::Compat::DisplayName(a_actor) : nullptr;
 			return name && *name ? std::string{ name } : std::format("{:08X}", a_actor ? a_actor->GetFormID() : 0u);
 		}
 

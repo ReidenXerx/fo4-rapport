@@ -177,7 +177,7 @@ namespace RP
 		if (!actor->race || !_speakingRaces.contains(actor->race->GetFormID())) {
 			return 0;
 		}
-		return npc->GetSex() == RE::SEX::kFemale ? _unmappedFemale : _unmappedMale;
+		return RP::Compat::Female(npc) ? _unmappedFemale : _unmappedMale;
 	}
 
 	bool Voices::CanSpeak(std::uint32_t a_speaker) const

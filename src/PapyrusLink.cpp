@@ -125,7 +125,7 @@ namespace
 			return;
 		}
 		if (a_var.is<RE::BSScript::Array>()) {
-			if (!RE::BSScript::IsValidArray<RE::BSScript::Array>(a_var)) {
+			if (!RE::BSScript::get<RE::BSScript::Array>(a_var)) {
 				return;
 			}
 			const auto array = RE::BSScript::get<RE::BSScript::Array>(a_var);
@@ -932,7 +932,7 @@ namespace
 		if (!a_who) {
 			return "";
 		}
-		const auto* const name = a_who->GetDisplayFullName();
+		const auto* const name = RP::Compat::DisplayName(a_who);
 		return name ? name : "";
 	}
 
@@ -1594,7 +1594,7 @@ namespace RP
 			}
 			if (!why.empty()) {
 				logger::info("request refused: {:08X} {}", actor->GetFormID(), why);
-				const char* name = actor->GetDisplayFullName();
+				const char* name = RP::Compat::DisplayName(actor);
 				return refuse(name && *name ? std::format("{} ({:08X}) {}", name, actor->GetFormID(), why)
 				                            : std::format("{:08X} {}", actor->GetFormID(), why));
 			}
@@ -1657,8 +1657,8 @@ namespace RP
 
 		logger::info(
 			"request {}: queued {} ({:08X}) and {} ({:08X}) for {:.0f}s",
-			request, a_first->GetDisplayFullName(), a_first->GetFormID(),
-			a_second->GetDisplayFullName(), a_second->GetFormID(), a_duration);
+			request, RP::Compat::DisplayName(a_first), a_first->GetFormID(),
+			RP::Compat::DisplayName(a_second), a_second->GetFormID(), a_duration);
 		Narrator::GetSingleton().OnRequestAccepted(a_first->GetFormID(), a_second->GetFormID());
 		ClearReservation(a_first->GetFormID(), a_second->GetFormID());
 		NoteRefusal({});
