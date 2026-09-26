@@ -98,18 +98,30 @@ namespace RP::DialogueVoice
 	namespace
 	{
 		// Runtime Database: the response set-up that owns the call, and the builder it calls, by
-		// Address Library id (OG ids from anatomy-specialist's addrlib.py, 2026-09-26: 0xCA1BF0 is
-		// 755245, 0x6135D0 is 506618). The AE ids come from the shared OG->AE matcher; until they
-		// are filled in, NG and AE report a miss and the hook stays off, saying so.
+		// Address Library id. OG ids from anatomy-specialist's addrlib.py (0xCA1BF0 is 755245,
+		// 0x6135D0 is 506618). AE ids proven 2026-09-26:
+		//   builder 2208307 -- the only function in AE 1.11.240 that references "Data\Sound\Voice"
+		//     (as OG's 0x6135D0 is the only one in OG), same prologue and argument order, same
+		//     0xFE light-form test, same vtable call at +0x1D0, the path appended in 0x104 steps
+		//     (the caller's buffer); f4rd-runtime.bin holds it (1.11.240 0x694A90, NG 0x640DD0);
+		//   owner 2227131 -- the builder's only direct caller in AE (the call at 0xBAE70D, inside
+		//     0xBAE620), as 0xCA1CCB is OG's only one; f4rd-runtime.bin holds it too.
 		constexpr std::uint64_t kOwnerOG = 755245;
 		constexpr std::uint64_t kBuilderOG = 506618;
-		constexpr std::uint64_t kOwnerAE = REL::ID::INVALID_ID;
-		constexpr std::uint64_t kBuilderAE = REL::ID::INVALID_ID;
+		constexpr std::uint64_t kOwnerAE = 2227131;
+		constexpr std::uint64_t kBuilderAE = 2208307;
 
 		// Where the call is, and where it must go, or nothing. Every step REPORTS a miss:
 		// a plain REL::ID would stop the game on an unknown id.
 		[[nodiscard]] std::optional<std::pair<std::uintptr_t, std::uintptr_t>> Locate()
 		{
+			if (REL::Module::get().is_og()) {
+				// OG's owner is split: its first .pdata chunk is 71 bytes and the call sits in the
+				// next one, where a scan of the owner need not look. OG is one executable, measured
+				// (capstone, 2026-09-25): its offsets stand, and the byte check below still runs.
+				const auto base = REL::Module::get().base();
+				return std::pair{ base + kCallSite, base + kBuilder };
+			}
 			const REL::ID owner{ kOwnerOG, kOwnerAE };
 			const REL::ID builder{ kBuilderOG, kBuilderAE };
 			const auto    target = REL::IDDatabase::get().resolve(builder);
