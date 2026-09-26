@@ -94,21 +94,71 @@ namespace RP::DialogueVoice
 		}
 	}
 
+#ifdef RP_RUNTIME_DATABASE
+	namespace
+	{
+		// Runtime Database: the response set-up that owns the call, and the builder it calls, by
+		// Address Library id (OG ids from anatomy-specialist's addrlib.py, 2026-09-26: 0xCA1BF0 is
+		// 755245, 0x6135D0 is 506618). The AE ids come from the shared OG->AE matcher; until they
+		// are filled in, NG and AE report a miss and the hook stays off, saying so.
+		constexpr std::uint64_t kOwnerOG = 755245;
+		constexpr std::uint64_t kBuilderOG = 506618;
+		constexpr std::uint64_t kOwnerAE = REL::ID::INVALID_ID;
+		constexpr std::uint64_t kBuilderAE = REL::ID::INVALID_ID;
+
+		// Where the call is, and where it must go, or nothing. Every step REPORTS a miss:
+		// a plain REL::ID would stop the game on an unknown id.
+		[[nodiscard]] std::optional<std::pair<std::uintptr_t, std::uintptr_t>> Locate()
+		{
+			const REL::ID owner{ kOwnerOG, kOwnerAE };
+			const REL::ID builder{ kBuilderOG, kBuilderAE };
+			const auto    target = REL::IDDatabase::get().resolve(builder);
+			if (!target) {
+				logger::warn("dialogue voice: the voice path builder has no address on this game version ({}) - "
+							 "not hooked, so unrendered voices stay subtitle-only",
+					REL::id_resolve_status_text(target.status));
+				return std::nullopt;
+			}
+			const auto calls = REL::resolve_callsites(owner, builder);
+			if (calls.rvas.size() != 1) {
+				logger::warn("dialogue voice: found {} calls to the voice path builder where one was expected ({}) - "
+							 "not hooked, so unrendered voices stay subtitle-only",
+					calls.rvas.size(), REL::id_resolve_status_text(calls.status));
+				return std::nullopt;
+			}
+			const auto base = REL::Module::get().base();
+			return std::pair{ base + calls.rvas.front(), base + *target.rva };
+		}
+	}
+#endif
+
 	void Install()
 	{
+#ifdef RP_RUNTIME_DATABASE
+		const auto located = Locate();
+		if (!located) {
+			return;
+		}
+		const auto [siteAddress, builderAddress] = *located;
+#else
 		const REL::Relocation<std::uintptr_t> site{ REL::Offset(kCallSite) };
 		const REL::Relocation<std::uintptr_t> builder{ REL::Offset(kBuilder) };
-		const auto*                           bytes = reinterpret_cast<const std::uint8_t*>(site.address());
-		std::int32_t                          rel = 0;
+		const auto                            siteAddress = site.address();
+		const auto                            builderAddress = builder.address();
+#endif
+		// Checked again byte by byte, whichever way the addresses were found: a direct
+		// E8 call whose target is the builder, or no hook.
+		const auto*  bytes = reinterpret_cast<const std::uint8_t*>(siteAddress);
+		std::int32_t rel = 0;
 		std::memcpy(&rel, bytes + 1, sizeof(rel));
-		if (bytes[0] != 0xE8 || site.address() + 5 + rel != builder.address()) {
+		if (bytes[0] != 0xE8 || siteAddress + 5 + rel != builderAddress) {
 			logger::warn("dialogue voice: the call at +{:X} is not the voice path builder this build knows - "
 						 "not hooked, so unrendered voices stay subtitle-only",
-				kCallSite);
+				siteAddress - REL::Module::get().base());
 			return;
 		}
 		auto& trampoline = F4SE::GetTrampoline();
-		g_build = trampoline.write_call<5>(site.address(), Thunk);
+		g_build = trampoline.write_call<5>(siteAddress, Thunk);
 		logger::info("dialogue voice: hooked the voice path builder - dialogue plugins' lines borrow a voice "
 					 "when the speaker's own has no file");
 	}

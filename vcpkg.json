@@ -4,10 +4,13 @@
   "description": "NPC autonomy and player proposals for Fallout 4, built on AAF",
   "supports": "windows & x64",
   "dependencies": [
+    "boost-stl-interfaces",
+    "fmt",
     "nlohmann-json",
     "rapidcsv",
     "rsm-mmio",
-    "spdlog"
+    "spdlog",
+    "zydis"
   ],
   "builtin-baseline": "386d7c478221b7ee0c97bfe6ea61dcf65121d564"
 }

@@ -97,7 +97,7 @@ namespace RP
 			return false;
 		}
 
-		a_intfc->SetUniqueID(kPluginID);
+		RP::Compat::SetUniqueID(a_intfc, kPluginID);
 		a_intfc->SetSaveCallback(OnSave);
 		a_intfc->SetLoadCallback(OnLoad);
 		a_intfc->SetRevertCallback(OnRevert);
@@ -590,7 +590,7 @@ namespace RP
 		const auto entrySize = a_version == 1 ? sizeof(PairEntryV1) : sizeof(PairEntry);
 
 		std::uint32_t count = 0;
-		if (a_intfc->ReadRecordData(count) != sizeof(count)) {
+		if (RP::Compat::Read(a_intfc, count) != sizeof(count)) {
 			logger::error("ledger: the pair table's count could not be read");
 			return;
 		}
@@ -614,12 +614,12 @@ namespace RP
 			PairEntry entry{};
 			if (a_version == 1) {
 				PairEntryV1 old{};
-				if (a_intfc->ReadRecordData(old) != sizeof(old)) {
+				if (RP::Compat::Read(a_intfc, old) != sizeof(old)) {
 					logger::error("ledger: the pair table ended early at {} of {}", i, count);
 					return;
 				}
 				entry = PairEntry{ old.first, old.second, old.lastSceneAt, old.scenes, 0.0f, old.lastSceneAt, 0u };
-			} else if (a_intfc->ReadRecordData(entry) != sizeof(entry)) {
+			} else if (RP::Compat::Read(a_intfc, entry) != sizeof(entry)) {
 				logger::error("ledger: the pair table ended early at {} of {}", i, count);
 				return;
 			}
@@ -702,7 +702,7 @@ namespace RP
 		}
 
 		const auto count = static_cast<std::uint32_t>(_records.size());
-		a_intfc->WriteRecordData(count);
+		RP::Compat::Write(a_intfc, count);
 
 		for (const auto& [formID, record] : _records) {
 			const Entry entry{
@@ -714,7 +714,7 @@ namespace RP
 				record.refusals,
 				record.need
 			};
-			a_intfc->WriteRecordData(entry);
+			RP::Compat::Write(a_intfc, entry);
 		}
 
 		logger::info("ledger: wrote {} actor(s) into the save", count);
@@ -748,9 +748,9 @@ namespace RP
 			++written;
 		}
 
-		a_intfc->WriteRecordData(written);
+		RP::Compat::Write(a_intfc, written);
 		for (const auto& entry : entries) {
-			a_intfc->WriteRecordData(entry);
+			RP::Compat::Write(a_intfc, entry);
 		}
 		logger::info("ledger: wrote {} standing overlay(s) into the save", written);
 
@@ -760,7 +760,7 @@ namespace RP
 		// misreading it as something else.
 		if (a_intfc->OpenRecord(kPairRecord, kPairVersion)) {
 			const auto pairCount = static_cast<std::uint32_t>(_pairs.size());
-			a_intfc->WriteRecordData(pairCount);
+			RP::Compat::Write(a_intfc, pairCount);
 			for (const auto& [key, record] : _pairs) {
 				const PairEntry entry{
 					static_cast<std::uint32_t>(key >> 32),
@@ -773,7 +773,7 @@ namespace RP
 						(record.lovers ? 0x10u : 0u) |
 						(static_cast<std::uint32_t>(record.lastReason) << 8)
 				};
-				a_intfc->WriteRecordData(entry);
+				RP::Compat::Write(a_intfc, entry);
 			}
 			logger::info("ledger: wrote {} pair(s) into the save", pairCount);
 		}
@@ -784,9 +784,9 @@ namespace RP
 		const auto faces = Expressions::GetSingleton().Wearing();
 		if (a_intfc->OpenRecord(kFaceRecord, kVersion)) {
 			const auto faceCount = static_cast<std::uint32_t>(faces.size());
-			a_intfc->WriteRecordData(faceCount);
+			RP::Compat::Write(a_intfc, faceCount);
 			for (const auto formID : faces) {
-				a_intfc->WriteRecordData(formID);
+				RP::Compat::Write(a_intfc, formID);
 			}
 			if (faceCount > 0) {
 				logger::info("ledger: wrote {} actor(s) wearing a Rapport face", faceCount);
@@ -797,8 +797,8 @@ namespace RP
 		// ending clears that -- a scene that this save is about to outlive.
 		const auto [first, second] = PapyrusLink::GetSingleton().InFlightPair();
 		if (a_intfc->OpenRecord(kSceneRecord, kVersion)) {
-			a_intfc->WriteRecordData(first);
-			a_intfc->WriteRecordData(second);
+			RP::Compat::Write(a_intfc, first);
+			RP::Compat::Write(a_intfc, second);
 			if (first != 0 || second != 0) {
 				logger::warn(
 					"ledger: this save is being written DURING a scene ({:08X}, {:08X}) - "
@@ -811,16 +811,16 @@ namespace RP
 		// stranger stay a stranger until they have told the player theirs.
 		if (Story::g_startedByHand.load() && a_intfc->OpenRecord(kStoryRecord, kVersion)) {
 			const std::uint8_t started = 1;
-			a_intfc->WriteRecordData(started);
+			RP::Compat::Write(a_intfc, started);
 		}
 
 		const auto introduced = Names::GetSingleton().Introduced();
 		if (a_intfc->OpenRecord(kNameRecord, kNameVersion)) {
 			const auto nameCount = static_cast<std::uint32_t>(introduced.size());
-			a_intfc->WriteRecordData(nameCount);
+			RP::Compat::Write(a_intfc, nameCount);
 			for (const auto& [formID, base] : introduced) {
-				a_intfc->WriteRecordData(formID);
-				a_intfc->WriteRecordData(base);
+				RP::Compat::Write(a_intfc, formID);
+				RP::Compat::Write(a_intfc, base);
 			}
 		}
 	}
@@ -969,7 +969,7 @@ namespace RP
 		std::uint32_t version = 0;
 		std::uint32_t length = 0;
 
-		while (a_intfc->GetNextRecordInfo(type, version, length)) {
+		while (RP::Compat::NextRecordInfo(a_intfc, type, version, length)) {
 			if (type == kOverlayRecord) {
 				LoadOverlays(a_intfc, version, length);
 				continue;
@@ -988,7 +988,7 @@ namespace RP
 			}
 			if (type == kStoryRecord) {
 				std::uint8_t started = 0;
-				if (a_intfc->ReadRecordData(started) && started) {
+				if (RP::Compat::Read(a_intfc, started) && started) {
 					Story::g_startedByHand.store(true);
 					logger::info("ledger: this save was started by hand - the game's opening holds nothing back");
 				}
@@ -1013,7 +1013,7 @@ namespace RP
 			}
 
 			std::uint32_t count = 0;
-			if (a_intfc->ReadRecordData(count) != sizeof(count)) {
+			if (RP::Compat::Read(a_intfc, count) != sizeof(count)) {
 				logger::error("ledger: the save record ended before its count - nothing was read");
 				continue;
 			}
@@ -1035,7 +1035,7 @@ namespace RP
 
 			for (std::uint32_t i = 0; i < count; ++i) {
 				Entry entry{};
-				if (a_intfc->ReadRecordData(entry) != sizeof(entry)) {
+				if (RP::Compat::Read(a_intfc, entry) != sizeof(entry)) {
 					logger::error("ledger: the save ran out after {} of {} actor(s)", read, count);
 					break;
 				}
@@ -1084,7 +1084,7 @@ namespace RP
 		}
 
 		std::uint32_t count = 0;
-		if (a_intfc->ReadRecordData(count) != sizeof(count)) {
+		if (RP::Compat::Read(a_intfc, count) != sizeof(count)) {
 			return;
 		}
 		const auto expected = sizeof(std::uint32_t) * (static_cast<std::size_t>(count) + 1);
@@ -1099,7 +1099,7 @@ namespace RP
 		wearing.reserve(count);
 		for (std::uint32_t i = 0; i < count; ++i) {
 			std::uint32_t formID = 0;
-			if (a_intfc->ReadRecordData(formID) != sizeof(formID)) {
+			if (RP::Compat::Read(a_intfc, formID) != sizeof(formID)) {
 				break;
 			}
 			if (const auto resolved = a_intfc->ResolveFormID(formID)) {
@@ -1120,7 +1120,7 @@ namespace RP
 		}
 		const bool withBase = a_version >= 2;
 		std::uint32_t count = 0;
-		if (a_intfc->ReadRecordData(count) != sizeof(count)) {
+		if (RP::Compat::Read(a_intfc, count) != sizeof(count)) {
 			return;
 		}
 		const auto perEntry = withBase ? 2u : 1u;
@@ -1136,10 +1136,10 @@ namespace RP
 		for (std::uint32_t i = 0; i < count; ++i) {
 			std::uint32_t formID = 0;
 			std::uint32_t base = 0;
-			if (a_intfc->ReadRecordData(formID) != sizeof(formID)) {
+			if (RP::Compat::Read(a_intfc, formID) != sizeof(formID)) {
 				break;
 			}
-			if (withBase && a_intfc->ReadRecordData(base) != sizeof(base)) {
+			if (withBase && RP::Compat::Read(a_intfc, base) != sizeof(base)) {
 				break;
 			}
 			// A plugin that is gone took its people with it. A base that no longer
@@ -1169,8 +1169,8 @@ namespace RP
 
 		std::uint32_t first = 0;
 		std::uint32_t second = 0;
-		if (a_intfc->ReadRecordData(first) != sizeof(first) ||
-			a_intfc->ReadRecordData(second) != sizeof(second)) {
+		if (RP::Compat::Read(a_intfc, first) != sizeof(first) ||
+			RP::Compat::Read(a_intfc, second) != sizeof(second)) {
 			return;
 		}
 
@@ -1193,7 +1193,7 @@ namespace RP
 		}
 
 		std::uint32_t count = 0;
-		if (a_intfc->ReadRecordData(count) != sizeof(count)) {
+		if (RP::Compat::Read(a_intfc, count) != sizeof(count)) {
 			logger::error("ledger: the overlay record ended before its count - nothing was read");
 			return;
 		}
@@ -1214,7 +1214,7 @@ namespace RP
 
 		for (std::uint32_t i = 0; i < count; ++i) {
 			OverlayEntry entry{};
-			if (a_intfc->ReadRecordData(entry) != sizeof(entry)) {
+			if (RP::Compat::Read(a_intfc, entry) != sizeof(entry)) {
 				logger::error("ledger: the save ran out after {} of {} overlay(s)", marks.size(), count);
 				break;
 			}

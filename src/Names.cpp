@@ -11,7 +11,7 @@ namespace RP
 		// label ("Drifter"), not somebody's name. Three let Preston Garvey through.
 		constexpr std::uint32_t kLabelRecords = 5;
 		// HasBeenCompanionFaction, Fallout4.esm.
-		constexpr RE::TESFormID kHasBeenCompanionFaction = 0x000A1B85;
+		constexpr std::uint32_t kHasBeenCompanionFaction = 0x000A1B85;
 
 		std::filesystem::path OverridePath()
 		{
@@ -252,7 +252,7 @@ namespace RP
 			faction && a_actor->IsInFaction(faction)) {
 			return "has been a companion";
 		}
-		const char* shown = a_actor->GetDisplayFullName();
+		const char* shown = RP::Compat::DisplayName(a_actor);
 		if (!shown || !*shown) {
 			return "no name to read";
 		}
@@ -288,7 +288,7 @@ namespace RP
 		}
 		const auto formID = a_actor->GetFormID();
 		const auto base = a_actor->GetNPC()->GetFormID();
-		const bool female = a_actor->GetNPC()->GetSex() == RE::SEX::kFemale;
+		const bool female = RP::Compat::Female(a_actor->GetNPC());
 
 		bool known = false;
 		{
@@ -347,7 +347,7 @@ namespace RP
 			_introduced[formID] = base;
 		}
 		logger::info("names: {:08X} introduced as {} (was \"{}\", base {:08X}{})", formID, name,
-			a_actor->GetDisplayFullName() ? a_actor->GetDisplayFullName() : "", base,
+			RP::Compat::DisplayName(a_actor) ? RP::Compat::DisplayName(a_actor) : "", base,
 			a_actor->GetNPC()->IsUnique() ? ", unique with an inherited name" : "");
 		ApplyOnMainThread(formID, name);
 		return name;
@@ -378,7 +378,7 @@ namespace RP
 		if (a_actor->extraList->HasType(RE::EXTRA_DATA_TYPE::kTextDisplayData)) {
 			return false;
 		}
-		a_actor->extraList->SetOverrideName(a_name.c_str());
+		RP::Compat::SetOverrideName(a_actor->extraList.get(), a_name.c_str());
 		return true;
 	}
 

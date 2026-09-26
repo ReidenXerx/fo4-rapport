@@ -49,3 +49,5 @@ namespace RP
 		return { utf8.begin(), utf8.end() };
 	}
 }
+
+#include "Compat.h"

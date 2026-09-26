@@ -324,7 +324,7 @@ namespace RP
 						"   {} {} + {} — score {:.2f} (apart {:.0f}, faction {}, {}, {}, "
 						"observers {}{})",
 						"would pair",
-						pair.first->GetDisplayFullName(), pair.second->GetDisplayFullName(),
+						RP::Compat::DisplayName(pair.first), RP::Compat::DisplayName(pair.second),
 						pair.score, pair.signals.distance,
 						pair.signals.sharedFaction ? "shared" : "different",
 						pair.signals.interior ? "indoors" : "outdoors",

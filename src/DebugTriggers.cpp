@@ -20,7 +20,7 @@ namespace RP::DebugTriggers
 			if (!a_actor) {
 				return "nobody";
 			}
-			const char* name = a_actor->GetDisplayFullName();
+			const char* name = RP::Compat::DisplayName(a_actor);
 			return name && *name ? std::string{ name } : std::format("{:08X}", a_actor->GetFormID());
 		}
 
@@ -162,7 +162,7 @@ namespace RP::DebugTriggers
 			if (!npc) {
 				return std::nullopt;
 			}
-			return npc->GetSex() == RE::SEX::kFemale;
+			return RP::Compat::Female(npc);
 		}
 
 		[[nodiscard]] std::string Refuse(bool a_force, std::string_view a_why)

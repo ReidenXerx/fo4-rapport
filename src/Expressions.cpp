@@ -236,7 +236,7 @@ namespace RP
 		const auto sexOf = [](std::uint32_t a_id) {
 			auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_id);
 			auto* npc = actor ? actor->GetNPC() : nullptr;   // not const: GetSex() is not
-			return npc ? static_cast<int>(npc->GetSex() == RE::SEX::kFemale) : -1;
+			return npc ? static_cast<int>(RP::Compat::Female(npc)) : -1;
 		};
 		const int s0 = sexOf(a_members[0]);
 		const int s1 = sexOf(a_members[1]);
