@@ -116,9 +116,11 @@ namespace RP::DialogueVoice
 		[[nodiscard]] std::optional<std::pair<std::uintptr_t, std::uintptr_t>> Locate()
 		{
 			if (REL::Module::get().is_og()) {
-				// OG's owner is split: its first .pdata chunk is 71 bytes and the call sits in the
-				// next one, where a scan of the owner need not look. OG is one executable, measured
-				// (capstone, 2026-09-25): its offsets stand, and the byte check below still runs.
+				// OG is one executable, measured (capstone, 2026-09-25): its offsets stand, and the
+				// byte check below still runs. resolve_callsites WOULD find the call too -- the owner is
+				// split (a 71-byte first .pdata chunk, the call in the chained one), but RD follows the
+				// chain to the root and scans every chunk of it (logical_function_scopes, read
+				// 2026-09-26) -- yet that path has not run on OG, and the measured one has.
 				const auto base = REL::Module::get().base();
 				return std::pair{ base + kCallSite, base + kBuilder };
 			}
