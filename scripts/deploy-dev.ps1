@@ -51,7 +51,13 @@ Copy-Item (Join-Path $root 'data\F4SE\Plugins\Rapport.ini') $plugins -Force
 # games. Flipping it in the staging copy after the copy is the one place the
 # distinction between "the dev build" and "the build" actually lives.
 $devIni = Join-Path $plugins 'Rapport.ini'
-(Get-Content $devIni) -replace '^DevMailbox=0', 'DevMailbox=1' -replace '^Verbose = 0', 'Verbose = 1' | Set-Content $devIni -Encoding ASCII
+# Read and written as BOM-less UTF-8: Get-Content read the file as ANSI and ASCII wrote
+# its one non-ASCII character back as '??', so the dev ini differed from the release by
+# more than its two switches (dev-vs-release check, 2026-09-26).
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$text = [System.IO.File]::ReadAllText($devIni, $utf8)
+$text = $text -replace '(?m)^DevMailbox=0', 'DevMailbox=1' -replace '(?m)^Verbose = 0', 'Verbose = 1'
+[System.IO.File]::WriteAllText($devIni, $text, $utf8)
 Write-Host '  dev command channel and verbose log: ON in staging (repo defaults stay 0)'
 Copy-Item (Join-Path $root 'data\F4SE\Plugins\Rapport\*.json') (Join-Path $plugins 'Rapport') -Force
 
