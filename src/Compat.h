@@ -67,9 +67,11 @@ namespace RP::Compat
 			return false;
 		}
 #ifdef RP_RUNTIME_DATABASE
-		// The AE id is not known yet (the shared OG->AE matcher, anatomy-specialist): INVALID
-		// makes NG and AE report a miss, and OG resolve through its own table.
-		static const auto resolved = REL::IDDatabase::get().resolve(REL::ID(222303, REL::ID::INVALID_ID));
+		// AE id 2190167 (alandtse's NG id, proven 2026-09-26): f4rd-runtime.bin holds it at
+		// 1.11.240 0x27DD70, the AE Address Library agrees, and the body matches OG's 0x89440 --
+		// look up extra type 0x99, build a 0x48-byte ExtraTextDisplayData if absent, set the name,
+		// set bit 0 at +0x10 -- with a lock around the list added in AE.
+		static const auto resolved = REL::IDDatabase::get().resolve(REL::ID(222303, 2190167));
 		if (!resolved) {
 			static std::once_flag said;
 			std::call_once(said, [] {

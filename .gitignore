@@ -56,3 +56,4 @@ voice/play/
 # nested here so package-voice.py reads it where it always has. Paid renders do
 # not belong in a public repo; releases package from the private one.
 /voice/out/
+build-rd/
