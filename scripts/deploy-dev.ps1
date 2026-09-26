@@ -17,7 +17,9 @@
 [CmdletBinding()]
 param(
     [string] $Staging = 'D:\Vortex\fallout4\mods\Rapport-dev',
-    [string] $Config  = 'Release'
+    [string] $Config  = 'Release',
+    # 'build' is the OG-only build; 'build-rd' is the Runtime Database one (OG, NG, AE).
+    [string] $BuildDir = 'build'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -33,7 +35,7 @@ if ($game) {
 
 $vortex = Get-Process -Name 'Vortex' -ErrorAction SilentlyContinue
 
-$dll = Join-Path $root "build\$Config\Rapport.dll"
+$dll = Join-Path $root "$BuildDir\$Config\Rapport.dll"
 if (-not (Test-Path $dll)) {
     throw "No build at $dll. Build first."
 }
