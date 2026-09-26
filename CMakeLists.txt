@@ -15,6 +15,16 @@ set(ENABLE_FALLOUT_NG OFF CACHE BOOL "" FORCE)
 set(ENABLE_FALLOUT_VR OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTS       OFF CACHE BOOL "" FORCE)
 
+# __FILE__ without this machine's folders (dev-vs-release check, 2026-09-26): the
+# compiler writes every source's full path into the dll, which named the Windows
+# user in a stranger's download. Trimmed here, before CommonLibF4, so its paths go
+# too, and in the build rather than the packaging, so the dev dll and the release
+# dll stay one build. Only string literals change; Rapport's log names no files.
+if(MSVC)
+	file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" RAPPORT_TRIM_PREFIX)
+	add_compile_options("/d1trimfile:${RAPPORT_TRIM_PREFIX}")
+endif()
+
 add_subdirectory("extern/CommonLibF4/CommonLibF4" "CommonLibF4")
 
 set(SOURCES

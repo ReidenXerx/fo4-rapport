@@ -117,6 +117,11 @@ if (Test-Path $debugJson) {
 # Compiled Papyrus. Without these the plugin has no bridge and does nothing at
 # all, which is why it is Required rather than best-effort.
 Copy-Into -From 'build\papyrus\Rapport' -To 'Scripts\Rapport' -Tree -Required | Out-Null
+# The staged copies only: no .pex in a stranger's download names this machine's
+# folders, user or computer (dev-vs-release check, 2026-09-26). The game never reads
+# those header fields. The dll's paths are trimmed in CMakeLists.txt instead.
+& python (Join-Path $PSScriptRoot 'strip-pex.py') (Join-Path $stage 'Scripts') 'Rapport'
+if ($LASTEXITCODE -ne 0) { throw 'strip-pex.py failed - nothing packaged.' }
 
 # The plugins. Rapport_Moisturizer.esp is optional BY DESIGN: the script inside
 # it names Commonwealth Moisturizer types, and a script naming a type nobody has
