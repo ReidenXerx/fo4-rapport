@@ -14,7 +14,15 @@ namespace RP
 		constexpr std::uint32_t kGlance = 0x52464147;  // 'RFAG': a glance into the partner's eyes
 		constexpr std::uint32_t kGlanceFace = 0x52464158;  // 'RFAX': the face during the next glance
 		constexpr std::uint32_t kVersion = 1;
+#ifdef RP_RUNTIME_DATABASE
+		// To EVERY listener, never by name: F4SE resolves a named receiver by comparing it with
+		// every loaded plugin's name, the walk that killed the game silently on AE 1.11.240
+		// (main.cpp, F4SEPlugin_Load). Anatomy's cbp.dll listens to every sender and keeps only
+		// "Rapport" (anatomy-specialist, fo4-ocbpc ff456c1); anyone else ignores these types.
+		constexpr const char*   kPeer = nullptr;
+#else
 		constexpr const char*   kPeer = "OCBPC plugin";   // Anatomy's cbp.dll, by its F4SE name
+#endif
 
 		// Hello feature bits, as the anatomy session defined them.
 		constexpr std::uint32_t kEngineLines = 1u << 1;   // lines keep the mouth, for their real length
