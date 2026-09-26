@@ -110,6 +110,10 @@ namespace
 		if (!a_message || a_message->type != kHello || !a_message->data || a_message->dataLen < 8) {
 			return;
 		}
+		// The Runtime Database build hears every sender (F4SEPlugin_Load says why): only cbp.dll's.
+		if (!a_message->sender || _stricmp(a_message->sender, "OCBPC plugin") != 0) {
+			return;
+		}
 		const auto* words = static_cast<const std::uint32_t*>(a_message->data);
 		RP::FaceAuthority::GetSingleton().OnHello(words[0], words[1]);
 	}
@@ -127,9 +131,13 @@ namespace
 			// up among plugins already loaded -- the anatomy session read it in
 			// PluginManager.cpp). A repeat registration is not duplicated, and the
 			// hello comes later, at PostPostLoad.
+#ifndef RP_RUNTIME_DATABASE
 			if (const auto messaging = F4SE::GetMessagingInterface()) {
 				messaging->RegisterListener(AnatomyHandler, "OCBPC plugin");
 			}
+#endif
+			// (The Runtime Database build listens to every sender from Load, and never names one:
+			// see F4SEPlugin_Load. cbp.dll sorts before Rapport, so it is among them.)
 			break;
 		case F4SE::MessagingInterface::kGameDataReady:
 			RP::Config::GetSingleton().Load();
@@ -291,16 +299,37 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	F4SE::AllocTrampoline(1 << 6);
 	RP::DialogueVoice::Install();
 
+	// Each step of the rest of Load says it returned. AE 1.11.240, 2026-09-26: the game exited
+	// with no dump, no WER report and no [critical] line, somewhere after F4SE logged the second
+	// listener registration and before "loaded" -- these lines say which step never came back.
+	logger::info("load: registering the F4SE listener");
 	const auto messaging = F4SE::GetMessagingInterface();
 	if (!messaging || !messaging->RegisterListener(MessageHandler)) {
 		logger::critical("could not register the messaging listener");
 		return false;
 	}
+	logger::info("load: F4SE listener registered; registering Anatomy's");
+#ifdef RP_RUNTIME_DATABASE
+	// FROM EVERY SENDER, filtered in AnatomyHandler -- never by name. F4SE resolves a named
+	// sender by comparing it with every loaded plugin's name, and on AE 1.11.240 (F4SE 0.7.9)
+	// that walk killed the game silently inside this call, 3/3 launches, 2026-09-26: Rapport's
+	// was the only named registration in the log, while another plugin's (null) one lived. A
+	// null sender takes the other branch, which touches no name. CommonLibF4RD's wrapper
+	// cannot pass null, so this goes to F4SE's own interface, which the wrapper is a cast of.
+	{
+		const auto& raw = reinterpret_cast<const F4SE::detail::F4SEMessagingInterface&>(*messaging);
+		if (!raw.RegisterListener(F4SE::GetPluginHandle(), nullptr, reinterpret_cast<void*>(&AnatomyHandler))) {
+			logger::info("face authority: could not listen for Anatomy's cbp.dll");
+		}
+	}
+#else
 	// Anatomy's face hook, when it is installed. Not an error when it is not: faces then
 	// stay on Rapport's AAF path alone, as they always were.
 	if (!messaging->RegisterListener(AnatomyHandler, "OCBPC plugin")) {
 		logger::info("face authority: no listener for Anatomy's cbp.dll - not installed, or it loads after Rapport");
 	}
+#endif
+	logger::info("load: Anatomy listener registered");
 
 	logger::info("loaded");
 	return true;
