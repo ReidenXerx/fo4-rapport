@@ -210,7 +210,9 @@ play unconstrained, and `Core.CanRun` answers `0` rather than pretending (A-25).
 **What.** `MaxSceneSeconds = 600`. Not a scene length and not a model of how scenes end: its only job
 is that two actors are never left flagged busy in AAF for the rest of the save.
 
-**Why.** AAF ignores the `duration` handed to `StartScene` (`docs/aaf-under-the-hood.md` §8). A scene
+**Why.** A scene that walks a pack's tree ends when the tree does, not on the `duration` handed to
+`StartScene`; only a timed scene without a tree ends on its timer (AAF's author, issue #1: our
+§8 had it backwards). A scene
 requested with `duration = 30.0` was still running three and a half minutes later, `OnSceneEnd` never
 arrived, and both actors kept `AAF_ActorBusy` (`docs/aaf-api.md`). 600 is chosen against the installed
 content, not picked round: the longest tree here declares 265 s, and at the worst measured

@@ -11,8 +11,8 @@ run it. `DESIGN.md` is the specification and outranks this file.
 
 | | |
 | --- | --- |
-| **Scenes that finish** | AAF ignores the duration you hand `StartScene`. Rapport picks one of the installed packs' own position trees at `StartScene` and lets AAF walk it to the ending its author wrote, with an emergency stop so nobody is ever left flagged busy. |
-| **An AAF that is awake** | Roughly half of all save loads leave AAF permanently deaf, with no error anywhere. Rapport detects that and repairs it using AAF's own restart. Verified 3/3, recovering in about four seconds. |
+| **Scenes that finish** | Rapport picks one of the installed packs' own position trees at `StartScene` and lets AAF walk it to the ending its author wrote, with an emergency stop so nobody is ever left flagged busy. |
+| **An AAF that is awake** | Before AAF 1.7.8, a load race could rarely leave AAF deaf after a save load, with no error anywhere. Rapport detects that and restarts it the way AAF does itself (verified 3/3, about four seconds). From AAF 1.7.8, which fixes the race, Rapport only watches. |
 | **Faces** | Across a whole AAF install there are about ten facial-expression references, against 1,358 animations. Rapport ships nine of its own, drives them from what AAF is actually playing, and always takes them off again. |
 | **Aftermath that survives a save** | AAF's overlay timer is an in-session countdown: a save, a reload or the game closing mid-count strands an overlay on an NPC forever. Rapport keeps `{actor, set, expiry}` in game hours, in the co-save. |
 | **State that is never stranded** | Nothing Rapport applies may be something only Rapport can remove. Busy flags, faces and overlays are all written into the save, cleaned on load, and removable in one switch. |

@@ -54,7 +54,7 @@ A [url=https://en.wikipedia.org/wiki/Speaker_recognition]speaker-recognition[/ur
 [*][b]Faces that live[/b]: eye contact, faces that change with the personality and with the act, and a face that drifts instead of freezing (built, not yet seen in game). This needs the [url=https://www.nexusmods.com/fallout4/mods/109434]Anatomy Engine[/url], a separate mod; without it you get the ordinary Rapport faces. A "Bodies & faces" MCM page holds its settings.
 [*][b]A voice in addon dialogue.[/b] When a mod gives a named character a line with no recording in their voice, it is spoken in the closest one, the same way as above.
 [*][b]A door for new mods[/b]: scenes with you, lovers, the Narrator speaking for addons, and API 201. Overture is the first mod built on it.
-[*][b]Fixes:[/b] the MCM menu now saves; AAF's leftover body morphs are cleared after a scene; nobody in a cell you just left is paired or counted as a witness; a refused request no longer lingers for minutes.
+[*][b]Fixes:[/b] the MCM menu now saves; AAF's leftover body morphs are cleared after a scene (they are left only by a scene that never ended normally, and AAF 1.7.9 clears them at load too); nobody in a cell you just left is paired or counted as a witness; a refused request no longer lingers for minutes.
 [/list]
 
 [center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/glances.jpg[/img][/center]
@@ -81,7 +81,7 @@ Every change, with the small ones too, is in the [b]Changelog[/b] tab and the st
 [size=5][b][color=#ffb62e]Before you play[/color][/b][/size]
 
 [quote]
-[b]Don't fast travel in the ~10 seconds while two NPCs walk to each other to start a scene.[/b] Once the scene has started, fast travel is safe. The crash is inside AAF's interface while the area unloads; a mod gets no warning that a fast travel is coming, and no distance setting removes the window.
+[b]Don't fast travel in the ~10 seconds while two NPCs walk to each other to start a scene[/b] (fixed in AAF 1.7.8; the public AAF is still 1.7.4.1). Once the scene has started, fast travel is safe. The crash is inside AAF's interface while the area unloads; a mod gets no warning that a fast travel is coming, and no distance setting removes the window.
 
 [b]Nothing starts until you leave Vault 111.[/b] No scene and no approach during the game's opening, from character creation to the vault door; alternate starts and MS Skip Prewar Sanctuary work as expected. Using an unusual alternate start that never finishes the opening? MCM, first page, [i]Start now[/i].
 

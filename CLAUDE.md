@@ -47,7 +47,8 @@ repairs it.
 **`ChangePosition` stays out until somebody re-tests it.** Measured: refused 26 times out of 26 —
 with tags, with a named position id, and with no filters at all — while `StartScene` matches the
 same pair constantly. That refusal is real and still unexplained. The scene's position is chosen at
-`StartScene` instead.
+`StartScene` instead. AAF's author could not reproduce it on 1.7.9: re-test there before
+reinstating anything, and send him the refusal line 1.7.9 prints.
 
 **But the reason we gave for it was wrong.** This file used to say `FindMatchingAnimations` returned
 0 for all 17 tags queried, and concluded AAF's tag matching does not work. It does work.

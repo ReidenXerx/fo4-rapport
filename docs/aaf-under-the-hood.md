@@ -17,6 +17,23 @@
 > - **Coming in 1.7.8:** GetSceneData, RemoveMFGSet/ClearMFG, starting a tree at a branch, and a
 >   test of the walk-in fast-travel crash.
 >
+> **Second review, after Rapport 0.2.3** (Dagobaking, by DM). Public AAF is still 1.7.4.1;
+> 1.7.8 is a test build (the load race and the walk-in fast-travel crash); 1.7.9 is being built.
+> - The version gate is right: from 1.7.8 on, never call the init functions. The fallback for older
+>   builds can go once 1.7.8 is public (only the latest AAF is distributed).
+> - `GetActorData` was a real bug, fixed in 1.7.9: it sent the actor's data where the interface
+>   expects a form id, so the reply never fired for anyone.
+> - `ChangePosition` (§15): not reproduced. On 1.7.9 with factory settings it switched for a
+>   player+NPC pair and an NPC pair (15 candidates), on the current game version; ours were on
+>   1.10.163. 1.7.9 makes every refusal name the check that emptied the list (actor count,
+>   skeleton, each tag list, parts): one refusal line from here settles it.
+> - Leftover body morphs are real, but only after a scene that never ended normally (a save made
+>   mid-scene, a crash). A normal end zeroes them and LooksMenu erases zero-valued morphs. 1.7.9
+>   clears AAF's own morphs at load, with the busy flag; BodyGen picks the actor up on its next load.
+> - The overlay countdown is interface-side, as we said. In 1.7.9 a timed overlay still counting
+>   when the save was made is removed when that save loads. Untimed overlays are unchanged.
+> - A refusal strips the busy flag: a flag does not stay "for the rest of the save" after one.
+>
 > Rapport's own follow-ups:
 > - Stop calling AAF's init functions once 1.7.8 ships, and never at `GetAAFStatus() == 1`.
 > - Stop stripping busy keywords.
@@ -199,6 +216,9 @@ vanilla BA2. `UI.Load` puts an asset **inside** a menu that must already be open
 driving Scaleform, including every restart of AAF, silently does nothing when `HUDMenu` is absent.
 
 ## 15. OPEN: `ChangePosition` has never once succeeded
+
+> AAF's author could not reproduce this on 1.7.9 (second review, above). Re-test on 1.7.9 and
+> send him one refusal line; until then the 26/26 stands only for 1.7.4.1 on 1.10.163.
 
 **26 requests, 26 refusals**, across every stage, every scene, on furniture and off it, inside trees
 and outside — for tags whose content demonstrably exists (5 selectable female+male `kissing`

@@ -498,8 +498,11 @@ registration path, the mangled event names and the plumbing all demonstrably wor
 ignored. Another mod's AAF addon measured the same silence independently, with its own registration,
 and its neighbouring `GetPositionData` answers normally.
 
-So `GetActorData` joins `ChangePosition` as an entry point that accepts a call and never replies. No
-theory is offered for either.
+So `GetActorData` joins `ChangePosition` as an entry point that accepts a call and never replies.
+
+**Explained by AAF's author: a real bug, fixed in AAF 1.7.9.** The call sent the actor's data where
+the interface expects a form id, so the reply never fired for anyone. `ChangePosition` he could not
+reproduce on 1.7.9 (see `aaf-under-the-hood.md`, second review).
 
 **A counting trap worth remembering.** `grep -c OnActorData` returned 4 and every one was our own log
 line saying *"the answer, if any, arrives as OnActorData"*. The real count was zero. When grepping a
