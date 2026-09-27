@@ -32,8 +32,9 @@ game**. That distinction is kept honestly and is worth reading before relying on
 
 | | |
 | --- | --- |
-| Game | Fallout 4 **1.10.163** only (old-gen). Any other runtime is refused at load rather than resolving addresses that mean something else. |
-| Script extender | F4SE 0.6.23 |
+| Game | Fallout 4 **1.10.163** (old-gen) or the **Anniversary Edition 1.11.x**. One DLL, through CommonLibF4RD; every class layout Rapport reads is checked at run time and a mismatch turns Rapport off for the session. Tested in game on AE 1.11.240; next-gen 1.10.984 is untested. |
+| Script extender | F4SE 0.6.23 (1.10.163) or 0.7.9 (AE) |
+| Addresses | [Runtime Database](https://www.nexusmods.com/fallout4/mods/108394) (`f4rd-runtime.bin`), on every runtime |
 | Scene engine | AAF 1.7.4.1 |
 | Faces and overlays | LooksMenu / F4EE — AAF's overlay and morph calls go through it |
 | Animation packs | Whatever you already have. Rapport reads their XML rather than requiring a particular pack. |
@@ -121,8 +122,8 @@ cmake -S . -B build -G "Visual Studio 17 2022" -A x64 \
 cmake --build build --config Release
 ```
 
-The result is `Rapport.dll`. Next-gen and VR are off deliberately, so every address resolves to the
-one runtime this is tested against.
+The result is `Rapport.dll`, built on CommonLibF4RD (`RAPPORT_RUNTIME_DATABASE`, ON by default) for
+1.10.163, next-gen and AE. `-DRAPPORT_RUNTIME_DATABASE=OFF` builds the classic 1.10.163-only plugin.
 
 The Papyrus side needs base sources the Creation Kit would normally install. If you do not have
 them, `tools/papyrus_setup.py` reconstructs them from the game's own archives — see

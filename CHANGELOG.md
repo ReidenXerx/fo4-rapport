@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.3 (2026-09-27)
+
+- **One DLL for the old-gen game and the Anniversary Edition.** Rapport now runs on Fallout 4
+  1.10.163 (F4SE 0.6.23) and on the Anniversary Edition 1.11.x (F4SE 0.7.9), through
+  [Runtime Database](https://www.nexusmods.com/fallout4/mods/108394). **Runtime Database is now
+  required on both**: without its `f4rd-runtime.bin`, Rapport cannot find the game's code and the
+  game stops at launch. Every class Rapport reads is checked once per session before it is used;
+  if one does not match, Rapport turns itself off for that session and `Rapport.log` names it. Tested on
+  AE 1.11.240; on 1.10.163 it awaits your reports; next-gen 1.10.984 is untested.
+- **The day's rest after a scene can no longer be skipped.** When the game clock stepped back,
+  the gap since a pair's last scene came out negative and read as
+  "rested", so the same two could start again at once. A negative gap now counts as "just now",
+  and `Rapport.log` notes the clock stepping back.
+- **Rapport_Moisturizer.esp is a light plugin** and no longer takes a load-order slot. Rapport.esp
+  stays a regular plugin: its dialogue and voice files need ids a light plugin cannot hold.
+
 ## 0.2.2 (2026-09-26)
 
 - **Nothing starts during the game's opening.** From character creation through pre-war

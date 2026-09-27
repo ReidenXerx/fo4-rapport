@@ -8,7 +8,7 @@ set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
 
 project(
 	Rapport
-	VERSION 0.2.2
+	VERSION 0.2.3
 	LANGUAGES CXX
 )
 
