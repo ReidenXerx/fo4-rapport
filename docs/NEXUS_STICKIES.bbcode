@@ -1,6 +1,13 @@
-=== STICKY: Every feature in Rapport 0.2.2 ===
-[b]Every feature in Rapport 0.2.2[/b]
+=== STICKY: Every feature in Rapport 0.2.3 ===
+[b]Every feature in Rapport 0.2.3[/b]
 The page tells the story; this is the complete list. Settings and the API have their own sticky posts.
+
+[b]Runs on[/b]
+[list]
+[*]Fallout 4 1.10.163 with F4SE 0.6.23, or the Anniversary Edition 1.11.x with F4SE 0.7.9: one DLL since 0.2.3. Both need [url=https://www.nexusmods.com/fallout4/mods/108394]Runtime Database[/url]; without it the game stops at launch.
+[*]Every class Rapport reads is checked once per session before use. On a mismatch Rapport turns itself off for that session and Rapport.log names what differed.
+[*]Tested in game on AE 1.11.240. On 1.10.163 the 0.2.3 DLL awaits your reports (0.2.2 stays in Old files); next-gen 1.10.984 is untested.
+[/list]
 
 [b]Choosing a scene[/b]
 [list]
@@ -98,7 +105,7 @@ MCM changes apply within 20 seconds, no restart. MCM is optional.
 
 === STICKY: For mod authors: the Rapport API (201) ===
 [b]For mod authors: the Rapport API[/b]
-Everything is in [i]Rapport:Core[/i] and [i]Rapport:Relations[/i]. Check [i]Core.ApiVersion()[/i] (201 for 0.2.1, 202 for 0.2.2) before calling anything marked 201 or 202. Full reference: [url=https://github.com/ReidenXerx/fo4-rapport/blob/master/docs/relationship-api.md]docs/relationship-api.md[/url].
+Everything is in [i]Rapport:Core[/i] and [i]Rapport:Relations[/i]. Check [i]Core.ApiVersion()[/i] (201 for 0.2.1, 202 for 0.2.2 and 0.2.3) before calling anything marked 201 or 202. Full reference: [url=https://github.com/ReidenXerx/fo4-rapport/blob/master/docs/relationship-api.md]docs/relationship-api.md[/url].
 
 [b]Starting a scene[/b]
 [list]
