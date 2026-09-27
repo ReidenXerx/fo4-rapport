@@ -205,7 +205,10 @@ Write-Host "  voices: $fuz file(s) under Sound\Voice"
 # never sees the repository should still know what they may do with it.
 foreach ($doc in 'LICENSE', 'README.md') {
     $p = Join-Path $root $doc
-    if (Test-Path $p) { Copy-Item $p $stage -Force }
+    # Under Docs\Rapport, never the Data root: every mod's LICENSE and README would collide
+    # there (fallout-collection, 2026-09-27: Overture's met PCL's in Vortex).
+    $docs = Join-Path $stage 'Docs\Rapport'
+    if (Test-Path $p) { New-Item -ItemType Directory -Force $docs | Out-Null; Copy-Item $p $docs -Force }
 }
 
 $zip = $existing
