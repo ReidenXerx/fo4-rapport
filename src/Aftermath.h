@@ -162,7 +162,7 @@ namespace RP
 		mutable std::timed_mutex _lock;
 
 		bool  _enabled{ true };
-		float _hours{ 12.0f };
+		float _hours{ 4.0f };
 		std::int32_t _layers{ 3 };
 		bool  _requireClimax{ false };
 

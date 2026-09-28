@@ -426,6 +426,31 @@
       ]
     },
     {
+      "pageDisplayName": "Aftermath",
+      "content": [
+        {
+          "type": "text",
+          "text": "What a scene leaves on the people in it (needs Commonwealth Moisturizer). A new length applies from the next scene; a mark already on someone keeps the time it was given."
+        },
+        {
+          "type": "section",
+          "text": "Length"
+        },
+        {
+          "type": "slider",
+          "id": "iHours:Aftermath",
+          "text": "How long it stays (game hours)",
+          "help": "Game hours, so sleeping or waiting counts. 4 by default.",
+          "valueOptions": {
+            "min": 1,
+            "max": 48,
+            "step": 1,
+            "sourceType": "ModSettingInt"
+          }
+        }
+      ]
+    },
+    {
       "pageDisplayName": "Bodies & faces",
       "content": [
         {

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Aftermath lasts 4 game hours by default** (it was 12), and its length is now on the MCM: a new
+  Aftermath page, 1 to 48 game hours. A new length applies from the next scene.
+
 ## 0.2.3 (2026-09-27)
 
 - **One DLL for the old-gen game and the Anniversary Edition.** Rapport now runs on Fallout 4

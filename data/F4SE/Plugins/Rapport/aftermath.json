@@ -67,12 +67,12 @@
   },
 
   "comment_hours": [
-    "How long it stays visible, in GAME hours. 12 is most of a day: long enough to",
-    "still be there after the walk home, short enough not to be permanent. Real",
+    "How long it stays visible, in GAME hours (MCM: Aftermath). 4 by default (owner,",
+    "2026-09-29; it was 12): gone by the next stop, never a day-long mark. Real",
     "time is the wrong unit -- a player who sleeps eight hours should not find it",
     "unchanged, and one who stands still for ten minutes should."
   ],
-  "hours": 12,
+  "hours": 4,
 
   "comment_climax": [
     "With requireClimax on, a scene leaves nothing behind unless an animation",

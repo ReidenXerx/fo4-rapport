@@ -146,13 +146,14 @@ namespace RP
 		// The player moved an MCM slider since the last pass. Reloaded HERE, on the
 		// thread that reads the weights, before this pass ranks with them.
 		if (McmSettings::ChangedSinceLastCheck()) {
-			logger::info("mcm: settings changed - reloading scoring, barks, observers, the narrator and names");
+			logger::info("mcm: settings changed - reloading scoring, barks, observers, the narrator, names and aftermath");
 			Config::GetSingleton().LoadScoring();
 			Barks::GetSingleton().Load();
 			Watchers::GetSingleton().Load();
 			Narrator::GetSingleton().Load();
 			// The names switch too: the census runs once, so this only rereads the switch.
 			Names::GetSingleton().Load();
+			Aftermath::GetSingleton().Load();
 			// Anatomy's knobs live on Rapport's MCM page; its plugin only learns them by message.
 			FaceAuthority::GetSingleton().SendKnobs();
 		}

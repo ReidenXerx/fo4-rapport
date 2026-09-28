@@ -1,6 +1,7 @@
 #include "Aftermath.h"
 
 #include "Ledger.h"
+#include "McmSettings.h"
 #include "PapyrusLink.h"
 
 namespace
@@ -103,8 +104,11 @@ namespace RP
 			return;
 		}
 
+		// The player's MCM slider over the shipped number. A mark already on someone keeps
+		// the expiry it was given; the new length applies from the next scene.
+		McmSettings::Overlay("Aftermath", document);
 		_enabled = document.value("enabled", true);
-		_hours = document.value("hours", 12.0f);
+		_hours = std::clamp(document.value("hours", 4.0f), 0.5f, 48.0f);
 		_layers = (std::max)(1, document.value("layers", 3));
 		_requireClimax = document.value("requireClimax", false);
 
