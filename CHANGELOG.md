@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.4 (2026-09-30)
 
 - **Aftermath lasts 4 game hours by default** (it was 12), and its length is now on the MCM: a new
   Aftermath page, 1 to 48 game hours. A new length applies from the next scene.
