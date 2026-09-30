@@ -1,0 +1,233 @@
+<title>Rapport Moan Audition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a casting sheet. Temperaments down the page, women and men side by side, three takes per voice. */
+:root {
+  --bg: #f3eff1;
+  --panel: #fbf9fa;
+  --ink: #241a22;
+  --muted: #6e6069;
+  --line: #ddd2d8;
+  --rose: #a3244f;
+  --rose-soft: #f3dde5;
+  --chosen: #1f7a5a;
+  --chosen-soft: #dcefe6;
+  --display: "Syne", "Trebuchet MS", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17121a; --panel: #211a24; --ink: #efe6ec; --muted: #a797a2; --line: #3a2f3d;
+    --rose: #e0668f; --rose-soft: #3d2130; --chosen: #5cc79c; --chosen-soft: #1b3a2e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17121a; --panel: #211a24; --ink: #efe6ec; --muted: #a797a2; --line: #3a2f3d;
+  --rose: #e0668f; --rose-soft: #3d2130; --chosen: #5cc79c; --chosen-soft: #1b3a2e; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 56px; display: grid; gap: 28px; }
+header { display: grid; gap: 10px; }
+.eyebrow { font: 500 12px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--rose); }
+h1 { font: 800 clamp(30px, 5vw, 46px)/1.05 var(--display); margin: 0; text-wrap: balance; }
+.lede { max-width: 68ch; color: var(--muted); margin: 0; }
+.status { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; font-size: 13px; color: var(--muted); }
+.meter { display: flex; gap: 4px; }
+.meter span { width: 22px; height: 6px; border-radius: 3px; background: var(--line); }
+.meter span.on { background: var(--chosen); }
+.script { font: 13px/1.5 var(--mono); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; overflow-x: auto; white-space: nowrap; }
+.row { display: grid; gap: 14px; }
+.row h2 { font: 700 22px var(--display); margin: 0; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.row h2 small { font: 400 14px var(--body); color: var(--muted); max-width: 70ch; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.voice { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.voice.done { border-color: var(--chosen); }
+.vhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.vhead h3 { margin: 0; font: 600 16px var(--body); }
+.pill { font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: var(--rose-soft); color: var(--rose); }
+.voice.done .pill { background: var(--chosen-soft); color: var(--chosen); }
+.takes { display: grid; gap: 8px; }
+.take { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+.take.picked { border-color: var(--chosen); background: var(--chosen-soft); }
+.play { width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--rose); color: var(--panel); cursor: pointer; display: grid; place-items: center; }
+.play svg { width: 14px; height: 14px; fill: currentColor; }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; cursor: pointer; }
+.bar i { display: block; height: 100%; width: 0; background: var(--rose); }
+.tlabel { font: 12px var(--mono); color: var(--muted); display: flex; justify-content: space-between; }
+.meta { display: grid; gap: 4px; min-width: 0; }
+.pick { font: 500 13px var(--body); border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.take.picked .pick { background: var(--chosen); border-color: var(--chosen); color: var(--panel); }
+textarea { width: 100%; min-height: 54px; resize: vertical; font: 13px/1.45 var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+.saved { font-size: 12px; color: var(--muted); min-height: 1em; }
+button:focus-visible, textarea:focus-visible, .bar:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
+details { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+summary { cursor: pointer; font-weight: 600; }
+.first { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; margin-top: 12px; }
+.note { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Rapport · scene moans · R-29</div>
+    <h1>Pick one take per temperament</h1>
+    <p class="lede">Eight moan voices, one for each sex and temperament, three takes each. Every take reads the same run, from breath to thrust gasps to the climax, so you hear only the voice. Your pick becomes the voice that renders that character's whole bank: breaths, moans, impacts and the climax super moan.</p>
+    <div class="status"><div class="meter" id="meter"></div><span id="count">0 of 8 picked</span><span id="where"></span></div>
+    <div class="script" title="The text every take reads">Mmmh... hahh... ahh... mmh, ahh... ahh... Ah! Ah! Ahh... hahh... ohh... oh... oh, oh, ohhh... AHHH! Hahh... hahh... mmmh.</div>
+  </header>
+  <main id="rows" class="wrap" style="padding:0"></main>
+  <details>
+    <summary>The first try: the dialogue voices (FemaleEvenToned, MaleEvenToned)</summary>
+    <p class="note">Before R-29 moved the bank to sex and temperament. Kept for comparison.</p>
+    <div class="first" id="first"></div>
+  </details>
+</div>
+
+<script>
+const TEMPERAMENTS = [
+  ["mercantile", "Mercantile", "Composed and in control even now: low, knowing, satisfied sounds held mostly behind closed lips, a slow warm hum that lets go only at the very end."],
+  ["romantic", "Romantic", "Tender and completely open: soft melting sighs, warm trembling moans full of feeling, breath shaking with emotion."],
+  ["vulgar", "Vulgar", "Loud, raw and shameless: throaty, rough, uninhibited moans and grunts from deep in the chest, rowdy and greedy."],
+  ["reticent", "Reticent", "Shy and embarrassed: stifled, breathy little whimpers, trying to stay quiet and failing, small gasps swallowed back."],
+];
+const SEXES = [["female", "Woman"], ["male", "Man"]];
+const FIRST = [
+  ["F1-breath", "Woman · breath"], ["F2-moan", "Woman · moan"], ["F3-impact", "Woman · impact"], ["F4-climax", "Woman · climax"],
+  ["M1-breath", "Man · breath"], ["M2-moan", "Man · moan"], ["M3-impact", "Man · impact"], ["M4-climax", "Man · climax"],
+];
+const PLAY = '<svg viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z"/></svg>';
+const PAUSE = '<svg viewBox="0 0 16 16"><path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z"/></svg>';
+
+const picks = {};          // voice -> { preview, note }
+let db = null;
+let current = null;        // { audio, btn, fill, time }
+
+function fmt(s) { if (!isFinite(s)) return "0:00"; const m = Math.floor(s / 60); return m + ":" + String(Math.floor(s % 60)).padStart(2, "0"); }
+
+function player(src) {
+  const audio = new Audio(src);
+  audio.preload = "metadata";
+  const btn = document.createElement("button");
+  btn.className = "play"; btn.innerHTML = PLAY; btn.setAttribute("aria-label", "Play");
+  const bar = document.createElement("div"); bar.className = "bar"; bar.tabIndex = 0;
+  const fill = document.createElement("i"); bar.append(fill);
+  const time = document.createElement("span"); time.textContent = "0:00";
+  const self = { audio, btn, fill, time };
+  audio.addEventListener("loadedmetadata", () => { time.textContent = fmt(audio.duration); });
+  audio.addEventListener("timeupdate", () => { fill.style.width = (audio.currentTime / (audio.duration || 1) * 100) + "%"; time.textContent = fmt(audio.currentTime) + " / " + fmt(audio.duration); });
+  audio.addEventListener("ended", () => { btn.innerHTML = PLAY; btn.setAttribute("aria-label", "Play"); });
+  btn.addEventListener("click", () => {
+    if (current && current !== self) { current.audio.pause(); current.btn.innerHTML = PLAY; }
+    if (audio.paused) { audio.play().catch(() => {}); btn.innerHTML = PAUSE; btn.setAttribute("aria-label", "Pause"); current = self; }
+    else { audio.pause(); btn.innerHTML = PLAY; btn.setAttribute("aria-label", "Play"); }
+  });
+  bar.addEventListener("click", e => { const r = bar.getBoundingClientRect(); if (audio.duration) audio.currentTime = (e.clientX - r.left) / r.width * audio.duration; });
+  return { btn, bar, time };
+}
+
+function render() {
+  const rows = document.getElementById("rows");
+  rows.textContent = "";
+  for (const [key, name, brief] of TEMPERAMENTS) {
+    const row = document.createElement("section"); row.className = "row";
+    const h = document.createElement("h2"); h.textContent = name;
+    const sm = document.createElement("small"); sm.textContent = brief; h.append(sm);
+    const pair = document.createElement("div"); pair.className = "pair";
+    for (const [sex, sexName] of SEXES) {
+      const voice = sex + "_" + key;
+      const card = document.createElement("article"); card.className = "voice"; card.dataset.voice = voice;
+      const head = document.createElement("div"); head.className = "vhead";
+      const h3 = document.createElement("h3"); h3.textContent = sexName + " · " + name;
+      const pill = document.createElement("span"); pill.className = "pill";
+      head.append(h3, pill);
+      const takes = document.createElement("div"); takes.className = "takes";
+      for (let n = 1; n <= 3; n++) {
+        const t = document.createElement("div"); t.className = "take"; t.dataset.n = n;
+        const p = player(`audition-moans/${voice}/${voice}-${n}.mp3`);
+        const meta = document.createElement("div"); meta.className = "meta";
+        const lab = document.createElement("div"); lab.className = "tlabel";
+        const l1 = document.createElement("span"); l1.textContent = "Take " + n;
+        lab.append(l1, p.time);
+        meta.append(lab, p.bar);
+        const pick = document.createElement("button"); pick.className = "pick"; pick.id = `pick-${voice}-${n}`;
+        pick.addEventListener("click", () => choose(voice, n));
+        t.append(p.btn, meta, pick);
+        takes.append(t);
+      }
+      const note = document.createElement("textarea"); note.id = "note-" + voice;
+      note.placeholder = "Anything about this voice? (too calm, wrong age, keep but rougher...)";
+      note.addEventListener("change", () => saveNote(voice, note.value));
+      const saved = document.createElement("div"); saved.className = "saved"; saved.id = "saved-" + voice;
+      card.append(head, takes, note, saved);
+      pair.append(card);
+    }
+    row.append(h, pair);
+    rows.append(row);
+  }
+  const first = document.getElementById("first");
+  for (const [file, label] of FIRST) {
+    const t = document.createElement("div"); t.className = "take"; t.style.gridTemplateColumns = "auto 1fr";
+    const p = player(`audition-moans/${file}-EvenToned.mp3`);
+    const meta = document.createElement("div"); meta.className = "meta";
+    const lab = document.createElement("div"); lab.className = "tlabel";
+    const l1 = document.createElement("span"); l1.textContent = label; lab.append(l1, p.time);
+    meta.append(lab, p.bar);
+    t.append(p.btn, meta);
+    first.append(t);
+  }
+  paint();
+}
+
+function paint() {
+  let done = 0;
+  document.querySelectorAll(".voice").forEach(card => {
+    const voice = card.dataset.voice, pick = picks[voice] || {};
+    const has = pick.preview >= 1 && pick.preview <= 3;
+    if (has) done++;
+    card.classList.toggle("done", has);
+    card.querySelector(".pill").textContent = has ? "take " + pick.preview + " picked" : "not picked";
+    card.querySelectorAll(".take").forEach(t => {
+      const on = Number(t.dataset.n) === pick.preview;
+      t.classList.toggle("picked", on);
+      t.querySelector(".pick").textContent = on ? "Picked" : "Pick";
+    });
+    const note = document.getElementById("note-" + voice);
+    if (note && document.activeElement !== note && typeof pick.note === "string") note.value = pick.note;
+  });
+  document.getElementById("count").textContent = done + " of 8 picked";
+  const meter = document.getElementById("meter"); meter.textContent = "";
+  for (let i = 0; i < 8; i++) { const s = document.createElement("span"); if (i < done) s.className = "on"; meter.append(s); }
+}
+
+async function write(voice, patch) {
+  picks[voice] = Object.assign({}, picks[voice], patch);
+  paint();
+  const saved = document.getElementById("saved-" + voice);
+  if (!db) { saved.textContent = "Not saved: this view has no shared store. Tell Claude your pick instead."; return; }
+  try {
+    await db.doc("picks/" + voice).set(Object.assign({ voice }, picks[voice], { at: new Date().toISOString() }));
+    saved.textContent = "Saved. Claude can read it.";
+  } catch (e) {
+    saved.textContent = "Could not save (" + (e && e.code || "error") + "). Tell Claude your pick instead.";
+  }
+}
+function choose(voice, n) { const cur = picks[voice] || {}; write(voice, { preview: cur.preview === n ? null : n }); }
+function saveNote(voice, text) { write(voice, { note: text.slice(0, 1000) }); }
+
+render();
+(async () => {
+  try { db = await claude.use("db"); } catch { db = null; }
+  const where = document.getElementById("where");
+  if (!db) { where.textContent = "Picks are not saved in this view"; return; }
+  where.textContent = "Picks save for Claude to read";
+  db.collection("picks").onSnapshot(snap => {
+    const docs = snap.docs || snap;
+    for (const d of docs) { const v = d.data ? d.data() : d; if (v && v.voice) picks[v.voice] = { preview: v.preview ?? null, note: v.note ?? "" }; }
+    paint();
+  }, () => {});
+})();
+</script>
