@@ -79,6 +79,23 @@ summary { cursor: pointer; font-weight: 600; }
     <div class="status"><div class="meter" id="meter"></div><span id="count">0 of 8 picked</span><span id="where"></span></div>
     <div class="script" title="The text every take reads">Mmmh... hahh... ahh... mmh, ahh... ahh... Ah! Ah! Ahh... hahh... ohh... oh... oh, oh, ohhh... AHHH! Hahh... hahh... mmmh.</div>
   </header>
+  <section class="row" id="pilot">
+    <h2>Pilot: more breath <small>Your note: they don't sound like sex, they need придыхание. Two ways to fix it, on the romantic voices. Which direction is right?</small></h2>
+    <div class="pair">
+      <article class="voice" data-pilot="A">
+        <div class="vhead"><h3>A · breathy voice, breath script</h3><span class="pill">redesigned</span></div>
+        <p class="note">The voice itself is designed breathy and airy ("more air than voice"), reading a script built from breaths: hhh… hhhahh… hah… hah…</p>
+        <div class="takes" id="pilot-A"></div>
+      </article>
+      <article class="voice" data-pilot="B">
+        <div class="vhead"><h3>B · breathing directions</h3><span class="pill">same voices</span></div>
+        <p class="note">The earlier dialogue voices, told to exhale, sigh and whisper between every sound ([exhales] hhh… [sighs] mmhh… [whispers] hahh…).</p>
+        <div class="takes" id="pilot-B"></div>
+      </article>
+    </div>
+    <textarea id="note-pilot" placeholder="A or B? Which take is closest? What is still missing?"></textarea>
+    <div class="saved" id="saved-pilot_breathy"></div>
+  </section>
   <main id="rows" class="wrap" style="padding:0"></main>
   <details>
     <summary>The first try: the dialogue voices (FemaleEvenToned, MaleEvenToned)</summary>
@@ -168,6 +185,22 @@ function render() {
     row.append(h, pair);
     rows.append(row);
   }
+  const pilots = { A: [["A-woman-1", "Woman · take 1"], ["A-woman-2", "Woman · take 2"], ["A-woman-3", "Woman · take 3"],
+                       ["A-man-1", "Man · take 1"], ["A-man-2", "Man · take 2"], ["A-man-3", "Man · take 3"]],
+                   B: [["B-woman", "Woman"], ["B-man", "Man"]] };
+  for (const [key, list] of Object.entries(pilots)) {
+    const box = document.getElementById("pilot-" + key);
+    for (const [file, label] of list) {
+      const t = document.createElement("div"); t.className = "take"; t.style.gridTemplateColumns = "auto 1fr";
+      const p = player(`audition-moans/pilot-breathy/${file}.mp3`);
+      const meta = document.createElement("div"); meta.className = "meta";
+      const lab = document.createElement("div"); lab.className = "tlabel";
+      const l1 = document.createElement("span"); l1.textContent = label; lab.append(l1, p.time);
+      meta.append(lab, p.bar); t.append(p.btn, meta); box.append(t);
+    }
+  }
+  const pilotNote = document.getElementById("note-pilot");
+  pilotNote.addEventListener("change", () => write("pilot_breathy", { note: pilotNote.value.slice(0, 1000) }));
   const first = document.getElementById("first");
   for (const [file, label] of FIRST) {
     const t = document.createElement("div"); t.className = "take"; t.style.gridTemplateColumns = "auto 1fr";
@@ -184,7 +217,7 @@ function render() {
 
 function paint() {
   let done = 0;
-  document.querySelectorAll(".voice").forEach(card => {
+  document.querySelectorAll(".voice[data-voice]").forEach(card => {
     const voice = card.dataset.voice, pick = picks[voice] || {};
     const has = pick.preview >= 1 && pick.preview <= 3;
     if (has) done++;
@@ -198,6 +231,8 @@ function paint() {
     const note = document.getElementById("note-" + voice);
     if (note && document.activeElement !== note && typeof pick.note === "string") note.value = pick.note;
   });
+  const pn = document.getElementById("note-pilot"), pp = picks.pilot_breathy;
+  if (pn && pp && document.activeElement !== pn && typeof pp.note === "string") pn.value = pp.note;
   document.getElementById("count").textContent = done + " of 8 picked";
   const meter = document.getElementById("meter"); meter.textContent = "";
   for (let i = 0; i < 8; i++) { const s = document.createElement("span"); if (i < done) s.className = "on"; meter.append(s); }
