@@ -79,8 +79,17 @@ summary { cursor: pointer; font-weight: 600; }
     <div class="status"><div class="meter" id="meter"></div><span id="count">0 of 8 picked</span><span id="where"></span></div>
     <div class="script" title="The text every take reads">Mmmh... hahh... ahh... mmh, ahh... ahh... Ah! Ah! Ahh... hahh... ohh... oh... oh, oh, ohhh... AHHH! Hahh... hahh... mmmh.</div>
   </header>
+  <section class="row" id="c2">
+    <h2>C2, by temperament <small>Your winner, C2, now per temperament. The voice, the breath and the settings stay the same; only the one direction at the front changes: low and controlled (mercantile), tender and trembling (romantic), loud and shameless (vulgar), shy and stifled (reticent). Does each one sound like its temperament?</small></h2>
+    <div class="pair">
+      <article class="voice"><div class="vhead"><h3>Woman</h3><span class="pill">C2 recipe</span></div><div class="takes" id="c2-female"></div></article>
+      <article class="voice"><div class="vhead"><h3>Man</h3><span class="pill">C2 recipe</span></div><div class="takes" id="c2-male"></div></article>
+    </div>
+    <textarea id="note-c2" placeholder="Which temperaments land? Which are wrong, and how?"></textarea>
+    <div class="saved" id="saved-c2_personas"></div>
+  </section>
   <section class="row" id="pilot">
-    <h2>Pilot: more breath <small>Your note: they don't sound like sex, they need придыхание. Two ways to fix it, on the romantic voices. Which direction is right?</small></h2>
+    <h2>Pilot: more breath <small>Settled: C2 won ("almost perfect"). Your note: they don't sound like sex, they need придыхание. Two ways to fix it, on the romantic voices. Which direction is right?</small></h2>
     <div class="pair">
       <article class="voice" data-pilot="A">
         <div class="vhead"><h3>A · breathy voice, breath script</h3><span class="pill">redesigned</span></div>
@@ -185,6 +194,19 @@ function render() {
     row.append(h, pair);
     rows.append(row);
   }
+  for (const sex of ["female", "male"]) {
+    const box = document.getElementById("c2-" + sex);
+    for (const [key, name] of TEMPERAMENTS.map(x => [x[0], x[1]])) {
+      const t = document.createElement("div"); t.className = "take"; t.style.gridTemplateColumns = "auto 1fr";
+      const p = player(`audition-moans/c2-personas/${sex}_${key}.mp3`);
+      const meta = document.createElement("div"); meta.className = "meta";
+      const lab = document.createElement("div"); lab.className = "tlabel";
+      const l1 = document.createElement("span"); l1.textContent = name; lab.append(l1, p.time);
+      meta.append(lab, p.bar); t.append(p.btn, meta); box.append(t);
+    }
+  }
+  const c2Note = document.getElementById("note-c2");
+  c2Note.addEventListener("change", () => write("c2_personas", { note: c2Note.value.slice(0, 1000) }));
   const pilots = { A: [["A-woman-1", "Woman · take 1"], ["A-woman-2", "Woman · take 2"], ["A-woman-3", "Woman · take 3"],
                        ["A-man-1", "Man · take 1"], ["A-man-2", "Man · take 2"], ["A-man-3", "Man · take 3"]],
                    B: [["B-woman", "Woman"], ["B-man", "Man"], ["B2-woman", "Woman · B2, breath-wrapped vowels"], ["B2-man", "Man · B2, breath-wrapped vowels"], ["C1-woman", "Woman · C1, one [exhales], one breath"], ["C1-man", "Man · C1, one [exhales], one breath"], ["C2-woman", "Woman · C2, one [breathless moaning], one breath"], ["C2-man", "Man · C2, one [breathless moaning], one breath"]] };
@@ -233,6 +255,8 @@ function paint() {
   });
   const pn = document.getElementById("note-pilot"), pp = picks.pilot_breathy;
   if (pn && pp && document.activeElement !== pn && typeof pp.note === "string") pn.value = pp.note;
+  const cn = document.getElementById("note-c2"), cp = picks.c2_personas;
+  if (cn && cp && document.activeElement !== cn && typeof cp.note === "string") cn.value = cp.note;
   document.getElementById("count").textContent = done + " of 8 picked";
   const meter = document.getElementById("meter"); meter.textContent = "";
   for (let i = 0; i < 8; i++) { const s = document.createElement("span"); if (i < done) s.className = "on"; meter.append(s); }

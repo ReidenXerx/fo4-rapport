@@ -172,5 +172,14 @@
         }
       ]
     }
+  },
+  "recipe": {
+    "winner": "C2 (owner 2026-10-01: \"c2 its almost perfect shot\")",
+    "model": "eleven_v3",
+    "stability": 0.2,
+    "style": 0.6,
+    "rule": "ONE direction tag at the front, then ONE continuous breath group; vowels wrapped in breath (hhhaaahhh), commas and ellipses only, no full stop mid-moan, no tag between syllables (each tag opens a new utterance with a hard attack)",
+    "text": "[breathless moaning] hhhaaahhh, hhhaaahhhh... mmmhhhaaahhh, hhhaaa, hhhaaahhh... hhhaaahhhh, mmmhhh, hhhaaaaahhhh...",
+    "voices": "Rapport_FemaleEvenToned jEN8cFKDy6r0XgCD3czG, Rapport_MaleEvenToned EIls1au8ZummeVlcSZqp"
   }
 }

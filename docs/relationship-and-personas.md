@@ -1381,3 +1381,13 @@ ended, with depth and speed). Rapport answers with a voice, played at the head t
   events stop at an impact): the moment the scene's animation carries AAF's climax tag, the same moment
   the face layer already switches to its climax face. Played through RFAP with flags bit 0, so it cuts
   whatever breath or moan is still playing.
+- **Length follows the tempo** (owner, 2026-10-01): "moans different length that will scaling from tempo
+  of sex motions ... faster -> shorter". The bank carries length tiers (short, medium, long) per sex and
+  persona, and Rapport plays the tier that fits inside the current stroke period, so a moan ends before
+  the next thrust instead of being cut. The period comes from Anatomy (asked for as RFAE v2 `strokeMs`),
+  or from the gap between thrust events.
+- **The render recipe** (owner, 2026-10-01, on the C2 take: "almost perfect shot"): eleven_v3, stability
+  0.2, style 0.6; ONE direction at the front (e.g. `[breathless moaning]`), then ONE continuous breath group
+  with every vowel wrapped in breath (`hhhaaahhh`), commas and ellipses only. A tag between syllables starts
+  a new utterance with a hard attack: the flat, plainly spoken "A" the owner heard. Temperament goes in
+  that one front direction. voice/moan-voices.json keeps the recipe.
