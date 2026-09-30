@@ -7,6 +7,10 @@
   skeleton, not as clothing, so AAF's undressing never reached it. Rapport now hides those displays on
   everyone in an AAF scene, its own or any other mod's, and puts back exactly what it hid when the
   scene ends. Without Visible Favorites nothing changes.
+- **A switch for Anatomy's sex sounds** (MCM, Bodies & faces, Sounds; off by default). On, Anatomy
+  mutes the animation packs' own sounds during scenes, their moans included, and makes the body sounds
+  itself from what it measures. It needs an Anatomy build that offers it; with an older one the switch
+  does nothing.
 
 ## 0.2.4 (2026-09-30)
 

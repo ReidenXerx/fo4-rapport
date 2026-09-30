@@ -13,6 +13,7 @@ namespace RP
 		constexpr std::uint32_t kKnobs = 0x5246414B;   // 'RFAK': Anatomy's knobs from Rapport's MCM
 		constexpr std::uint32_t kGlance = 0x52464147;  // 'RFAG': a glance into the partner's eyes
 		constexpr std::uint32_t kGlanceFace = 0x52464158;  // 'RFAX': the face during the next glance
+		constexpr std::uint32_t kSound = 0x52464155;       // 'RFAU': Anatomy's sound override, on or off
 		constexpr std::uint32_t kVersion = 1;
 #ifdef RP_RUNTIME_DATABASE
 		// To EVERY listener, never by name: F4SE resolves a named receiver by comparing it with
@@ -31,6 +32,9 @@ namespace RP
 		constexpr std::uint32_t kGlanceFaces = 1u << 7;   // wears an 'RFAX' face for its glance
 		constexpr std::uint32_t kEasedFaces = 1u << 8;    // eases a held face's change over 250 ms
 		constexpr std::uint32_t kEyeRolls = 1u << 9;      // rolls the eyes up on an RFAG flagged kRoll
+		// Roadmap item 3 (fo4-anatomy A-67): its SoundPlay mute hooked on this game, so it takes 'RFAU'.
+		// Without an RFAU it stays OFF, and the packs sound as they always did.
+		constexpr std::uint32_t kSoundOverride = 1u << 10;
 		constexpr std::uint32_t kRoll = 1u << 0;          // RFAG flags: an eye roll, target = the looker
 		constexpr std::uint32_t kLongestGlanceMs = 10000; // Anatomy clamps there; so do we
 
@@ -764,6 +768,23 @@ namespace RP
 					 "{:.2f}..{:.2f}, reaction {:.2f})",
 			message.enabled, message.lipClearance, message.lipSpeed, message.shaftScale, message.headMin,
 			message.headMax, message.reactScale);
+
+		// The sound override: the same three moments as the knobs (the hello, every load, an MCM
+		// change), and only to a cbp.dll whose mute actually hooked on this game.
+		if (_peerFeatures.load() & kSoundOverride) {
+			struct SoundMessage
+			{
+				std::uint32_t version;
+				std::uint32_t flags;   // bit 0: override on
+			};
+			static_assert(sizeof(SoundMessage) == 8);
+			SoundMessage sound{ kVersion, McmSettings::ReadBool(doc, "soundOverride", false) ? 1u : 0u };
+			if (const auto messaging = F4SE::GetMessagingInterface()) {
+				messaging->Dispatch(kSound, &sound, sizeof(sound), kPeer);
+			}
+			logger::info("anatomy sounds: override {}", sound.flags ? "ON - the packs are muted, Anatomy makes the body sounds"
+																	 : "off - the packs sound as they always have");
+		}
 	}
 
 	void FaceAuthority::Reset()

@@ -26,6 +26,9 @@ namespace RP
 	//   'RFAD' Rapport -> OCBPC  { u32 version=1; u32 formID; u64 blend; float value[54]; }
 	//          the held face at full depth, right after its RFAS; only with feature bit 3.
 	//          Their side: value = lerp(held, deep, depth) for every id in blend.
+	//   'RFAU' Rapport -> OCBPC  { u32 version=1; u32 flags; }  bit 0: the sound override on (roadmap
+	//          item 3, fo4-anatomy A-67). Only with hello bit 10, which means their SoundPlay mute
+	//          hooked; sent beside RFAK. Their default without one is OFF.
 	// No hello, no authority: Rapport's AAF mfg path stays the whole story, as before.
 	// Their side keeps the blink as max(ours, merged) and puts the contact mouth on
 	// top while something is in the mouth.

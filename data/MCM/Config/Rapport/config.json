@@ -581,6 +581,19 @@
             "step": 0.05,
             "sourceType": "ModSettingFloat"
           }
+        },
+        {
+          "type": "section",
+          "text": "Sounds"
+        },
+        {
+          "type": "switcher",
+          "id": "bSoundOverride:Anatomy",
+          "text": "Anatomy's sex sounds",
+          "help": "Anatomy mutes the animation packs' own sounds during scenes - their moans too - and makes the body sounds itself from what it measures. Off: the packs sound as they always have.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         }
       ]
     }

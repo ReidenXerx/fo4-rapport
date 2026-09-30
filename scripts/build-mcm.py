@@ -145,6 +145,12 @@ PAGES = [
          "used for both.", 1.0, 2.0, 0.05),
         ("Anatomy", "reactScale", anatomy, "Face reaction strength", "0 turns the reaction off, 2 doubles it.",
          0.0, 2.0, 0.05),
+        # Roadmap item 3 (owner, 2026-09-30): ONE switch for the whole sound override. Sent as 'RFAU',
+        # and only to an Anatomy that says its mute hooked on this game (hello bit 10).
+        ("section", "Sounds"),
+        ("Anatomy", "soundOverride", anatomy, "Anatomy's sex sounds", "Anatomy mutes the animation packs' own "
+         "sounds during scenes - their moans too - and makes the body sounds itself from what it measures. "
+         "Off: the packs sound as they always have.", None, None, None),
     ]),
 ]
 
