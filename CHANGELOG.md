@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.5 (2026-09-30)
+
+- **No more holstered pistols during sex.** With Visible Favorites installed, the weapon it shows on
+  someone's hip or back stayed on through every AAF scene: the mod draws it straight onto the
+  skeleton, not as clothing, so AAF's undressing never reached it. Rapport now hides those displays on
+  everyone in an AAF scene, its own or any other mod's, and puts back exactly what it hid when the
+  scene ends. Without Visible Favorites nothing changes.
+
 ## 0.2.4 (2026-09-30)
 
 - **Aftermath lasts 4 game hours by default** (it was 12), and its length is now on the MCM: a new

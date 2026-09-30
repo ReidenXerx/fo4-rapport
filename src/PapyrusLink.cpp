@@ -22,6 +22,7 @@
 #include "AAFHealth.h"
 #include "Crowd.h"
 #include "Ledger.h"
+#include "Holsters.h"
 #include "Morphs.h"
 #include "Scenarios.h"
 #include "Takeover.h"
@@ -207,6 +208,15 @@ namespace
 		return a_text.empty() ? std::string{} : std::string{ a_text.c_str() };
 	}
 
+	std::vector<std::uint32_t> Ids(const std::vector<RP::ForeignScenes::Member>& a_members)
+	{
+		std::vector<std::uint32_t> ids;
+		for (const auto& m : a_members) {
+			ids.push_back(m.formID);
+		}
+		return ids;
+	}
+
 	// Every one of these guarded, against anything thrown, as the pump is: an exception
 	// crossing back into the VM would take the event -- and whatever else was on that
 	// stack -- down with it.
@@ -215,7 +225,9 @@ namespace
 		float a_duration)
 	{
 		try {
-			RP::ForeignScenes::GetSingleton().Started(a_location, Members(a_actors), Text(a_position), Text(a_tags),
+			auto members = Members(a_actors);
+			RP::Holsters::GetSingleton().SceneStarted(Ids(members));
+			RP::ForeignScenes::GetSingleton().Started(a_location, std::move(members), Text(a_position), Text(a_tags),
 				Text(a_meta), a_npcControlled, a_duration);
 		} catch (const std::exception& e) {
 			logger::critical("ForeignSceneStarted threw: {}", e.what());
@@ -256,6 +268,7 @@ namespace
 		try {
 			const auto members = Members(a_actors);
 			RP::ForeignScenes::GetSingleton().Animation(a_location, members, Text(a_position), Text(a_tags));
+			RP::Holsters::GetSingleton().SceneStarted(Ids(members));
 			// Stage 1 of "no scene inside a table", for menu scenes too: log only.
 			std::vector<std::uint32_t> ids;
 			for (const auto& m : members) {
@@ -273,7 +286,9 @@ namespace
 		RE::BSFixedString a_position, RE::BSFixedString a_tags)
 	{
 		try {
-			RP::ForeignScenes::GetSingleton().Ended(a_location, Members(a_actors), Text(a_position), Text(a_tags));
+			auto members = Members(a_actors);
+			RP::Holsters::GetSingleton().SceneEnded(Ids(members));
+			RP::ForeignScenes::GetSingleton().Ended(a_location, std::move(members), Text(a_position), Text(a_tags));
 		} catch (const std::exception& e) {
 			logger::critical("ForeignSceneEnded threw: {}", e.what());
 		} catch (...) {
@@ -288,7 +303,9 @@ namespace
 	void Papyrus_OwnSceneEnded(std::monostate, std::int32_t a_location, const RE::BSScript::Variable* a_actors)
 	{
 		try {
-			RP::ForeignScenes::GetSingleton().OwnSceneEnded(a_location, Members(a_actors));
+			const auto members = Members(a_actors);
+			RP::Holsters::GetSingleton().SceneEnded(Ids(members));
+			RP::ForeignScenes::GetSingleton().OwnSceneEnded(a_location, members);
 		} catch (const std::exception& e) {
 			logger::critical("OwnSceneEnded threw: {}", e.what());
 		} catch (...) {
@@ -504,6 +521,7 @@ namespace
 			RP::FaceAuthority::GetSingleton().Pump();
 			RP::Barks::GetSingleton().Pump();
 			RP::Morphs::GetSingleton().Pump();
+			RP::Holsters::GetSingleton().Pump();
 			if (watching) {
 				logger::info("pump: returned normally");
 			}
@@ -1858,6 +1876,7 @@ namespace RP
 		// on the wearing list, which the arriving save's own record governs.
 		ForeignScenes::GetSingleton().Reset();
 		FaceAuthority::GetSingleton().Reset();
+		Holsters::GetSingleton().Reset();
 		ClearInFlight();
 		_sceneInFlight.store(false);
 
@@ -2130,6 +2149,9 @@ namespace RP
 		ForeignScenes::GetSingleton().OwnSceneStarted(
 			static_cast<std::uint32_t>(_inFlightFirst),
 			static_cast<std::uint32_t>(_inFlightSecond));
+		// Visible Favorites' holstered weapons off the two of them for the scene.
+		Holsters::GetSingleton().SceneStarted(
+			{ static_cast<std::uint32_t>(_inFlightFirst), static_cast<std::uint32_t>(_inFlightSecond) });
 
 		// A scenario, if the caller named one, drives the stages AND the faces --
 		// which is why the expression layer is told to stand down for this scene
@@ -2829,6 +2851,7 @@ namespace RP
 			Ledger::GetSingleton().RecordScene(first, second);
 			Aftermath::GetSingleton().OnSceneEnded(first, second);
 			Morphs::GetSingleton().OnSceneEnded(first, second);
+			Holsters::GetSingleton().SceneEnded({ first, second });
 		}
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();
@@ -2930,6 +2953,7 @@ namespace RP
 		}
 		// AAF may have got as far as walking them in before it failed.
 		Morphs::GetSingleton().OnSceneEnded(first, second);
+		Holsters::GetSingleton().SceneEnded({ first, second });
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();
 		Watchers::GetSingleton().OnSceneEnded();
