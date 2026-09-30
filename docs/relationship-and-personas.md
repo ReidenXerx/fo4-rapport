@@ -1359,3 +1359,20 @@ game.
   - Climax opens with a 2-3 s roll, then the long look.
   - With bit 7, a roll wears the "roll" face: brows up, the lower lids down, the mouth falling open where
     it is free.
+
+## R-29 - Scene moans: our own, keyed by SEX and PERSONA, never by voice type (owner, 2026-10-01)
+
+Roadmap item 3 (fo4-anatomy A-67). Anatomy's engine mutes the animation packs' own sounds during
+scenes when Rapport's "Anatomy's sex sounds" switch is on ('RFAU'), plays the body sounds itself,
+and sends Rapport an event per partner ('RFAE': began, thrust at the deepest point, hard impact,
+ended, with depth and speed). Rapport answers with a voice, played at the head through 'RFAP'.
+
+- **Our own renders** (owner poll): not the installed moan packs' sounds.
+- **Both partners moan** (owner poll). His events cover a vagina, an anus and a mouth.
+- **Keyed by sex + persona, NOT voice type.** The owner: "its useless make it per voice type bc
+  even in real life voices of humans jumping between octavas so we need just diverse it per sex and
+  PER PERSONA becuae temperament its that influence how person sounds during sex". So a moan is
+  chosen by sex, persona (mercantile, romantic, vulgar, reticent), the event's kind and its
+  intensity (speed, depth), behind a per-actor cooldown. The voice type plays no part.
+- **Picking the takes is the owner's, by ear** (V-9). A first audition (FemaleEvenToned and
+  MaleEvenToned, breath / moan / impact / climax) is out; the bank waits on it.
