@@ -1,0 +1,176 @@
+{
+  "_": "R-29 (owner, 2026-10-01): scene moans keyed by SEX and PERSONA, never by voice type. One designed voice per sex x persona. Each brief = the sex's character clause + the persona's temperament clause (V-21: hold the character constant, vary one clause). Test text identical for all eight (V-21 step 3). 'chosen' stays null until the owner picks a preview by ear (V-9).",
+  "test_text": "Mmmh... hahh... ahh... mmh, ahh... ahh... Ah! Ah! Ahh... hahh... ohh... oh... oh, oh, ohhh... AHHH! Hahh... hahh... mmmh.",
+  "character": {
+    "female": "An American woman in her early thirties, alone with a lover, in the heat of sex. Her breath is ragged and uneven, her voice trembles and catches, never steady, never performed for an audience.",
+    "male": "An American man in his early thirties, alone with a lover, in the heat of sex. His breathing is heavy and uneven, his voice rough and catching, never steady, never performed for an audience."
+  },
+  "temperament": {
+    "mercantile": "Composed and in control even now: low, knowing, satisfied sounds held mostly behind closed lips, a slow warm hum that lets go only at the very end.",
+    "romantic": "Tender and completely open: soft melting sighs, warm trembling moans full of feeling, breath shaking with emotion, as if falling apart in someone's arms.",
+    "vulgar": "Loud, raw and shameless: throaty, rough, uninhibited moans and grunts from deep in the chest, no restraint at all, rowdy and greedy.",
+    "reticent": "Shy and embarrassed: stifled, breathy little whimpers, trying to stay quiet and failing, small gasps swallowed back, hushed and trembling."
+  },
+  "voices": {
+    "female_mercantile": {
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "generated_voice_id": "KUMWMWaLKrdlKXOPSi4L",
+          "file": "audition-moans/female_mercantile/female_mercantile-1.mp3"
+        },
+        {
+          "n": 2,
+          "generated_voice_id": "BHSAMUJNwprTwIvh6Vhr",
+          "file": "audition-moans/female_mercantile/female_mercantile-2.mp3"
+        },
+        {
+          "n": 3,
+          "generated_voice_id": "6Ds00GL3wAkRJLsWwbgL",
+          "file": "audition-moans/female_mercantile/female_mercantile-3.mp3"
+        }
+      ]
+    },
+    "female_romantic": {
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "generated_voice_id": "SRDfrQFRgQfxVKqrfI3K",
+          "file": "audition-moans/female_romantic/female_romantic-1.mp3"
+        },
+        {
+          "n": 2,
+          "generated_voice_id": "rp9oJKle2kZphRZAaynM",
+          "file": "audition-moans/female_romantic/female_romantic-2.mp3"
+        },
+        {
+          "n": 3,
+          "generated_voice_id": "87KyUPlz65BzfFWU02LU",
+          "file": "audition-moans/female_romantic/female_romantic-3.mp3"
+        }
+      ]
+    },
+    "female_vulgar": {
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "generated_voice_id": "QGpVEW5tZOlcl8xqrrtY",
+          "file": "audition-moans/female_vulgar/female_vulgar-1.mp3"
+        },
+        {
+          "n": 2,
+          "generated_voice_id": "YI3AUz5rZbC8QOX873hV",
+          "file": "audition-moans/female_vulgar/female_vulgar-2.mp3"
+        },
+        {
+          "n": 3,
+          "generated_voice_id": "tjCFerEla9avW5JXewXh",
+          "file": "audition-moans/female_vulgar/female_vulgar-3.mp3"
+        }
+      ]
+    },
+    "female_reticent": {
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "generated_voice_id": "1jKGez4314aLc1KUQyHa",
+          "file": "audition-moans/female_reticent/female_reticent-1.mp3"
+        },
+        {
+          "n": 2,
+          "generated_voice_id": "BtR8flwCiDeTfQSkQWKQ",
+          "file": "audition-moans/female_reticent/female_reticent-2.mp3"
+        },
+        {
+          "n": 3,
+          "generated_voice_id": "fsPz5dcqoSXW9M3IYmxi",
+          "file": "audition-moans/female_reticent/female_reticent-3.mp3"
+        }
+      ]
+    },
+    "male_mercantile": {
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "generated_voice_id": "buSUUQxyOJDiRlW3qaV8",
+          "file": "audition-moans/male_mercantile/male_mercantile-1.mp3"
+        },
+        {
+          "n": 2,
+          "generated_voice_id": "7qhIFL2Ta09kj5eZZUQX",
+          "file": "audition-moans/male_mercantile/male_mercantile-2.mp3"
+        },
+        {
+          "n": 3,
+          "generated_voice_id": "yC74M0TLnvxUBsmjw3Mq",
+          "file": "audition-moans/male_mercantile/male_mercantile-3.mp3"
+        }
+      ]
+    },
+    "male_romantic": {
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "generated_voice_id": "zYnbn444wt65pGSadylj",
+          "file": "audition-moans/male_romantic/male_romantic-1.mp3"
+        },
+        {
+          "n": 2,
+          "generated_voice_id": "XADrBuluW3oqBJXzJ1Sw",
+          "file": "audition-moans/male_romantic/male_romantic-2.mp3"
+        },
+        {
+          "n": 3,
+          "generated_voice_id": "rd3ic37maRJuZqRPx4Wj",
+          "file": "audition-moans/male_romantic/male_romantic-3.mp3"
+        }
+      ]
+    },
+    "male_vulgar": {
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "generated_voice_id": "hKWEkCwGHXW5avjVk7p3",
+          "file": "audition-moans/male_vulgar/male_vulgar-1.mp3"
+        },
+        {
+          "n": 2,
+          "generated_voice_id": "wUH7nSweVsGd3LKCW5Tk",
+          "file": "audition-moans/male_vulgar/male_vulgar-2.mp3"
+        },
+        {
+          "n": 3,
+          "generated_voice_id": "9ATGawM3JfimJGRpgWrj",
+          "file": "audition-moans/male_vulgar/male_vulgar-3.mp3"
+        }
+      ]
+    },
+    "male_reticent": {
+      "chosen": null,
+      "previews": [
+        {
+          "n": 1,
+          "generated_voice_id": "tqmmI6ygESOSKLWT3yRt",
+          "file": "audition-moans/male_reticent/male_reticent-1.mp3"
+        },
+        {
+          "n": 2,
+          "generated_voice_id": "UL0VgX7hZ144i8jZeJVG",
+          "file": "audition-moans/male_reticent/male_reticent-2.mp3"
+        },
+        {
+          "n": 3,
+          "generated_voice_id": "dOzk3obP9dtPOtvfgu5J",
+          "file": "audition-moans/male_reticent/male_reticent-3.mp3"
+        }
+      ]
+    }
+  }
+}

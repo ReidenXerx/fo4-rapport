@@ -1376,3 +1376,8 @@ ended, with depth and speed). Rapport answers with a voice, played at the head t
   intensity (speed, depth), behind a per-actor cooldown. The voice type plays no part.
 - **Picking the takes is the owner's, by ear** (V-9). A first audition (FemaleEvenToned and
   MaleEvenToned, breath / moan / impact / climax) is out; the bank waits on it.
+- **Climax is its own category** (owner, 2026-10-01): "for climax should be separate ultra intensitive
+  sound ... its like super moan / also per sex + persona". Triggered by Rapport, not by the engine (whose
+  events stop at an impact): the moment the scene's animation carries AAF's climax tag, the same moment
+  the face layer already switches to its climax face. Played through RFAP with flags bit 0, so it cuts
+  whatever breath or moan is still playing.
