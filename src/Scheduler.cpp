@@ -335,45 +335,13 @@ namespace RP
 				}
 			}
 
-			// The only place anything is acted on. A dry run reports and stops here;
-			// this is a stand-in for the Chemistry addon, and it now yields the moment
-			// a real addon says it is taking over.
-			//
-			// The check is a call and not a config flag on purpose: whether Rapport
-			// should decide depends on which mods are INSTALLED, and an ini that has
-			// to be edited to match is an ini that will be wrong. Two things starting
-			// scenes is the failure being prevented here.
-			const auto& settings = Config::GetSingleton();
-			if (Candidates::GetSingleton().StoodDown()) {
-				if (_ticks % 10 == 0) {
-					logger::info("   an addon owns the decision; the stand-in is standing down");
-				}
-			} else if (link.AutonomyPaused()) {
-				if (_ticks % 10 == 0) {
-					logger::info("   autonomy is PAUSED - nothing will be started until it is resumed");
-				}
-			} else if (!settings.dryRun && !ranked.empty() &&
-					   ranked.front().score >= weights.minimumScore) {
-				if (link.PlayerHoldsSlot()) {
-					logger::info("   holding: the scene slot is held for the player's own request");
-				} else if (link.Busy()) {
-					logger::info("   holding: a scene is already running");
-				} else if (!link.Ready()) {
-					logger::info("   holding: the bridge is not ready");
-				} else {
-					// The scenario named here is the STAND-IN'S choice, not the framework's.
-					// Rapport executes a story an addon asks for; this branch is only
-					// pretending to be Chemistry until Chemistry exists, and it says so
-					// a few lines above.
-					const auto& scenario = settings.standInScenario;
-					const auto  seconds =
-						scenario.empty()
-							? settings.sceneSeconds
-							: (std::max)(settings.sceneSeconds,
-							             Scenarios::GetSingleton().SecondsFor(scenario));
-
-					link.RequestScene(ranked.front().first, ranked.front().second, seconds, scenario);
-				}
+			// Rapport alone starts NOTHING (DESIGN.md: "Rapport alone runs no scenarios").
+			// The stand-in that started the best pair here was only there until Chemistry
+			// existed (Config.h said it would go with it), and it outlived that: a player with
+			// Rapport and no Chemistry saw scenes start by themselves (Nexus, 2026-10-01).
+			// The pass still scores and publishes every pair -- that is what Chemistry reads.
+			if (_ticks % 10 == 0 && !ranked.empty() && !Candidates::GetSingleton().StoodDown()) {
+				logger::info("   no addon decides (Chemistry is not installed) - Rapport starts nothing itself");
 			}
 		}
 

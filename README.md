@@ -107,8 +107,10 @@ Rapport, because two schedulers would scan the same actors, two co-saves would h
 cooldowns, and both could select the same NPC with only AAF's `SetActorLocked` preventing a
 collision.
 
-Rapport ships a stand-in decision so the framework can be tested with no addon installed. An addon
-calls `Core.TakeOverDecisions()` once at startup and that stand-in retires for the session.
+Rapport alone starts no scene: with no addon installed it scores and publishes pairs and waits. The
+stand-in decision it once shipped for testing was removed on 2026-10-01, after a player with no
+Chemistry saw scenes start by themselves. An addon still calls `Core.TakeOverDecisions()` once at
+startup to say it decides.
 
 ## Building
 

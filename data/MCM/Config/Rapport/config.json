@@ -11,7 +11,7 @@
       "content": [
         {
           "type": "text",
-          "text": "How Rapport scores a pair. With Chemistry installed, Chemistry makes the decision and adds its own bonuses on top of this score; without it, Rapport's own trigger starts a scene when the best pair clears the bar."
+          "text": "How Rapport scores a pair. With Chemistry installed, Chemistry makes the decision and adds its own bonuses on top of this score. Rapport never starts a scene by itself: without Chemistry, scenes start only when you or another mod asks for one."
         },
         {
           "type": "section",
@@ -35,8 +35,8 @@
         {
           "type": "slider",
           "id": "fMinimumScore:Scoring",
-          "text": "Score needed (Rapport's own trigger)",
-          "help": "The score the best pair must reach before Rapport's built-in trigger starts a scene. Chemistry has its own bar and ignores this one.",
+          "text": "Score needed (debug hotkeys)",
+          "help": "The score the best pair must reach before the debug hotkeys' 'start the best pair' trigger takes it. Chemistry has its own bar and ignores this one.",
           "valueOptions": {
             "min": 0.0,
             "max": 5.0,

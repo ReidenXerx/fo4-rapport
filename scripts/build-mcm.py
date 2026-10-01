@@ -31,16 +31,16 @@ aftermath = json.loads((DATA / "aftermath.json").read_text(encoding="utf-8"))
 PAGES = [
     ("Scene choice", [
         ("text", "How Rapport scores a pair. With Chemistry installed, Chemistry makes the decision and adds its "
-                 "own bonuses on top of this score; without it, Rapport's own trigger starts a scene when the best "
-                 "pair clears the bar."),
+                 "own bonuses on top of this score. Rapport never starts a scene by itself: without Chemistry, "
+                 "scenes start only when you or another mod asks for one."),
         ("section", "Starting"),
         ("button", "Start now", "Rapport and the mods built on it wait until you leave Vault 111. If an "
          "alternate start mod means they never started, press this: they start now, in this save.",
          {"type": "CallGlobalFunction", "script": "Rapport:Core", "function": "StartNow", "params": []}),
         ("section", "The bar"),
-        ("Scoring", "minimumScore", scoring, "Score needed (Rapport's own trigger)",
-         "The score the best pair must reach before Rapport's built-in trigger starts a scene. Chemistry has its "
-         "own bar and ignores this one.", 0.0, 5.0, 0.05),
+        ("Scoring", "minimumScore", scoring, "Score needed (debug hotkeys)",
+         "The score the best pair must reach before the debug hotkeys' 'start the best pair' trigger takes it. "
+         "Chemistry has its own bar and ignores this one.", 0.0, 5.0, 0.05),
         ("section", "Who counts as a pair"),
         ("Scoring", "maxPairDistance", scoring, "Furthest apart", "Two people further apart than this (game units) "
          "are never paired.", 256, 4096, 64),
