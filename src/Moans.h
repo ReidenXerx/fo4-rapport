@@ -106,6 +106,12 @@ namespace RP
 		bool                                                   _loaded{ false };
 		bool                                                   _saidNoPeer{ false };
 		bool                                                   _saidUnknown{ false };
+		// Diagnostics (owner's second test heard nothing and the log could not say why): what arrived,
+		// what was sent, and why the rest was not -- a summary line every kSummaryEvery events.
+		std::uint64_t _received{ 0 };
+		std::uint64_t _skipNotLoaded{ 0 }, _skipBusy{ 0 }, _skipMouth{ 0 }, _skipNoPeer{ 0 }, _skipUnknown{ 0 },
+			_skipNoSound{ 0 };
+		void          Summary(std::string_view a_when);
 		std::mt19937                                           _rng{ std::random_device{}() };
 	};
 }

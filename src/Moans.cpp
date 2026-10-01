@@ -25,6 +25,11 @@ namespace RP
 		constexpr std::uint32_t kFlagOral = 1u << 0, kFlagDeep = 1u << 1, kFlagReceiver = 1u << 2;
 		// Two gags no closer than this.
 		constexpr auto kGagGap = std::chrono::milliseconds{ 1500 };
+		// The GULPS are switched OFF (owner, 2026-10-01: "lets disable gulp sounds for a while we return to
+		// it in next versions"). Their takes and SNDRs stay built; a deep oral stroke leaves the mouth
+		// silent until this is true again.
+		constexpr bool kGulpsEnabled = false;
+		constexpr std::uint64_t kSummaryEvery = 200;
 
 		// The tempo rule (owner, 2026-10-01: "faster -> shorter"), on the stroke's length.
 		constexpr std::uint32_t kFastStrokeMs = 600;
@@ -154,6 +159,7 @@ namespace RP
 				_saidNoPeer = true;
 				logger::info("moans: Anatomy does not offer RFAP (hello bit 12) - no scene moans this session");
 			}
+			++_skipNoPeer;
 			return std::nullopt;
 		}
 		auto& state = _actors[a_actor];
@@ -162,25 +168,34 @@ namespace RP
 				_saidUnknown = true;
 				logger::info("moans: {:08X} sent a body event before its scene told Rapport who they are - skipped", a_actor);
 			}
+			++_skipUnknown;
 			return std::nullopt;
 		}
 		const auto it = _characters.find(state.character);
-		if (it == _characters.end()) {
-			return std::nullopt;
-		}
-		const auto& sound = it->second[static_cast<std::size_t>(a_kind)];
-		if (!sound.form) {
+		const Sound* sound = it == _characters.end() ? nullptr : &it->second[static_cast<std::size_t>(a_kind)];
+		if (!sound || !sound->form) {
+			if (++_skipNoSound == 1) {
+				logger::warn("moans: no sound record for {} {} - is Rapport.esp the moans build?", state.character,
+					kKindNames[static_cast<std::size_t>(a_kind)]);
+			}
 			return std::nullopt;
 		}
 		// Quiet until it has ended, plus a breath: moans are a rhythm, not a drone.
 		const auto pause = std::uniform_int_distribution<int>{ 200, 1200 }(_rng);
 		state.quietUntil = std::chrono::steady_clock::now() +
-		                   std::chrono::milliseconds{ static_cast<int>(sound.longest * 1000.0f) + pause };
+		                   std::chrono::milliseconds{ static_cast<int>(sound->longest * 1000.0f) + pause };
 		if (++_played <= 3 || _played % 100 == 0) {
 			logger::info("moans: {:08X} {} {} ({}) - {} played so far", a_actor, state.character,
 				kKindNames[static_cast<std::size_t>(a_kind)], a_why, _played);
 		}
-		return Message{ 1, a_actor, sound.form, 1.0f, a_cut ? kCutPrevious : 0u };
+		return Message{ 1, a_actor, sound->form, 1.0f, a_cut ? kCutPrevious : 0u };
+	}
+
+	void Moans::Summary(std::string_view a_when)
+	{
+		logger::info("moans: {} - {} body event(s) from Anatomy, {} voice(s) sent; skipped: {} still playing, {} mouth full, "
+		             "{} no RFAP, {} unknown actor, {} no record, {} before moans.json",
+			a_when, _received, _played, _skipBusy, _skipMouth, _skipNoPeer, _skipUnknown, _skipNoSound, _skipNotLoaded);
 	}
 
 	void Moans::Send(const std::vector<Message>& a_out)
@@ -208,7 +223,15 @@ namespace RP
 		std::vector<Message> out;
 		{
 			std::lock_guard lock{ _lock };
+			if (++_received == 1) {
+				logger::info("moans: first body event from Anatomy (RFAE v{}, {:08X}, kind {}, flags {:X}) - listening",
+					e.version, e.formID, e.kind, e.flags);
+			}
+			if (_received % kSummaryEvery == 0) {
+				Summary("so far");
+			}
 			if (!_loaded) {
+				++_skipNotLoaded;
 				return;
 			}
 			const auto now = std::chrono::steady_clock::now();
@@ -221,7 +244,7 @@ namespace RP
 			const bool mouth = (e.flags & kFlagOral) && (e.flags & kFlagReceiver);
 			// A deep stroke in the mouth: its owner gags, cutting whatever was playing. DEEP (bit 1)
 			// is set for any opening, so only with ORAL.
-			if (mouth && (e.kind == kDeep || (e.flags & kFlagDeep))) {
+			if (kGulpsEnabled && mouth && (e.kind == kDeep || (e.flags & kFlagDeep))) {
 				if (now - state.lastGag >= kGagGap) {
 					state.lastGag = now;
 					m = Pick(e.formID, Kind::kGag, true, "deep");
@@ -233,6 +256,7 @@ namespace RP
 			}
 			// A full mouth makes no moan. The shaft's owner moans as ever: he is the one pleasured.
 			if (mouth) {
+				++_skipMouth;
 				goto send;
 			}
 			switch (e.kind) {
@@ -265,6 +289,8 @@ namespace RP
 			}
 			if (m) {
 				out.push_back(*m);
+			} else if (!quiet) {
+				++_skipBusy;
 			}
 		send:;
 		}
@@ -391,6 +417,9 @@ namespace RP
 	void Moans::Reset()
 	{
 		std::lock_guard lock{ _lock };
+		if (_received) {
+			Summary("at the load");
+		}
 		_actors.clear();
 		_ownFirst = _ownSecond = 0;
 		ResolveForms();   // main thread; a new world may hold a different load order
