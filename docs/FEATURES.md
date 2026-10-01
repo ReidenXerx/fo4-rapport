@@ -792,8 +792,8 @@ with the real reasons, followed by the score part by part:
 
 The parts are the ones that decided: Rapport's come from the same function that ranks pairs, and each
 addon reports its own share (Chemistry's bond, place, personas and faithfulness). Every mod built on
-Rapport is narrated at once. Four moments, each an MCM checkbox: scene starts (on by default), why
-nothing happened, relationship turns and bystanders. There is also an MCM button that shows the
+Rapport is narrated at once. Four moments, each an MCM checkbox, all four on by default since 0.2.5 (owner: every feature on):
+scene starts, why nothing happened, relationship turns and bystanders. There is also an MCM button that shows the
 recent history. MCM page *Narrator*.
 
 ### Faithfulness — VERIFIED IN GAME (trait and partner test)
