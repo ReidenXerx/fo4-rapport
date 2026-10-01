@@ -7879,6 +7879,866 @@
         "use_speaker_boost": true
       },
       "lufs": -10.0
+    },
+    "female_romantic/breath_05": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "breath",
+      "take": 5,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhaaahhh, hhhh...",
+      "seed": 1066318384,
+      "inputs": "3cad343a01dd2b9433f2fd2bfd027a72c7c042dcbcade7f4e70a7009ca07b32b",
+      "seconds": 2.667,
+      "lufs": -15.0,
+      "sha256": "10e00f3c05e238e9edd1f119395fdd4e7c762b7bca45c8cf66b3cb6cba03e775",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/breath_06": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "breath",
+      "take": 6,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhhh... mmmhhh...",
+      "seed": 3390096156,
+      "inputs": "a28321c5b473bd8afbc05e9358ce61e45bbf78e2341cc5fefaf78832ddf032a3",
+      "seconds": 3.384,
+      "lufs": -15.0,
+      "sha256": "33fc41424c7b1b6c712ba9b1b2e51211ba7163490de84b3b398710878e90d9cf",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/breath_07": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "breath",
+      "take": 7,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhooohhh, hhhhh...",
+      "seed": 3668584248,
+      "inputs": "7053a66fc80f83b35f0b4b18ee7559cffc0e20d281c672723c5cee91d93eed45",
+      "seconds": 2.658,
+      "lufs": -15.0,
+      "sha256": "52f0d98b3c63b89e2b3c2f4f11730cf8d2b2fec0ec326ea7c52ff1789ac464d8",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/breath_08": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "breath",
+      "take": 8,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] mmmhhh, hhhhh, hhhaaahh...",
+      "seed": 1317963682,
+      "inputs": "01ed488f7304d53e205f09e9bc76d4cbb6483be62c16b1fcd68b18d6f73a7549",
+      "seconds": 6.967,
+      "lufs": -15.0,
+      "sha256": "b674ef4a8d9149bb44bb0c488a36485efd1b7b970705a90c3043064478f08420",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/short_07": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "short",
+      "take": 7,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhaaahhh, hhh...",
+      "seed": 1889442520,
+      "inputs": "2b616c227f81b7dd10040fccc3bc6ba0fa958f1d629216abaff4339da3913e28",
+      "seconds": 2.427,
+      "lufs": -11.0,
+      "sha256": "9d96b6688c527dc59db87d064e87212c2e0a938b47344a50d7fdd5ea36aac09b",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/short_08": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "short",
+      "take": 8,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] mmmhhhooohhh...",
+      "seed": 1843744448,
+      "inputs": "840ab50387c0bd240568227c439576a8f4cbde40dfe1738f83507d7ae9ea5d81",
+      "seconds": 2.109,
+      "lufs": -11.0,
+      "sha256": "1a2a2328539481b57c27f80e14748fddd24827cac79722e7c09d6682bada9c60",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/short_09": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "short",
+      "take": 9,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhaaaahhhh...",
+      "seed": 3918558534,
+      "inputs": "c50c2fdbdd164ebe7f26e701e1c28bc362697c5978fe1bb5d432d20a4f62dfee",
+      "seconds": 2.64,
+      "lufs": -11.0,
+      "sha256": "0af5173de4b02446cceeb04cfbe7f6f0b8145f2dfc53805f124c41ca103b2218",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/short_10": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "short",
+      "take": 10,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhooohhh, mmmh...",
+      "seed": 2557888882,
+      "inputs": "945594314e7670b641048eb8264c23ca8bcf7ab22807e4d47ac5b30bd6dacdaa",
+      "seconds": 1.999,
+      "lufs": -11.0,
+      "sha256": "f57771ddd9c2f82dfb913cf90f29e549d30fafdd013b18ee28d805a301e8252d",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/short_11": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "short",
+      "take": 11,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] mmmhhh, hhhaaaahh...",
+      "seed": 4036289953,
+      "inputs": "1b18df7a5165dce0cfc650cde9b556bc545bfd4d769db689c7bab712383aec6b",
+      "seconds": 2.398,
+      "lufs": -11.0,
+      "sha256": "b5d7d4fcd63d119e0a000425acb969cc68a337b46cf4d6864d69e9996366fd46",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/short_12": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "short",
+      "take": 12,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhaaahh, hhhaaahh...",
+      "seed": 2069636860,
+      "inputs": "f6708a2493cfe3f3b520f5945a4fc8f1d2b61f927ec503f4ec92dba8cf71e1e5",
+      "seconds": 2.611,
+      "lufs": -11.0,
+      "sha256": "7a15357c43829fd5bdf3be0a8cf5b9a6c3b8b9a2bb6fb0bfb3ce76f48cc01a6f",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/medium_07": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "medium",
+      "take": 7,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhaaahhh, mmmhhh, hhhaaaahhh...",
+      "seed": 791434908,
+      "inputs": "6e93f9b245738d005e757bc3f9ce3d65bbe0b9f181370162cff03afcfbfe56da",
+      "seconds": 4.775,
+      "lufs": -11.0,
+      "sha256": "7a0eef2838956a26478d3258dd0a06224f50a90069cc5988deac0e0859de2aac",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/medium_08": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "medium",
+      "take": 8,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] mmmhhhooohhh, hhhaaahhh...",
+      "seed": 1111413519,
+      "inputs": "64fd99f4738f70319e57326b29eaab62883bfa4ac19cc3bde8bb38d6f2ac2ddb",
+      "seconds": 3.302,
+      "lufs": -11.0,
+      "sha256": "3ed4609b7b7e8740749b6af1d19def9aced7499be7ea13abb527ba09d1b36961",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/medium_09": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "medium",
+      "take": 9,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhaaahhh... mmmhhhaaahhh, hhh...",
+      "seed": 1913228462,
+      "inputs": "c6800f49578a5ee6c5c059280b04e7d4df14503377c9323b0c0411f45c2b2d7f",
+      "seconds": 4.259,
+      "lufs": -11.0,
+      "sha256": "2265810fe3da7d3dc57f22d1497afc57bd47ad08c13c14ef07e7013c674fc8f2",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/medium_10": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "medium",
+      "take": 10,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhooohhh, hhhaaaahhh, mmmhhh...",
+      "seed": 2504590841,
+      "inputs": "55287b154cb2f050d69a4741a04ac00f5ed43f54a640a1be1e70196c1925c1ff",
+      "seconds": 4.085,
+      "lufs": -11.0,
+      "sha256": "a7bd9528ca5555f9dd53891b6c443bb437a7aa5a71c8fd30f9d3876965d6a2c6",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/medium_11": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "medium",
+      "take": 11,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] mmmhhh, hhhaaahhh, hhhooohhh...",
+      "seed": 4029574911,
+      "inputs": "19210417c9ab55911eeffd94c0b30819c46c3916cc310b6e80f361d03efb7aaf",
+      "seconds": 6.24,
+      "lufs": -11.0,
+      "sha256": "6f0e29833b43bb586f71cf1761078abffc93616ca191f1dc8b530a2040389f7e",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/medium_12": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "medium",
+      "take": 12,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhaaaahhh, mmmhhhaaahhh...",
+      "seed": 1598165006,
+      "inputs": "6376f8c6ebeee34b6bc374a94106b147fa251c039ebe114e10b79651cfe3b349",
+      "seconds": 3.201,
+      "lufs": -11.0,
+      "sha256": "8c56cbca2f7901e72884bc81deecea7bceb2656a3273aa60b6fb848ab6b6e831",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/long_05": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "long",
+      "take": 5,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhaaahhh, mmmhhh... hhhaaaahhh, hhhooohhh... mmmhhhaaahhh, hhhaaahhhh...",
+      "seed": 3534302372,
+      "inputs": "4ce915916cd31e139665966f3c1a3713f1dc5588fa284d5d64a0ca5e5887dcda",
+      "seconds": 13.604,
+      "lufs": -11.0,
+      "sha256": "d177fb29f34d42f5d228098e7edb058d5455dc10f3f592ee003e20da1dda99c9",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/long_06": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "long",
+      "take": 6,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] mmmhhhooohhh, hhhaaahhh... hhhaaahhh, mmmhhh... hhhaaaaahhhh, hhhhh...",
+      "seed": 453988062,
+      "inputs": "026de5cfdf88fb318d84d3e4418e615615c4f365bb4a1efbd0e84d3f505ca4fe",
+      "seconds": 9.761,
+      "lufs": -11.0,
+      "sha256": "08ba18b766d4f6b92dc238e1e2bdf07c6288e5eb827166b29bef55ca3ec0b00f",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/long_07": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "long",
+      "take": 7,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhaaahhh, hhhaaahhh, mmmhhhaaahhh... hhhooohhh, hhhaaaahhh, mmmhhh...",
+      "seed": 1752302519,
+      "inputs": "77383adb48cfb81692647125f1bfcbe04f96c4a21fe788da1eb54b503a7c7df7",
+      "seconds": 8.915,
+      "lufs": -11.0,
+      "sha256": "ae5b57baca4ef852fc0bedf0f930c441d3504ec41a4ed02841f89ccc96d76bd2",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/long_08": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "long",
+      "take": 8,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning] hhhooohhh... hhhaaahhh, mmmhhh, hhhaaahhhh... hhhaaaahhh, mmmhhhaaahhh...",
+      "seed": 2373496155,
+      "inputs": "29d71b17cc60555790eabf28fffa61c92460e5c16068cb110a354439cf0c08d9",
+      "seconds": 13.783,
+      "lufs": -11.0,
+      "sha256": "85955fb6ef054da5f69754685b1570e140be7545bbe1db8e1612e8d9b97dac26",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/impact_05": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "impact",
+      "take": 5,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless gasping] hhhAAAHH!",
+      "seed": 256959624,
+      "inputs": "9be9ab624102467ce16be23f1f856c5ad03633bd883bd40d62e6b56f8a376638",
+      "seconds": 1.605,
+      "lufs": -10.0,
+      "sha256": "21d586bd8aab8ad044a68a8ffcf2e411fd4167367614c565835f19f31963f1bd",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/impact_06": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "impact",
+      "take": 6,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless gasping] hhAAHH, hhh...",
+      "seed": 2484790793,
+      "inputs": "14d8a6828108fe41b1cb1f4fe7ae654b62187df3a040716b1617f078f257a492",
+      "seconds": 3.291,
+      "lufs": -10.0,
+      "sha256": "cb8fdc4e62dd981cede427ce1e40bc5d0a960889adcebd9c1ec7adb250c09743",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/impact_07": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "impact",
+      "take": 7,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless gasping] hhhOOOH!",
+      "seed": 2237478901,
+      "inputs": "ba6a5d9b5cfbc74476509d7f955bc636e2d73868a6e871aa7df4c26a90d5a947",
+      "seconds": 1.215,
+      "lufs": -10.0,
+      "sha256": "8200ce45f39b5b5894859e5d52ddf1d6ceec5a307358a03888de57bb94c0aa05",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/impact_08": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "impact",
+      "take": 8,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless gasping] mmmhhAAAHhh!",
+      "seed": 878028524,
+      "inputs": "a938a627f2926d65be2325214a63cdd8d3ce50df0c9c8f205b563add3f0bda58",
+      "seconds": 2.406,
+      "lufs": -10.0,
+      "sha256": "729b8e02b79641be81aa27a1cf140579f99082ea9c21879187b33a2a5b21d574",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/climax_04": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "climax",
+      "take": 4,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless climaxing] hhhaaahhh, hhhaaahhh, hhhaaaAAAHHHH, AAAAAHHHHH... hhhaaahhh, hhhaaahhh, mmmhhh...",
+      "seed": 266067560,
+      "inputs": "cd305b2151099816956eedf7069795156ec8648db42321826a59b3164f0f0353",
+      "seconds": 8.186,
+      "lufs": -9.0,
+      "sha256": "7b83a088b06a3b3cebb2ac8161de904c97a5cdd6a87534f7152d0b324a53260f",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/climax_05": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "climax",
+      "take": 5,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless climaxing] mmmhhh, hhhaaahhh, hhhaaaahhh, hhhOOOOHHHH... AAAHHHHH... hhhaaahhh, hhhhh...",
+      "seed": 212401730,
+      "inputs": "50115302ccd8d3f80d2b0225b6de70f22febcd955a13dcb63a32d7db3d77dc59",
+      "seconds": 14.641,
+      "lufs": -9.0,
+      "sha256": "37478748254098e031e29a621855c7419b0e0b6ac34deb98112d0793ca29f75f",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/climax_06": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "climax",
+      "take": 6,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless climaxing] hhhaaahhh, hhhaaahhhh, hhhAAAAHHH, hhhAAAAAHHHHH... hhhaaahhh... mmmhhh, hhhhh...",
+      "seed": 3681057928,
+      "inputs": "124622dd2fc35a61105adadecd549c74d6e631ebd56594486dd3da0bab0dd9c3",
+      "seconds": 8.77,
+      "lufs": -9.0,
+      "sha256": "ab5e7225231490df7c6c2f9d4120ef670accb0c620d3a387ec3e3df15e07a6e3",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_short_07": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_short",
+      "take": 7,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnnhhh, hhhaaahhh...",
+      "seed": 2406451081,
+      "inputs": "7190ddf494364568d807f379e1cda8b772b548919f4f8b3e1b4ff5db1707394a",
+      "seconds": 2.284,
+      "lufs": -11.0,
+      "sha256": "392793b5f742db0f143817c75f95ec96a55fedbb5408d62b0a00e30f3d2c314f",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_short_08": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_short",
+      "take": 8,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] hhhaaahh, nnngh, hhh...",
+      "seed": 30337182,
+      "inputs": "15b95727be9d6c0640a1c8d7e44b65302dfd326efed6077fe07a557e478d250d",
+      "seconds": 5.033,
+      "lufs": -11.0,
+      "sha256": "d3fe5d0cf992fed2bcc8edd2bf22baf1d999c57c412c833a0771ea0897d7c886",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_short_09": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_short",
+      "take": 9,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnnhhhooohhh...",
+      "seed": 1747215344,
+      "inputs": "9ecd0aa82fe177d9a556e8a3d5f8be0ff3807520628eb0f4887b9aea8d88cd71",
+      "seconds": 2.326,
+      "lufs": -11.0,
+      "sha256": "4614c46499dc2ce49016090f79f4ed3c8f0f94061145bcf92c549d5af373a852",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_short_10": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_short",
+      "take": 10,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnngh, mmmhhh...",
+      "seed": 1848834730,
+      "inputs": "f2738c3164391f6d0e74acf89736a16868d37ffaa498fba57877e738fbc28bce",
+      "seconds": 2.029,
+      "lufs": -11.0,
+      "sha256": "8c3deb04fe3dd7adfd3f9435c4aeecf885ee4adf4fe7e854568a6fd746955615",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_short_11": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_short",
+      "take": 11,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] hhhaaaahh, nnnhhh...",
+      "seed": 3503193852,
+      "inputs": "db8d36d4d39f5c1b6618dfbf8cda29b84e15db5023e3ca758d4ff8246cfe4b9d",
+      "seconds": 2.197,
+      "lufs": -11.0,
+      "sha256": "297717e01ebbba760a26814d1012e7ae2888aa11c711bf1846f40917140df0ce",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_short_12": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_short",
+      "take": 12,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnnhhhaaahh, nnngh...",
+      "seed": 4003216959,
+      "inputs": "30738355e703f5b58df0d8baa74bc563fa565cbdcbcdf27346cd9698a8c6856b",
+      "seconds": 3.688,
+      "lufs": -11.0,
+      "sha256": "5e9559833b2b3c70dc1b5d1f1512f8589ad9ded40658dca58126939d9f9fe886",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_medium_07": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_medium",
+      "take": 7,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnngh, hhhaaahhh, nnnhhhaaahhh...",
+      "seed": 2017184801,
+      "inputs": "5626d8e7c85d2599d6e2636f901aa600afd9b798f25e65e6fdd3cfd6ff451f1b",
+      "seconds": 5.0,
+      "lufs": -11.0,
+      "sha256": "d0730c2c075a5f29f4f5060728f40d0d5425012a1e0d53216aa357c1a7757bdf",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_medium_08": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_medium",
+      "take": 8,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] hhhaaahhh, nnngh... hhhooohhh, nnnhhh...",
+      "seed": 826158712,
+      "inputs": "5fc9ef4c6e2509bc78fce04d9a4154eae3afd782e42f85226c23e8c4794e98de",
+      "seconds": 5.623,
+      "lufs": -11.0,
+      "sha256": "c2b3f7cebfee79314bfa6d5ccef4806347f51a595f6b90a7ba9ddf2124acca0b",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_medium_09": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_medium",
+      "take": 9,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnnhhhaaahhh, hhhaaahhh, nnngh...",
+      "seed": 2177622091,
+      "inputs": "b121439ab9e5a9a65d4e3912c1c539af67cd060c4568efb15607f5ff87e45104",
+      "seconds": 4.082,
+      "lufs": -11.0,
+      "sha256": "19c8ef29f4ac706ec0d78ebbea7635afe283c036cdf56fb728798db2dc06f808",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_medium_10": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_medium",
+      "take": 10,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnngh... hhhaaaahhh, nnnhhh, hhhaaahhh...",
+      "seed": 2853081253,
+      "inputs": "f6e633d643ccecc044396630ef10aadac720c8c5cb0649341a6a295a3009874c",
+      "seconds": 7.629,
+      "lufs": -11.0,
+      "sha256": "d706eb43cc927129e85164a8d8c847a56ddf35850b8883cc1c8bf440bf40c0c9",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_medium_11": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_medium",
+      "take": 11,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] hhhooohhh, nnngh, hhhaaahhh...",
+      "seed": 2264393121,
+      "inputs": "a81091e7e8239bd4e6000a6310e4ea92d5940b4ee7c041d4ee17f6492fd6c3a7",
+      "seconds": 5.678,
+      "lufs": -11.0,
+      "sha256": "5074016c48ee7c09a11e551a16a92a1d000949657f8e58df879fb976e142df37",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_medium_12": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_medium",
+      "take": 12,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnnhhh, hhhaaaahhh... nnngh, hhhaaahh...",
+      "seed": 2085404629,
+      "inputs": "d758e57f12a8c58f107d0f228f57652fc5137aa0278456822f198e72d1c13551",
+      "seconds": 8.148,
+      "lufs": -11.0,
+      "sha256": "3d416b254773e71ee8b2cdb6c3f6ba13d626517cc2e03443ef4bb8d9a1459341",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_long_05": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_long",
+      "take": 5,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnngh, hhhaaahhh... nnnhhhaaahhh, hhhaaahhhh, nnngh... hhhaaaahhh, nnnhhh...",
+      "seed": 2356819975,
+      "inputs": "bf0786ed915a4da31ea02f42be87e31343ab0599b2eb5073f598033b4e7745ae",
+      "seconds": 13.283,
+      "lufs": -11.0,
+      "sha256": "cff9c0f0acb5d78deb628be8465609e2dae85423c6f93bf805f0996ca5f2dc43",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_long_06": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_long",
+      "take": 6,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] hhhaaahhh, nnnhhh, hhhooohhh... nnngh, hhhaaaahhh... nnnhhhaaahhh, hhhhh...",
+      "seed": 3277361196,
+      "inputs": "e6a404a968be72d51f0c650ada8b8d98ffc7c9cffe3f8e54c35275032a788d6f",
+      "seconds": 10.324,
+      "lufs": -11.0,
+      "sha256": "024838c1fd2e971ef955cfb56bebe23d56b107d390aa75f992bbdb32b5a873ce",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_long_07": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_long",
+      "take": 7,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] nnnhhhaaahhh... hhhaaahhh, nnngh, hhhaaahhhh... nnngh, hhhooohhh, nnnhhh...",
+      "seed": 646544094,
+      "inputs": "3dc0512619268b0ff316c34d868c69f80ed28da08372acd1f76c8ec9cedc3269",
+      "seconds": 9.753,
+      "lufs": -11.0,
+      "sha256": "c45fc16bb9539a7dc03bb167c0848263fe8b8c86537002d05545af18dd839e9d",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
+    },
+    "female_romantic/pain_long_08": {
+      "sex": "female",
+      "persona": "romantic",
+      "kind": "pain_long",
+      "take": 8,
+      "voice": "jEN8cFKDy6r0XgCD3czG",
+      "text": "[tender, trembling breathless moaning, wincing with sweet pain] hhhaaahhh, nnngh... nnnhhhaaahhh, hhhaaaahhh, nnngh, hhhaaaaahhhh...",
+      "seed": 2750196471,
+      "inputs": "3afab13f3bcfc9e8c6a10be52cb30a29e111fa87bf10619738354015aabc1426",
+      "seconds": 12.547,
+      "lufs": -11.0,
+      "sha256": "737e1497a6f9bb2b15c725e7f1f9a94e78f717f8dae7d478abd2407c9334c965",
+      "model": "eleven_v3",
+      "settings": {
+        "stability": 0.2,
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "use_speaker_boost": true
+      }
     }
   }
 }
