@@ -154,6 +154,46 @@ def kinds_for(persona, adjectives, noun):
         yield "gag", "sfx", [sfx]
 
 
+# Loudness per kind (owner, 2026-10-01, from his first test: "barely listenable", drastically louder).
+# Integrated LUFS, true peak capped at -1 dBTP so nothing clips. A breath stays softer than a moan
+# and the climax the loudest, so the scene keeps its shape. Measured before: moans about -13,
+# breath -19, gulps -26 (the real culprit there), impacts and climaxes -9.
+LOUDNESS = {"breath": -15.0, "short": -11.0, "medium": -11.0, "long": -11.0, "impact": -10.0,
+            "climax": -9.0, "pain_short": -11.0, "pain_medium": -11.0, "pain_long": -11.0,
+            "pain_impact": -10.0, "gag": -12.0}
+TRUE_PEAK = -1.0
+
+
+def normalize(path: pathlib.Path, kind: str) -> float:
+    """Two-pass EBU R128 loudnorm to the kind's target; returns the target it now meets."""
+    target = LOUDNESS[kind]
+    probe = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(path), "-af",
+                            f"loudnorm=I={target}:TP={TRUE_PEAK}:LRA=11:print_format=json", "-f", "null", "-"],
+                           check=True, capture_output=True, text=True).stderr
+    m = json.loads(probe[probe.rindex("{"):probe.rindex("}") + 1])
+    if kind == "gag":
+        # A gulp is one sub-second transient: linear gain hits the peak cap first (measured -19.4 LUFS
+        # against -12), and loudnorm's dynamic mode needs ~3 s of audio, so it falls back to linear.
+        # So: the gain it is short by, and a peak limiter at -1 dB catching the click.
+        gain = target - float(m["input_i"])
+        filt = f"volume={gain:.2f}dB,alimiter=limit={10 ** (TRUE_PEAK / 20):.3f}:attack=1:release=40:level=false"
+        tmp = path.with_suffix(".norm.wav")
+        subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path), "-af", filt,
+                        "-ac", "1", "-ar", "44100", "-c:a", "pcm_s16le", str(tmp)], check=True)
+        tmp.replace(path)
+        return target
+    filt = (f"loudnorm=I={target}:TP={TRUE_PEAK}:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
+            f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}:"
+            # A gulp is one transient: linear gain hits the peak cap first (measured -19.4 LUFS against
+            # a -12 target), so it alone is levelled DYNAMICALLY, which compresses the click to lift the body.
+            f"linear={'false' if kind == 'gag' else 'true'}")
+    tmp = path.with_suffix(".norm.wav")
+    subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path), "-af", filt,
+                    "-ac", "1", "-ar", "44100", "-c:a", "pcm_s16le", str(tmp)], check=True)
+    tmp.replace(path)
+    return target
+
+
 def jobs():
     takes_seen = {}
     for sex, voice in VOICES.items():
@@ -183,6 +223,19 @@ def main() -> int:
     args = ap.parse_args()
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8")) if MANIFEST.exists() else {"takes": {}}
     takes = manifest.setdefault("takes", {})
+    # Loudness first, on every take already rendered whose recorded target differs from LOUDNESS:
+    # a changed target re-levels the files without re-rendering a single one.
+    relevel = [(tid, t) for tid, t in takes.items()
+               if t.get("lufs") != LOUDNESS.get(t["kind"]) and (OUT / f"{tid}.wav").exists()]
+    if relevel and not args.dry_run:
+        print(f"re-levelling {len(relevel)} take(s) to their kind's loudness")
+        for i, (tid, t) in enumerate(relevel, 1):
+            dst = OUT / f"{tid}.wav"
+            t["lufs"] = normalize(dst, t["kind"])
+            t["sha256"] = hashlib.sha256(dst.read_bytes()).hexdigest()
+            if i % 50 == 0:
+                print(f"  {i}/{len(relevel)}")
+        MANIFEST.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     todo = [j for j in jobs() if (not args.only or j["id"].startswith(args.only))]
     stale = [j for j in todo if takes.get(j["id"], {}).get("inputs") != j["inputs"]
              or not (OUT / f"{j['id']}.wav").exists()]
@@ -202,8 +255,9 @@ def main() -> int:
                 raw = pathlib.Path(tmp) / "raw.wav"
                 raw.write_bytes(wav(tts(key, j["voice"], j["text"], j["seed"])))
                 seconds = trim(raw, dst)
+            lufs = normalize(dst, j["kind"])
             takes[j["id"]] = {k: j[k] for k in ("sex", "persona", "kind", "take", "voice", "text", "seed", "inputs")}
-            takes[j["id"]].update({"seconds": seconds, "sha256": hashlib.sha256(dst.read_bytes()).hexdigest(),
+            takes[j["id"]].update({"seconds": seconds, "lufs": lufs, "sha256": hashlib.sha256(dst.read_bytes()).hexdigest(),
                                    "model": None if "sfx" in j else MODEL,
                                    "settings": None if "sfx" in j else SETTINGS})
             # Written after every take: a failure later keeps everything already paid for.

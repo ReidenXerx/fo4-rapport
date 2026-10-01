@@ -159,8 +159,12 @@ MOAN_BASE_2 = 0x01000940
 MOAN_KINDS_2 = ('pain_short', 'pain_medium', 'pain_long', 'pain_impact', 'gag')
 MOAN_FREQ_VARIANCE = 5   # percent: pitch differs a little on every playback
 MOAN_DB_VARIANCE = 2     # dB: and so does the volume
-MOAN_CATEGORY = 0x000DDDC5
-MOAN_OUTPUT = 0x0005A28A
+# LOUDER (owner, 2026-10-01 test: "barely listenable"): the VOICE category and the output model NPC speech
+# uses, instead of DR_Orgasm's SFX ones. AudioCategoryVOC 000876BB follows the Voice slider and is not faded
+# under dialogue (SFXFadeDuringDialogue was the moans' parent); SOMDialogue3DDefault 000B5184 carries out to
+# 3000 units against SOMMono01500's 1500, so a third-person camera hears a moan the way it hears a line.
+MOAN_CATEGORY = 0x000876BB
+MOAN_OUTPUT = 0x000B5184
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
