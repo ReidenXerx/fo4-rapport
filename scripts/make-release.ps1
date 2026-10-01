@@ -1,6 +1,7 @@
 <#
 .SYNOPSIS
-  Builds the distributable archive: a Data-rooted zip a mod manager can install.
+  Builds the distributable archive: a FOMOD (fomod\ModuleConfig.xml) over the Data-rooted mod
+  under Core\, for Vortex and MO2 (nexus-tools/docs/FOMOD-STANDARD.md).
 
 .DESCRIPTION
   deploy-dev.ps1 puts the same files into Vortex staging for testing. This makes
@@ -17,8 +18,9 @@
 [CmdletBinding()]
 param(
     [string] $Config  = 'Release',
-    # 'build' is the OG-only build; 'build-rd' the Runtime Database one (OG, NG, AE).
-    [string] $BuildDir = 'build',
+    # 'build-rd' is the Runtime Database build every release since 0.2.3 ships (OG, NG, AE);
+    # 'build' the old OG-only one.
+    [string] $BuildDir = 'build-rd',
     [string] $OutDir  = '',
     # Rebuilding a zip whose version already exists destroyed the only local copy
     # of what was published, and filled a zip named 0.1.1 with unreleased code.
@@ -52,9 +54,15 @@ if ((Test-Path $existing) -and -not $Force) {
     throw "Rapport-$version.zip already exists. Bump the version in CMakeLists.txt, or pass -Force to rebuild this exact version on purpose."
 }
 
-$stage = Join-Path $OutDir "Rapport-$version"
-if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
+# A FOMOD at the zip root and the mod itself under Core (nexus-tools/docs/FOMOD-STANDARD.md, owner
+# 2026-10-01: Vortex and MO2 only, every requirement a FOMOD can see hard-blocked).
+$pkg = Join-Path $OutDir "Rapport-$version"
+if (Test-Path $pkg) { Remove-Item $pkg -Recurse -Force }
+$stage = Join-Path $pkg 'Core'
 New-Item -ItemType Directory -Force -Path $stage | Out-Null
+$fomod = Join-Path $root 'fomod'
+if (-not (Test-Path (Join-Path $fomod 'ModuleConfig.xml'))) { throw 'No fomod\ModuleConfig.xml.' }
+Copy-Item $fomod $pkg -Recurse -Force
 
 function Copy-Into {
     param([string] $From, [string] $To, [switch] $Required, [switch] $Tree)
@@ -238,7 +246,7 @@ foreach ($doc in 'LICENSE', 'README.md') {
 
 $zip = $existing
 if (Test-Path $zip) { Remove-Item $zip -Force }
-Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
+Compress-Archive -Path (Join-Path $pkg '*') -DestinationPath $zip -CompressionLevel Optimal
 
 # Print the manifest. A release nobody inspected is a release nobody verified,
 # and the failure mode -- a missing pex, a stale dll -- is silent on install and

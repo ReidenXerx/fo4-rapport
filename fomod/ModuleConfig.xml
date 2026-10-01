@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd">
+  <moduleName>Rapport</moduleName>
+  <moduleImage path="fomod/images/hero.jpg"/>
+
+  <!-- FOMOD standard rule 2: the plugins both managers can see, and refuse the install without.
+       F4SE, Runtime Database, MCM, Anatomy and the Moisturizer are not visible to a FOMOD: Rapport checks
+       what it needs at run time, and the Nexus Requirements field lists them. No game version: one DLL
+       runs on 1.10.163 and the Anniversary Edition through Runtime Database (rule 6 needs nothing). -->
+  <moduleDependencies operator="And">
+    <fileDependency file="AAF.esm" state="Active"/>
+    <fileDependency file="LooksMenu.esp" state="Active"/>
+  </moduleDependencies>
+
+  <requiredInstallFiles>
+    <folder source="Core" destination="" priority="0"/>
+  </requiredInstallFiles>
+
+  <installSteps order="Explicit">
+    <installStep name="Checking your setup">
+      <optionalFileGroups order="Explicit">
+        <group name="Checking your setup" type="SelectAll">
+          <plugins order="Explicit">
+            <plugin name="Checking your setup">
+              <description>AAF.esm: found. Advanced Animation Framework plays every scene; Rapport drives it.
+LooksMenu.esp: found. LooksMenu carries the faces and overlays AAF puts on.
+F4SE: check this yourself. Rapport is an F4SE plugin: start the game through f4se_loader.exe (0.6.23 on 1.10.163, 0.7.9 on the Anniversary Edition; f4se.silverlock.org).
+Runtime Database: check this yourself. It finds the game's functions on every version; without its f4rd-runtime.bin the game stops at launch (Nexus 108394).
+MCM: check this yourself. Optional: Mod Configuration Menu gives Rapport its settings pages and hotkeys; without it everything runs on its defaults.
+Anatomy: check this yourself. Optional: the scene moans, the body sounds and the held faces play through it.
+Commonwealth Moisturizer: check this yourself. Optional: the aftermath on bodies and faces needs it and its BodySlide output.</description>
+              <image path="fomod/images/hero.jpg"/>
+              <typeDescriptor><type name="Required"/></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="Scene moans">
+      <optionalFileGroups order="Explicit">
+        <group name="Scene moans" type="SelectAll">
+          <plugins order="Explicit">
+            <plugin name="Scene moans">
+              <description>Both partners moan in their own voice and temperament: two voices, four personas, 419 takes in ten kinds. Each moan's length follows the stroke the Anatomy Engine measured, the one receiving in an anal or rough scene gets a painful-pleasure set, a full mouth makes no sound, and a climax gets its own. Plays through Anatomy's sex sounds (MCM, on by default).</description>
+              <image path="fomod/images/moans.jpg"/>
+              <typeDescriptor><type name="Required"/></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="Nobody left naked">
+      <optionalFileGroups order="Explicit">
+        <group name="Nobody left naked" type="SelectAll">
+          <plugins order="Explicit">
+            <plugin name="Nobody left naked">
+              <description>AAF puts clothes back only when a scene ends properly. Rapport notes what everyone wears going into any AAF scene, keeps it in your save, and puts back whatever is still missing once AAF lets go of them: after an AAF restart, a scene that never ended, or a save made mid-scene. Never over what they wear now, never an item they no longer carry.</description>
+              <image path="fomod/images/wardrobe.jpg"/>
+              <typeDescriptor><type name="Required"/></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="Faces and glances">
+      <optionalFileGroups order="Explicit">
+        <group name="Faces and glances" type="SelectAll">
+          <plugins order="Explicit">
+            <plugin name="Faces and glances">
+              <description>Rapport rules the faces of everyone in a scene: an expression that fits who they are and what is happening, eyes that meet the partner's now and then, and the face given back when the scene ends.</description>
+              <image path="fomod/images/glances.jpg"/>
+              <typeDescriptor><type name="Required"/></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="Voices">
+      <optionalFileGroups order="Explicit">
+        <group name="Voices" type="SelectAll">
+          <plugins order="Explicit">
+            <plugin name="Voices">
+              <description>Real voiced lines in the game's own dialogue system, by persona and by sex. Named characters with a voice of their own borrow the closest one Rapport has, so nobody stays silent.</description>
+              <image path="fomod/images/voices.jpg"/>
+              <typeDescriptor><type name="Required"/></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="Relationships">
+      <optionalFileGroups order="Explicit">
+        <group name="Relationships" type="SelectAll">
+          <plugins order="Explicit">
+            <plugin name="Relationships">
+              <description>A relationship between every two people who have touched: it grows with every scene, turns them into lovers, can fall apart, and knows family when it sees it. Chemistry and Overture read it.</description>
+              <image path="fomod/images/family.jpg"/>
+              <typeDescriptor><type name="Required"/></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="The Narrator">
+      <optionalFileGroups order="Explicit">
+        <group name="The Narrator" type="SelectAll">
+          <plugins order="Explicit">
+            <plugin name="The Narrator">
+              <description>One storyteller line on the HUD as a scene starts, with the real reasons and the score part by part; it also says why nothing happened, when a relationship turns, and what bystanders make of it. All four on by default; MCM keeps the history.</description>
+              <image path="fomod/images/narrator.jpg"/>
+              <typeDescriptor><type name="Required"/></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="Change who they are">
+      <optionalFileGroups order="Explicit">
+        <group name="Change who they are" type="SelectAll">
+          <plugins order="Explicit">
+            <plugin name="Change who they are">
+              <description>Two MCM hotkeys: face anyone and press. One cycles their orientation (straight, bi, gay, their own), the other their persona (romantic, reticent, vulgar, mercantile, their own). Kept in that save only; every mod built on Rapport follows it.</description>
+              <image path="fomod/images/identity.jpg"/>
+              <typeDescriptor><type name="Required"/></typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+  </installSteps>
+</config>
