@@ -18,6 +18,7 @@
 #include "Takeover.h"
 #include "PapyrusLink.h"
 #include "Scheduler.h"
+#include "Moans.h"
 
 namespace
 {
@@ -107,11 +108,19 @@ namespace
 	void AnatomyHandler(F4SE::MessagingInterface::Message* a_message)
 	{
 		constexpr std::uint32_t kHello = 0x52464148;   // 'RFAH'
-		if (!a_message || a_message->type != kHello || !a_message->data || a_message->dataLen < 8) {
+		constexpr std::uint32_t kEvent = 0x52464145;   // 'RFAE': a partner's body, for the moans (R-29)
+		if (!a_message || !a_message->data || (a_message->type != kHello && a_message->type != kEvent)) {
 			return;
 		}
 		// The Runtime Database build hears every sender (F4SEPlugin_Load says why): only cbp.dll's.
 		if (!a_message->sender || _stricmp(a_message->sender, "OCBPC plugin") != 0) {
+			return;
+		}
+		if (a_message->type == kEvent) {
+			RP::Moans::GetSingleton().OnEvent(a_message->data, a_message->dataLen);
+			return;
+		}
+		if (a_message->dataLen < 8) {
 			return;
 		}
 		const auto* words = static_cast<const std::uint32_t*>(a_message->data);
@@ -142,6 +151,7 @@ namespace
 		case F4SE::MessagingInterface::kGameDataReady:
 			RP::Config::GetSingleton().Load();
 			RP::Config::GetSingleton().LoadRaces();
+			RP::Moans::GetSingleton().Load();
 			RP::Config::GetSingleton().LoadScoring();
 			RP::DebugHub::GetSingleton().Load();
 			RP::Aftermath::GetSingleton().Load();

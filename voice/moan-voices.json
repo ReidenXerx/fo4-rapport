@@ -181,5 +181,12 @@
     "rule": "ONE direction tag at the front, then ONE continuous breath group; vowels wrapped in breath (hhhaaahhh), commas and ellipses only, no full stop mid-moan, no tag between syllables (each tag opens a new utterance with a hard attack)",
     "text": "[breathless moaning] hhhaaahhh, hhhaaahhhh... mmmhhhaaahhh, hhhaaa, hhhaaahhh... hhhaaahhhh, mmmhhh, hhhaaaaahhhh...",
     "voices": "Rapport_FemaleEvenToned jEN8cFKDy6r0XgCD3czG, Rapport_MaleEvenToned EIls1au8ZummeVlcSZqp"
+  },
+  "settled": {
+    "_": "Owner 2026-10-01 on the C2-by-temperament takes: romantic and reticent \"very cool... truly DIFFERENT, unique and sounds like real moans\" - cemented. Vulgar and mercantile \"look more plastic and essentialless\" - retried in round2. Round 2 (owner 2026-10-01): vulgar = desperate greedy, mercantile = composed quietly pleased, \"perfect\". All four settled.",
+    "romantic": "[tender, trembling breathless moaning]",
+    "reticent": "[shy, stifled breathless whimpering]",
+    "vulgar": "[desperate, greedy breathless moaning]",
+    "mercantile": "[composed, quietly pleased breathless moaning]"
   }
 }

@@ -23,6 +23,7 @@
 #include "Crowd.h"
 #include "Ledger.h"
 #include "Holsters.h"
+#include "Moans.h"
 #include "Morphs.h"
 #include "Scenarios.h"
 #include "Takeover.h"
@@ -227,6 +228,7 @@ namespace
 		try {
 			auto members = Members(a_actors);
 			RP::Holsters::GetSingleton().SceneStarted(Ids(members));
+			RP::Moans::GetSingleton().SceneTags(Ids(members), a_tags.empty() ? "" : a_tags.c_str());
 			RP::ForeignScenes::GetSingleton().Started(a_location, std::move(members), Text(a_position), Text(a_tags),
 				Text(a_meta), a_npcControlled, a_duration);
 		} catch (const std::exception& e) {
@@ -269,6 +271,7 @@ namespace
 			const auto members = Members(a_actors);
 			RP::ForeignScenes::GetSingleton().Animation(a_location, members, Text(a_position), Text(a_tags));
 			RP::Holsters::GetSingleton().SceneStarted(Ids(members));
+			RP::Moans::GetSingleton().SceneTags(Ids(members), a_tags.empty() ? "" : a_tags.c_str());
 			// Stage 1 of "no scene inside a table", for menu scenes too: log only.
 			std::vector<std::uint32_t> ids;
 			for (const auto& m : members) {
@@ -288,6 +291,7 @@ namespace
 		try {
 			auto members = Members(a_actors);
 			RP::Holsters::GetSingleton().SceneEnded(Ids(members));
+			RP::Moans::GetSingleton().SceneEnded(Ids(members));
 			RP::ForeignScenes::GetSingleton().Ended(a_location, std::move(members), Text(a_position), Text(a_tags));
 		} catch (const std::exception& e) {
 			logger::critical("ForeignSceneEnded threw: {}", e.what());
@@ -305,6 +309,7 @@ namespace
 		try {
 			const auto members = Members(a_actors);
 			RP::Holsters::GetSingleton().SceneEnded(Ids(members));
+			RP::Moans::GetSingleton().SceneEnded(Ids(members));
 			RP::ForeignScenes::GetSingleton().OwnSceneEnded(a_location, members);
 		} catch (const std::exception& e) {
 			logger::critical("OwnSceneEnded threw: {}", e.what());
@@ -475,6 +480,8 @@ namespace
 		// face does while it happens, and they read the same tags for it.
 		RP::Aftermath::GetSingleton().NoteTags(a_tags.c_str());
 		RP::Expressions::GetSingleton().NoteTags(a_tags.c_str());
+		// And the climax moan, the moment the tag says so (R-29).
+		RP::Moans::GetSingleton().OwnSceneTags(a_tags.c_str());
 
 		// THREE. The tags say what is happening; the fact that this arrived at all
 		// says the tree moved, and that is what advances the story now.
@@ -1877,6 +1884,7 @@ namespace RP
 		ForeignScenes::GetSingleton().Reset();
 		FaceAuthority::GetSingleton().Reset();
 		Holsters::GetSingleton().Reset();
+		Moans::GetSingleton().Reset();
 		ClearInFlight();
 		_sceneInFlight.store(false);
 
@@ -2152,6 +2160,9 @@ namespace RP
 		// Visible Favorites' holstered weapons off the two of them for the scene.
 		Holsters::GetSingleton().SceneStarted(
 			{ static_cast<std::uint32_t>(_inFlightFirst), static_cast<std::uint32_t>(_inFlightSecond) });
+		// Who this scene's tags belong to, for its climax moan: they arrive without actors.
+		Moans::GetSingleton().OwnSceneStarted(
+			static_cast<std::uint32_t>(_inFlightFirst), static_cast<std::uint32_t>(_inFlightSecond));
 
 		// A scenario, if the caller named one, drives the stages AND the faces --
 		// which is why the expression layer is told to stand down for this scene
@@ -2852,6 +2863,7 @@ namespace RP
 			Aftermath::GetSingleton().OnSceneEnded(first, second);
 			Morphs::GetSingleton().OnSceneEnded(first, second);
 			Holsters::GetSingleton().SceneEnded({ first, second });
+			Moans::GetSingleton().OwnSceneEnded(first, second);
 		}
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();

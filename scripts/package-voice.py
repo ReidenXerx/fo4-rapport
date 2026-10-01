@@ -77,7 +77,9 @@ def main() -> int:
     for vt_dir in sorted((ROOT / "voice/out").iterdir()):
         # voice/out is its own git repository now: .git (and any dot-folder) is not a
         # voice type, and walking it reported 205 "unrendered" lines that hid real ones.
-        if not vt_dir.is_dir() or vt_dir.name.startswith("."):
+        # _moans (scripts/render-moans.py, R-29) is not a voice type either: make-release copies it
+        # to Sound/FX/Rapport/Moans on its own.
+        if not vt_dir.is_dir() or vt_dir.name.startswith((".", "_")):
             continue
         if not vt_dir.is_dir():
             continue

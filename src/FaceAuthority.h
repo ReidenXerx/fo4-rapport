@@ -54,6 +54,8 @@ namespace RP
 		// Anatomy answered AND faces.json was read. The hello comes at PostPostLoad,
 		// before game data is ready and faces.json is read, so either order works.
 		[[nodiscard]] bool Available() const noexcept { return _peer.load() && _loaded.load(); }
+		// The hello's feature bits, 0 until Anatomy answered (Moans reads bit 12, 'RFAP').
+		[[nodiscard]] std::uint32_t PeerFeatures() const noexcept { return _peer.load() ? _peerFeatures.load() : 0u; }
 
 		// Every order Rapport queues: a face put on, a face cleared, a line spoken.
 		void OnOrder(const Order& a_order);

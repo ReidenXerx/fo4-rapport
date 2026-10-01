@@ -113,6 +113,16 @@ if (Test-Path $esp) {
     Write-Host "  WARNING: no Rapport.esp - run tools/make_esp.py"
 }
 
+# The scene moans (R-29), where Rapport.esp's SNDRs point. NEW files in a deployed staging
+# folder wait for the owner's Vortex Deploy; changed ones go live through the hardlinks.
+$moanSrc = Join-Path $root 'voice\out\_moans'
+if (Test-Path $moanSrc) {
+    $moanDst = Join-Path $Staging 'Sound\FX\Rapport\Moans'
+    New-Item -ItemType Directory -Force -Path $moanDst | Out-Null
+    Copy-Item (Join-Path $moanSrc '*') $moanDst -Recurse -Force
+    Write-Host "  moans: $(@(Get-ChildItem -Recurse -Filter *.wav $moanDst).Count) take(s) staged"
+}
+
 $pex = Join-Path $root 'build\papyrus\Rapport'
 if (Test-Path $pex) {
     $scripts = Join-Path $Staging 'Scripts\Rapport'

@@ -201,6 +201,20 @@ $fuz = @(Get-ChildItem -Recurse -Filter *.fuz (Join-Path $stage 'Sound')).Count
 if ($fuz -eq 0) { throw 'No .fuz files in the package - the voice step did nothing.' }
 Write-Host "  voices: $fuz file(s) under Sound\Voice"
 
+# THE MOANS (R-29): every take scripts/render-moans.py rendered, where Rapport.esp's SNDRs point
+# (Data\Sound\FX\Rapport\Moans\<sex>_<persona>\<kind>_NN.wav). From the same committed bank.
+# A take the plugin names and the zip lacks would play as silence, so the count is checked.
+$moanSrc = Join-Path $bank '_moans'
+if (Test-Path $moanSrc) {
+    $moanDst = Join-Path $stage 'Sound\FX\Rapport\Moans'
+    New-Item -ItemType Directory -Force $moanDst | Out-Null
+    Copy-Item -Recurse -Force (Join-Path $moanSrc '*') $moanDst
+    $named = @((Get-Content (Join-Path $root 'voice\moans.json') -Raw | ConvertFrom-Json).takes.PSObject.Properties).Count
+    $moans = @(Get-ChildItem -Recurse -Filter *.wav $moanDst).Count
+    if ($moans -ne $named) { throw "Moans: voice\moans.json names $named take(s) but $moans .wav file(s) were packaged." }
+    Write-Host "  moans: $moans take(s) under Sound\FX\Rapport\Moans"
+}
+
 # Licence and readme travel with the files. Somebody who downloads a zip and
 # never sees the repository should still know what they may do with it.
 foreach ($doc in 'LICENSE', 'README.md') {

@@ -73,6 +73,7 @@ set(SOURCES
 	"src/Aftermath.h"
 	"src/Aftermath.cpp"
 	"src/Holsters.cpp"
+	"src/Moans.cpp"
 	"src/Morphs.cpp"
 	"src/Expressions.h"
 	"src/Expressions.cpp"
