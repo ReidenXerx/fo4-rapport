@@ -152,6 +152,11 @@ MOAN_BASE = 0x01000900
 MOAN_SEXES = ('female', 'male')
 MOAN_PERSONAS = ('romantic', 'reticent', 'vulgar', 'mercantile')
 MOAN_KINDS = ('breath', 'short', 'medium', 'long', 'impact', 'climax')
+# Round 3 (owner, 2026-10-01): painful pleasure and deep gags, in a range of their own -- 0x940 +
+# cell * 8 + kind -- because the first range's stride of 8 has room for only 2 more kinds, and
+# moving an existing record's id is the one thing this builder never does.
+MOAN_BASE_2 = 0x01000940
+MOAN_KINDS_2 = ('pain_short', 'pain_medium', 'pain_long', 'pain_impact', 'gag')
 MOAN_CATEGORY = 0x000DDDC5
 MOAN_OUTPUT = 0x0005A28A
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -159,6 +164,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 def moan_form(sex, persona, kind):
     cell = MOAN_SEXES.index(sex) * len(MOAN_PERSONAS) + MOAN_PERSONAS.index(persona)
+    if kind in MOAN_KINDS_2:
+        return MOAN_BASE_2 + cell * 8 + MOAN_KINDS_2.index(kind)
     return MOAN_BASE + cell * 8 + MOAN_KINDS.index(kind)
 
 
@@ -172,7 +179,7 @@ def moan_records():
     records, table = b'', {}
     for sex in MOAN_SEXES:
         for persona in MOAN_PERSONAS:
-            for kind in MOAN_KINDS:
+            for kind in MOAN_KINDS + MOAN_KINDS_2:
                 mine = sorted((tid, t) for tid, t in takes.items()
                               if t['sex'] == sex and t['persona'] == persona and t['kind'] == kind)
                 if not mine:

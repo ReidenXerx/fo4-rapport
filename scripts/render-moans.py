@@ -66,6 +66,23 @@ KINDS = {
     "climax": ("climaxing", ["hhhaaahhh, hhhaaahhhh, hhhaaaAAAHHHH, AAAAHHHHHH... hhhaaahhh, hhhaaahhh... mmmhhhhh...",
                              "hhhaaahhh, hhhaaaahhh, hhhAAAAAHHHH... AAAHHH, AAAAHHHHH... hhhaaahhh... hhhhh..."]),
 }
+# Round 3 (owner, 2026-10-01: "i liked your painful pleasure"): PAINFUL PLEASURE for anal, rough and
+# BDSM animations -- the persona's settled direction plus a pained edge, and a strained "nnngh" in
+# the breath -- and DEEP GAGS, the receiver's throat on a deep blowjob stroke. Kind -> (direction
+# suffix, [texts]); the suffix follows the persona's own "<adjectives> breathless <noun>".
+PAIN_EDGE = {"vulgar": ", gasping through rough pain"}
+PAIN_EDGE_DEFAULT = ", wincing with sweet pain"
+PAIN_KINDS = {
+    "pain_short": ["nnnhhhaaahhh...", "hhhaaahhh, nnngh...", "nnngh, hhhaaahh..."],
+    "pain_medium": ["nnnhhhaaahhh, hhhaaahhh... nnngh, hhhaaahhhh...", "hhhaaahhh, nnngh, hhhaaaahhh...",
+                    "nnngh... hhhaaahhh, nnnhhhaaahhh..."],
+    "pain_long": ["nnnhhhaaahhh, hhhaaahhh... nnngh, hhhaaahhhh, hhhaaaahhh... nnnhhh, hhhaaaahhhh...",
+                  "hhhaaahhh, nnngh... hhhaaahhhh, nnnhhhaaahhh... nnngh, hhhaaaaahhhh..."],
+    "pain_impact": ["nnnhhAAAHhh!", "hhAAH, nnngh...", "nnngh, hhhAAAH!"],
+}
+GAG = ("[breathless, gagging on a deep throat]", "[gagging and choking]")
+GAG_TEXTS = ["ghhlk, ghhlk... hhkk... hhhaaahhh, hhhaaahhh...", "ghhk... glk, glk... hhkkhh, hhhaaahhh...",
+             "glhk, ghhk... hhhaaahhh..."]
 
 
 def api_key() -> str:
@@ -111,12 +128,24 @@ def trim(src: pathlib.Path, dst: pathlib.Path) -> float:
     return round(float(out), 3)
 
 
+def kinds_for(persona, adjectives, noun):
+    """(kind, direction, texts) for one character: the base kinds, then round 3's."""
+    for kind, (kind_noun, texts) in KINDS.items():
+        yield kind, f"[{adjectives} breathless {kind_noun or noun}]", texts
+    edge = PAIN_EDGE.get(persona, PAIN_EDGE_DEFAULT)
+    for kind, texts in PAIN_KINDS.items():
+        yield kind, f"[{adjectives} breathless {noun}{edge}]", texts
+    for n, text in enumerate(GAG_TEXTS):
+        yield "gag", GAG[n % len(GAG)], [text]
+
+
 def jobs():
+    takes_seen = {}
     for sex, voice in VOICES.items():
         for persona, (adjectives, noun) in PERSONAS.items():
-            for kind, (kind_noun, texts) in KINDS.items():
-                direction = f"[{adjectives} breathless {kind_noun or noun}]"
-                for n, body in enumerate(texts, 1):
+            for kind, direction, texts in kinds_for(persona, adjectives, noun):
+                for body in texts:
+                    n = takes_seen[(sex, persona, kind)] = takes_seen.get((sex, persona, kind), 0) + 1
                     clip = f"{sex}_{persona}/{kind}_{n:02d}"
                     text = f"{direction} {body}"
                     seed = int(hashlib.sha256(clip.encode()).hexdigest()[:8], 16) % 4294967295

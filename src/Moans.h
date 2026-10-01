@@ -18,6 +18,10 @@ namespace RP
 	//                     stroke under 600 ms takes a short one, under 1200 ms a medium, slower a long
 	//   hard impact    -> a gasp, cutting whatever is playing
 	//   AAF's climax tag on the playing animation -> the climax super moan, once per scene, cutting
+	// Round 3 (owner, 2026-10-01): while the playing animation is anal, rough, aggressive or BDSM, the
+	// moans and the gasp come from the PAINFUL-PLEASURE set; and the mouth's owner GAGS on a deep oral
+	// stroke (RFAE: kind 5 "deep", or v3 flags bit 1), and is never given a moan while the mouth is full
+	// (v3 flags bit 0, oral).
 	// One voice at a time per actor: the next waits for the last to end (its take's length, from
 	// moans.json) plus a short breath of quiet, so a scene breathes instead of droning.
 	//
@@ -53,7 +57,12 @@ namespace RP
 		void Reset();
 
 	private:
-		enum class Kind : std::uint8_t { kBreath, kShort, kMedium, kLong, kImpact, kClimax };
+		enum class Kind : std::uint8_t
+		{
+			kBreath, kShort, kMedium, kLong, kImpact, kClimax,
+			kPainShort, kPainMedium, kPainLong, kPainImpact, kGag,
+			kCount
+		};
 
 		struct Sound
 		{
@@ -66,7 +75,9 @@ namespace RP
 			std::string                           character;   // "female_romantic"; empty = unknown
 			std::chrono::steady_clock::time_point quietUntil{};
 			std::chrono::steady_clock::time_point lastImpact{};
+			std::chrono::steady_clock::time_point lastGag{};
 			bool                                  climaxed{ false };
+			bool                                  rough{ false };   // the playing animation's tags
 		};
 		struct Message
 		{
@@ -83,9 +94,11 @@ namespace RP
 		static void                          Send(const std::vector<Message>& a_out);
 		void                                 ResolveForms();
 		[[nodiscard]] static bool            ClimaxTag(std::string_view a_tags);
+		[[nodiscard]] static bool            RoughTag(std::string_view a_tags);
+		void                                 NoteRough(const std::vector<std::uint32_t>& a_actors, bool a_rough);
 
 		std::mutex                                             _lock;
-		std::unordered_map<std::string, std::array<Sound, 6>> _characters;   // "female_romantic" -> by Kind
+		std::unordered_map<std::string, std::array<Sound, static_cast<std::size_t>(Kind::kCount)>> _characters;
 		std::unordered_map<std::uint32_t, Actor>               _actors;
 		std::uint32_t                                          _ownFirst{ 0 };
 		std::uint32_t                                          _ownSecond{ 0 };

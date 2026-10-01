@@ -16,8 +16,17 @@ namespace RP
 #else
 		constexpr const char* kPeer = "OCBPC plugin";
 #endif
-		// RFAE kinds (fo4-anatomy A-67).
-		constexpr std::uint32_t kBegan = 1, kThrust = 2, kImpact = 3, kEnded = 4;
+		// RFAE kinds (fo4-anatomy A-67). 5 = a deep oral stroke, if Anatomy sends it as a kind.
+		constexpr std::uint32_t kBegan = 1, kThrust = 2, kImpact = 3, kEnded = 4, kDeep = 5;
+		// RFAE v3 flags, if Anatomy sends them on the event instead.
+		// v3 (fo4-anatomy ec72ff4): bit 0 ORAL (a shaft in a mouth, on both partners' events), bit 1 DEEP
+		// (the stroke reached the deep face's depth, any opening). Bit 2 RECEIVER (this actor's opening is
+		// the one entered) is asked for; until the engine sets it, nothing does, and kFlagReceiverKnown
+		// (bit 31, reserved for "bit 2 is meaningful") stays clear, so the sex guess decides.
+		constexpr std::uint32_t kFlagOral = 1u << 0, kFlagDeep = 1u << 1, kFlagReceiver = 1u << 2;
+		constexpr std::uint32_t kFlagReceiverKnown = 1u << 31;
+		// Two gags no closer than this.
+		constexpr auto kGagGap = std::chrono::milliseconds{ 1500 };
 
 		// The tempo rule (owner, 2026-10-01: "faster -> shorter"), on the stroke's length.
 		constexpr std::uint32_t kFastStrokeMs = 600;
@@ -28,17 +37,19 @@ namespace RP
 		constexpr float kUnknownLength = 2.0f;
 
 #pragma pack(push, 4)
-		struct EventV2
+		struct EventV3
 		{
 			std::uint32_t version, formID, partner, kind;
 			float         depth, speed;
-			std::uint32_t strokeMs;   // v2 only; a v1 message (24 bytes) leaves it 0
+			std::uint32_t strokeMs;   // v2 on; a v1 message (24 bytes) leaves it 0
+			std::uint32_t flags;      // v3 only; v1 and v2 leave it 0
 		};
 #pragma pack(pop)
-		static_assert(sizeof(EventV2) == 28);
-		constexpr std::uint32_t kV1Size = 24;
+		static_assert(sizeof(EventV3) == 32);
+		constexpr std::uint32_t kV1Size = 24, kV2Size = 28;
 
-		constexpr std::array<std::string_view, 6> kKindNames{ "breath", "short", "medium", "long", "impact", "climax" };
+		constexpr std::array<std::string_view, 11> kKindNames{ "breath", "short", "medium", "long", "impact", "climax",
+			"pain_short", "pain_medium", "pain_long", "pain_impact", "gag" };
 	}
 
 	Moans& Moans::GetSingleton() noexcept
@@ -55,7 +66,7 @@ namespace RP
 			logger::info("moans: no {} - Rapport plays no scene moans", path.string());
 			return;
 		}
-		std::unordered_map<std::string, std::array<Sound, 6>> characters;
+		std::unordered_map<std::string, std::array<Sound, static_cast<std::size_t>(Kind::kCount)>> characters;
 		std::size_t                                           sounds = 0;
 		// The WHOLE parse guarded: a hand-edited table must cost the moans, never the game.
 		try {
@@ -188,12 +199,12 @@ namespace RP
 
 	void Moans::OnEvent(const void* a_data, std::uint32_t a_length)
 	{
-		if (!a_data || (a_length != kV1Size && a_length != sizeof(EventV2))) {
+		if (!a_data || (a_length != kV1Size && a_length != kV2Size && a_length != sizeof(EventV3))) {
 			return;
 		}
-		EventV2 e{};
-		std::memcpy(&e, a_data, a_length);   // a v1 leaves strokeMs 0: unknown tempo
-		if (e.version < 1 || e.version > 2 || e.formID == 0) {
+		EventV3 e{};
+		std::memcpy(&e, a_data, a_length);   // an older version leaves strokeMs / flags 0
+		if (e.version < 1 || e.version > 3 || e.formID == 0) {
 			return;
 		}
 		std::vector<Message> out;
@@ -206,6 +217,28 @@ namespace RP
 			auto&      state = _actors[e.formID];
 			const bool quiet = now >= state.quietUntil;
 			std::optional<Message> m;
+			// ORAL (v3 flags bit 0) rides on both partners' events, so which one is the MOUTH? With
+			// flags bit 2 (RECEIVER, asked of Anatomy 2026-10-01) the event says so; without it the
+			// female is taken as the mouth -- right for male-female scenes, a guess for the rest.
+			const bool oral = (e.flags & kFlagOral) != 0;
+			const bool mouth = oral && ((e.flags & kFlagReceiver) || (!(e.flags & kFlagReceiverKnown) &&
+			                                                            state.character.starts_with("female")));
+			// A deep stroke in the mouth: its owner gags, cutting whatever was playing. DEEP (bit 1)
+			// is set for any opening, so only with ORAL.
+			if (mouth && (e.kind == kDeep || (e.flags & kFlagDeep))) {
+				if (now - state.lastGag >= kGagGap) {
+					state.lastGag = now;
+					m = Pick(e.formID, Kind::kGag, true, "deep");
+				}
+				if (m) {
+					out.push_back(*m);
+				}
+				goto send;
+			}
+			// A full mouth makes no moan. The shaft's owner moans as ever: he is the one pleasured.
+			if (mouth) {
+				goto send;
+			}
 			switch (e.kind) {
 			case kBegan:
 				// A new penetration: whatever climaxed before was another scene (a foreign end that
@@ -219,17 +252,16 @@ namespace RP
 				break;
 			case kThrust:
 				if (quiet) {
-					const auto kind = e.strokeMs == 0            ? Kind::kMedium
-					                  : e.strokeMs < kFastStrokeMs ? Kind::kShort
-					                  : e.strokeMs < kSlowStrokeMs ? Kind::kMedium
-					                                               : Kind::kLong;
-					m = Pick(e.formID, kind, false, "thrust");
+					const auto tier = e.strokeMs == 0 ? 1 : e.strokeMs < kFastStrokeMs ? 0 : e.strokeMs < kSlowStrokeMs ? 1 : 2;
+					static constexpr std::array<Kind, 3> kSweet{ Kind::kShort, Kind::kMedium, Kind::kLong };
+					static constexpr std::array<Kind, 3> kPain{ Kind::kPainShort, Kind::kPainMedium, Kind::kPainLong };
+					m = Pick(e.formID, (state.rough ? kPain : kSweet)[tier], false, state.rough ? "rough thrust" : "thrust");
 				}
 				break;
 			case kImpact:
 				if (now - state.lastImpact >= kImpactGap && !state.climaxed) {
 					state.lastImpact = now;
-					m = Pick(e.formID, Kind::kImpact, true, "impact");
+					m = Pick(e.formID, state.rough ? Kind::kPainImpact : Kind::kImpact, true, "impact");
 				}
 				break;
 			default:
@@ -238,6 +270,7 @@ namespace RP
 			if (m) {
 				out.push_back(*m);
 			}
+		send:;
 		}
 		Send(out);   // after the lock: a listener answering on this thread cannot deadlock us
 	}
@@ -247,6 +280,28 @@ namespace RP
 		std::string lower{ a_tags };
 		std::ranges::transform(lower, lower.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 		return lower.find("climax") != std::string::npos || lower.find("orgasm") != std::string::npos;
+	}
+
+	// Anal, rough, aggressive or BDSM: the painful-pleasure set (owner, 2026-10-01).
+	bool Moans::RoughTag(std::string_view a_tags)
+	{
+		std::string lower{ a_tags };
+		std::ranges::transform(lower, lower.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+		for (const auto word : { "anal", "aggressive", "rough", "bdsm", "bondage", "spank", "whip", "choke", "pain" }) {
+			if (lower.find(word) != std::string::npos) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void Moans::NoteRough(const std::vector<std::uint32_t>& a_actors, bool a_rough)
+	{
+		for (const auto actor : a_actors) {
+			if (actor) {
+				_actors[actor].rough = a_rough;
+			}
+		}
 	}
 
 	std::optional<Moans::Message> Moans::Climax(std::uint32_t a_actor)
@@ -286,13 +341,15 @@ namespace RP
 
 	void Moans::OwnSceneTags(std::string_view a_tags)
 	{
-		if (!ClimaxTag(a_tags)) {
-			return;
-		}
+		const bool rough = RoughTag(a_tags);
 		std::vector<Message> out;
 		{
 			std::lock_guard lock{ _lock };
 			if (!_loaded || !_ownFirst) {
+				return;
+			}
+			NoteRough({ _ownFirst, _ownSecond }, rough);
+			if (!ClimaxTag(a_tags)) {
 				return;
 			}
 			for (const auto actor : { _ownFirst, _ownSecond }) {
@@ -307,13 +364,15 @@ namespace RP
 	void Moans::SceneTags(const std::vector<std::uint32_t>& a_actors, std::string_view a_tags)
 	{
 		Register(a_actors);
-		if (!ClimaxTag(a_tags)) {
-			return;
-		}
+		const bool rough = RoughTag(a_tags);
 		std::vector<Message> out;
 		{
 			std::lock_guard lock{ _lock };
 			if (!_loaded) {
+				return;
+			}
+			NoteRough(a_actors, rough);
+			if (!ClimaxTag(a_tags)) {
 				return;
 			}
 			for (const auto actor : a_actors) {

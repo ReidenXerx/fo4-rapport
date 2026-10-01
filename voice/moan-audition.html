@@ -80,10 +80,11 @@ summary { cursor: pointer; font-weight: 600; }
     <div class="script" title="The text every take reads">Mmmh... hahh... ahh... mmh, ahh... ahh... Ah! Ah! Ahh... hahh... ohh... oh... oh, oh, ohhh... AHHH! Hahh... hahh... mmmh.</div>
   </header>
   <section class="row" id="round3">
-    <h2>Round 3: painful pleasure and deep gags <small>Painful pleasure, for anal, rough and BDSM animations: each temperament's settled direction, plus a pained edge ("wincing with sweet pain"; vulgar: "gasping through rough pain") and a strained "nnngh" in the breath. Deep gags: two tries, played when a blowjob stroke goes deep. Woman and man.</small></h2>
+    <h2>Round 3: painful pleasure and deep gags <small>Painful pleasure, for anal, rough and BDSM animations: each temperament's settled direction, plus a pained edge ("wincing with sweet pain"; vulgar: "gasping through rough pain") and a strained "nnngh" in the breath. Deep gags, played when a blowjob stroke goes deep: six styles each for woman and man (3-6 are new: wet and sputtering, muffled deep-throat, choke into a gasp, wet gurgling). Which ones? Woman and man.</small></h2>
     <div class="pair">
       <article class="voice"><div class="vhead"><h3>Painful pleasure</h3><span class="pill">8 takes</span></div><div class="takes" id="r3-pain"></div></article>
-      <article class="voice"><div class="vhead"><h3>Deep gags</h3><span class="pill">4 takes</span></div><div class="takes" id="r3-gag"></div></article>
+      <article class="voice"><div class="vhead"><h3>Deep gags</h3><span class="pill">12 tries</span></div><div class="takes" id="r3-gag"></div></article>
+      <article class="voice"><div class="vhead"><h3>Swallowing something big</h3><span class="pill">NEW</span></div><p class="note">Your note: no literal "G", a throat swallowing around something big. A-C are our voices with no consonants written at all (muffled "mmmhmmp"); 1-2 are ElevenLabs' sound generator describing the gulp itself (no voice of ours, so the same for everyone).</p><div class="takes" id="r3-swallow"></div></article>
     </div>
     <textarea id="note-r3" placeholder="Do the pain moans land per temperament? Which gag try is right?"></textarea>
     <div class="saved" id="saved-round3"></div>
@@ -221,13 +222,14 @@ function render() {
     row.append(h, pair);
     rows.append(row);
   }
-  const R3 = { pain: [], gag: [["female_gag-1", "Woman · gagging and choking"], ["female_gag-2", "Woman · breathless, gagging on a deep throat"], ["male_gag-1", "Man · gagging and choking"], ["male_gag-2", "Man · breathless, gagging on a deep throat"]] };
+  const R3 = { pain: [], gag: [["female_gag-1", "Woman · 1 gagging and choking"], ["female_gag-2", "Woman · 2 breathless, gagging on a deep throat"], ["g:female_gag-3", "Woman · 3 wet, sputtering, coughing"], ["g:female_gag-4", "Woman · 4 muffled deep-throat"], ["g:female_gag-5", "Woman · 5 choke, then gasping for air"], ["g:female_gag-6", "Woman · 6 muffled, wet gurgling"], ["male_gag-1", "Man · 1 gagging and choking"], ["male_gag-2", "Man · 2 breathless, gagging on a deep throat"], ["g:male_gag-3", "Man · 3 wet, sputtering, coughing"], ["g:male_gag-4", "Man · 4 muffled deep-throat"], ["g:male_gag-5", "Man · 5 choke, then gasping for air"], ["g:male_gag-6", "Man · 6 muffled, wet gurgling"]] };
+  R3.swallow = [["s:female_swallow-A", "Woman · A muffled, swallowing hard around something big"], ["s:female_swallow-B", "Woman · B throat gulping, struggling to swallow"], ["s:female_swallow-C", "Woman · C deep, wet swallowing, muffled"], ["s:male_swallow-A", "Man · A muffled, swallowing hard"], ["s:male_swallow-B", "Man · B throat gulping"], ["s:male_swallow-C", "Man · C deep, wet swallowing"], ["s:sfx_swallow-1", "Sound effect 1 · one deep wet gulp, a breath through the nose"], ["s:sfx_swallow-2", "Sound effect 2 · two heavy swallows, straining"]];
   for (const sex of ["female", "male"]) for (const [key, name] of TEMPERAMENTS.map(x => [x[0], x[1]])) R3.pain.push([`${sex}_${key}-pain`, (sex === "female" ? "Woman · " : "Man · ") + name]);
   for (const [box_, list] of Object.entries(R3)) {
     const box = document.getElementById("r3-" + box_);
     for (const [file, label] of list) {
       const t = document.createElement("div"); t.className = "take"; t.style.gridTemplateColumns = "auto 1fr";
-      const p = player(`audition-moans/round3/trimmed/${file}.mp3`);
+      const p = player(file.startsWith("s:") ? `audition-moans/swallow/trimmed/${file.slice(2)}.mp3` : file.startsWith("g:") ? `audition-moans/gags/trimmed/${file.slice(2)}.mp3` : `audition-moans/round3/trimmed/${file}.mp3`);
       const meta = document.createElement("div"); meta.className = "meta";
       const lab = document.createElement("div"); lab.className = "tlabel";
       const l1 = document.createElement("span"); l1.textContent = label; lab.append(l1, p.time);
