@@ -466,6 +466,56 @@ namespace
 		return out;
 	}
 
+	// R-27 / R-7 (owner poll 2026-10-01): the MCM hotkeys. The person the player faces, cycled and
+	// kept in THIS save. The line for the notification; "" when nobody is in front.
+	std::string InFrontName(RE::Actor* a_actor)
+	{
+		const char* name = RP::Compat::DisplayName(a_actor);
+		return name && *name ? std::string{ name } : std::format("{:08X}", a_actor->GetFormID());
+	}
+
+	RE::BSFixedString Papyrus_CycleOrientationInFront(std::monostate)
+	{
+		try {
+			auto* actor = RP::DebugTriggers::ActorInFront(600.0f, 35.0f);
+			if (!actor) {
+				return RE::BSFixedString{ "" };
+			}
+			const auto [kind, own] = RP::Orientation::GetSingleton().Cycle(actor->GetFormID());
+			const auto name = InFrontName(actor);
+			logger::info("orientation: the player set {:08X} ({}) to {}{}", actor->GetFormID(), name,
+				RP::Orientation::Name(kind), own ? " - their own again" : "");
+			return RE::BSFixedString{ std::format("{} is {}{}", name, RP::Orientation::Name(kind),
+				own ? " (their own again)" : " (in this save)") };
+		} catch (...) {
+			logger::critical("CycleOrientationInFront threw");
+			return RE::BSFixedString{ "" };
+		}
+	}
+
+	RE::BSFixedString Papyrus_CyclePersonaInFront(std::monostate)
+	{
+		try {
+			auto* actor = RP::DebugTriggers::ActorInFront(600.0f, 35.0f);
+			if (!actor) {
+				return RE::BSFixedString{ "" };
+			}
+			const auto [persona, own] = RP::Barks::GetSingleton().CyclePersona(actor->GetFormID());
+			if (persona.empty()) {
+				return RE::BSFixedString{ "Rapport: no persona data loaded (personas.json)" };
+			}
+			RP::Moans::GetSingleton().ForgetWho(actor->GetFormID());
+			const auto name = InFrontName(actor);
+			logger::info("barks: the player set {:08X} ({}) to the {} persona{}", actor->GetFormID(), name, persona,
+				own ? " - their own again" : "");
+			return RE::BSFixedString{ std::format("{} is {}{}", name, persona,
+				own ? " (their own again)" : " (in this save)") };
+		} catch (...) {
+			logger::critical("CyclePersonaInFront threw");
+			return RE::BSFixedString{ "" };
+		}
+	}
+
 	// The bridge's answer for one piece it was asked to look at (Wardrobe::Checked).
 	void Papyrus_OutfitChecked(std::monostate, std::int32_t a_formID, std::int32_t a_item, std::int32_t a_result)
 	{
@@ -1482,6 +1532,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorSex"sv, Papyrus_NoteActorSex, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteOutfit"sv, Papyrus_NoteOutfit, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ActorsOf"sv, Papyrus_ActorsOf, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "CycleOrientationInFront"sv, Papyrus_CycleOrientationInFront, std::nullopt,
+			false);
+		a_vm->BindNativeMethod(kCoreScript, "CyclePersonaInFront"sv, Papyrus_CyclePersonaInFront, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OutfitChecked"sv, Papyrus_OutfitChecked, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneSlots"sv, Papyrus_NoteSceneSlots, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "Pump"sv, Papyrus_Pump, std::nullopt, false);
@@ -1952,6 +2005,9 @@ namespace RP
 		Morphs::GetSingleton().Forget();
 		// The world being left's outfits; the arriving save's come from its co-save (Ledger).
 		Wardrobe::GetSingleton().Forget();
+		// And the player's choices of orientation and persona: per save, from its co-save too.
+		Orientation::GetSingleton().ForgetChosen();
+		Barks::GetSingleton().ForgetChosenPersonas();
 
 		if (inFlight || dropped) {
 			logger::warn("loading a save: {}{} order(s) for the world being left dropped",

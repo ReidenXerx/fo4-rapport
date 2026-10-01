@@ -166,6 +166,14 @@ namespace RP
 		}
 	}
 
+	void Moans::ForgetWho(std::uint32_t a_actor)
+	{
+		std::lock_guard lock{ _lock };
+		if (const auto it = _actors.find(a_actor); it != _actors.end()) {
+			it->second.character.clear();
+		}
+	}
+
 	void Moans::Register(const std::vector<std::uint32_t>& a_actors)
 	{
 		// Main thread: the bridge's natives. Game state is read HERE, never on the event thread.

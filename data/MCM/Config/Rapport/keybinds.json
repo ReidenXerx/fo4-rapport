@@ -2,6 +2,24 @@
   "modName": "Rapport",
   "keybinds": [
     {
+      "id": "RapportCycleOrientation",
+      "desc": "Rapport: orientation of the person you face",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:Core",
+        "function": "CycleOrientation"
+      }
+    },
+    {
+      "id": "RapportCyclePersona",
+      "desc": "Rapport: persona of the person you face",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Rapport:Core",
+        "function": "CyclePersona"
+      }
+    },
+    {
       "id": "RapportSceneWithMeForced",
       "desc": "Rapport debug: With me - forced",
       "action": {

@@ -42,6 +42,17 @@ namespace RP
 		// would point into while another thread still holds it.
 		[[nodiscard]] std::string PersonaOf(std::uint32_t a_formID) const;
 
+		// The player's own choice for this one, in THIS save (owner poll 2026-10-01): an MCM hotkey
+		// cycles romantic -> reticent -> vulgar -> mercantile, and the step that lands on their
+		// default clears the choice instead. Wins over a personas.json pin and the hash; a new
+		// playthrough starts from those. Every reader asks PersonaOf live (Chemistry, Overture and
+		// Rapport's own -- checked 2026-10-01); the moans' cached voice is told by the caller.
+		// Returns the persona in force now and whether it is their default again.
+		[[nodiscard]] std::pair<std::string, bool> CyclePersona(std::uint32_t a_formID);
+		[[nodiscard]] std::vector<std::pair<std::uint32_t, std::string>> ChosenPersonas() const;
+		void RestorePersonas(std::vector<std::pair<std::uint32_t, std::string>> a_chosen);
+		void ForgetChosenPersonas();
+
 		// The bank also holds OBSERVER lines (R-12). Watchers decides WHO speaks
 		// and WHEN; this only says WHAT: a line for this persona, audience ("alone"
 		// or "crowd") and sex. Returns the Topic's file-relative id (0 when nothing
@@ -94,6 +105,9 @@ namespace RP
 		std::vector<std::string> _personas;
 		// personas.json: the owner's pins, runtime form id (reference or base NPC) -> persona.
 		std::unordered_map<std::uint32_t, std::string> _overrides;
+		std::unordered_map<std::uint32_t, std::string> _chosen;   // the player's, this save (co-save PRSN)
+		// The pin, else the hash. Caller holds _lock, and _personas is not empty.
+		[[nodiscard]] std::string DefaultPersonaLocked(std::uint32_t a_formID) const;
 		std::vector<Line>        _lines;
 		std::optional<Reply>     _reply;
 

@@ -171,6 +171,58 @@ namespace RP
 
 	Orientation::Kind Orientation::Of(std::uint32_t a_formID) const
 	{
+		{
+			std::scoped_lock lock{ _lock };
+			if (const auto it = _chosen.find(a_formID); it != _chosen.end()) {
+				return it->second;
+			}
+		}
+		return Default(a_formID);
+	}
+
+	std::pair<Orientation::Kind, bool> Orientation::Cycle(std::uint32_t a_formID)
+	{
+		const auto       own = Default(a_formID);
+		std::scoped_lock lock{ _lock };
+		const auto       it = _chosen.find(a_formID);
+		const auto       now = it != _chosen.end() ? it->second : own;
+		const auto       next = static_cast<Kind>((static_cast<int>(now) + 1) % 3);
+		if (next == own) {
+			_chosen.erase(a_formID);
+			return { own, true };
+		}
+		_chosen[a_formID] = next;
+		return { next, false };
+	}
+
+	std::vector<std::pair<std::uint32_t, Orientation::Kind>> Orientation::Chosen() const
+	{
+		std::scoped_lock lock{ _lock };
+		return { _chosen.begin(), _chosen.end() };
+	}
+
+	void Orientation::Restore(std::vector<std::pair<std::uint32_t, Kind>> a_chosen)
+	{
+		std::scoped_lock lock{ _lock };
+		_chosen.clear();
+		for (const auto& [id, kind] : a_chosen) {
+			if (id != 0 && static_cast<int>(kind) < 3) {
+				_chosen[id] = kind;
+			}
+		}
+		if (!_chosen.empty()) {
+			logger::info("orientation: {} chosen by the player in this save", _chosen.size());
+		}
+	}
+
+	void Orientation::ForgetChosen()
+	{
+		std::scoped_lock lock{ _lock };
+		_chosen.clear();
+	}
+
+	Orientation::Kind Orientation::Default(std::uint32_t a_formID) const
+	{
 		if (const auto pin = PinOf(a_formID)) {
 			return *pin;
 		}

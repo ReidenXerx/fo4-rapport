@@ -31,6 +31,16 @@ namespace RP
 		void Load();
 
 		[[nodiscard]] Kind Of(std::uint32_t a_formID) const;
+
+		// The player's own choice for this one, in THIS save (owner poll 2026-10-01): an MCM hotkey
+		// cycles it straight -> bi -> gay, and the step that lands on their default clears the
+		// choice instead. Wins over a personas.json pin and over the hash; a new playthrough starts
+		// from those. A playersexual pin stays playersexual toward the player whatever is chosen.
+		// Returns what is in force now and whether that is their default again.
+		[[nodiscard]] std::pair<Kind, bool> Cycle(std::uint32_t a_formID);
+		[[nodiscard]] std::vector<std::pair<std::uint32_t, Kind>> Chosen() const;
+		void Restore(std::vector<std::pair<std::uint32_t, Kind>> a_chosen);
+		void ForgetChosen();
 		[[nodiscard]] static std::string_view Name(Kind a_kind) noexcept;
 
 		// Would a_who agree to sex with a_with, by orientation alone?
@@ -52,10 +62,13 @@ namespace RP
 
 	private:
 		[[nodiscard]] std::optional<Kind> PinOf(std::uint32_t a_formID) const;
+		// The pin, else the hash: what this NPC is when the player has chosen nothing.
+		[[nodiscard]] Kind Default(std::uint32_t a_formID) const;
 		[[nodiscard]] bool                Playersexual(std::uint32_t a_formID) const;
 
 		mutable std::mutex                          _lock;
 		std::unordered_map<std::uint32_t, Kind>     _pins;
 		std::unordered_set<std::uint32_t>           _playersexual;
+		std::unordered_map<std::uint32_t, Kind>     _chosen;   // the player's, this save (co-save ORNT)
 	};
 }

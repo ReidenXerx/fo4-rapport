@@ -63,6 +63,9 @@ namespace RP
 		// held back to see whether contact resumed.
 		void Pump();
 
+		// Their persona changed (the player's hotkey): the voice cached for them is re-learnt.
+		void ForgetWho(std::uint32_t a_actor);
+
 	private:
 		enum class Kind : std::uint8_t
 		{

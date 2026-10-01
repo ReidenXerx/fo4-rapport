@@ -174,6 +174,71 @@ namespace RP
 		if (_personas.empty()) {
 			return {};
 		}
+		if (const auto it = _chosen.find(a_formID); it != _chosen.end()) {
+			return it->second;
+		}
+		return DefaultPersonaLocked(a_formID);
+	}
+
+	std::pair<std::string, bool> Barks::CyclePersona(std::uint32_t a_formID)
+	{
+		NamedLock lock{ _lock, "barks" };
+		if (_personas.empty()) {
+			return { {}, true };
+		}
+		// The owner's order, then anything else personas.json names.
+		std::vector<std::string> order;
+		for (const auto name : { "romantic", "reticent", "vulgar", "mercantile" }) {
+			if (std::ranges::find(_personas, std::string{ name }) != _personas.end()) {
+				order.emplace_back(name);
+			}
+		}
+		for (const auto& name : _personas) {
+			if (std::ranges::find(order, name) == order.end()) {
+				order.push_back(name);
+			}
+		}
+		const auto own = DefaultPersonaLocked(a_formID);
+		const auto it = _chosen.find(a_formID);
+		const auto now = it != _chosen.end() ? it->second : own;
+		const auto at = std::ranges::find(order, now);
+		const auto next = order[at == order.end() ? 0 : (static_cast<std::size_t>(at - order.begin()) + 1) % order.size()];
+		if (next == own) {
+			_chosen.erase(a_formID);
+			return { own, true };
+		}
+		_chosen[a_formID] = next;
+		return { next, false };
+	}
+
+	std::vector<std::pair<std::uint32_t, std::string>> Barks::ChosenPersonas() const
+	{
+		NamedLock lock{ _lock, "barks" };
+		return { _chosen.begin(), _chosen.end() };
+	}
+
+	void Barks::RestorePersonas(std::vector<std::pair<std::uint32_t, std::string>> a_chosen)
+	{
+		NamedLock lock{ _lock, "barks" };
+		_chosen.clear();
+		for (auto& [id, persona] : a_chosen) {
+			if (id != 0 && !persona.empty()) {
+				_chosen[id] = std::move(persona);
+			}
+		}
+		if (!_chosen.empty()) {
+			logger::info("barks: {} persona(s) chosen by the player in this save", _chosen.size());
+		}
+	}
+
+	void Barks::ForgetChosenPersonas()
+	{
+		NamedLock lock{ _lock, "barks" };
+		_chosen.clear();
+	}
+
+	std::string Barks::DefaultPersonaLocked(std::uint32_t a_formID) const
+	{
 		if (!_overrides.empty()) {
 			if (const auto it = _overrides.find(a_formID); it != _overrides.end()) {
 				return it->second;

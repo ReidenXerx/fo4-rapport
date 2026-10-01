@@ -9,6 +9,8 @@
 #include "Names.h"
 #include "PapyrusLink.h"
 #include "Wardrobe.h"
+#include "Orientation.h"
+#include "Barks.h"
 
 namespace
 {
@@ -41,6 +43,10 @@ namespace
 	constexpr auto kStoryRecord = FourCC("STRY");
 	// Outfits a scene may still owe somebody (Wardrobe): actor, then (item, slots) pairs.
 	constexpr auto kWardrobeRecord = FourCC("WARD");
+	// The player's choices for one NPC, in this save (owner poll 2026-10-01): orientation
+	// (id, kind byte) and persona (id, length byte, the name).
+	constexpr auto kOrientationRecord = FourCC("ORNT");
+	constexpr auto kPersonaRecord = FourCC("PRSN");
 	constexpr std::uint32_t kVersion = 1;
 	// The names record has its own version, for the reason the pair table does
 	// (below). v1 held ids only; v2 holds (id, base) so a reused id reads as
@@ -857,6 +863,27 @@ namespace RP
 			}
 		}
 
+		const auto orientations = Orientation::GetSingleton().Chosen();
+		if (!orientations.empty() && a_intfc->OpenRecord(kOrientationRecord, kVersion)) {
+			RP::Compat::Write(a_intfc, static_cast<std::uint32_t>(orientations.size()));
+			for (const auto& [id, kind] : orientations) {
+				RP::Compat::Write(a_intfc, id);
+				RP::Compat::Write(a_intfc, static_cast<std::uint8_t>(kind));
+			}
+		}
+		const auto personas = Barks::GetSingleton().ChosenPersonas();
+		if (!personas.empty() && a_intfc->OpenRecord(kPersonaRecord, kVersion)) {
+			RP::Compat::Write(a_intfc, static_cast<std::uint32_t>(personas.size()));
+			for (const auto& [id, persona] : personas) {
+				RP::Compat::Write(a_intfc, id);
+				const auto length = static_cast<std::uint8_t>((std::min)(persona.size(), std::size_t{ 64 }));
+				RP::Compat::Write(a_intfc, length);
+				for (std::size_t i = 0; i < length; ++i) {
+					RP::Compat::Write(a_intfc, persona[i]);
+				}
+			}
+		}
+
 		const auto introduced = Names::GetSingleton().Introduced();
 		if (a_intfc->OpenRecord(kNameRecord, kNameVersion)) {
 			const auto nameCount = static_cast<std::uint32_t>(introduced.size());
@@ -1045,6 +1072,10 @@ namespace RP
 				LoadWardrobe(a_intfc, version);
 				continue;
 			}
+			if (type == kOrientationRecord || type == kPersonaRecord) {
+				LoadChoices(a_intfc, type == kPersonaRecord, version);
+				continue;
+			}
 			if (type != kActorRecord) {
 				logger::warn("ledger: skipping an unknown record in the save");
 				continue;
@@ -1117,6 +1148,54 @@ namespace RP
 			logger::info(
 				"ledger: read {} actor(s) from the save, {} dropped because their plugin is gone",
 				_records.size(), dropped);
+		}
+	}
+
+	void Ledger::LoadChoices(const F4SE::SerializationInterface* a_intfc, bool a_persona, std::uint32_t a_version)
+	{
+		if (a_version != kVersion) {
+			logger::warn("ledger: the save holds {} choices version {} - skipped", a_persona ? "persona" : "orientation",
+				a_version);
+			return;
+		}
+		std::uint32_t count = 0;
+		if (RP::Compat::Read(a_intfc, count) != sizeof(count) || count > kMaxEntries) {
+			return;
+		}
+		std::vector<std::pair<std::uint32_t, Orientation::Kind>> kinds;
+		std::vector<std::pair<std::uint32_t, std::string>>      names;
+		for (std::uint32_t i = 0; i < count; ++i) {
+			std::uint32_t id = 0;
+			if (RP::Compat::Read(a_intfc, id) != sizeof(id)) {
+				break;
+			}
+			const auto resolved = a_intfc->ResolveFormID(id);
+			if (a_persona) {
+				std::uint8_t length = 0;
+				if (RP::Compat::Read(a_intfc, length) != sizeof(length)) {
+					break;
+				}
+				std::string name(length, '\0');
+				for (auto& c : name) {
+					RP::Compat::Read(a_intfc, c);
+				}
+				if (resolved) {
+					names.emplace_back(*resolved, std::move(name));
+				}
+			} else {
+				std::uint8_t kind = 0;
+				if (RP::Compat::Read(a_intfc, kind) != sizeof(kind)) {
+					break;
+				}
+				if (resolved && kind < 3) {
+					kinds.emplace_back(*resolved, static_cast<Orientation::Kind>(kind));
+				}
+			}
+		}
+		if (a_persona) {
+			Barks::GetSingleton().RestorePersonas(std::move(names));
+		} else {
+			Orientation::GetSingleton().Restore(std::move(kinds));
 		}
 	}
 

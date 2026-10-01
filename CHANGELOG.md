@@ -28,6 +28,13 @@
 - **Same-sex pairs prefer their own animations.** When no m/m or f/f tree fits, AAF's free pick now
   skips F/M positions if a matching m/m (or f/f) one exists; when none does, AAF picks from
   everything as before, so a scene is never empty.
+- **Change someone's orientation or persona in game.** Two MCM hotkeys (Scene choice, "The person
+  in front of you"; unbound until you bind them): face anyone and press. Orientation goes straight,
+  bi, gay, then back to their own; persona goes romantic, reticent, vulgar, mercantile, then back
+  to their own. A notification names the result. The choice is kept in that save only - a new
+  game starts from everyone's own - and wins over the hash and over personas.json. Romanceable
+  companions stay open to you whatever you choose. Their voice, face and moans follow the new
+  persona, and so do Chemistry and Overture: both read it live (checked with each, 2026-10-01).
 - **Every feature is on by default**: the Narrator's "why nothing happened", "relationship turns"
   and "bystanders react" now start on, like everything else.
 - The debug trigger "nobody in front of you" now writes why to `Rapport.log`: the nearest actors,

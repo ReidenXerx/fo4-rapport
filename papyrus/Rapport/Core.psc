@@ -218,6 +218,27 @@ Function NoteOutfit(Int aiFormID, Int[] aiSlots, Int[] aiItems) Global Native
 ; AAF's packed actor list (an event's akArgs[1]) as an array: Papyrus cannot open it itself.
 Actor[] Function ActorsOf(Var akActors) Global Native
 
+; The MCM hotkeys (owner poll 2026-10-01): the person you face, their orientation (R-27) or
+; persona (R-7) cycled and kept in THIS save. The natives return the notification line, "" when
+; nobody is in front of you.
+String Function CycleOrientationInFront() Global Native
+String Function CyclePersonaInFront() Global Native
+
+Function CycleOrientation() Global
+	Rapport:Core.Notify(Rapport:Core.CycleOrientationInFront())
+EndFunction
+
+Function CyclePersona() Global
+	Rapport:Core.Notify(Rapport:Core.CyclePersonaInFront())
+EndFunction
+
+Function Notify(String asLine) Global
+	If asLine == ""
+		asLine = "Rapport: nobody in front of you - face them, within a few steps"
+	EndIf
+	Debug.Notification(asLine)
+EndFunction
+
 ; The bridge's answer for one piece it was asked to look at: 0 worn, 1 held by AAF, 2 not
 ; loaded, 3 gone or the slot is taken by something else of theirs, 4 free (first look), 5 put on.
 Function OutfitChecked(Int aiFormID, Int aiItem, Int aiResult) Global Native

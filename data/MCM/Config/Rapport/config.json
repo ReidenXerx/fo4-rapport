@@ -30,6 +30,22 @@
         },
         {
           "type": "section",
+          "text": "The person in front of you"
+        },
+        {
+          "id": "RapportCycleOrientation",
+          "text": "Change their orientation",
+          "type": "hotkey",
+          "help": "Face someone and press it: straight, bi, gay, then back to their own. Kept in this save only; a new game starts from everyone's own. Romanceable companions stay open to you whatever you choose."
+        },
+        {
+          "id": "RapportCyclePersona",
+          "text": "Change their persona",
+          "type": "hotkey",
+          "help": "Face someone and press it: romantic, reticent, vulgar, mercantile, then back to their own. Their voice, face, moans and every mod built on Rapport follow it. Kept in this save only."
+        },
+        {
+          "type": "section",
           "text": "The bar"
         },
         {

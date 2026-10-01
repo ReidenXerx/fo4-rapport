@@ -37,6 +37,13 @@ PAGES = [
         ("button", "Start now", "Rapport and the mods built on it wait until you leave Vault 111. If an "
          "alternate start mod means they never started, press this: they start now, in this save.",
          {"type": "CallGlobalFunction", "script": "Rapport:Core", "function": "StartNow", "params": []}),
+        ("section", "The person in front of you"),
+        ("hotkey", "RapportCycleOrientation", "Change their orientation", "Face someone and press it: straight, "
+         "bi, gay, then back to their own. Kept in this save only; a new game starts from everyone's own. "
+         "Romanceable companions stay open to you whatever you choose."),
+        ("hotkey", "RapportCyclePersona", "Change their persona", "Face someone and press it: romantic, reticent, "
+         "vulgar, mercantile, then back to their own. Their voice, face, moans and every mod built on Rapport "
+         "follow it. Kept in this save only."),
         ("section", "The bar"),
         ("Scoring", "minimumScore", scoring, "Score needed (debug hotkeys)",
          "The score the best pair must reach before the debug hotkeys' 'start the best pair' trigger takes it. "
@@ -193,6 +200,9 @@ for title, rows in PAGES:
             continue
         if row[0] == "button":
             content.append({"type": "button", "text": row[1], "help": row[2], "action": row[3]})
+            continue
+        if row[0] == "hotkey":
+            content.append({"id": row[1], "text": row[2], "type": "hotkey", "help": row[3]})
             continue
         section, key, source, label, help_, lo, hi, step = row
         if key not in source:

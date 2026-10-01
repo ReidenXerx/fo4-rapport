@@ -270,6 +270,7 @@ namespace RP
 		void Prune() const;
 
 		static void LoadWardrobe(const F4SE::SerializationInterface* a_intfc, std::uint32_t a_version);
+		static void LoadChoices(const F4SE::SerializationInterface* a_intfc, bool a_persona, std::uint32_t a_version);
 		static void LoadFaces(
 			const F4SE::SerializationInterface* a_intfc,
 			std::uint32_t                       a_version,
