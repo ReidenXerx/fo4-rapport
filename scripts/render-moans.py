@@ -57,14 +57,20 @@ PERSONAS = {
 # kind -> (noun override or None, [texts, one per take]). The texts are breath groups: no bare vowel,
 # no full stop, no tag inside.
 KINDS = {
-    "breath": (None, ["hhhhh, hhhaaahhh...", "hhhh... mmmhhh, hhhhh..."]),
-    "short": (None, ["hhhaaahhh...", "mmmhhhaaahhh...", "hhhaaaahh, hhh..."]),
-    "medium": (None, ["hhhaaahhh, mmmhhhaaahhh...", "hhhaaahhh, hhhaaaahhh...", "mmmhhh, hhhaaahhhh..."]),
+    "breath": (None, ["hhhhh, hhhaaahhh...", "hhhh... mmmhhh, hhhhh...",
+                      "hhhaaahhh... hhhhh...", "mmmhhh... hhhhh, hhhaaahh..."]),
+    "short": (None, ["hhhaaahhh...", "mmmhhhaaahhh...", "hhhaaaahh, hhh...",
+                     "hhhoooh...", "mmmhh, hhhaaahh...", "hhhaaahhh, mmmh..."]),
+    "medium": (None, ["hhhaaahhh, mmmhhhaaahhh...", "hhhaaahhh, hhhaaaahhh...", "mmmhhh, hhhaaahhhh...",
+                      "hhhoooh, hhhaaahhh...", "mmmhhhaaahhh, hhhaaahh...", "hhhaaahhh... hhhooohhh..."]),
     "long": (None, ["hhhaaahhh, hhhaaahhhh... mmmhhhaaahhh, hhhaaaaahhhh...",
-                    "mmmhhhaaahhh, hhhaaahhh... hhhaaahhhh, mmmhhh, hhhaaaahhh..."]),
-    "impact": ("gasping", ["hhhAAAHhh!", "hhAAH, hhhh...", "hhhAAAH!"]),
+                    "mmmhhhaaahhh, hhhaaahhh... hhhaaahhhh, mmmhhh, hhhaaaahhh...",
+                    "hhhaaahhh, hhhooohhh... mmmhhhaaahhh, hhhaaahhhh, hhhaaaahhh...",
+                    "mmmhhh, hhhaaahhh... hhhaaaahhh, hhhooohhh... mmmhhhaaahhh..."]),
+    "impact": ("gasping", ["hhhAAAHhh!", "hhAAH, hhhh...", "hhhAAAH!", "hhhOOOHhh!"]),
     "climax": ("climaxing", ["hhhaaahhh, hhhaaahhhh, hhhaaaAAAHHHH, AAAAHHHHHH... hhhaaahhh, hhhaaahhh... mmmhhhhh...",
-                             "hhhaaahhh, hhhaaaahhh, hhhAAAAAHHHH... AAAHHH, AAAAHHHHH... hhhaaahhh... hhhhh..."]),
+                             "hhhaaahhh, hhhaaaahhh, hhhAAAAAHHHH... AAAHHH, AAAAHHHHH... hhhaaahhh... hhhhh...",
+                             "hhhaaahhh, hhhaaahhh, hhhaaahhh, hhhOOOHHHH, AAAAHHHHH... hhhaaahhh, mmmhhh..."]),
 }
 # Round 3 (owner, 2026-10-01: "i liked your painful pleasure"): PAINFUL PLEASURE for anal, rough and
 # BDSM animations -- the persona's settled direction plus a pained edge, and a strained "nnngh" in
@@ -73,16 +79,25 @@ KINDS = {
 PAIN_EDGE = {"vulgar": ", gasping through rough pain"}
 PAIN_EDGE_DEFAULT = ", wincing with sweet pain"
 PAIN_KINDS = {
-    "pain_short": ["nnnhhhaaahhh...", "hhhaaahhh, nnngh...", "nnngh, hhhaaahh..."],
+    "pain_short": ["nnnhhhaaahhh...", "hhhaaahhh, nnngh...", "nnngh, hhhaaahh...",
+                   "nnnhhh, hhhaaahh...", "hhhaaahh, nnnhhh...", "nnngh... hhhooohh..."],
     "pain_medium": ["nnnhhhaaahhh, hhhaaahhh... nnngh, hhhaaahhhh...", "hhhaaahhh, nnngh, hhhaaaahhh...",
-                    "nnngh... hhhaaahhh, nnnhhhaaahhh..."],
+                    "nnngh... hhhaaahhh, nnnhhhaaahhh...",
+                    "nnnhhh, hhhaaahhh... hhhaaaahhh, nnngh...", "hhhaaahhh, nnnhhhaaahhh... nnngh...",
+                    "nnngh, hhhooohhh... hhhaaahhh..."],
     "pain_long": ["nnnhhhaaahhh, hhhaaahhh... nnngh, hhhaaahhhh, hhhaaaahhh... nnnhhh, hhhaaaahhhh...",
-                  "hhhaaahhh, nnngh... hhhaaahhhh, nnnhhhaaahhh... nnngh, hhhaaaaahhhh..."],
-    "pain_impact": ["nnnhhAAAHhh!", "hhAAH, nnngh...", "nnngh, hhhAAAH!"],
+                  "hhhaaahhh, nnngh... hhhaaahhhh, nnnhhhaaahhh... nnngh, hhhaaaaahhhh...",
+                  "nnngh, hhhaaahhh... nnnhhhaaahhh, hhhaaahhhh... nnngh, hhhaaahhh, hhhaaaahhh...",
+                  "hhhaaahhh, nnnhhh... hhhaaaahhh, nnngh, hhhooohhh... nnnhhhaaahhh..."],
+    "pain_impact": ["nnnhhAAAHhh!", "hhAAH, nnngh...", "nnngh, hhhAAAH!", "nnnhhOOOHhh!"],
 }
-GAG = ("[breathless, gagging on a deep throat]", "[gagging and choking]")
-GAG_TEXTS = ["ghhlk, ghhlk... hhkk... hhhaaahhh, hhhaaahhh...", "ghhk... glk, glk... hhkkhh, hhhaaahhh...",
-             "glhk, ghhk... hhhaaahhh..."]
+# The GAG on a deep stroke is a real GULP, not a voice: the owner (2026-10-01) rejected a spoken "G",
+# found that no-consonant swallows lost the gulp entirely, and picked three ElevenLabs sound effects
+# by ear ("i like 3 5 6 NEW gulps"). A swallow is the throat's own sound, so every character gets
+# the same three, copied (edge-trimmed, 16-bit mono WAV) rather than rendered.
+GAG_SFX = ["voice/audition-moans/gulp/sfx_gulp-3-water.mp3",
+           "voice/audition-moans/gulp/sfx_gulp-5-pill.mp3",
+           "voice/audition-moans/gulp/sfx_gulp-6-throat.mp3"]
 
 
 def api_key() -> str:
@@ -135,8 +150,8 @@ def kinds_for(persona, adjectives, noun):
     edge = PAIN_EDGE.get(persona, PAIN_EDGE_DEFAULT)
     for kind, texts in PAIN_KINDS.items():
         yield kind, f"[{adjectives} breathless {noun}{edge}]", texts
-    for n, text in enumerate(GAG_TEXTS):
-        yield "gag", GAG[n % len(GAG)], [text]
+    for sfx in GAG_SFX:
+        yield "gag", "sfx", [sfx]
 
 
 def jobs():
@@ -147,6 +162,13 @@ def jobs():
                 for body in texts:
                     n = takes_seen[(sex, persona, kind)] = takes_seen.get((sex, persona, kind), 0) + 1
                     clip = f"{sex}_{persona}/{kind}_{n:02d}"
+                    if direction == "sfx":
+                        # A copied sound effect: its inputs are the source file's bytes.
+                        src = ROOT / body
+                        inputs = hashlib.sha256(b"sfx" + src.read_bytes()).hexdigest()
+                        yield {"id": clip, "sex": sex, "persona": persona, "kind": kind, "take": n,
+                               "voice": None, "text": f"sfx:{body}", "seed": 0, "inputs": inputs, "sfx": src}
+                        continue
                     text = f"{direction} {body}"
                     seed = int(hashlib.sha256(clip.encode()).hexdigest()[:8], 16) % 4294967295
                     inputs = hashlib.sha256(json.dumps([voice, text, seed, MODEL, SETTINGS], sort_keys=True).encode()).hexdigest()
@@ -169,17 +191,21 @@ def main() -> int:
         for j in stale[:12]:
             print("  would render", j["id"], "|", j["text"][:70])
         return 0
-    key = api_key()
+    key = api_key() if any("sfx" not in j for j in stale) else None
     with tempfile.TemporaryDirectory() as tmp:
         for i, j in enumerate(stale, 1):
-            raw = pathlib.Path(tmp) / "raw.wav"
-            raw.write_bytes(wav(tts(key, j["voice"], j["text"], j["seed"])))
             dst = OUT / f"{j['id']}.wav"
             dst.parent.mkdir(parents=True, exist_ok=True)
-            seconds = trim(raw, dst)
+            if "sfx" in j:
+                seconds = trim(j["sfx"], dst)   # the approved effect itself, trimmed like every take
+            else:
+                raw = pathlib.Path(tmp) / "raw.wav"
+                raw.write_bytes(wav(tts(key, j["voice"], j["text"], j["seed"])))
+                seconds = trim(raw, dst)
             takes[j["id"]] = {k: j[k] for k in ("sex", "persona", "kind", "take", "voice", "text", "seed", "inputs")}
             takes[j["id"]].update({"seconds": seconds, "sha256": hashlib.sha256(dst.read_bytes()).hexdigest(),
-                                   "model": MODEL, "settings": SETTINGS})
+                                   "model": None if "sfx" in j else MODEL,
+                                   "settings": None if "sfx" in j else SETTINGS})
             # Written after every take: a failure later keeps everything already paid for.
             MANIFEST.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
             print(f"  [{i}/{len(stale)}] {j['id']}  {seconds:.2f} s")

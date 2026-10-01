@@ -157,6 +157,8 @@ MOAN_KINDS = ('breath', 'short', 'medium', 'long', 'impact', 'climax')
 # moving an existing record's id is the one thing this builder never does.
 MOAN_BASE_2 = 0x01000940
 MOAN_KINDS_2 = ('pain_short', 'pain_medium', 'pain_long', 'pain_impact', 'gag')
+MOAN_FREQ_VARIANCE = 5   # percent: pitch differs a little on every playback
+MOAN_DB_VARIANCE = 2     # dB: and so does the volume
 MOAN_CATEGORY = 0x000DDDC5
 MOAN_OUTPUT = 0x0005A28A
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -193,7 +195,11 @@ def moan_records():
                     f += field('ANAM', zstring(f'Data\\Sound\\FX\\Rapport\\Moans\\{rel}.wav'))
                 f += field('ONAM', struct.pack('<I', MOAN_OUTPUT))
                 f += field('LNAM', struct.pack('<I', 0))
-                f += field('BNAM', bytes([0x00, 0x00, 0x80, 0x00, 0x00, 0x00]))
+                # BNAM: frequency shift 0, FREQUENCY VARIANCE 5 %, priority 128, dB VARIANCE 2, static
+                # attenuation 0 -- every replay a little different (owner, 2026-10-01: "solid
+                # diversity"). The variance fields as AAF_DR_creature_pack's DR_Orgasm (dB 6) and
+                # vanilla's NPCDogRaiderPantingLP (frequency 3) use them.
+                f += field('BNAM', bytes([0x00, MOAN_FREQ_VARIANCE, 0x80, MOAN_DB_VARIANCE, 0x00, 0x00]))
                 records += record('SNDR', form, f)
                 table.setdefault(f'{sex}_{persona}', {})[kind] = {
                     'form': f'0x{form & 0xFFFFFF:06X}',
