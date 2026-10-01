@@ -149,7 +149,7 @@ PAGES = [
         # and only to an Anatomy that says its mute hooked on this game (hello bit 10).
         ("section", "Sounds"),
         ("Anatomy", "soundOverride", anatomy, "Anatomy's sex sounds", "Anatomy mutes the animation packs' own "
-         "sounds during scenes - their moans too - and makes the body sounds itself from what it measures. "
+         "sounds during scenes - their moans too - and makes the body sounds itself from what it measures; Rapport's own moans play only while this is on. "
          "Off: the packs sound as they always have.", None, None, None),
     ]),
 ]

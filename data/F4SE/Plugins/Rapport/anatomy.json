@@ -11,5 +11,5 @@
   "headMin": 1.2,
   "headMax": 1.25,
   "reactScale": 1.0,
-  "soundOverride": false
+  "soundOverride": true
 }

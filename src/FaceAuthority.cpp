@@ -778,7 +778,7 @@ namespace RP
 				std::uint32_t flags;   // bit 0: override on
 			};
 			static_assert(sizeof(SoundMessage) == 8);
-			SoundMessage sound{ kVersion, McmSettings::ReadBool(doc, "soundOverride", false) ? 1u : 0u };
+			SoundMessage sound{ kVersion, McmSettings::ReadBool(doc, "soundOverride", true) ? 1u : 0u };
 			_soundOverride.store(sound.flags != 0);
 			if (const auto messaging = F4SE::GetMessagingInterface()) {
 				messaging->Dispatch(kSound, &sound, sizeof(sound), kPeer);

@@ -151,9 +151,9 @@ namespace RP
 		NamedLock lock{ _lock, "narrator" };
 		_enabled = McmSettings::ReadBool(document, "enabled", true);
 		_sceneStarts = McmSettings::ReadBool(document, "sceneStarts", true);
-		_nearMisses = McmSettings::ReadBool(document, "nearMisses", false);
-		_relationshipTurns = McmSettings::ReadBool(document, "relationshipTurns", false);
-		_bystanders = McmSettings::ReadBool(document, "bystanders", false);
+		_nearMisses = McmSettings::ReadBool(document, "nearMisses", true);
+		_relationshipTurns = McmSettings::ReadBool(document, "relationshipTurns", true);
+		_bystanders = McmSettings::ReadBool(document, "bystanders", true);
 		_addonLines = McmSettings::ReadBool(document, "addonLines", true);
 		_numbers = McmSettings::ReadBool(document, "numbers", true);
 		_nearMissCooldown = document.value("nearMissCooldownSeconds", 300.0f);
