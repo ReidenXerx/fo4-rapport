@@ -23,57 +23,64 @@
 
 [size=5][b][color=#ffb62e]What it is[/color][/b][/size]
 
-[b]Rapport is a framework, not a story.[/b] AAF plays animations; Rapport runs the scene around them. It decides [i]how[/i] a scene goes, and addons decide [i]when[/i]: [url=https://www.nexusmods.com/fallout4/mods/109225]Chemistry[/url] lets NPCs find each other, and Overture lets you walk up to someone and try your luck. Without an addon, Rapport's own simple stand-in starts the odd scene so you can see it work.
+[b]Rapport is a framework, not a story.[/b] AAF plays animations; Rapport runs the scene around them. Addons decide [i]when[/i]: [url=https://www.nexusmods.com/fallout4/mods/109225]Chemistry[/url] lets NPCs find each other, and [url=https://www.nexusmods.com/fallout4/mods/109433]Overture[/url] lets you walk up to someone and try your luck. Rapport alone starts nothing.
 
 [center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/family.jpg[/img][/center]
 
-[size=5][b][color=#ffb62e]What you get[/color][/b][/size]
+[size=5][b][color=#ffb62e]New in 0.2.5[/color][/b][/size]
 
-[list]
-[*][b]They talk.[/b] One opens the scene and the other answers, voiced and subtitled, in the voice that NPC already has and the mood of the moment. A quick one behind the counter does not sound like a slow evening at home, and the same opener never plays twice in a row. [b]211 lines, recorded in all 32 of the game's voice types: 6,656 recordings.[/b]
-[*][b]Four personalities, and every NPC has one.[/b] The dealmaker, the romantic, the crude one, the shy one. It is fixed for that character forever, the same in every load order, and costs nothing in your save.
-[*][b]People notice.[/b] Walk past and heads turn. Anyone who can see it, or hear it through a wall, may say something: alone they mutter, in a crowd they play to the room, and nobody talks over anybody.
-[*][b]Faces that follow the act, on a vanilla install.[/b] AAF leaves most faces blank; Rapport drives them itself, building from anticipation to a climax and a dazed moment after, then takes them off again. Sweat builds through a scene. [b]No textures to install.[/b]
-[*][b]Relationships.[/b] Every pair has a bond from −1 to +1, seeded from the game's own relationships (spouses start close, then family, friends, co-workers), raised by every scene together, kept in your save and cleared on death.
-[*][b]The Narrator[/b] (optional, on by default): one HUD line saying who is about to have a scene and why, with the numbers if you want them.
-[*][b]Aftermath that lasts.[/b] With [b]Commonwealth Moisturizer[/b] installed, what a scene leaves behind stays for 4 game hours (your choice on the MCM, up to 48), on the right person, and survives a save.
-[/list]
+[center][size=4][b]Moans timed to each stroke Anatomy's physics measures, in each NPC's own voice and temperament.[/b][/size][/center]
 
-[size=4][b]How a character with their own actor still gets a voice[/b][/size]
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@667b7437e1bb0aeb54c16553297ec406c0af5d21/docs/img/moans.jpg[/img][/center]
+[center][b]Scene moans.[/b] 419 takes, 2 voices × 4 temperaments; painful pleasure for the receiver, a climax that lands. [url=https://www.nexusmods.com/fallout4/articles/6668]Scenes and pairing →[/url][/center]
 
-Piper, Hancock, Cait and every character with a unique actor would normally be silent: nobody can record new lines in their real voice. Rapport solved it with the technology that tells voices apart on a phone line.
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@667b7437e1bb0aeb54c16553297ec406c0af5d21/docs/img/wardrobe.jpg[/img][/center]
+[center][b]Nobody left naked.[/b] AAF re-dresses only on a clean ending; Rapport's own snapshot, kept in the save, puts back what is missing. [url=https://www.nexusmods.com/fallout4/articles/6671]Faces, voices and bodies →[/url][/center]
+
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@667b7437e1bb0aeb54c16553297ec406c0af5d21/docs/img/identity.jpg[/img][/center]
+[center][b]Change who they are.[/b] Face anyone, press a hotkey: orientation or persona, this save only. Every family mod follows. [url=https://www.nexusmods.com/fallout4/articles/6669]Relationships and people →[/url][/center]
+
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/glances.jpg[/img][/center]
+[center][b]Faces that fit the act, and eye contact.[/b] Packs give faces to 0.4% of actions; Rapport classifies 99.2%. [url=https://www.nexusmods.com/fallout4/articles/6671]Faces, voices and bodies →[/url][/center]
 
 [center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/voices-map.jpg[/img][/center]
+[center][b]Every character speaks.[/b] 6,656 recordings; 629 voice types fingerprinted, so unique characters borrow the closest voice. [url=https://www.nexusmods.com/fallout4/articles/6671]Faces, voices and bodies →[/url][/center]
 
-A [url=https://en.wikipedia.org/wiki/Speaker_recognition]speaker-recognition[/url] model ([url=https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb]SpeechBrain ECAPA[/url]) listened to the game's own recordings and turned each of 629 voice types into a fingerprint of how it sounds. A vector search then found, for each unique voice, the closest of the 32 we recorded. They borrow it [b]for that one line only[/b]: talk to them afterwards and they are exactly themselves. Who may borrow at all is decided by rules, not scores, so a child, a robot or the wrong sex never happens. Every recording was transcribed back by machine and checked against its subtitle: what you hear is what you read.
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@667b7437e1bb0aeb54c16553297ec406c0af5d21/docs/img/narrator.jpg[/img][/center]
+[center][b]The Narrator.[/b] Who, why and the score part by part; all four moments on by default. [url=https://www.nexusmods.com/fallout4/articles/6670]The Narrator →[/url][/center]
 
 [center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/divider.png[/img][/center]
 
-[size=5][b][color=#ffb62e]New in 0.2.1[/color][/b][/size]
+[size=5][b][color=#ffb62e]Everything else, one line each[/color][/b][/size]
 
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/new.jpg[/img][/center]
-
+[b][url=https://www.nexusmods.com/fallout4/articles/6668]Scenes and pairing →[/url][/b]
 [list]
-[*][b]Faces that live[/b]: eye contact, faces that change with the personality and with the act, and a face that drifts instead of freezing (built, not yet seen in game). This needs the [url=https://www.nexusmods.com/fallout4/mods/109434]Anatomy Engine[/url], a separate mod; without it you get the ordinary Rapport faces. A "Bodies & faces" MCM page holds its settings.
-[*][b]A voice in addon dialogue.[/b] When a mod gives a named character a line with no recording in their voice, it is spoken in the closest one, the same way as above.
-[*][b]A door for new mods[/b]: scenes with you, lovers, the Narrator speaking for addons, and API 201. Overture is the first mod built on it.
-[*][b]Fixes:[/b] the MCM menu now saves; AAF's leftover body morphs are cleared after a scene (they are left only by a scene that never ended normally, and AAF 1.7.9 clears them at load too); nobody in a cell you just left is paired or counted as a witness; a refused request no longer lingers for minutes.
+[*]The whole tree is read: the scene asked for, to a real ending.
+[*]A 600 s stop: no scene runs forever.
+[*]Same-sex pairs prefer their own animations, never an empty scene (new).
+[*]Never anyone unconscious, restrained or frozen; nothing before Vault 111.
 [/list]
-
-[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/glances.jpg[/img][/center]
-[center][b]See it move:[/b] [url=https://pixeldrain.com/u/6XN7D8kp]expressions and eye contact, with the Anatomy Engine[/url] [i](adult; short loops are in the gallery)[/i][/center]
-
-With the [url=https://www.nexusmods.com/fallout4/mods/109434]Anatomy Engine[/url], the two of them look into each other's eyes, 4-7 seconds at a time, more often as the scene builds.
-
-[b]0.2.2[/b] adds the rule above, never pairs anyone unconscious, restrained, bleeding out or frozen, and gives mods API 202.
-
-[b]0.2.3[/b] runs on the Anniversary Edition too (one DLL, through Runtime Database, which is now required), keeps the day's rest after a scene when the game clock steps back, and makes Rapport_Moisturizer.esp a light plugin.
-
-[b]0.2.4[/b] makes aftermath last 4 game hours by default (it was 12) and puts its length on a new MCM page, 1 to 48 hours.
-
-[b]0.2.5[/b] hides Visible Favorites' holstered weapons during every AAF scene and puts them back after (it draws them on the skeleton, so AAF's undressing never took them off).
-
-Every change, with the small ones too, is in the [b]Changelog[/b] tab and the sticky posts.
+[b][url=https://www.nexusmods.com/fallout4/articles/6671]Faces, voices and bodies →[/url][/b]
+[list]
+[*]Faces nothing can close: Anatomy's hook acts after the engine's merge.
+[*]Real dialogue with lip sync; every take checked against its subtitle.
+[*]Aftermath in game hours, on the receiver: 4 by default, 1-48 on the MCM.
+[*]No holstered pistol during sex, with Visible Favorites (new).
+[/list]
+[b][url=https://www.nexusmods.com/fallout4/articles/6669]Relationships and people →[/url][/b]
+[list]
+[*]A bond from −1 to +1 between everyone who touched, seeded from the game's own ranks.
+[*]Four kinds of people, spread evenly and stable forever.
+[*]Bystanders notice: one roll per scene, about 1 in 3 speak.
+[/list]
+[b][url=https://www.nexusmods.com/fallout4/articles/6672]Under the hood, and for mod authors →[/url][/b]
+[list]
+[*]It cannot crash your game through the script engine: Papyrus asks, C++ answers.
+[*]At most one AAF call per poll: other mods' scripts never stall.
+[*]Refusals told from starts: no phantom scenes, no frozen NPCs.
+[*]0.004-0.028 ms a pass for 49-78 actors: zero script lag.
+[*]Addon door, ApiVersion 205, and our notes on AAF for any author.
+[/list]
 
 [center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/divider.png[/img][/center]
 
@@ -88,6 +95,8 @@ Every change, with the small ones too, is in the [b]Changelog[/b] tab and the st
 [size=5][b][color=#ffb62e]Before you play[/color][/b][/size]
 
 [quote]
+[b]Install with Vortex or MO2; manual installs are not supported.[/b] The installer refuses to run without AAF and LooksMenu. [b]Optional:[/b] [url=https://www.nexusmods.com/fallout4/mods/109435]Anatomy 1.2.0[/url] for the moans and sex sounds, MCM, Commonwealth Moisturizer for the aftermath, Visible Favorites for the holster hiding. Upgrading from 0.2.4 mid-save is safe.
+
 [b]Don't fast travel in the ~10 seconds while two NPCs walk to each other to start a scene[/b] (fixed in AAF 1.7.8; the public AAF is still 1.7.4.1). Once the scene has started, fast travel is safe. The crash is inside AAF's interface while the area unloads; a mod gets no warning that a fast travel is coming, and no distance setting removes the window.
 
 [b]Nothing starts until you leave Vault 111.[/b] No scene and no approach during the game's opening, from character creation to the vault door; alternate starts and MS Skip Prewar Sanctuary work as expected. Using an unusual alternate start that never finishes the opening? MCM, first page, [i]Start now[/i].
@@ -111,14 +120,14 @@ Known conflicts, from real reports and the code. Found another one? Tell us in t
 [b]Does it replace other mods?[/b]
 [spoiler]AAF Sex 'Em Up and AAF Autonomy Enhanced do the same job, so if either is installed Rapport stops their quests, never deleting anything, and logs why. Commonwealth Moisturizer's own scene listener is stopped the same way while Rapport drives the aftermath. Everything else AAF plays keeps working, and Rapport adds its faces and aftermath to those scenes too.[/spoiler]
 
-[b]Is every feature tested in game?[/b]
-[spoiler]No, and we say which. Faces, placement, the photo-mode pause, the Narrator and names were checked in game for 0.2.1, and voice in addon dialogue on one character so far. Scenes with the player and lovers are built but have not been run in a real game yet. The sticky post lists it all. If you try them, please tell us what happened.[/spoiler]
+[b]Where do I report what I see?[/b]
+[spoiler]The Bugs tab, with Rapport.log. Every report gets read.[/spoiler]
 
 [b]Where is the full list of features and settings?[/b]
-[spoiler]In the sticky posts: every feature, every MCM and Rapport.ini setting, and the API for mod authors.[/spoiler]
+[spoiler]In the five articles on the Articles tab: [url=https://www.nexusmods.com/fallout4/articles/6668]Scenes and pairing[/url], [url=https://www.nexusmods.com/fallout4/articles/6671]Faces voices and bodies[/url], [url=https://www.nexusmods.com/fallout4/articles/6669]Relationships and people[/url], [url=https://www.nexusmods.com/fallout4/articles/6670]The Narrator[/url], [url=https://www.nexusmods.com/fallout4/articles/6672]Under the hood and for mod authors[/url]. Every MCM and Rapport.ini setting is in the sticky posts.[/spoiler]
 
-[b]Can I just watch, without anything starting?[/b]
-[spoiler]Yes: [font=Courier New]DryRun=1[/font] in Rapport.ini. Rapport scores and reports everything to Rapport.log and starts nothing.[/spoiler]
+[b]Can I stop scenes from starting?[/b]
+[spoiler]Rapport starts nothing by itself: NPC scenes come from Chemistry and approaches from Overture, so turn those off (or uninstall them). Rapport keeps scoring and reporting to Rapport.log.[/spoiler]
 
 [center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/divider.png[/img][/center]
 

@@ -1,0 +1,84 @@
+=== ARTICLE: Scenes and pairing ===
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@667b7437e1bb0aeb54c16553297ec406c0af5d21/docs/img/moans.jpg[/img][/center]
+
+[size=4][b]Scenes and pairing[/b][/size]
+How Rapport picks a scene, plays it, and makes it sound right. One line each: the feature, and the hard thing it solved.
+
+[list]
+[*][b]Scene moans (new in 0.2.5).[/b] Both partners moan in their own voice and temperament: 419 takes play, 2 voices × 4 temperaments, 10 kinds. Text-to-speech reads "ah" as a word; one feeling tag and one breath group per take make it a moan.
+[*][b]Timed to the stroke.[/b] The Anatomy Engine measures every stroke: under 600 ms a short moan, under 1200 ms a medium one, otherwise a long one. Needs Anatomy 1.2.0.
+[*][b]Painful pleasure.[/b] In anal and rough scenes the one receiving gets a painful-pleasure set; the giver moans pleasure.
+[*][b]A climax that lands.[/b] 27 of 61 climax trees name a branch "Orgasm" and tag nothing, so a tag-only climax never fires there. Rapport reads the branches.
+[*][b]Never the same twice.[/b] Every playback varies ±5% pitch and ±2 dB. A full mouth makes no sound.
+[*][b]The scene asked for, to a real ending.[/b] 54 of 74 tree positions carry different tags at their two ends, so "doggy" could end in a facial. Rapport reads the whole tree.
+[*][b]No scene runs forever.[/b] Trees ignore duration (a 30 s scene ran 3.5 min). The longest tree is about 501 s, so a stop waits at 600 s.
+[*][b]Same-sex pairs prefer their own animations (new).[/b] AAF casts a man into the neutral slot of an F/M position. Rapport checks its index of every playable position first; if no m/m or f/f one fits, any will do, so a scene is never empty.
+[*][b]Scenarios as mood.[/b] At home, tender, quickie: each sets how the scene goes.
+[*][b]Nobody it should not touch.[/b] Never anyone unconscious, restrained, bleeding out or frozen; nothing before you leave Vault 111.
+[*][b]Orientation.[/b] 70 / 20 / 10 straight / bi / gay, stable per person (and changeable in game, see People).
+[*][b]Rapport alone starts nothing (new).[/b] Scenes start when you ask, through Overture, or when NPCs find each other, through Chemistry.
+[/list]
+
+=== ARTICLE: Faces voices and bodies ===
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/glances.jpg[/img][/center]
+
+[size=4][b]Faces, voices and bodies[/b][/size]
+[list]
+[*][b]Faces that fit the act.[/b] Animation packs give faces to 10 of 2,240 actions (0.4%). Rapport classifies every act's face: 99.2% from tags and names.
+[*][b]Faces nothing can close.[/b] The engine merges faces as the bigger of two values, so no pack's face can close a jaw. Anatomy's hook replaces the value after that merge.
+[*][b]Glances.[/b] The engine ignores eyelid overrides, so eye contact goes through Anatomy: 4-7 s at a time, more often as the scene builds.
+[*][b]Real dialogue.[/b] 211 lines in 32 of the game's generic voice types: 6,656 recordings, with lip sync, as true dialogue, not sound effects.
+[*][b]Subtitles that match.[/b] Neither voice model reads a script word for word, so every take was transcribed back and checked against its subtitle.
+[*][b]Unique characters still speak.[/b] 629 voice types fingerprinted by a speaker-recognition model: 462 borrow the closest recorded voice for that one line, 135 stay silent, 0 ever borrow across sexes.
+[*][b]Sweat and heat.[/b] Builds through a scene.
+[*][b]Aftermath that lands right.[/b] AAF's overlay timer strands overlays forever, so Rapport keeps them in game hours: 4 by default, 1 to 48 on the MCM, on the receiving partner (in 559 of 562 two-actor animations the receiving role is slot 0). Needs Commonwealth Moisturizer.
+[*][b]Nobody left naked (new).[/b] AAF re-dresses only when a scene ends properly. Rapport notes all 31 slots before AAF undresses anyone, keeps that in the save, and puts back what is missing after an AAF restart, a scene that never ended or a mid-scene save. Never over what they wear now; never by force.
+[*][b]No pistol on the hip (new).[/b] Visible Favorites draws weapons on the skeleton, out of AAF's reach. Rapport hides them for the scene and puts them back.
+[/list]
+
+=== ARTICLE: Relationships and people ===
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@667b7437e1bb0aeb54c16553297ec406c0af5d21/docs/img/identity.jpg[/img][/center]
+
+[size=4][b]Relationships and people[/b][/size]
+[list]
+[*][b]A history between everyone who touched.[/b] Every pair has a bond from −1 to +1, seeded from the game's own ranks (spouses +0.80, family +0.45, friends +0.15) and raised by every scene together. Kept in the save, cleared on death.
+[*][b]Blood is a flag, never a refusal.[/b] Rapport records who is family; it never refuses a pair over it.
+[*][b]Four kinds of people.[/b] Romantic, reticent, vulgar, mercantile. A plain id-based pick would tie persona to face style; a mixed hash spreads them 24.6-26.0% each, stable forever.
+[*][b]Change who they are, in game (new).[/b] Face anyone and press an MCM hotkey: orientation cycles straight, bi, gay, their own; persona cycles the four, then their own. This save only. Romanceable companions stay open to you. Voice, face, moans, Chemistry and Overture all follow.
+[*][b]Bystanders react.[/b] Rolling every poll would make anyone who lingers certain to speak, so it is one roll per scene: about 1 in 3 onlookers say something.
+[*][b]Names for the nameless.[/b] Someone with no name of their own, a settler or a drifter, gets one the first time a mod introduces them (Overture's conversation), and keeps it.
+[/list]
+
+=== ARTICLE: The Narrator ===
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@667b7437e1bb0aeb54c16553297ec406c0af5d21/docs/img/narrator.jpg[/img][/center]
+
+[size=4][b]The Narrator[/b][/size]
+[list]
+[*][b]Who, and why.[/b] One storyteller line on the HUD as a scene starts, with the real reasons.
+[*][b]The numbers.[/b] Then the score, part by part. Example: [i]quickie - score 0.97 = near +1.01, same faction +0.60, night +0.25, 5 watching -1.04, bond +0.45, personas -0.30[/i].
+[*][b]Four moments, all on by default (new).[/b] Scene starts, why nothing happened, relationship turns, bystanders. A setting you saved keeps your choice.
+[*][b]Every addon reports its own share.[/b] Scenes from Chemistry, Overture or any mod built on Rapport are narrated, each with its part of the score.
+[*][b]History.[/b] An MCM button shows what was said recently.
+[/list]
+
+=== ARTICLE: Under the hood and for mod authors ===
+[center][img]https://cdn.jsdelivr.net/gh/ReidenXerx/fo4-rapport@79c928255c6aee7b2b2b3b6a6f69c18a31ae978f/docs/img/new.jpg[/img][/center]
+
+[size=4][b]Under the hood[/b][/size]
+[list]
+[*][b]It cannot crash your game through the script engine.[/b] Calling Papyrus from an F4SE task crashed the game twice. Papyrus now asks every 3 s and C++ answers; the direction never reverses.
+[*][b]It never stalls other mods' scripts.[/b] A Papyrus stack never returns from an AAF call, so Rapport makes at most one AAF call per poll.
+[*][b]No phantom scenes, no frozen NPCs.[/b] AAF reports a refusal through the same event as a start; read as a start it looped 8 times a second. Rapport tells them apart (11 arguments vs 4).
+[*][b]NPCs never become unusable.[/b] A dead request leaves AAF's busy flag on, so every AAF mod refuses that NPC forever. Rapport releases a stale flag after 120 s.
+[*][b]AAF watched.[/b] Rapport found the cure for AAF going deaf after a load; AAF's author confirmed it and fixed it in AAF 1.7.8. Rapport keeps watching.
+[*][b]No fights with your other sex mods.[/b] Mods that do the same job are paused, announced and reversible, never deleted.
+[*][b]Zero script lag.[/b] The scheduler runs native: 0.004-0.028 ms a pass for 49-78 actors.
+[*][b]One DLL for old-gen and AE[/b], through Runtime Database.
+[/list]
+
+[size=4][b]For mod authors[/b][/size]
+[list]
+[*][b]The addon door:[/b] RequestScene, CanRun, TakeOverDecisions; ApiVersion 205 (it follows the version: 0.2.5 reports 205).
+[*][b]New: Core.ActorsOf[/b], AAF's packed actor list, opened.
+[*][b]Our notes on AAF[/b], free for any author: [url=https://github.com/ReidenXerx/fo4-rapport/blob/master/docs/FEATURES.md]FEATURES.md[/url] and [url=https://github.com/ReidenXerx/fo4-rapport/blob/master/docs/aaf-under-the-hood.md]aaf-under-the-hood.md[/url].
+[/list]
