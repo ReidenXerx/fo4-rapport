@@ -19,12 +19,10 @@ namespace RP
 		// RFAE kinds (fo4-anatomy A-67). 5 = a deep oral stroke, if Anatomy sends it as a kind.
 		constexpr std::uint32_t kBegan = 1, kThrust = 2, kImpact = 3, kEnded = 4, kDeep = 5;
 		// RFAE v3 flags, if Anatomy sends them on the event instead.
-		// v3 (fo4-anatomy ec72ff4): bit 0 ORAL (a shaft in a mouth, on both partners' events), bit 1 DEEP
-		// (the stroke reached the deep face's depth, any opening). Bit 2 RECEIVER (this actor's opening is
-		// the one entered) is asked for; until the engine sets it, nothing does, and kFlagReceiverKnown
-		// (bit 31, reserved for "bit 2 is meaningful") stays clear, so the sex guess decides.
+		// v3 (fo4-anatomy ec72ff4, c1a4b87): bit 0 ORAL (a shaft in a mouth, on both partners' events),
+		// bit 1 DEEP (the stroke reached the deep face's depth, any opening), bit 2 RECEIVER (this actor's
+		// opening -- mouth, vagina or anus -- is the one entered; from geometry, any sex).
 		constexpr std::uint32_t kFlagOral = 1u << 0, kFlagDeep = 1u << 1, kFlagReceiver = 1u << 2;
-		constexpr std::uint32_t kFlagReceiverKnown = 1u << 31;
 		// Two gags no closer than this.
 		constexpr auto kGagGap = std::chrono::milliseconds{ 1500 };
 
@@ -217,12 +215,10 @@ namespace RP
 			auto&      state = _actors[e.formID];
 			const bool quiet = now >= state.quietUntil;
 			std::optional<Message> m;
-			// ORAL (v3 flags bit 0) rides on both partners' events, so which one is the MOUTH? With
-			// flags bit 2 (RECEIVER, asked of Anatomy 2026-10-01) the event says so; without it the
-			// female is taken as the mouth -- right for male-female scenes, a guess for the rest.
-			const bool oral = (e.flags & kFlagOral) != 0;
-			const bool mouth = oral && ((e.flags & kFlagReceiver) || (!(e.flags & kFlagReceiverKnown) &&
-			                                                            state.character.starts_with("female")));
+			// ORAL (v3 flags bit 0) rides on both partners' events; RECEIVER (bit 2, fo4-anatomy c1a4b87,
+			// decided from geometry, any sex) says this actor's opening is the one entered. So the MOUTH's
+			// owner is ORAL | RECEIVER, and the shaft's owner is ORAL alone.
+			const bool mouth = (e.flags & kFlagOral) && (e.flags & kFlagReceiver);
 			// A deep stroke in the mouth: its owner gags, cutting whatever was playing. DEEP (bit 1)
 			// is set for any opening, so only with ORAL.
 			if (mouth && (e.kind == kDeep || (e.flags & kFlagDeep))) {
