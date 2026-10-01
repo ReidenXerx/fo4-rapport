@@ -339,7 +339,17 @@ namespace RP
 		const auto* style = StyleOf(a_scenario);
 		const auto  styleExclude = style ? Trim(style->exclude) : std::string_view{};
 
-		if (!nonSex && styleExclude.empty()) {
+		// The pair's own composition. AAF casts a man into a gender-neutral slot of an F/M
+		// position, so two men got F/M scenes (Discord, 2026-10-01: Sturges and his settlers).
+		// The packs tag every position f_m / m_m / f_f (measured: 1593 / 517 / 270, no other
+		// spelling), so excluding the OTHER two keeps AAF on this pair's kind, untagged ones too.
+		const auto        composition = Aftermath::GetSingleton().CompositionOf(a_first, a_second);
+		const std::string otherPairs = composition == "m_m" ? "f_m,f_f"
+		                             : composition == "f_f" ? "f_m,m_m"
+		                             : composition == "f_m" ? "m_m,f_f"
+		                                                    : "";
+
+		if (!nonSex && styleExclude.empty() && otherPairs.empty()) {
 			if (!shy.empty()) {
 				logger::info("unconstrained start: {} - AAF may give them a hug or a kiss; its own exclusions stand",
 					shy);
@@ -367,9 +377,13 @@ namespace RP
 		if (!styleExclude.empty()) {
 			append(styleExclude);
 		}
-		logger::info("unconstrained start: AAF picks, excluding [{}] - {}{}{}{}", out,
+		if (!otherPairs.empty()) {
+			append(otherPairs);
+		}
+		logger::info("unconstrained start: AAF picks, excluding [{}] - {}{}{}{}{}", out,
 			sentinel ? std::format("AAF's own ({})", _aafExcludesFrom) : std::string{ "the list it was given" },
 			nonSex ? ", the non-sex markers" : "", styleExclude.empty() ? "" : std::format(", \"{}\"'s style", a_scenario),
+			otherPairs.empty() ? "" : std::format(", not {} (a {} pair)", otherPairs, composition),
 			shy.empty() ? "" : std::format(" ({}, so a hug or a kiss may still come)", shy));
 		_filtersSentFor.store(key);
 		return out;
