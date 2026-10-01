@@ -79,8 +79,35 @@ summary { cursor: pointer; font-weight: 600; }
     <div class="status"><div class="meter" id="meter"></div><span id="count">0 of 8 picked</span><span id="where"></span></div>
     <div class="script" title="The text every take reads">Mmmh... hahh... ahh... mmh, ahh... ahh... Ah! Ah! Ahh... hahh... ohh... oh... oh, oh, ohhh... AHHH! Hahh... hahh... mmmh.</div>
   </header>
+  <section class="row" id="round3">
+    <h2>Round 3: painful pleasure and deep gags <small>Painful pleasure, for anal, rough and BDSM animations: each temperament's settled direction, plus a pained edge ("wincing with sweet pain"; vulgar: "gasping through rough pain") and a strained "nnngh" in the breath. Deep gags: two tries, played when a blowjob stroke goes deep. Woman and man.</small></h2>
+    <div class="pair">
+      <article class="voice"><div class="vhead"><h3>Painful pleasure</h3><span class="pill">8 takes</span></div><div class="takes" id="r3-pain"></div></article>
+      <article class="voice"><div class="vhead"><h3>Deep gags</h3><span class="pill">4 takes</span></div><div class="takes" id="r3-gag"></div></article>
+    </div>
+    <textarea id="note-r3" placeholder="Do the pain moans land per temperament? Which gag try is right?"></textarea>
+    <div class="saved" id="saved-round3"></div>
+  </section>
+  <section class="row" id="calib">
+    <h2>Calibration: one full set, two characters <small>Approved; the full bank of 120 takes is rendered and in the game. All four temperaments are settled. Before rendering the whole bank (about 120 takes), here is every kind of sound for two characters, woman romantic and man vulgar, edge silence trimmed as it would ship. Breath plays when penetration begins and ends; short, medium and long moans follow the stroke tempo (faster strokes, shorter moans); impact on a hard thrust; climax is the super moan. Is each kind right?</small></h2>
+    <div class="pair">
+      <article class="voice"><div class="vhead"><h3>Woman · romantic</h3><span class="pill">6 kinds</span></div><div class="takes" id="cal-female_romantic"></div></article>
+      <article class="voice"><div class="vhead"><h3>Man · vulgar</h3><span class="pill">6 kinds</span></div><div class="takes" id="cal-male_vulgar"></div></article>
+    </div>
+    <textarea id="note-cal" placeholder="Which kinds work? Is the climax intense enough? Short moans short enough?"></textarea>
+    <div class="saved" id="saved-calibration"></div>
+  </section>
+  <section class="row" id="round2">
+    <h2>Round 2: vulgar and mercantile <small>Settled: desperate, greedy (vulgar) and composed, quietly pleased (mercantile), "perfect". Romantic and reticent are settled. These two sounded plastic, likely because "loud", "shameless" and "controlled humming" make the model perform instead of breathe. Same C2 recipe; each direction now describes a feeling that shakes the breath, the way the two winners do. Three tries each, woman and man.</small></h2>
+    <div class="pair">
+      <article class="voice"><div class="vhead"><h3>Vulgar</h3><span class="pill">3 tries</span></div><div class="takes" id="r2-vulgar"></div></article>
+      <article class="voice"><div class="vhead"><h3>Mercantile</h3><span class="pill">3 tries</span></div><div class="takes" id="r2-mercantile"></div></article>
+    </div>
+    <textarea id="note-r2" placeholder="Which try works for vulgar? For mercantile? Woman and man can differ."></textarea>
+    <div class="saved" id="saved-round2"></div>
+  </section>
   <section class="row" id="c2">
-    <h2>C2, by temperament <small>Your winner, C2, now per temperament. The voice, the breath and the settings stay the same; only the one direction at the front changes: low and controlled (mercantile), tender and trembling (romantic), loud and shameless (vulgar), shy and stifled (reticent). Does each one sound like its temperament?</small></h2>
+    <h2>C2, by temperament <small>Settled: romantic and reticent ("truly different, unique, real moans"). Your winner, C2, now per temperament. The voice, the breath and the settings stay the same; only the one direction at the front changes: low and controlled (mercantile), tender and trembling (romantic), loud and shameless (vulgar), shy and stifled (reticent). Does each one sound like its temperament?</small></h2>
     <div class="pair">
       <article class="voice"><div class="vhead"><h3>Woman</h3><span class="pill">C2 recipe</span></div><div class="takes" id="c2-female"></div></article>
       <article class="voice"><div class="vhead"><h3>Man</h3><span class="pill">C2 recipe</span></div><div class="takes" id="c2-male"></div></article>
@@ -194,6 +221,52 @@ function render() {
     row.append(h, pair);
     rows.append(row);
   }
+  const R3 = { pain: [], gag: [["female_gag-1", "Woman · gagging and choking"], ["female_gag-2", "Woman · breathless, gagging on a deep throat"], ["male_gag-1", "Man · gagging and choking"], ["male_gag-2", "Man · breathless, gagging on a deep throat"]] };
+  for (const sex of ["female", "male"]) for (const [key, name] of TEMPERAMENTS.map(x => [x[0], x[1]])) R3.pain.push([`${sex}_${key}-pain`, (sex === "female" ? "Woman · " : "Man · ") + name]);
+  for (const [box_, list] of Object.entries(R3)) {
+    const box = document.getElementById("r3-" + box_);
+    for (const [file, label] of list) {
+      const t = document.createElement("div"); t.className = "take"; t.style.gridTemplateColumns = "auto 1fr";
+      const p = player(`audition-moans/round3/trimmed/${file}.mp3`);
+      const meta = document.createElement("div"); meta.className = "meta";
+      const lab = document.createElement("div"); lab.className = "tlabel";
+      const l1 = document.createElement("span"); l1.textContent = label; lab.append(l1, p.time);
+      meta.append(lab, p.bar); t.append(p.btn, meta); box.append(t);
+    }
+  }
+  const r3Note = document.getElementById("note-r3");
+  r3Note.addEventListener("change", () => write("round3", { note: r3Note.value.slice(0, 1000) }));
+  const KINDS = [["1-breath", "Breath (begin / end)"], ["2-short", "Moan, short (fast strokes)"], ["3-medium", "Moan, medium"], ["4-long", "Moan, long (slow strokes)"], ["5-impact", "Impact (hard thrust)"], ["6-climax", "Climax super moan"]];
+  for (const who of ["female_romantic", "male_vulgar"]) {
+    const box = document.getElementById("cal-" + who);
+    for (const [file, label] of KINDS) {
+      const t = document.createElement("div"); t.className = "take"; t.style.gridTemplateColumns = "auto 1fr";
+      const p = player(`audition-moans/calibration/trimmed/${who}_${file}.mp3`);
+      const meta = document.createElement("div"); meta.className = "meta";
+      const lab = document.createElement("div"); lab.className = "tlabel";
+      const l1 = document.createElement("span"); l1.textContent = label; lab.append(l1, p.time);
+      meta.append(lab, p.bar); t.append(p.btn, meta); box.append(t);
+    }
+  }
+  const calNote = document.getElementById("note-cal");
+  calNote.addEventListener("change", () => write("calibration", { note: calNote.value.slice(0, 1000) }));
+  const r2 = { vulgar: [["desperate", "desperate, greedy"], ["rough", "rough, throaty panting"], ["wild", "wild, uninhibited"]],
+               mercantile: [["slow", "slow, satisfied"], ["lazy", "deep, lazy sighing"], ["composed", "composed, quietly pleased"]] };
+  for (const [temper, tries] of Object.entries(r2)) {
+    const box = document.getElementById("r2-" + temper);
+    for (const sex of ["female", "male"]) {
+      for (const [file, label] of tries) {
+        const t = document.createElement("div"); t.className = "take"; t.style.gridTemplateColumns = "auto 1fr";
+        const p = player(`audition-moans/round2/${sex}_${temper}-${file}.mp3`);
+        const meta = document.createElement("div"); meta.className = "meta";
+        const lab = document.createElement("div"); lab.className = "tlabel";
+        const l1 = document.createElement("span"); l1.textContent = (sex === "female" ? "Woman · " : "Man · ") + label; lab.append(l1, p.time);
+        meta.append(lab, p.bar); t.append(p.btn, meta); box.append(t);
+      }
+    }
+  }
+  const r2Note = document.getElementById("note-r2");
+  r2Note.addEventListener("change", () => write("round2", { note: r2Note.value.slice(0, 1000) }));
   for (const sex of ["female", "male"]) {
     const box = document.getElementById("c2-" + sex);
     for (const [key, name] of TEMPERAMENTS.map(x => [x[0], x[1]])) {
@@ -255,6 +328,12 @@ function paint() {
   });
   const pn = document.getElementById("note-pilot"), pp = picks.pilot_breathy;
   if (pn && pp && document.activeElement !== pn && typeof pp.note === "string") pn.value = pp.note;
+  const r3n = document.getElementById("note-r3"), r3p = picks.round3;
+  if (r3n && r3p && document.activeElement !== r3n && typeof r3p.note === "string") r3n.value = r3p.note;
+  const ln = document.getElementById("note-cal"), lp = picks.calibration;
+  if (ln && lp && document.activeElement !== ln && typeof lp.note === "string") ln.value = lp.note;
+  const rn = document.getElementById("note-r2"), rp = picks.round2;
+  if (rn && rp && document.activeElement !== rn && typeof rp.note === "string") rn.value = rp.note;
   const cn = document.getElementById("note-c2"), cp = picks.c2_personas;
   if (cn && cp && document.activeElement !== cn && typeof cp.note === "string") cn.value = cp.note;
   document.getElementById("count").textContent = done + " of 8 picked";

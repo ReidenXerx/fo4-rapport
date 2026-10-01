@@ -18,8 +18,10 @@
 param(
     [string] $Staging = 'D:\Vortex\fallout4\mods\Rapport-dev',
     [string] $Config  = 'Release',
-    # 'build' is the OG-only build; 'build-rd' is the Runtime Database one (OG, NG, AE).
-    [string] $BuildDir = 'build'
+    # 'build-rd' is the Runtime Database build: ONE DLL for OG, NG and AE, the only one that ships.
+    # 'build' is the legacy OG-only build, kept for comparison; defaulting to it staged a 09-27 DLL
+    # by mistake on 2026-10-01. AE is the main platform since then (owner).
+    [string] $BuildDir = 'build-rd'
 )
 
 $ErrorActionPreference = 'Stop'
