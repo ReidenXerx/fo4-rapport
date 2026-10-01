@@ -1391,3 +1391,14 @@ ended, with depth and speed). Rapport answers with a voice, played at the head t
   with every vowel wrapped in breath (`hhhaaahhh`), commas and ellipses only. A tag between syllables starts
   a new utterance with a hard attack: the flat, plainly spoken "A" the owner heard. Temperament goes in
   that one front direction. voice/moan-voices.json keeps the recipe.
+- **Romantic and reticent are settled** (owner, 2026-10-01: "very cool ... truly DIFFERENT, unique and sounds
+  like real moans"): `[tender, trembling breathless moaning]` and `[shy, stifled breathless whimpering]`.
+  Vulgar ("loud, raw, shameless") and mercantile ("low, controlled humming") came out "plastic and
+  essentialless": a direction that asks for a performance (loudness, a hum) gets acted. The winners name a
+  feeling that shakes the breath, and round 2 retries the other two that way.
+- **All four temperaments settled** (owner, 2026-10-01, round 2: "perfect"): vulgar `[desperate, greedy
+  breathless moaning]`, mercantile `[composed, quietly pleased breathless moaning]`. A calibration set (both
+  sexes, every kind: breath, short, medium and long moans, impact, climax) goes to the owner before the
+  bank is rendered. Every clip is edge-trimmed (ffmpeg silenceremove at -45 dB). Measured trimmed lengths:
+  short 1.1-1.9 s, medium about 2.7 s, long about 6.8 s, impact about 2 s, climax 10-13 s. So at a fast
+  tempo a short moan spans two or three strokes, and the next one waits for it to end.

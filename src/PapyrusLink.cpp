@@ -529,6 +529,7 @@ namespace
 			RP::Barks::GetSingleton().Pump();
 			RP::Morphs::GetSingleton().Pump();
 			RP::Holsters::GetSingleton().Pump();
+			RP::Moans::GetSingleton().Pump();
 			if (watching) {
 				logger::info("pump: returned normally");
 			}

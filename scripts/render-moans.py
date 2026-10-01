@@ -211,35 +211,35 @@ LOUDNESS = {"breath": -15.0, "short": -11.0, "medium": -11.0, "long": -11.0, "im
 TRUE_PEAK = -1.0
 
 
+def measure(path: pathlib.Path) -> float:
+    """Integrated loudness, LUFS (EBU R128, ffmpeg's loudnorm analysis)."""
+    probe = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(path), "-af", "loudnorm=print_format=json",
+                            "-f", "null", "-"], check=True, capture_output=True, text=True).stderr
+    return float(json.loads(probe[probe.rindex("{"):probe.rindex("}") + 1])["input_i"])
+
+
 def normalize(path: pathlib.Path, kind: str) -> float:
-    """Two-pass EBU R128 loudnorm to the kind's target; returns the target it now meets."""
+    """Gain to the kind's target, then a peak LIMITER at -1.5 dB (true peak <= -1 dBTP), up to three passes;
+    returns the loudness MEASURED after it.
+
+    Why not loudnorm: its linear mode stops where the peak cap bites, and its dynamic mode needs ~3 s of
+    audio, so short moans, gasps and gulps came out 2-7 LU under target (review, 2026-10-01: short -2.5,
+    impact -2.2, gag -5.0 on average) -- exactly the takes that make a scene sound alive. A limiter trims
+    the transient instead, and each pass makes up what the limiting took."""
     target = LOUDNESS[kind]
-    probe = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(path), "-af",
-                            f"loudnorm=I={target}:TP={TRUE_PEAK}:LRA=11:print_format=json", "-f", "null", "-"],
-                           check=True, capture_output=True, text=True).stderr
-    m = json.loads(probe[probe.rindex("{"):probe.rindex("}") + 1])
-    if kind == "gag":
-        # A gulp is one sub-second transient: linear gain hits the peak cap first (measured -19.4 LUFS
-        # against -12), and loudnorm's dynamic mode needs ~3 s of audio, so it falls back to linear.
-        # So: the gain it is short by, and a peak limiter at -1 dB catching the click.
-        gain = target - float(m["input_i"])
-        filt = f"volume={gain:.2f}dB,alimiter=limit={10 ** (TRUE_PEAK / 20):.3f}:attack=1:release=40:level=false"
+    limit = 10 ** ((TRUE_PEAK - 0.5) / 20)   # sample-peak limit a little under the true-peak cap
+    now = measure(path)
+    for _ in range(3):
+        gain = target - now
+        if abs(gain) < 0.4:
+            break
+        filt = f"volume={gain:.2f}dB,alimiter=limit={limit:.3f}:attack=1:release=50:level=false"
         tmp = path.with_suffix(".norm.wav")
         subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path), "-af", filt,
                         "-ac", "1", "-ar", "44100", "-c:a", "pcm_s16le", str(tmp)], check=True)
         tmp.replace(path)
-        return target
-    filt = (f"loudnorm=I={target}:TP={TRUE_PEAK}:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
-            f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}:"
-            # A gulp is one transient: linear gain hits the peak cap first (measured -19.4 LUFS against
-            # a -12 target), so it alone is levelled DYNAMICALLY, which compresses the click to lift the body.
-            f"linear={'false' if kind == 'gag' else 'true'}")
-    tmp = path.with_suffix(".norm.wav")
-    subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path), "-af", filt,
-                    "-ac", "1", "-ar", "44100", "-c:a", "pcm_s16le", str(tmp)], check=True)
-    tmp.replace(path)
-    return target
-
+        now = measure(path)
+    return round(now, 1)
 
 def jobs():
     takes_seen = {}
@@ -267,22 +267,27 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--only", default="")
+    ap.add_argument("--relevel-only", action="store_true", help="re-level existing takes, render nothing")
     args = ap.parse_args()
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8")) if MANIFEST.exists() else {"takes": {}}
     takes = manifest.setdefault("takes", {})
     # Loudness first, on every take already rendered whose recorded target differs from LOUDNESS:
     # a changed target re-levels the files without re-rendering a single one.
     relevel = [(tid, t) for tid, t in takes.items()
-               if t.get("lufs") != LOUDNESS.get(t["kind"]) and (OUT / f"{tid}.wav").exists()]
+               if t.get("lufs_target") != LOUDNESS.get(t["kind"]) and (OUT / f"{tid}.wav").exists()]
     if relevel and not args.dry_run:
         print(f"re-levelling {len(relevel)} take(s) to their kind's loudness")
         for i, (tid, t) in enumerate(relevel, 1):
             dst = OUT / f"{tid}.wav"
-            t["lufs"] = normalize(dst, t["kind"])
+            t["lufs"] = normalize(dst, t["kind"])   # MEASURED after levelling, for audits
+            t["lufs_target"] = LOUDNESS[t["kind"]]
             t["sha256"] = hashlib.sha256(dst.read_bytes()).hexdigest()
             if i % 50 == 0:
                 print(f"  {i}/{len(relevel)}")
         MANIFEST.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if args.relevel_only:
+        print(f"re-levelled {len(relevel)}; rendering skipped (--relevel-only)")
+        return 0
     todo = [j for j in jobs() if (not args.only or j["id"].startswith(args.only))]
     stale = [j for j in todo if takes.get(j["id"], {}).get("inputs") != j["inputs"]
              or not (OUT / f"{j['id']}.wav").exists()]
@@ -304,7 +309,7 @@ def main() -> int:
                 seconds = trim(raw, dst)
             lufs = normalize(dst, j["kind"])
             takes[j["id"]] = {k: j[k] for k in ("sex", "persona", "kind", "take", "voice", "text", "seed", "inputs")}
-            takes[j["id"]].update({"seconds": seconds, "lufs": lufs, "sha256": hashlib.sha256(dst.read_bytes()).hexdigest(),
+            takes[j["id"]].update({"seconds": seconds, "lufs": lufs, "lufs_target": LOUDNESS[j["kind"]], "sha256": hashlib.sha256(dst.read_bytes()).hexdigest(),
                                    "model": None if "sfx" in j else MODEL,
                                    "settings": None if "sfx" in j else SETTINGS})
             # Written after every take: a failure later keeps everything already paid for.

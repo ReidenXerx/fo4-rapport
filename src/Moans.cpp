@@ -43,6 +43,13 @@ namespace RP
 		constexpr auto kImpactGap = std::chrono::milliseconds{ 1200 };
 		// A take whose length the table does not give: assume a short moan's.
 		constexpr float kUnknownLength = 2.0f;
+		// One climax per scene: a second climax tag within this long is the same climax (a position change
+		// re-sends tags). Past it -- a long scene's second round, or a foreign scene whose end never came --
+		// a new one may play.
+		constexpr auto kClimaxWindow = std::chrono::seconds{ 90 };
+		// An "ended" breath waits this long, and is dropped if contact resumes (a position change, a brief
+		// withdrawal): a sigh on every withdrawal sounded wrong (review, 2026-10-01).
+		constexpr auto kEndedBreathDelay = std::chrono::milliseconds{ 1500 };
 
 #pragma pack(push, 4)
 		struct EventV3
@@ -55,6 +62,29 @@ namespace RP
 #pragma pack(pop)
 		static_assert(sizeof(EventV3) == 32);
 		constexpr std::uint32_t kV1Size = 24, kV2Size = 28;
+
+		// AAF's tags as lowercase TOKENS ("Anal, Rough" -> {"anal", "rough"}): a substring match took "pain"
+		// out of any tag that merely contained it.
+		std::vector<std::string> Tokens(std::string_view a_tags)
+		{
+			std::vector<std::string> out;
+			std::string              cur;
+			const auto               flush = [&] {
+                if (!cur.empty()) {
+                    out.push_back(cur);
+                    cur.clear();
+                }
+			};
+			for (const unsigned char c : a_tags) {
+				if (c == ',' || c == ';' || c == ' ' || c == '\t') {
+					flush();
+				} else {
+					cur.push_back(static_cast<char>(std::tolower(c)));
+				}
+			}
+			flush();
+			return out;
+		}
 
 		constexpr std::array<std::string_view, 11> kKindNames{ "breath", "short", "medium", "long", "impact", "climax",
 			"pain_short", "pain_medium", "pain_long", "pain_impact", "gag" };
@@ -159,6 +189,11 @@ namespace RP
 
 	std::optional<Moans::Message> Moans::Pick(std::uint32_t a_actor, Kind a_kind, bool a_cut, std::string_view a_why)
 	{
+		// The MCM switch: off means none of Rapport's moans either, the climax included -- the packs' own
+		// sounds play then, and a moan of ours on top would double them.
+		if (!FaceAuthority::GetSingleton().SoundOverride()) {
+			return std::nullopt;
+		}
 		if (!(FaceAuthority::GetSingleton().PeerFeatures() & kPlayFeature)) {
 			if (!_saidNoPeer) {
 				_saidNoPeer = true;
@@ -171,9 +206,12 @@ namespace RP
 		if (state.character.empty()) {
 			if (!_saidUnknown) {
 				_saidUnknown = true;
-				logger::info("moans: {:08X} sent a body event before its scene told Rapport who they are - skipped", a_actor);
+				logger::info("moans: {:08X} sent a body event before its scene told Rapport who they are - learning it", a_actor);
 			}
 			++_skipUnknown;
+			if (std::ranges::find(_unknown, a_actor) == _unknown.end()) {
+				_unknown.push_back(a_actor);   // the next Pump, on the main thread, learns who they are
+			}
 			return std::nullopt;
 		}
 		const auto it = _characters.find(state.character);
@@ -217,12 +255,18 @@ namespace RP
 
 	void Moans::OnEvent(const void* a_data, std::uint32_t a_length)
 	{
-		if (!a_data || (a_length != kV1Size && a_length != kV2Size && a_length != sizeof(EventV3))) {
-			return;
-		}
+		// Forward-compatible: later versions only APPEND (the contract), so anything from 24 bytes on is
+		// read up to the fields this build knows; a rejected event is said once, never dropped silently.
 		EventV3 e{};
-		std::memcpy(&e, a_data, a_length);   // an older version leaves strokeMs / flags 0
-		if (e.version < 1 || e.version > 3 || e.formID == 0) {
+		if (a_data && a_length >= kV1Size) {
+			std::memcpy(&e, a_data, (std::min)(a_length, static_cast<std::uint32_t>(sizeof(EventV3))));
+		}
+		if (!a_data || a_length < kV1Size || e.version < 1 || e.formID == 0) {
+			std::lock_guard lock{ _lock };
+			if (!_saidBadEvent) {
+				_saidBadEvent = true;
+				logger::warn("moans: an RFAE of {} byte(s), version {} was not readable - ignored", a_length, e.version);
+			}
 			return;
 		}
 		std::vector<Message> out;
@@ -255,6 +299,15 @@ namespace RP
 			// licking, hands, toys, self, a handjob on the shaft's owner -- the pleasure moans, by beat or
 			// stroke tempo the same way (owner: "moans could be pleasure moans we have").
 			const bool rough = state.rough || ((e.flags & kFlagAnal) && receiver);
+			// The mouth's state outlives the event: in a spitroast her vagina's track moans while her mouth
+			// is full, so a busy mouth silences every track of hers, and the climax too.
+			if (mouth || licking) {
+				state.mouthBusy = e.kind != kEnded;
+			}
+			// Contact resumed: a held "ended" breath is dropped.
+			if (e.kind == kBegan || e.kind == kThrust) {
+				state.breathAt = {};
+			}
 			// A deep stroke in the mouth: its owner gags, cutting whatever was playing. DEEP (bit 1)
 			// is set for any opening, so only with ORAL.
 			if (kGulpsEnabled && mouth && (e.kind == kDeep || (e.flags & kFlagDeep))) {
@@ -268,20 +321,19 @@ namespace RP
 				goto send;
 			}
 			// A full mouth makes no moan. The shaft's owner moans as ever: he is the one pleasured.
-			if (mouth || licking) {
+			if (mouth || licking || state.mouthBusy) {
 				++_skipMouth;
 				goto send;
 			}
 			switch (e.kind) {
 			case kBegan:
-				// A new penetration: whatever climaxed before was another scene (a foreign end that
-				// never came must not keep them "already climaxed" forever).
-				state.climaxed = false;
-				[[fallthrough]];
-			case kEnded:
 				if (quiet) {
-					m = Pick(e.formID, Kind::kBreath, false, e.kind == kBegan ? "began" : "ended");
+					m = Pick(e.formID, Kind::kBreath, false, "began");
 				}
+				break;
+			case kEnded:
+				// Held, and played by Pump only if no contact resumes first.
+				state.breathAt = now + kEndedBreathDelay;
 				break;
 			case kThrust:
 				if (quiet) {
@@ -292,7 +344,8 @@ namespace RP
 				}
 				break;
 			case kImpact:
-				if (now - state.lastImpact >= kImpactGap && !state.climaxed) {
+				// Never over a climax still playing (it was cut-flagged; a gasp would cut it).
+				if (now - state.lastImpact >= kImpactGap && now >= state.climaxUntil) {
 					state.lastImpact = now;
 					m = Pick(e.formID, rough ? Kind::kPainImpact : Kind::kImpact, true, "impact");
 				}
@@ -302,7 +355,7 @@ namespace RP
 			}
 			if (m) {
 				out.push_back(*m);
-			} else if (!quiet) {
+			} else if (!quiet && e.kind != kEnded) {
 				++_skipBusy;
 			}
 		send:;
@@ -312,19 +365,19 @@ namespace RP
 
 	bool Moans::ClimaxTag(std::string_view a_tags)
 	{
-		std::string lower{ a_tags };
-		std::ranges::transform(lower, lower.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-		return lower.find("climax") != std::string::npos || lower.find("orgasm") != std::string::npos;
+		return std::ranges::any_of(Tokens(a_tags), [](const std::string& t) {
+			return t.starts_with("climax") || t.starts_with("orgasm");
+		});
 	}
 
 	// Anal, rough, aggressive or BDSM: the painful-pleasure set (owner, 2026-10-01).
 	bool Moans::RoughTag(std::string_view a_tags)
 	{
-		std::string lower{ a_tags };
-		std::ranges::transform(lower, lower.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-		for (const auto word : { "anal", "aggressive", "rough", "bdsm", "bondage", "spank", "whip", "choke", "pain" }) {
-			if (lower.find(word) != std::string::npos) {
-				return true;
+		for (const auto& t : Tokens(a_tags)) {
+			for (const auto word : { "anal", "aggressive", "rough", "bdsm", "bondage", "spank", "whip", "choke", "pain" }) {
+				if (t.starts_with(word)) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -344,12 +397,19 @@ namespace RP
 		if (a_actor == 0) {
 			return std::nullopt;
 		}
-		auto& state = _actors[a_actor];
-		if (state.climaxed) {
+		auto&      state = _actors[a_actor];
+		const auto now = std::chrono::steady_clock::now();
+		if ((state.climaxed && now - state.climaxAt < kClimaxWindow) || state.mouthBusy) {
 			return std::nullopt;
 		}
-		state.climaxed = true;
-		return Pick(a_actor, Kind::kClimax, true, "climax tag");
+		auto m = Pick(a_actor, Kind::kClimax, true, "climax tag");
+		if (m) {
+			// Marked only when it PLAYED: a skipped one (no RFAP yet, unknown actor) may still come.
+			state.climaxed = true;
+			state.climaxAt = now;
+			state.climaxUntil = state.quietUntil;
+		}
+		return m;
 	}
 
 	void Moans::OwnSceneStarted(std::uint32_t a_first, std::uint32_t a_second)
@@ -358,8 +418,13 @@ namespace RP
 		std::lock_guard lock{ _lock };
 		_ownFirst = a_first;
 		_ownSecond = a_second;
-		_actors[a_first].climaxed = false;
-		_actors[a_second].climaxed = false;
+		for (const auto id : { a_first, a_second }) {
+			auto& s = _actors[id];
+			s.climaxed = false;
+			s.rough = false;
+			s.mouthBusy = false;
+			s.breathAt = {};
+		}
 	}
 
 	void Moans::OwnSceneEnded(std::uint32_t a_first, std::uint32_t a_second)
@@ -369,8 +434,11 @@ namespace RP
 		if (_ownFirst != a_first || _ownSecond != a_second) {
 			return;
 		}
-		_actors.erase(a_first);
-		_actors.erase(a_second);
+		for (const auto id : { a_first, a_second }) {
+			if (const auto it = _actors.find(id); it != _actors.end()) {
+				it->second.climaxed = it->second.rough = it->second.mouthBusy = false;
+			}
+		}
 		_ownFirst = _ownSecond = 0;
 	}
 
@@ -421,9 +489,13 @@ namespace RP
 
 	void Moans::SceneEnded(const std::vector<std::uint32_t>& a_actors)
 	{
+		// Who they are is KEPT -- a sex and a persona do not change -- so an end arriving after the next
+		// scene's start cannot leave its actors unknown and silent. Only this scene's state is cleared.
 		std::lock_guard lock{ _lock };
 		for (const auto actor : a_actors) {
-			_actors.erase(actor);
+			if (const auto it = _actors.find(actor); it != _actors.end()) {
+				it->second.climaxed = it->second.rough = it->second.mouthBusy = false;
+			}
 		}
 	}
 
@@ -434,7 +506,39 @@ namespace RP
 			Summary("at the load");
 		}
 		_actors.clear();
+		_unknown.clear();
 		_ownFirst = _ownSecond = 0;
 		ResolveForms();   // main thread; a new world may hold a different load order
+	}
+
+	void Moans::Pump()
+	{
+		std::vector<std::uint32_t> learn;
+		{
+			std::lock_guard lock{ _lock };
+			learn.swap(_unknown);
+		}
+		if (!learn.empty()) {
+			Register(learn);   // main thread: the bridge's poll
+		}
+		std::vector<Message> out;
+		{
+			std::lock_guard lock{ _lock };
+			if (!_loaded) {
+				return;
+			}
+			const auto now = std::chrono::steady_clock::now();
+			for (auto& [id, s] : _actors) {
+				if (s.breathAt != std::chrono::steady_clock::time_point{} && now >= s.breathAt) {
+					s.breathAt = {};
+					if (now >= s.quietUntil && !s.mouthBusy) {
+						if (auto m = Pick(id, Kind::kBreath, false, "ended")) {
+							out.push_back(*m);
+						}
+					}
+				}
+			}
+		}
+		Send(out);
 	}
 }

@@ -203,16 +203,27 @@ Write-Host "  voices: $fuz file(s) under Sound\Voice"
 
 # THE MOANS (R-29): every take scripts/render-moans.py rendered, where Rapport.esp's SNDRs point
 # (Data\Sound\FX\Rapport\Moans\<sex>_<persona>\<kind>_NN.wav). From the same committed bank.
-# A take the plugin names and the zip lacks would play as silence, so the count is checked.
+# A take the plugin names and the zip lacks would play as silence. So the SET of names is checked, not
+# a count (an orphan plus a missing take would cancel out), the bank must exist whenever the plugin
+# names moans, and the plugin and its table must be newer than the manifest (review, 2026-10-01).
 $moanSrc = Join-Path $bank '_moans'
-if (Test-Path $moanSrc) {
+$manifestPath = Join-Path $root 'voice\moans.json'
+if (Test-Path $manifestPath) {
+    if (-not (Test-Path $moanSrc)) { throw "Moans: voice\moans.json exists but voice\out\_moans does not - the plugin would name silent sounds." }
     $moanDst = Join-Path $stage 'Sound\FX\Rapport\Moans'
     New-Item -ItemType Directory -Force $moanDst | Out-Null
     Copy-Item -Recurse -Force (Join-Path $moanSrc '*') $moanDst
-    $named = @((Get-Content (Join-Path $root 'voice\moans.json') -Raw | ConvertFrom-Json).takes.PSObject.Properties).Count
-    $moans = @(Get-ChildItem -Recurse -Filter *.wav $moanDst).Count
-    if ($moans -ne $named) { throw "Moans: voice\moans.json names $named take(s) but $moans .wav file(s) were packaged." }
-    Write-Host "  moans: $moans take(s) under Sound\FX\Rapport\Moans"
+    $named = @((Get-Content $manifestPath -Raw | ConvertFrom-Json).takes.PSObject.Properties.Name | ForEach-Object { $_.Replace('/', '\') } | Sort-Object)
+    $files = @(Get-ChildItem -Recurse -Filter *.wav $moanDst | ForEach-Object { $_.FullName.Substring($moanDst.Length + 1) -replace '\.wav$', '' } | Sort-Object)
+    $diff = @(Compare-Object $named $files)
+    if ($diff.Count -gt 0) {
+        throw ("Moans: the manifest and the packaged files differ: " + (($diff | Select-Object -First 5 | ForEach-Object { "$($_.SideIndicator) $($_.InputObject)" }) -join '; '))
+    }
+    $manifestTime = (Get-Item $manifestPath).LastWriteTime
+    foreach ($built in (Join-Path $root 'build\esp\Rapport.esp'), (Join-Path $root 'data\F4SE\Plugins\Rapport\moans.json')) {
+        if ((Get-Item $built).LastWriteTime -lt $manifestTime) { throw "Moans: $built is older than voice\moans.json - run tools/make_esp.py first." }
+    }
+    Write-Host "  moans: $($files.Count) take(s) under Sound\FX\Rapport\Moans, every one named in the plugin"
 }
 
 # Licence and readme travel with the files. Somebody who downloads a zip and

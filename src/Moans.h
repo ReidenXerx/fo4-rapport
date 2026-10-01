@@ -56,6 +56,11 @@ namespace RP
 		// A load: nobody is mid-moan in the world being left.
 		void Reset();
 
+		// From the bridge's pump, every poll, on the main thread: learn who any actor that sent a body
+		// event before its scene registered is (or after a load), and play an "ended" breath that was
+		// held back to see whether contact resumed.
+		void Pump();
+
 	private:
 		enum class Kind : std::uint8_t
 		{
@@ -76,8 +81,12 @@ namespace RP
 			std::chrono::steady_clock::time_point quietUntil{};
 			std::chrono::steady_clock::time_point lastImpact{};
 			std::chrono::steady_clock::time_point lastGag{};
+			std::chrono::steady_clock::time_point climaxAt{};      // the last climax that PLAYED
+			std::chrono::steady_clock::time_point climaxUntil{};   // ...and when it ends
+			std::chrono::steady_clock::time_point breathAt{};      // a held "ended" breath, due then
 			bool                                  climaxed{ false };
-			bool                                  rough{ false };   // the playing animation's tags
+			bool                                  rough{ false };       // the playing animation's tags
+			bool                                  mouthBusy{ false };   // a shaft or a lick in their mouth now
 		};
 		struct Message
 		{
@@ -109,6 +118,8 @@ namespace RP
 		// Diagnostics (owner's second test heard nothing and the log could not say why): what arrived,
 		// what was sent, and why the rest was not -- a summary line every kSummaryEvery events.
 		std::uint64_t _received{ 0 };
+		bool          _saidBadEvent{ false };
+		std::vector<std::uint32_t> _unknown;   // actors to learn on the next Pump
 		std::uint64_t _skipNotLoaded{ 0 }, _skipBusy{ 0 }, _skipMouth{ 0 }, _skipNoPeer{ 0 }, _skipUnknown{ 0 },
 			_skipNoSound{ 0 };
 		void          Summary(std::string_view a_when);

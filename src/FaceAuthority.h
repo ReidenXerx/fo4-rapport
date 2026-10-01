@@ -56,6 +56,8 @@ namespace RP
 		[[nodiscard]] bool Available() const noexcept { return _peer.load() && _loaded.load(); }
 		// The hello's feature bits, 0 until Anatomy answered (Moans reads bit 12, 'RFAP').
 		[[nodiscard]] std::uint32_t PeerFeatures() const noexcept { return _peer.load() ? _peerFeatures.load() : 0u; }
+		// "Anatomy's sex sounds" as last sent in RFAU: Rapport's moans follow it, the climax too.
+		[[nodiscard]] bool SoundOverride() const noexcept { return _soundOverride.load(); }
 
 		// Every order Rapport queues: a face put on, a face cleared, a line spoken.
 		void OnOrder(const Order& a_order);
@@ -163,6 +165,7 @@ namespace RP
 		// Bit 3: it blends a held face toward its deep face ('RFAD') by the depth of
 		// what is in the mouth -- the brows drawing together as it goes deeper.
 		std::atomic<std::uint32_t> _peerFeatures{ 0 };
+		std::atomic<bool>          _soundOverride{ false };
 		std::uint32_t            _morphs{ 50 };
 		std::uint64_t            _mouth{ 0 };
 		std::unordered_map<std::string, std::array<float, kSlots>> _sets;
