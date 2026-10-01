@@ -330,7 +330,8 @@ Sweat was never affected; it is slot 3 and works. (`docs/aaf-under-the-hood.md` 
 ### Persistence in game hours — VERIFIED IN GAME
 
 **What.** `{formID, expiresAt, setID}` per standing mark, in **game hours**, in the co-save. A tick
-removes what has expired and applies what has not been asked for yet this session. Default 12 hours.
+removes what has expired and applies what has not been asked for yet this session. Default 4 hours since
+0.2.4 (it was 12), 1 to 48 on the MCM's Aftermath page.
 `src/Aftermath.h`.
 
 **Why.** AAF can already apply an overlay on a timer, and the timer is the whole problem: it is an
