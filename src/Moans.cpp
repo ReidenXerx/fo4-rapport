@@ -23,6 +23,11 @@ namespace RP
 		// bit 1 DEEP (the stroke reached the deep face's depth, any opening), bit 2 RECEIVER (this actor's
 		// opening -- mouth, vagina or anus -- is the one entered; from geometry, any sex).
 		constexpr std::uint32_t kFlagOral = 1u << 0, kFlagDeep = 1u << 1, kFlagReceiver = 1u << 2;
+		// More kinds of contact (fo4-anatomy, 2026-10-01), still on v3's 32 bytes: bit 3 ANAL (the opening
+		// is the anus), bit 4 LICK (a mouth on her, no shaft: beats every 450-850 ms), bit 5 HAND (fingers,
+		// a fist, rubbing, or a handjob on his shaft), bit 6 TOY, bit 7 SELF (masturbation). The receiver's
+		// events carry RECEIVER; the other actor's carry the contact bit alone.
+		constexpr std::uint32_t kFlagAnal = 1u << 3, kFlagLick = 1u << 4;
 		// Two gags no closer than this.
 		constexpr auto kGagGap = std::chrono::milliseconds{ 1500 };
 		// The GULPS are switched OFF (owner, 2026-10-01: "lets disable gulp sounds for a while we return to
@@ -241,7 +246,15 @@ namespace RP
 			// ORAL (v3 flags bit 0) rides on both partners' events; RECEIVER (bit 2, fo4-anatomy c1a4b87,
 			// decided from geometry, any sex) says this actor's opening is the one entered. So the MOUTH's
 			// owner is ORAL | RECEIVER, and the shaft's owner is ORAL alone.
-			const bool mouth = (e.flags & kFlagOral) && (e.flags & kFlagReceiver);
+			const bool receiver = (e.flags & kFlagReceiver) != 0;
+			const bool mouth = (e.flags & kFlagOral) && receiver;
+			// The LICKER's mouth is busy too (LICK without RECEIVER): no moan from it.
+			const bool licking = (e.flags & kFlagLick) && !receiver;
+			// ANAL, on the one receiving it -- a shaft, fingers or a toy: the painful-pleasure set (owner:
+			// "anal should use pain-pleasure sounds rapport did specifically for this"). Everything else --
+			// licking, hands, toys, self, a handjob on the shaft's owner -- the pleasure moans, by beat or
+			// stroke tempo the same way (owner: "moans could be pleasure moans we have").
+			const bool rough = state.rough || ((e.flags & kFlagAnal) && receiver);
 			// A deep stroke in the mouth: its owner gags, cutting whatever was playing. DEEP (bit 1)
 			// is set for any opening, so only with ORAL.
 			if (kGulpsEnabled && mouth && (e.kind == kDeep || (e.flags & kFlagDeep))) {
@@ -255,7 +268,7 @@ namespace RP
 				goto send;
 			}
 			// A full mouth makes no moan. The shaft's owner moans as ever: he is the one pleasured.
-			if (mouth) {
+			if (mouth || licking) {
 				++_skipMouth;
 				goto send;
 			}
@@ -275,13 +288,13 @@ namespace RP
 					const auto tier = e.strokeMs == 0 ? 1 : e.strokeMs < kFastStrokeMs ? 0 : e.strokeMs < kSlowStrokeMs ? 1 : 2;
 					static constexpr std::array<Kind, 3> kSweet{ Kind::kShort, Kind::kMedium, Kind::kLong };
 					static constexpr std::array<Kind, 3> kPain{ Kind::kPainShort, Kind::kPainMedium, Kind::kPainLong };
-					m = Pick(e.formID, (state.rough ? kPain : kSweet)[tier], false, state.rough ? "rough thrust" : "thrust");
+					m = Pick(e.formID, (rough ? kPain : kSweet)[tier], false, rough ? "rough thrust" : "thrust");
 				}
 				break;
 			case kImpact:
 				if (now - state.lastImpact >= kImpactGap && !state.climaxed) {
 					state.lastImpact = now;
-					m = Pick(e.formID, state.rough ? Kind::kPainImpact : Kind::kImpact, true, "impact");
+					m = Pick(e.formID, rough ? Kind::kPainImpact : Kind::kImpact, true, "impact");
 				}
 				break;
 			default:
