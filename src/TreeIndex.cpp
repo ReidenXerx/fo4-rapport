@@ -88,6 +88,11 @@ namespace RP
 		return singleton;
 	}
 
+	bool TreeIndex::IsClimaxPosition(std::string_view a_positionID) const
+	{
+		return !a_positionID.empty() && _climaxPositions.contains(Lower(a_positionID));
+	}
+
 	std::string_view TreeIndex::Describe(Ending a_ending)
 	{
 		switch (a_ending) {
@@ -108,6 +113,7 @@ namespace RP
 		_withEnding = 0;
 		_withClimaxTag = 0;
 		_declared.clear();
+		_climaxPositions.clear();
 
 		const auto      folder = std::filesystem::path{ "Data" } / "AAF";
 		std::error_code ec;
@@ -205,6 +211,7 @@ namespace RP
 				Tree                tree;
 				std::vector<float>  running;   // cumulative time down the current path
 				bool                hasExit = false;
+				std::unordered_set<std::string> climaxIDs, otherIDs;   // positions, by the branch they play in
 
 				for (std::size_t b = body.find("<branch"); b != std::string::npos;) {
 					const auto nextOpen = body.find("<branch", b + 1);
@@ -244,6 +251,20 @@ namespace RP
 						grade = Ending::kFinishOnly;
 					}
 					tree.ending = std::max(tree.ending, grade);
+
+					// "Stage 4 (No orgasm)" names one and is not one; "Pre-climax" comes before it.
+					const bool climaxBranch = grade >= Ending::kOrgasm && branchID.find("no ") == std::string::npos &&
+					                          branchID.find("pre") == std::string::npos &&
+					                          branchID.find("before") == std::string::npos;
+					// The Finish exit replays the orgasm position AFTER the climax (61 of 61 reuses on this
+					// install), so it does not disqualify one; any other branch playing it does.
+					if (auto onID = Lower(Attr(branch, "positionID")); !onID.empty()) {
+						if (climaxBranch) {
+							climaxIDs.insert(std::move(onID));
+						} else if (grade != Ending::kFinishOnly) {
+							otherIDs.insert(std::move(onID));
+						}
+					}
 
 					if (Lower(Attr(branch, "isExit")) == "true") {
 						hasExit = true;
@@ -286,6 +307,12 @@ namespace RP
 				// name is only the grade.
 				if (!hasExit) {
 					tree.ending = Ending::kNone;
+				} else {
+					for (const auto& p : climaxIDs) {
+						if (!otherIDs.contains(p)) {
+							_climaxPositions.insert(p);
+						}
+					}
 				}
 
 				trees.insert_or_assign(std::move(id), tree);
@@ -453,6 +480,8 @@ namespace RP
 			"one - the rest name a branch \"Orgasm\" over content that marks no climax anywhere, "
 			"so they are preferred against rather than trusted",
 			trees.size(), files, _entries.size(), _withEnding, _withClimaxTag);
+		logger::info("trees: {} position(s) play only in a Climax or Orgasm branch - the climax moan's cue where no tag says so",
+			_climaxPositions.size());
 
 		if (orphaned > 0) {
 			logger::warn(

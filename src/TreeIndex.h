@@ -147,9 +147,15 @@ namespace RP
 
 		[[nodiscard]] static std::string_view Describe(Ending a_ending);
 
+		// A position that plays ONLY in a branch named Climax or Orgasm of a tree that ends (R-29): the
+		// climax moan for the 27 trees here that name the branch and tag nothing. Lowercased; a position
+		// any other branch of the same tree also plays is left out, so a stage cannot fire it early.
+		[[nodiscard]] bool IsClimaxPosition(std::string_view a_positionID) const;
+
 	private:
 		std::vector<Entry>    _entries;
 		std::vector<Declared> _declared;
+		std::unordered_set<std::string> _climaxPositions;
 		std::size_t        _withEnding{ 0 };
 		std::size_t        _withClimaxTag{ 0 };
 	};

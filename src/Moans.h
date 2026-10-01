@@ -49,8 +49,10 @@ namespace RP
 		void OwnSceneStarted(std::uint32_t a_first, std::uint32_t a_second);
 		void OwnSceneEnded(std::uint32_t a_first, std::uint32_t a_second);
 		// An animation's tags: on a climax tag, each actor's climax moan, once per scene.
+		// The position our own scene plays now: AAF sends it just before its tags (Bridge.psc).
+		void OwnScenePosition(std::string_view a_position);
 		void OwnSceneTags(std::string_view a_tags);
-		void SceneTags(const std::vector<std::uint32_t>& a_actors, std::string_view a_tags);
+		void SceneTags(const std::vector<std::uint32_t>& a_actors, std::string_view a_position, std::string_view a_tags);
 		void SceneEnded(const std::vector<std::uint32_t>& a_actors);
 
 		// A load: nobody is mid-moan in the world being left.
@@ -111,6 +113,7 @@ namespace RP
 		std::unordered_map<std::uint32_t, Actor>               _actors;
 		std::uint32_t                                          _ownFirst{ 0 };
 		std::uint32_t                                          _ownSecond{ 0 };
+		std::string                                            _ownPosition;
 		std::uint64_t                                          _played{ 0 };
 		bool                                                   _loaded{ false };
 		bool                                                   _saidNoPeer{ false };

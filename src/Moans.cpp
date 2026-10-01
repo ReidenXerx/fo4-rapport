@@ -3,6 +3,7 @@
 #include "Barks.h"
 #include "Compat.h"
 #include "FaceAuthority.h"
+#include "TreeIndex.h"
 
 namespace RP
 {
@@ -298,7 +299,8 @@ namespace RP
 			// "anal should use pain-pleasure sounds rapport did specifically for this"). Everything else --
 			// licking, hands, toys, self, a handjob on the shaft's owner -- the pleasure moans, by beat or
 			// stroke tempo the same way (owner: "moans could be pleasure moans we have").
-			const bool rough = state.rough || ((e.flags & kFlagAnal) && receiver);
+			// A rough scene's tags count for the receiver only: the giver moans pleasure.
+			const bool rough = receiver && (state.rough || (e.flags & kFlagAnal));
 			// The mouth's state outlives the event: in a spitroast her vagina's track moans while her mouth
 			// is full, so a busy mouth silences every track of hers, and the climax too.
 			if (mouth || licking) {
@@ -370,17 +372,16 @@ namespace RP
 		});
 	}
 
-	// Anal, rough, aggressive or BDSM: the painful-pleasure set (owner, 2026-10-01).
+	// Rough, aggressive or BDSM: the painful-pleasure set for the one RECEIVING (owner, 2026-10-01).
+	// Whole words, not prefixes ("pain" took "painting"), and no "anal": the engine's ANAL bit
+	// says which opening, and a scene tag would have put the giver on the pain set too.
 	bool Moans::RoughTag(std::string_view a_tags)
 	{
-		for (const auto& t : Tokens(a_tags)) {
-			for (const auto word : { "anal", "aggressive", "rough", "bdsm", "bondage", "spank", "whip", "choke", "pain" }) {
-				if (t.starts_with(word)) {
-					return true;
-				}
-			}
-		}
-		return false;
+		static constexpr std::array<std::string_view, 14> kWords{ "aggressive", "rough", "bdsm", "bondage",
+			"spank", "spanking", "whip", "whipping", "choke", "choking", "pain", "painful", "forced", "punishment" };
+		return std::ranges::any_of(Tokens(a_tags), [](const std::string& t) {
+			return std::ranges::find(kWords, std::string_view{ t }) != kWords.end();
+		});
 	}
 
 	void Moans::NoteRough(const std::vector<std::uint32_t>& a_actors, bool a_rough)
@@ -440,6 +441,13 @@ namespace RP
 			}
 		}
 		_ownFirst = _ownSecond = 0;
+		_ownPosition.clear();
+	}
+
+	void Moans::OwnScenePosition(std::string_view a_position)
+	{
+		std::lock_guard lock{ _lock };
+		_ownPosition = a_position;
 	}
 
 	void Moans::OwnSceneTags(std::string_view a_tags)
@@ -452,7 +460,7 @@ namespace RP
 				return;
 			}
 			NoteRough({ _ownFirst, _ownSecond }, rough);
-			if (!ClimaxTag(a_tags)) {
+			if (!ClimaxTag(a_tags) && !TreeIndex::GetSingleton().IsClimaxPosition(_ownPosition)) {
 				return;
 			}
 			for (const auto actor : { _ownFirst, _ownSecond }) {
@@ -464,7 +472,8 @@ namespace RP
 		Send(out);
 	}
 
-	void Moans::SceneTags(const std::vector<std::uint32_t>& a_actors, std::string_view a_tags)
+	void Moans::SceneTags(const std::vector<std::uint32_t>& a_actors, std::string_view a_position,
+		std::string_view a_tags)
 	{
 		Register(a_actors);
 		const bool rough = RoughTag(a_tags);
@@ -475,7 +484,7 @@ namespace RP
 				return;
 			}
 			NoteRough(a_actors, rough);
-			if (!ClimaxTag(a_tags)) {
+			if (!ClimaxTag(a_tags) && !TreeIndex::GetSingleton().IsClimaxPosition(a_position)) {
 				return;
 			}
 			for (const auto actor : a_actors) {
@@ -508,6 +517,7 @@ namespace RP
 		_actors.clear();
 		_unknown.clear();
 		_ownFirst = _ownSecond = 0;
+		_ownPosition.clear();
 		ResolveForms();   // main thread; a new world may hold a different load order
 	}
 

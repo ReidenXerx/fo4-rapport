@@ -228,7 +228,8 @@ namespace
 		try {
 			auto members = Members(a_actors);
 			RP::Holsters::GetSingleton().SceneStarted(Ids(members));
-			RP::Moans::GetSingleton().SceneTags(Ids(members), a_tags.empty() ? "" : a_tags.c_str());
+			RP::Moans::GetSingleton().SceneTags(Ids(members), a_position.empty() ? "" : a_position.c_str(),
+				a_tags.empty() ? "" : a_tags.c_str());
 			RP::ForeignScenes::GetSingleton().Started(a_location, std::move(members), Text(a_position), Text(a_tags),
 				Text(a_meta), a_npcControlled, a_duration);
 		} catch (const std::exception& e) {
@@ -271,7 +272,8 @@ namespace
 			const auto members = Members(a_actors);
 			RP::ForeignScenes::GetSingleton().Animation(a_location, members, Text(a_position), Text(a_tags));
 			RP::Holsters::GetSingleton().SceneStarted(Ids(members));
-			RP::Moans::GetSingleton().SceneTags(Ids(members), a_tags.empty() ? "" : a_tags.c_str());
+			RP::Moans::GetSingleton().SceneTags(Ids(members), a_position.empty() ? "" : a_position.c_str(),
+				a_tags.empty() ? "" : a_tags.c_str());
 			// Stage 1 of "no scene inside a table", for menu scenes too: log only.
 			std::vector<std::uint32_t> ids;
 			for (const auto& m : members) {
@@ -461,6 +463,7 @@ namespace
 	void Papyrus_NoteScenePosition(std::monostate, RE::BSFixedString a_position)
 	{
 		RP::Expressions::GetSingleton().NotePosition(a_position.empty() ? "" : a_position.c_str());
+		RP::Moans::GetSingleton().OwnScenePosition(a_position.empty() ? "" : a_position.c_str());
 		// Stage 1 of "no scene inside a table": say what stands in the way. Log only.
 		try {
 			auto&      link = RP::PapyrusLink::GetSingleton();
