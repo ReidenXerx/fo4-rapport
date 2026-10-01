@@ -218,7 +218,13 @@ namespace RP
 			// BodyGen's bodies or the player's sliders. NOT an AAF call: LooksMenu's
 			// BodyGen natives return, so this one cannot strand the drain's stack.
 			// See Morphs.h.
-			kClearAAFMorphs = 33
+			kClearAAFMorphs = 33,
+
+			// Put one piece back on an actor a scene left without it (Wardrobe.h): formID the
+			// actor, voice the item, extra its slots (decimal, bit n = F4SE slot index n), setID
+			// "first" or "second" look. NOT an AAF call; the bridge equips without force, the way
+			// the game's own scripts do -- AAF's force-equip is what locked gear (its 1.7.x notes).
+			kRedress = 34
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

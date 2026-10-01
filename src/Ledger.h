@@ -269,6 +269,7 @@ namespace RP
 		// is the only place that has a reason to care how big this has got.
 		void Prune() const;
 
+		static void LoadWardrobe(const F4SE::SerializationInterface* a_intfc, std::uint32_t a_version);
 		static void LoadFaces(
 			const F4SE::SerializationInterface* a_intfc,
 			std::uint32_t                       a_version,

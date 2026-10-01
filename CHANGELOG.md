@@ -7,10 +7,31 @@
   skeleton, not as clothing, so AAF's undressing never reached it. Rapport now hides those displays on
   everyone in an AAF scene, its own or any other mod's, and puts back exactly what it hid when the
   scene ends. Without Visible Favorites nothing changes.
-- **A switch for Anatomy's sex sounds** (MCM, Bodies & faces, Sounds; off by default). On, Anatomy
-  mutes the animation packs' own sounds during scenes, their moans included, and makes the body sounds
-  itself from what it measures. It needs an Anatomy build that offers it; with an older one the switch
-  does nothing.
+- **Scene moans of our own, for both partners.** 443 voiced takes, by sex and persona (romantic,
+  reticent, vulgar, mercantile each sound like themselves), in six kinds: a breath, short, medium and
+  long moans, a gasp on a hard thrust, and the climax. Their length follows the stroke tempo Anatomy
+  measures (faster strokes, shorter moans); anal and rough or BDSM scenes give the one receiving a
+  painful-pleasure set; a full mouth makes no sound; every playback varies its pitch and loudness a
+  little. The climax plays on a position tagged for one, and now also on the 66 positions here that
+  only play in a tree's Climax or Orgasm branch. Played through Anatomy (its sound override).
+- **A switch for Anatomy's sex sounds** (MCM, Bodies & faces, Sounds; ON by default). On, Anatomy
+  mutes the animation packs' own sounds during scenes and Rapport's moans and Anatomy's body sounds
+  play instead. It needs an Anatomy build that offers it; with an older one the switch does nothing.
+- **Nobody is left naked after a broken scene.** AAF puts clothes back only when a scene ends
+  properly. Rapport now notes what each actor wears going into any AAF scene, keeps it in the save,
+  and puts back whatever is still missing once AAF lets go of them - after an AAF restart, a scene
+  that never ended, or a save made mid-scene. Never over anything they wear now, never an item they
+  no longer carry, and AAF's own redress always goes first.
+- **Rapport alone starts no scene.** Without Chemistry, scenes start only when you or another mod
+  asks. The stand-in that started scenes by itself without Chemistry is gone (0.2.4 players: set
+  `DryRun = 1` in `Rapport.ini` for the same).
+- **Same-sex pairs prefer their own animations.** When no m/m or f/f tree fits, AAF's free pick now
+  skips F/M positions if a matching m/m (or f/f) one exists; when none does, AAF picks from
+  everything as before, so a scene is never empty.
+- **Every feature is on by default**: the Narrator's "why nothing happened", "relationship turns"
+  and "bystanders react" now start on, like everything else.
+- The debug trigger "nobody in front of you" now writes why to `Rapport.log`: the nearest actors,
+  their distance and angle, and what ruled each out.
 
 ## 0.2.4 (2026-09-30)
 

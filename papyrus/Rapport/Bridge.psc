@@ -389,6 +389,9 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 	; one a scene's cum belongs to -- the receiving one, and only them.
 	Rapport:Core.NoteActorSex(akFirst.GetFormID(), akFirst.GetLeveledActorBase().GetSex())
 	Rapport:Core.NoteActorSex(akSecond.GetFormID(), akSecond.GetLeveledActorBase().GetSex())
+	; What they wear, before AAF can undress them (the plugin's Wardrobe).
+	Self.NoteOutfit(akFirst)
+	Self.NoteOutfit(akSecond)
 	; And the engine's own relationship between them, while we hold real Actors -
 	; imported into Rapport's store the first time this pair interacts (R-2, R-5).
 	Rapport:Core.NoteVanillaRelationship(akFirst.GetFormID(), akSecond.GetFormID(), Rapport:Relations.RankBetween(akFirst, akSecond), Rapport:Relations.AreBloodRelated(akFirst, akSecond), Rapport:Relations.ArePartners(akFirst, akSecond))
@@ -634,7 +637,91 @@ EndEvent
 
 Event AAF:AAF_API.OnWalkInit(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnWalkInit", akArgs)
+	; Every scene's actors, ours or another mod's: what they wear before the position's
+	; startEquipmentSet undresses them (AAF applies it at the position, after this walk).
+	If akArgs != None && akArgs.Length > 1
+		Actor[] actors = Rapport:Core.ActorsOf(akArgs[1])
+		Int i = 0
+		While actors != None && i < actors.Length
+			Self.NoteOutfit(actors[i])
+			i += 1
+		EndWhile
+	EndIf
 EndEvent
+
+; What akActor wears now, slot by slot, to the plugin. Only real items they carry: the
+; body's own skin fills a bare slot and is in nobody's inventory.
+Function NoteOutfit(Actor akActor)
+	If akActor == None
+		Return
+	EndIf
+	Int[] slots = new Int[0]
+	Int[] items = new Int[0]
+	Int slot = 0
+	While slot < 31
+		Actor:WornItem worn = akActor.GetWornItem(slot, false)
+		If worn != None && worn.item != None && worn.item is Armor && akActor.GetItemCount(worn.item) > 0
+			slots.Add(slot, 1)
+			items.Add(worn.item.GetFormID(), 1)
+		EndIf
+		slot += 1
+	EndWhile
+	If slots.Length > 0
+		Rapport:Core.NoteOutfit(akActor.GetFormID(), slots, items)
+	EndIf
+EndFunction
+
+; One piece back on, if a scene left it off (kind 34; the plugin's Wardrobe). Never while AAF
+; holds them, never over a real item of theirs in a slot it takes, and only on the SECOND look
+; free of AAF -- AAF's own redress gets the first ten seconds. Equipped without force, the way
+; the game's scripts do: AAF's force-equip is what locked gear (its own 1.7.x notes).
+Function Redress(Int aiFormID, Int aiItem, String asSlots, String asLook)
+	Actor who = Game.GetForm(aiFormID) as Actor
+	Form item = Game.GetForm(aiItem)
+	If who == None || item == None
+		Rapport:Core.OutfitChecked(aiFormID, aiItem, 3)
+		Return
+	EndIf
+	If !who.Is3DLoaded()
+		Rapport:Core.OutfitChecked(aiFormID, aiItem, 2)
+		Return
+	EndIf
+	If Self.IsOccupied(who)
+		Rapport:Core.OutfitChecked(aiFormID, aiItem, 1)
+		Return
+	EndIf
+	If who.IsEquipped(item)
+		Rapport:Core.OutfitChecked(aiFormID, aiItem, 0)
+		Return
+	EndIf
+	If who.GetItemCount(item) < 1
+		Rapport:Core.OutfitChecked(aiFormID, aiItem, 3)
+		Return
+	EndIf
+	Int mask = asSlots as Int
+	Int slot = 0
+	Int bit = 1
+	While slot < 31
+		If (mask / bit) % 2 == 1
+			Actor:WornItem worn = who.GetWornItem(slot, false)
+			If worn != None && worn.item != None && worn.item != item && who.GetItemCount(worn.item) > 0
+				Rapport:Core.OutfitChecked(aiFormID, aiItem, 3)
+				Return
+			EndIf
+		EndIf
+		slot += 1
+		If slot < 31
+			bit *= 2
+		EndIf
+	EndWhile
+	If asLook != "second"
+		Rapport:Core.OutfitChecked(aiFormID, aiItem, 4)
+		Return
+	EndIf
+	who.EquipItem(item, false, true)
+	Rapport:Core.Trace("wardrobe: " + Rapport:Core.FormIdText(aiItem) + " put back on " + Rapport:Core.FormIdText(aiFormID))
+	Rapport:Core.OutfitChecked(aiFormID, aiItem, 5)
+EndFunction
 
 Event AAF:AAF_API.OnSceneInit(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnSceneInit", akArgs)
@@ -1066,6 +1153,13 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 	; bodies and the player's own LooksMenu sliders sit under other keys.
 	If aiKind == 33
 		Self.ClearAAFMorphs(aiFormID)
+		Return
+	EndIf
+
+	; A piece of clothing a scene left off (the plugin's Wardrobe). Also above the AAF guards:
+	; no AAF call, and its own IsOccupied check answers "held" while AAF is not ready.
+	If aiKind == 34
+		Self.Redress(aiFormID, aiVoice, asExtra, asSetID)
 		Return
 	EndIf
 

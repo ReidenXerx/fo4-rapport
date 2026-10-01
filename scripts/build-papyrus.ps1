@@ -31,6 +31,18 @@ $out     = Join-Path $root 'build\papyrus'
 # VoiceType). An import path, never a source: compiled, they would ship .pex
 # files that shadow the game's own types.
 $stubs   = Join-Path $root 'papyrus-stubs'
+# F4SE's Actor.psc (WornItem / GetWornItem, which the Wardrobe reads) is not in the
+# reconstructed base. Copied from the game's own Source folder into a gitignored folder
+# that comes FIRST on the import path, so Bethesda's source never enters the repo.
+$f4se    = Join-Path $root 'build\f4se-actor'
+$f4seActor = Join-Path (Split-Path -Parent $Compiler) '..\Data\Scripts\Source\Actor.psc'
+New-Item -ItemType Directory -Force -Path $f4se | Out-Null
+if (Test-Path $f4seActor) {
+    Copy-Item -LiteralPath $f4seActor -Destination (Join-Path $f4se 'Actor.psc') -Force
+}
+if (-not (Select-String -Path (Join-Path $f4se 'Actor.psc') -Pattern 'GetWornItem' -Quiet -ErrorAction SilentlyContinue)) {
+    throw "No F4SE Actor.psc (with GetWornItem) at $f4seActor - install F4SE's script sources."
+}
 
 if (-not (Test-Path $Compiler)) {
     throw "No Papyrus compiler at $Compiler."
@@ -57,7 +69,7 @@ Write-Host "Compiling $($scripts.Count) script(s) against $Base"
 # Batch mode, not file by file. A namespaced script (Rapport:Bridge) compiled by
 # path fails with "filename does not match script name": the namespace has to come
 # from the import paths, which -all does and a single file path cannot.
-$output = & $Compiler $sources -all -f="Institute_Papyrus_Flags.flg" -i="$Base;$sources;$stubs" -o="$out" 2>&1
+$output = & $Compiler $sources -all -f="Institute_Papyrus_Flags.flg" -i="$f4se;$Base;$sources;$stubs" -o="$out" 2>&1
 
 # Print everything the compiler said. An earlier version filtered this to lines
 # matching "error", which hid the only message that explained a failure.

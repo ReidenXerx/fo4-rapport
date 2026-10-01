@@ -8,6 +8,7 @@
 #include "Expressions.h"
 #include "Names.h"
 #include "PapyrusLink.h"
+#include "Wardrobe.h"
 
 namespace
 {
@@ -38,6 +39,8 @@ namespace
 	// The player started our mods by hand (Story::StartNow): one byte, written only when
 	// set. An older Rapport skips the record; an older save simply has none.
 	constexpr auto kStoryRecord = FourCC("STRY");
+	// Outfits a scene may still owe somebody (Wardrobe): actor, then (item, slots) pairs.
+	constexpr auto kWardrobeRecord = FourCC("WARD");
 	constexpr std::uint32_t kVersion = 1;
 	// The names record has its own version, for the reason the pair table does
 	// (below). v1 held ids only; v2 holds (id, base) so a reused id reads as
@@ -839,6 +842,21 @@ namespace RP
 			RP::Compat::Write(a_intfc, started);
 		}
 
+		// What a scene took off somebody and has not been seen put back -- a save written
+		// mid-scene, or after one that died, still owes it to them.
+		const auto outfits = Wardrobe::GetSingleton().Saved();
+		if (!outfits.empty() && a_intfc->OpenRecord(kWardrobeRecord, kVersion)) {
+			RP::Compat::Write(a_intfc, static_cast<std::uint32_t>(outfits.size()));
+			for (const auto& [actor, pieces] : outfits) {
+				RP::Compat::Write(a_intfc, actor);
+				RP::Compat::Write(a_intfc, static_cast<std::uint32_t>(pieces.size()));
+				for (const auto& piece : pieces) {
+					RP::Compat::Write(a_intfc, piece.item);
+					RP::Compat::Write(a_intfc, piece.slots);
+				}
+			}
+		}
+
 		const auto introduced = Names::GetSingleton().Introduced();
 		if (a_intfc->OpenRecord(kNameRecord, kNameVersion)) {
 			const auto nameCount = static_cast<std::uint32_t>(introduced.size());
@@ -1023,6 +1041,10 @@ namespace RP
 				LoadPairs(a_intfc, version, length);
 				continue;
 			}
+			if (type == kWardrobeRecord) {
+				LoadWardrobe(a_intfc, version);
+				continue;
+			}
 			if (type != kActorRecord) {
 				logger::warn("ledger: skipping an unknown record in the save");
 				continue;
@@ -1096,6 +1118,45 @@ namespace RP
 				"ledger: read {} actor(s) from the save, {} dropped because their plugin is gone",
 				_records.size(), dropped);
 		}
+	}
+
+	void Ledger::LoadWardrobe(const F4SE::SerializationInterface* a_intfc, std::uint32_t a_version)
+	{
+		if (a_version != kVersion) {
+			logger::warn("ledger: the save holds wardrobe version {} - skipped", a_version);
+			return;
+		}
+		std::uint32_t count = 0;
+		if (RP::Compat::Read(a_intfc, count) != sizeof(count) || count > kMaxEntries) {
+			return;
+		}
+		std::vector<std::pair<std::uint32_t, std::vector<Wardrobe::Piece>>> outfits;
+		for (std::uint32_t i = 0; i < count; ++i) {
+			std::uint32_t actor = 0;
+			std::uint32_t pieces = 0;
+			if (RP::Compat::Read(a_intfc, actor) != sizeof(actor) || RP::Compat::Read(a_intfc, pieces) != sizeof(pieces) ||
+				pieces > 64) {
+				break;
+			}
+			const auto resolvedActor = a_intfc->ResolveFormID(actor);
+			std::vector<Wardrobe::Piece> kept;
+			for (std::uint32_t p = 0; p < pieces; ++p) {
+				Wardrobe::Piece piece;
+				if (RP::Compat::Read(a_intfc, piece.item) != sizeof(piece.item) ||
+					RP::Compat::Read(a_intfc, piece.slots) != sizeof(piece.slots)) {
+					break;
+				}
+				// An item from a plugin no longer loaded resolves to nothing, and is dropped.
+				if (const auto item = a_intfc->ResolveFormID(piece.item)) {
+					piece.item = *item;
+					kept.push_back(piece);
+				}
+			}
+			if (resolvedActor && !kept.empty()) {
+				outfits.emplace_back(*resolvedActor, std::move(kept));
+			}
+		}
+		Wardrobe::GetSingleton().Restore(std::move(outfits));
 	}
 
 	void Ledger::LoadFaces(

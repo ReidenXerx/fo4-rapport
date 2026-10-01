@@ -75,6 +75,8 @@ set(SOURCES
 	"src/Holsters.cpp"
 	"src/Moans.cpp"
 	"src/Morphs.cpp"
+	"src/Wardrobe.h"
+	"src/Wardrobe.cpp"
 	"src/Expressions.h"
 	"src/Expressions.cpp"
 	"src/ForeignScenes.h"

@@ -25,6 +25,7 @@
 #include "Holsters.h"
 #include "Moans.h"
 #include "Morphs.h"
+#include "Wardrobe.h"
 #include "Scenarios.h"
 #include "Takeover.h"
 
@@ -436,6 +437,46 @@ namespace
 		RP::Aftermath::GetSingleton().NoteSex(static_cast<std::uint32_t>(a_formID), a_sex);
 	}
 
+	// What an actor wears going into a scene, slot by slot, read by the bridge with F4SE's
+	// GetWornItem (Wardrobe.h). Two parallel arrays: the slot index and the item's form id.
+	void Papyrus_NoteOutfit(std::monostate, std::int32_t a_formID, std::vector<std::int32_t> a_slots,
+		std::vector<std::int32_t> a_items)
+	{
+		try {
+			RP::Wardrobe::GetSingleton().NoteOutfit(static_cast<std::uint32_t>(a_formID), a_slots, a_items);
+		} catch (...) {
+			logger::critical("NoteOutfit threw");
+		}
+	}
+
+	// AAF's packed actor list, opened: Papyrus cannot open it ("var as Var[]" fails), the plugin
+	// can (Members). For the walk's outfit snapshot (Bridge.psc OnWalkInit).
+	std::vector<RE::Actor*> Papyrus_ActorsOf(std::monostate, const RE::BSScript::Variable* a_actors)
+	{
+		std::vector<RE::Actor*> out;
+		try {
+			for (const auto& member : Members(a_actors)) {
+				if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(member.formID)) {
+					out.push_back(actor);
+				}
+			}
+		} catch (...) {
+			logger::critical("ActorsOf threw");
+		}
+		return out;
+	}
+
+	// The bridge's answer for one piece it was asked to look at (Wardrobe::Checked).
+	void Papyrus_OutfitChecked(std::monostate, std::int32_t a_formID, std::int32_t a_item, std::int32_t a_result)
+	{
+		try {
+			RP::Wardrobe::GetSingleton().OnChecked(static_cast<std::uint32_t>(a_formID),
+				static_cast<std::uint32_t>(a_item), static_cast<RP::Wardrobe::Checked>(a_result));
+		} catch (...) {
+			logger::critical("OutfitChecked threw");
+		}
+	}
+
 	// The order AAF actually placed them in. It is the only thing that separates a
 	// same-sex pair, and slot 0 is the receiving role in 559 of the 562 two-actor
 	// animations that name both genders.
@@ -531,6 +572,7 @@ namespace
 			RP::FaceAuthority::GetSingleton().Pump();
 			RP::Barks::GetSingleton().Pump();
 			RP::Morphs::GetSingleton().Pump();
+			RP::Wardrobe::GetSingleton().Pump();
 			RP::Holsters::GetSingleton().Pump();
 			RP::Moans::GetSingleton().Pump();
 			if (watching) {
@@ -1438,6 +1480,9 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteScenePosition"sv, Papyrus_NoteScenePosition, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorSex"sv, Papyrus_NoteActorSex, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteOutfit"sv, Papyrus_NoteOutfit, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ActorsOf"sv, Papyrus_ActorsOf, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "OutfitChecked"sv, Papyrus_OutfitChecked, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneSlots"sv, Papyrus_NoteSceneSlots, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "Pump"sv, Papyrus_Pump, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneToStop"sv, Papyrus_SceneToStop, std::nullopt, false);
@@ -1905,6 +1950,8 @@ namespace RP
 		// Pending clears were for the world being left; the load sweep (main.cpp)
 		// covers whoever the arriving save carries.
 		Morphs::GetSingleton().Forget();
+		// The world being left's outfits; the arriving save's come from its co-save (Ledger).
+		Wardrobe::GetSingleton().Forget();
 
 		if (inFlight || dropped) {
 			logger::warn("loading a save: {}{} order(s) for the world being left dropped",
