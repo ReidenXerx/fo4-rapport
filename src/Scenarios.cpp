@@ -57,6 +57,38 @@ namespace
 		}
 		return out;
 	}
+
+	// Can AAF play this pair's OWN kind here: a position that survived its overrides,
+	// tagged with the composition (f_m / m_m / f_f), carrying any of the acts asked for
+	// (none asked = any) and none of the exclusions?
+	[[nodiscard]] bool OwnKindExists(std::string_view a_composition, std::string_view a_include,
+		std::string_view a_exclude)
+	{
+		const auto        include = Split(a_include);
+		const auto        exclude = Split(a_exclude);
+		const std::string kind{ a_composition };
+		const auto contains = [](const std::vector<std::string>& a_set, const std::string& a_tag) {
+			return std::ranges::find(a_set, a_tag) != a_set.end();
+		};
+		for (const auto& position : RP::TreeIndex::GetSingleton().AllPositions()) {
+			const auto marks = Split(position.tags);
+			if (!contains(marks, kind)) {
+				continue;
+			}
+			bool asked = include.empty();
+			for (const auto& tag : include) {
+				asked = asked || contains(marks, tag);
+			}
+			bool barred = false;
+			for (const auto& tag : exclude) {
+				barred = barred || contains(marks, tag);
+			}
+			if (asked && !barred) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 namespace RP
@@ -339,15 +371,38 @@ namespace RP
 		const auto* style = StyleOf(a_scenario);
 		const auto  styleExclude = style ? Trim(style->exclude) : std::string_view{};
 
-		// The pair's own composition. AAF casts a man into a gender-neutral slot of an F/M
-		// position, so two men got F/M scenes (Discord, 2026-10-01: Sturges and his settlers).
-		// The packs tag every position f_m / m_m / f_f (measured: 1593 / 517 / 270, no other
-		// spelling), so excluding the OTHER two keeps AAF on this pair's kind, untagged ones too.
-		const auto        composition = Aftermath::GetSingleton().CompositionOf(a_first, a_second);
-		const std::string otherPairs = composition == "m_m" ? "f_m,f_f"
-		                             : composition == "f_f" ? "f_m,m_m"
-		                             : composition == "f_m" ? "m_m,f_f"
-		                                                    : "";
+		// The pair's own kind, PREFERRED, never required (owner, 2026-10-01). AAF casts a man
+		// into a gender-neutral slot of an F/M position, so two men got F/M scenes while m/m
+		// ones existed (Discord: Sturges and his settlers). The packs tag every position
+		// f_m / m_m / f_f (measured: 1593 / 517 / 270, no other spelling). So the other two
+		// are excluded only when a position of the pair's own kind matches what is asked;
+		// when none does, AAF picks from everything as before -- "it looks normal enough
+		// and saves users from empty scenes".
+		const auto  composition = Aftermath::GetSingleton().CompositionOf(a_first, a_second);
+		std::string otherPairs;
+		if (!composition.empty()) {
+			const auto  trimmed = Trim(a_given);
+			std::string excludes =
+				trimmed.empty() || Lower(trimmed) == "default_excludetags" ? _aafExcludes : std::string{ trimmed };
+			if (nonSex) {
+				excludes += ',';
+				excludes += _nonSexTags;
+			}
+			if (!styleExclude.empty()) {
+				excludes += ',';
+				excludes += styleExclude;
+			}
+			// The act list IncludeTagsFor sends: the style's, but nothing for a shy pair or two women.
+			const auto include =
+				(style && shy.empty() && composition != "f_f") ? Trim(style->include) : std::string_view{};
+			if (OwnKindExists(composition, include, excludes)) {
+				otherPairs = composition == "m_m" ? "f_m,f_f" : composition == "f_f" ? "f_m,m_m" : "m_m,f_f";
+			} else {
+				logger::info("unconstrained start: no installed {} position matches [{}] - AAF may give this pair "
+							 "any kind (the fallback)",
+					composition, include);
+			}
+		}
 
 		if (!nonSex && styleExclude.empty() && otherPairs.empty()) {
 			if (!shy.empty()) {

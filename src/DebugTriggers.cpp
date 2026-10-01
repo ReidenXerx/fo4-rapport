@@ -194,25 +194,56 @@ namespace RP::DebugTriggers
 		}
 		RE::Actor* best = nullptr;
 		float      bestAngle = a_maxAngle;
+		// Every actor within twice the reach, and what dropped it: a miss is logged with
+		// them, so the next "nobody in front of you" says why (Overture 0.1.5, Discord
+		// 2026-10-01: a settler under the crosshair at one step, not found).
+		struct Seen
+		{
+			std::uint32_t formID;
+			float         distance;
+			float         angle;
+			const char*   dropped;
+		};
+		std::vector<Seen> seen;
 		for (const auto* list : { &lists->highActorHandles, &lists->middleHighActorHandles }) {
 			for (const auto& handle : *list) {
 				const auto actor = handle.get();
+				if (!actor || actor.get() == player) {
+					continue;
+				}
+				const auto distance = Distance(player, actor.get());
+				const auto angle = std::fabs(HeadingDegrees(player, actor.get()));
 				// Never a child: the one "in front of you" is who every trigger in all three
 				// mods acts on, and adults only is a hard rule (DESIGN) -- not a filter left
 				// to each caller to remember.
-				if (!actor || actor.get() == player || !actor->Get3D() || actor->IsDead(true) || actor->IsChild() ||
-					!InPlayersWorld(*actor, *player)) {
-					continue;
+				const char* dropped = !actor->Get3D()                    ? "no 3D"
+				                    : actor->IsDead(true)                ? "dead"
+				                    : actor->IsChild()                   ? "child"
+				                    : !InPlayersWorld(*actor, *player)   ? "another cell"
+				                    : distance > a_maxDistance           ? "too far"
+				                    : angle > bestAngle                  ? "off to the side"
+				                                                         : nullptr;
+				if (distance <= 2.0f * a_maxDistance) {
+					seen.push_back(Seen{ actor->GetFormID(), distance, angle, dropped ? dropped : "chosen so far" });
 				}
-				if (Distance(player, actor.get()) > a_maxDistance) {
-					continue;
-				}
-				const auto angle = std::fabs(HeadingDegrees(player, actor.get()));
-				if (angle <= bestAngle) {
+				if (!dropped) {
 					bestAngle = angle;
 					best = actor.get();
 				}
 			}
+		}
+		if (!best) {
+			std::ranges::sort(seen, {}, &Seen::distance);
+			std::string near;
+			for (std::size_t i = 0; i < seen.size() && i < 5; ++i) {
+				near += std::format("{}{:08X} {:.0f}u {:.0f} deg ({})", i ? ", " : "", seen[i].formID, seen[i].distance,
+					seen[i].angle, seen[i].dropped);
+			}
+			auto* cell = player->GetParentCell();
+			logger::info("actor in front: nobody within {:.0f}u and {:.0f} deg (player heading {:.0f} deg, cell {:08X}{}) - "
+						 "nearest: {}",
+				a_maxDistance, a_maxAngle, player->data.angle.z * 180.0f / kPi, cell ? cell->GetFormID() : 0u,
+				cell && cell->IsInterior() ? ", interior" : "", near.empty() ? "none at all" : near);
 		}
 		return best;
 	}
