@@ -236,7 +236,11 @@ BODY_NORMAL = r"actors\character\basehumanfemale\FemaleBody_n.dds"
 def main():
     tex = ROOT / "data" / "Textures" / "Overlays" / "Rapport"
     mat = ROOT / "data" / "Materials" / "Overlays" / "Rapport"
-    tpl = ROOT / "data" / "F4SE" / "Plugins" / "F4EE" / "Overlays" / "Rapport"
+    # LooksMenu reads Overlays\<plugin FILE name>\overlays.json for each loaded plugin, then only
+    # Overlays\Loose\*.json (expired6978/F4SEPlugins f4ee/OverlayInterface.cpp LoadOverlayMods). The
+    # folder was "Rapport" from 0.1.1 to 0.2.5, so the templates never loaded (Complexion, 2026-10-02;
+    # every other overlay mod on this install names its folder after its plugin file).
+    tpl = ROOT / "data" / "F4SE" / "Plugins" / "F4EE" / "Overlays" / "Rapport.esp"
 
     templates = []
 
@@ -249,12 +253,13 @@ def main():
         write_bgem(mat / (setID + ".bgem"),
                    "Overlays\\Rapport\\" + setID + ".dds", BODY_NORMAL)
         print("  %-18s body  %7d bytes" % (setID, n))
-        templates.append({
-            "id": setID, "name": label,
-            "slots": [{"slot": 3,
-                       "material": "overlays\\Rapport\\" + setID + ".BGEM"}],
-            "playable": True, "transformable": True, "sort": 0, "gender": 2,
-        })
+        for gender in (0, 1):
+            templates.append({
+                "id": setID, "name": label,
+                "slots": [{"slot": 3,
+                           "material": "overlays\\Rapport\\" + setID + ".BGEM"}],
+                "playable": True, "transformable": True, "sort": 0, "gender": gender,
+            })
 
     tpl.mkdir(parents=True, exist_ok=True)
     out = tpl / "overlays.json"
@@ -262,8 +267,8 @@ def main():
         json.dump(templates, fh, indent=2)
         fh.write("\n")
 
-    # gender 2 = both. The shipped packs split male and female templates because
-    # their art differs; sweat and a flush do not.
+    # One template per sex, the same id in each map. There is no "both": LooksMenu clamps a gender
+    # above 1 to female (OverlayInterface.cpp ~1080), so the old gender 2 meant women only.
     print("\n%s: %d template(s)" % (out.relative_to(ROOT), len(templates)))
     for t in templates:
         print("   %-18s slot %d" % (t["id"], t["slots"][0]["slot"]))

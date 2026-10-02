@@ -139,7 +139,7 @@ if (Test-Path $pex) {
 foreach ($path in (Join-Path $plugins 'Rapport.dll'),
                   (Join-Path $Staging 'Rapport.esp'),
                   (Join-Path $Staging 'Scripts\Rapport\Bridge.pex'),
-                  (Join-Path $Staging 'F4SE\Plugins\F4EE\Overlays\Rapport\overlays.json'),
+                  (Join-Path $Staging 'F4SE\Plugins\F4EE\Overlays\Rapport.esp\overlays.json'),
                   (Join-Path $Staging 'Materials\Overlays\Rapport\Rapport_Sweat_2.bgem'),
                   (Join-Path $Staging 'Textures\Overlays\Rapport\Rapport_Sweat_2.dds'),
                   (Join-Path 'D:\GOGGames\Fallout 4 GOTY\Data\F4SE\Plugins' 'Rapport.dll')) {

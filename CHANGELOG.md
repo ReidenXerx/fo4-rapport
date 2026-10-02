@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.6 (unreleased)
+
+- **Sweat shows at last.** Rapport's three sweat overlays never loaded: LooksMenu only reads overlay
+  templates from a folder named after the plugin file (`F4EE\Overlays\Rapport.esp\`), and Rapport's
+  was named `Rapport`. The templates also said "both sexes" in a way LooksMenu reads as women only;
+  there is now one per sex. Found by the Complexion bud in LooksMenu's own source. An old
+  `F4EE\Overlays\Rapport\` folder from earlier versions is ignored and can be deleted.
+
 ## 0.2.5 (2026-09-30)
 
 - **No more holstered pistols during sex.** With Visible Favorites installed, the weapon it shows on
