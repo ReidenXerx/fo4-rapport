@@ -288,7 +288,13 @@ to blink, breathe and talk, and two writers on a locked morph contend continuous
 diagnostic: with expressions off, anything still glitching is not Rapport (`data/F4SE/Plugins/Rapport.ini`).
 No log in this repository records it being used in anger.
 
-### Sweat and heat — VERIFIED IN GAME (and the bug that shaped it)
+### Sweat and heat — the HEAT logic VERIFIED IN GAME; the visible sweat NEVER LOADED until 0.2.6
+
+**Correction (2026-10-02, the Complexion bud from LooksMenu's source).** What was verified is the heat
+level the log traces below: which set was asked for, and that it only climbs. The overlays themselves
+never showed: LooksMenu reads templates only from `F4EE\Overlays\<plugin file>\`, and Rapport shipped
+them in `Overlays\Rapport\` from 0.1.1 to 0.2.5, with `gender: 2`, which LooksMenu reads as women only.
+Fixed in b87ee70 (0.2.6): `Overlays\Rapport.esp\`, one template per sex. Not yet seen in game.
 
 **What.** Three sweat overlay levels on biped slot 3, from Rapport's own generated textures and
 materials, keyed to the chosen face rather than to a clock.
