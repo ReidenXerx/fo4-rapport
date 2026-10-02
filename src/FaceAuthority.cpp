@@ -413,11 +413,11 @@ namespace RP
 				send.owned = MaskFor(held);
 				DeepOf(held, send);
 			} else if (a_order.kind == Order::Kind::kSayTopic) {
-				// Their side hands the mouth to the line itself, for as long as the engine
-				// plays it -- better than any guess here, and any line, not just ours.
-				if (_peerFeatures.load() & kEngineLines) {
-					return;
-				}
+				// The mouth goes back for OUR line, always. With hello bit 1 their side plays the line's
+				// real lip sync inside this window; since the engine's "ours wins" faces (2026-10-02) it
+				// hands a held face's mouth to lip sync ONLY while this speaking bit is set -- the engine's
+				// own lip state no longer takes it, so a foreign line Rapport silenced cannot move the lips.
+				// Without bit 1 the window is the whole story, as before.
 				// Only a face we hold has a mouth of ours to give back; anybody else's
 				// lips were never ours.
 				const auto found = _held.find(a_order.formID);
