@@ -5,12 +5,13 @@
   <moduleImage path="fomod/images/hero.jpg"/>
 
   <!-- FOMOD standard rule 2: the plugins both managers can see, and refuse the install without.
-       F4SE, Runtime Database, MCM, Anatomy and the Moisturizer are not visible to a FOMOD: Rapport checks
+       F4SE, Runtime Database, MCM, the Anatomy Engine (a DLL) and the Moisturizer are not visible to a FOMOD: Rapport checks
        what it needs at run time, and the Nexus Requirements field lists them. No game version: one DLL
        runs on 1.10.163 and the Anniversary Edition through Runtime Database (rule 6 needs nothing). -->
   <moduleDependencies operator="And">
     <fileDependency file="AAF.esm" state="Active"/>
     <fileDependency file="LooksMenu.esp" state="Active"/>
+    <fileDependency file="Anatomy.esp" state="Active"/>
   </moduleDependencies>
 
   <requiredInstallFiles>
@@ -28,7 +29,8 @@ LooksMenu.esp: found. LooksMenu carries the faces and overlays AAF puts on.
 F4SE: check this yourself. Rapport is an F4SE plugin: start the game through f4se_loader.exe (0.6.23 on 1.10.163, 0.7.9 on the Anniversary Edition; f4se.silverlock.org).
 Runtime Database: check this yourself. It finds the game's functions on every version; without its f4rd-runtime.bin the game stops at launch (Nexus 108394).
 MCM: check this yourself. Optional: Mod Configuration Menu gives Rapport its settings pages and hotkeys; without it everything runs on its defaults.
-Anatomy: check this yourself. Optional: the scene moans, the body sounds and the held faces play through it.
+Anatomy.esp: found. Anatomy and its engine are required: the faces, the moans and the body sounds run through them.
+Anatomy Engine: check this yourself. Its cbp.dll (Data\F4SE\Plugins) is what Anatomy runs on; Rapport tells you in game if it did not start.
 Commonwealth Moisturizer: check this yourself. Optional: the aftermath on bodies and faces needs it and its BodySlide output.</description>
               <image path="fomod/images/hero.jpg"/>
               <typeDescriptor><type name="Required"/></typeDescriptor>

@@ -2,6 +2,9 @@
 
 ## 0.2.6 (unreleased)
 
+- **Anatomy and the Anatomy Engine are required** (owner). The installer refuses to run without
+  `Anatomy.esp`, and if the engine's `cbp.dll` does not start, Rapport tells you in a message box once
+  a session and in `Rapport.log`. Rapport's faces, moans and body sounds all run through them.
 - **Sweat shows at last.** Rapport's three sweat overlays never loaded: LooksMenu only reads overlay
   templates from a folder named after the plugin file (`F4EE\Overlays\Rapport.esp\`), and Rapport's
   was named `Rapport`. The templates also said "both sexes" in a way LooksMenu reads as women only;

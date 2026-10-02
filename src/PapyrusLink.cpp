@@ -103,6 +103,23 @@ namespace
 		RP::PapyrusLink::GetSingleton().NoteSceneEnded(a_sceneID);
 	}
 
+	// Anatomy and its engine are hard requirements (owner, 2026-10-02). The installer refuses without
+	// Anatomy.esp; the engine is a DLL no installer can see, so the bridge asks here, once a session,
+	// and shows what comes back. "" when all is well.
+	RE::BSFixedString Papyrus_SetupProblem(std::monostate)
+	{
+		static std::atomic_bool said{ false };
+		if (RP::FaceAuthority::GetSingleton().Peer() || said.exchange(true)) {
+			return RE::BSFixedString{ "" };
+		}
+		logger::error("setup: the Anatomy Engine never said hello - its cbp.dll is missing, older than 1.2.0, or "
+					  "failed to load. Rapport needs it: no moans, no body sounds and no Rapport faces without it");
+		return RE::BSFixedString{ "Rapport needs the Anatomy Engine and Anatomy.\n\nThe Anatomy Engine did not "
+								  "start (Data\\F4SE\\Plugins\\cbp.dll is missing, too old, or blocked). Without it "
+								  "there are no moans, no body sounds and no Rapport faces.\n\nInstall the Anatomy "
+								  "Engine and Anatomy from Nexus, then start the game again through F4SE." };
+	}
+
 	void Papyrus_NoteBridgeConnected(std::monostate)
 	{
 		RP::PapyrusLink::GetSingleton().NoteBridgeConnected();
@@ -1524,6 +1541,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SceneSpot"sv, Papyrus_SceneSpot, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ActorsExclude"sv, Papyrus_ActorsExclude, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteBridgeConnected"sv, Papyrus_NoteBridgeConnected, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SetupProblem"sv, Papyrus_SetupProblem, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BlockFaces"sv, Papyrus_BlockFaces, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneRefused"sv, Papyrus_SceneRefused, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RefusedOurScene"sv, Papyrus_RefusedOurScene, std::nullopt, false);

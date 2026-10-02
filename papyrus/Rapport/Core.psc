@@ -106,6 +106,9 @@ Bool Function ActorsExclude(Var akActors, Int aiFormID) Global Native
 ; until a scene that began before we connected could no longer be running.
 Function NoteBridgeConnected() Global Native
 
+; What is missing from the setup, said once a session ("" when nothing is): the Anatomy Engine.
+String Function SetupProblem() Global Native
+
 ; Should an applied expression also BLOCK everything else from moving the face?
 ; Rapport.ini, BlockAnimationFaces. The engine's facial idle writes the same
 ; morphs to blink, breathe and talk, and two writers on one morph is a flicker.

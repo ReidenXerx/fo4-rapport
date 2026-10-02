@@ -37,6 +37,7 @@ game**. That distinction is kept honestly and is worth reading before relying on
 | Addresses | [Runtime Database](https://www.nexusmods.com/fallout4/mods/108394) (`f4rd-runtime.bin`), on every runtime |
 | Scene engine | AAF 1.7.4.1 |
 | Faces and overlays | LooksMenu / F4EE — AAF's overlay and morph calls go through it |
+| Bodies, faces and sounds | **Anatomy** and the **Anatomy Engine** (1.2.0 or newer) — required since 0.2.6: Rapport's faces, moans and body sounds run through them. The installer refuses without `Anatomy.esp`; Rapport says in game if the engine's `cbp.dll` did not start |
 | Animation packs | Whatever you already have. Rapport reads their XML rather than requiring a particular pack. |
 
 **Optional, for the aftermath feature only:**

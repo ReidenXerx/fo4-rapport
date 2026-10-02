@@ -151,6 +151,12 @@ Function Connect()
 	; time is correct, and it clears whatever we thought was running.
 	Rapport:Core.NoteBridgeConnected()
 
+	; Anatomy's engine is a hard requirement and a DLL no installer can check: say so in game.
+	String problem = Rapport:Core.SetupProblem()
+	If problem != ""
+		Debug.MessageBox(problem)
+	EndIf
+
 	_ready = true
 
 	Self.ApplyDebugProfile()
