@@ -7,7 +7,6 @@ The page tells the story; this is the complete list. Settings and the API have t
 [*]Fallout 4 1.10.163 with F4SE 0.6.23, or the Anniversary Edition 1.11.x with F4SE 0.7.9: one DLL since 0.2.3. Both need [url=https://www.nexusmods.com/fallout4/mods/108394]Runtime Database[/url]; without it the game stops at launch.
 [*]Needs Anatomy and the Anatomy Engine (0.2.6): the installer refuses without Anatomy.esp, and Rapport says in game if the engine did not start.
 [*]Every class Rapport reads is checked once per session; on a mismatch Rapport stays off and Rapport.log names it.
-[*]Tested on AE 1.11.240; 1.10.163 reports welcome (0.2.2 stays in Old files); next-gen untested.
 [/list]
 
 [b]Choosing a scene[/b]
@@ -157,29 +156,3 @@ Everything is in [i]Rapport:Core[/i] and [i]Rapport:Relations[/i]. [i]Core.ApiVe
 [b]New in 202[/b]: [b]OpeningRunning()[/b] (true until the player leaves Vault 111) and [b]StartStoryNow()[/b] (what MCM's Start now calls).
 [b]New in 206[/b]: [b]SetupProblem()[/b], what is missing from the setup (the Anatomy Engine), "" when nothing is. [b]New in 205[/b]: [b]ActorsOf(var)[/b] opens AAF's packed actor list (an event's args[1]), which Papyrus cannot. PersonaOf and OrientationOf/Attracted now answer the player's in-save choice when one was made (the hotkeys): read them live, never cache.
 A request is refused for a child, the dead, anyone not loaded, anyone in an ambient conversation or talking to the player (unless it is the player's own request), a mismatched orientation, or a scene already running.
-
-=== STICKY: What's tested in game, and what needs you ===
-[b]What's tested in game, and what needs you[/b]
-We would rather tell you than have you find out.
-
-[b]Checked in game[/b]
-[list]
-[*]0.2.5: the scene moans and Anatomy's sex sounds
-[*]0.2.6: other mods' AAF dialogue silenced, and our faces winning with the Anatomy Engine 1.2.3
-[*]Faces and eye contact with the Anatomy engine
-[*]Scenes moved off furniture to a clear spot
-[*]Pausing mid-scene (photo mode) no longer ends it
-[*]The Narrator and names for the nameless
-[*]A borrowed voice in addon dialogue, on one character so far
-[/list]
-[b]Built, not yet run in a real game[/b]
-[list]
-[*]Scenes with the player in them, including the held scene slot
-[*]Lovers, and everything that reads them
-[*]The OnPlayerSceneRecorded event
-[*]0.2.2: the opening rule, the unconscious/frozen rule, and Start now
-[*]0.2.6: the sweat overlays (the first version where they load)
-[*]0.2.5: the re-dress after a broken scene, the orientation and persona hotkeys, the same-sex preference, the holster hiding
-[*]0.2.3 on 1.10.163: the Runtime Database DLL (tested on AE 1.11.240: load, the layout check, a full Chemistry scene with faces)
-[/list]
-If you try any of these, reply here with what you saw and your Rapport.log. Good news counts as much as bad.
