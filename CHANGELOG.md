@@ -1,7 +1,13 @@
 # Changelog
 
-## 0.2.6 (unreleased)
+## 0.2.6 (2026-10-02)
 
+Released together with the Anatomy Engine 1.2.3.
+
+- **Our faces win.** With the Anatomy Engine 1.2.3, the face Rapport holds during a scene beats the
+  animation's and any other mod's: its own blink, and the mouth goes to lip sync only while one of
+  Rapport's lines is actually playing, then straight back to the face. A moan line from another mod
+  that Rapport silenced no longer moves the lips.
 - **Anatomy and the Anatomy Engine are required** (owner). The installer refuses to run without
   `Anatomy.esp`, and if the engine's `cbp.dll` does not start, Rapport tells you in a message box once
   a session and in `Rapport.log`. Rapport's faces, moans and body sounds all run through them.
