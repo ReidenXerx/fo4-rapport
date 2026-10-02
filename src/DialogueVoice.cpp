@@ -1,5 +1,6 @@
 #include "DialogueVoice.h"
 
+#include "FaceAuthority.h"
 #include "Voices.h"
 
 namespace RP::DialogueVoice
@@ -16,6 +17,21 @@ namespace RP::DialogueVoice
 		// (response, path out, voice type, the response's topic data, the INFO) -> built.
 		using Build_t = bool(void*, char*, RE::BGSVoiceType*, void*, RE::TESTopicInfo*);
 		REL::Relocation<Build_t> g_build;
+
+		// Plugins whose dialogue AAF plays during scenes (topicData sources), lowercase. Written once at
+		// data ready, before any line is spoken; read-only after g_topicsReady.
+		std::unordered_set<std::string> g_scenePlugins;
+		std::atomic_bool                g_topicsReady{ false };
+		constexpr std::string_view      kMuted = "Data\\Sound\\Voice\\Rapport.esp\\_muted\\line.wav";
+
+		[[nodiscard]] std::string LowerText(std::string_view a_text)
+		{
+			std::string out{ a_text };
+			for (auto& c : out) {
+				c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+			}
+			return out;
+		}
 
 		std::mutex                      g_saidLock;
 		std::unordered_set<std::string> g_said;   // one log line per voice type AND line
@@ -69,6 +85,13 @@ namespace RP::DialogueVoice
 			}
 			try {
 				const std::string_view path{ a_path };
+				// A scene sound from another mod while ours are on: no file, no sound.
+				if (g_topicsReady.load() && !g_scenePlugins.empty() && FaceAuthority::GetSingleton().SoundOverride() &&
+					g_scenePlugins.contains(LowerText(PluginOf(path)))) {
+					SayOnce(a_voice, path, "muted - an AAF scene topic, and Anatomy's sex sounds are on");
+					strcpy_s(a_path, kPathSize, kMuted.data());
+					return built;
+				}
 				auto&                  voices = Voices::GetSingleton();
 				if (!voices.IsDialoguePlugin(PluginOf(path)) || HasAudio(path)) {
 					return built;
@@ -92,6 +115,64 @@ namespace RP::DialogueVoice
 			}
 			return built;
 		}
+	}
+
+	void LoadSceneTopics()
+	{
+		const auto attr = [](std::string_view a_element, std::string_view a_name) -> std::string {
+			const auto key = std::string{ " " } + std::string{ a_name } + "=\"";
+			const auto at = a_element.find(key);
+			if (at == std::string_view::npos) {
+				return {};
+			}
+			const auto from = at + key.size();
+			const auto to = a_element.find('"', from);
+			return to == std::string_view::npos ? std::string{} : std::string{ a_element.substr(from, to - from) };
+		};
+		const auto excluded = [](const std::string& a_plugin) {
+			static constexpr std::array<std::string_view, 9> kKeep{ "fallout4.esm", "rapport.esp", "rapport_moisturizer.esp",
+				"overture.esp", "chemistry.esp", "anatomy.esp", "silhouette.esp", "aaf.esm", "aafthemes.esl" };
+			return a_plugin.starts_with("dlc") || a_plugin.starts_with("cc") ||
+			       std::ranges::find(kKeep, std::string_view{ a_plugin }) != kKeep.end();
+		};
+		std::unordered_set<std::string> plugins;
+		std::size_t                     files = 0;
+		std::error_code                 ec;
+		for (const auto& entry : std::filesystem::directory_iterator{ "Data\\AAF", ec }) {
+			const auto name = LowerText(entry.path().filename().string());
+			if (!name.ends_with(".xml") || name.find("topicdata") == std::string::npos) {
+				continue;
+			}
+			std::ifstream file{ entry.path(), std::ios::binary };
+			if (!file) {
+				continue;
+			}
+			++files;
+			const std::string text{ std::istreambuf_iterator<char>{ file }, std::istreambuf_iterator<char>{} };
+			std::string fallback;
+			if (const auto at = text.find("<defaults"); at != std::string::npos) {
+				fallback = attr(std::string_view{ text }.substr(at, text.find('>', at) - at), "source");
+			}
+			for (auto at = text.find("<topic "); at != std::string::npos; at = text.find("<topic ", at + 1)) {
+				const auto element = std::string_view{ text }.substr(at, text.find('>', at) - at);
+				auto       source = attr(element, "source");
+				if (source.empty()) {
+					source = fallback;
+				}
+				if (auto plugin = LowerText(source); !plugin.empty() && !excluded(plugin)) {
+					plugins.insert(std::move(plugin));
+				}
+			}
+		}
+		g_scenePlugins = std::move(plugins);
+		g_topicsReady.store(true);
+		std::string named;
+		for (const auto& plugin : g_scenePlugins) {
+			named += (named.empty() ? "" : ", ") + plugin;
+		}
+		logger::info("dialogue voice: {} AAF topicData file(s); scene dialogue from [{}] is silent while Anatomy's sex "
+					 "sounds are on",
+			files, named.empty() ? "nothing" : named);
 	}
 
 #ifdef RP_RUNTIME_DATABASE

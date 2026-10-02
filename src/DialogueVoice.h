@@ -25,4 +25,14 @@ namespace RP::DialogueVoice
 	// The call site is checked byte for byte before it is patched; anything unexpected leaves the
 	// game alone and says so in Rapport.log.
 	void Install();
+
+	// The OTHER direction, owner 2026-10-02: "replace all mechanical and moans sounds by ours and block
+	// any other entrypoints". AAF can make actors SAY dialogue topics during animations (topicData XML:
+	// UAP Moans, Atomic Lust). Anatomy's mute covers only the animations' SoundPlay events, so those
+	// moans played on top of Rapport's. At data ready every Data\AAF\*topicData*.xml is read for the
+	// plugins it names as a topic's source; while "Anatomy's sex sounds" is on (FaceAuthority::
+	// SoundOverride, which also means Anatomy's mute hooked), a line from one of those plugins gets a
+	// voice path to no file: silent. Keyed on the INFO's plugin, never a topic pointer, and never the
+	// base game, its DLCs, Creation Club or the family's own plugins (topicData may name vanilla topics).
+	void LoadSceneTopics();
 }

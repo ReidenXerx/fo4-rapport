@@ -7,6 +7,12 @@
   was named `Rapport`. The templates also said "both sexes" in a way LooksMenu reads as women only;
   there is now one per sex. Found by the Complexion bud in LooksMenu's own source. An old
   `F4EE\Overlays\Rapport\` folder from earlier versions is ignored and can be deleted.
+- **Only our sounds while "Anatomy's sex sounds" is on.** Mods that make AAF actors *say* moans as
+  dialogue during scenes (AAF topicData: UAP Moans, Atomic Lust's voices) played on top of Rapport's
+  moans, because Anatomy's mute covers only the animations' own sound events. Rapport now reads every
+  topicData file AAF loads and silences that dialogue while the switch is on; turn it off and they
+  play as before. The base game's, its DLCs' and our own dialogue are never touched. (Sounds other
+  mods play from scripts are the Anatomy Engine's side.)
 
 ## 0.2.5 (2026-09-30)
 

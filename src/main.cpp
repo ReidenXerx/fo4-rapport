@@ -158,6 +158,7 @@ namespace
 			RP::Expressions::GetSingleton().Load();
 			RP::FaceAuthority::GetSingleton().Load();
 			RP::Voices::GetSingleton().Load();
+			RP::DialogueVoice::LoadSceneTopics();
 			RP::Barks::GetSingleton().Load();
 			RP::Orientation::GetSingleton().Load();
 			RP::Narrator::GetSingleton().Load();
