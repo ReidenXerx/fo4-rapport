@@ -27,6 +27,7 @@ namespace RP
 
 		// Hello feature bits, as the anatomy session defined them.
 		constexpr std::uint32_t kEngineLines = 1u << 1;   // lines keep the mouth, for their real length
+		constexpr std::uint64_t kSpeakingBit = std::uint64_t{ 1 } << 63;   // RFAS owned: one of OUR lines plays
 		constexpr std::uint32_t kDepthBlend = 1u << 3;    // blends toward our deep face by depth
 		constexpr std::uint32_t kGlances = 1u << 4;       // turns the eyes to a partner on 'RFAG'
 		constexpr std::uint32_t kGlanceFaces = 1u << 7;   // wears an 'RFAX' face for its glance
@@ -362,7 +363,14 @@ namespace RP
 	std::uint64_t FaceAuthority::MaskFor(const Held& a_held) const noexcept
 	{
 		const auto every = _morphs >= 64 ? ~std::uint64_t{ 0 } : (std::uint64_t{ 1 } << _morphs) - 1;
-		return a_held.speaking ? (every & ~_mouth) : every;
+		if (!a_held.speaking) {
+			return every;
+		}
+		// An engine that plays lines' lip sync (hello bit 1) keys on owned bit 63 -- "our line plays":
+		// the mouth stays OURS and goes to lip sync only while that bit is set AND a line is actually
+		// playing, so it comes straight back when the line ends inside the window, never to the
+		// animation's mouth (Anatomy, 2026-10-02). An older engine knew no bit 63: give it the mouth.
+		return (_peerFeatures.load() & kEngineLines) ? (every | kSpeakingBit) : (every & ~_mouth);
 	}
 
 	void FaceAuthority::OnOrder(const Order& a_order)
