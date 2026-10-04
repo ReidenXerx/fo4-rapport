@@ -109,9 +109,11 @@ _BGEM_HEAD = bytes.fromhex(
     "00000000" "00000000"       # U offset, V offset
     "0000803f" "0000803f"       # U scale, V scale = 1.0
     "0000803f"                  # alpha = 1.0; per-overlay alpha lives in the XML
-    "01"                        # alpha blend enabled
-    "06000000"                  # blend src = SRC_ALPHA
-    "07000000"                  # blend dst = INV_SRC_ALPHA
+    "01"                        # blending enabled
+    "04000000"                  # blend src = DEST_COLOR  } MULTIPLY: skin x texture x base colour x scale,
+    "01000000"                  # blend dst = ZERO        } lit and shadowed WITH the skin. Alpha blending
+                                # (6/7) drew unlit: pale marks glowed at night (Complexion, measured in game
+                                # 2026-10-03; shared memory fo4-overlay-bgem-multiply). porc's header.
     "00"                        # alpha test ref
     "01010101"                  # alpha test, z write, z test, SSR
     "0000"                      # wetness-control SSR, decal
@@ -119,12 +121,20 @@ _BGEM_HEAD = bytes.fromhex(
     "0000803f"                  # environment map mask scale = 1.0
     "00")                       # grayscale-to-palette colour off
 _BGEM_MID = bytes.fromhex("01000000000100000000")
-_BGEM_TAIL = bytes.fromhex(
-    "01000000000000000000000000803f0000803f0000803f"
-    "0000000000000000000000000000000000000000000000000000000000")
+# Multiply scale: the texture stores factor x NEUTRAL, the material scales it back.
+SCALE = 2.0
+NEUTRAL = 1.0 / SCALE
+
+
+def _bgem_tail(base_colour):
+    """Envmap-mask string, 6 bools, base colour 3f, base colour scale f, falloff 4f, lighting
+    influence f, envmap min LOD u8, soft depth f -- Complexion's make_marks.py layout."""
+    return (bytes.fromhex("0100000000" "000000000000") + struct.pack("<fff", *base_colour)
+            + struct.pack("<f", SCALE) + bytes(16) + bytes(4) + bytes(1) + bytes(4))
+
 
 assert len(_BGEM_HEAD) == 63, len(_BGEM_HEAD)
-assert len(_BGEM_MID) == 10 and len(_BGEM_TAIL) == 52
+assert len(_BGEM_MID) == 10 and len(_bgem_tail((1.0, 1.0, 1.0))) == 52
 
 
 def _bgem_string(path):
@@ -132,10 +142,12 @@ def _bgem_string(path):
     return struct.pack("<I", len(raw)) + raw
 
 
-def write_bgem(dest, diffuse, normal):
-    """diffuse/normal are paths relative to Data/Textures, backslash-separated."""
+def write_bgem(dest, diffuse, normal, base_colour):
+    """diffuse/normal are paths relative to Data/Textures, backslash-separated. base_colour undoes the
+    texture's DECODED neutral (5-6-5 colour endpoints cannot store 0.5), so skin off the droplets is
+    multiplied by exactly 1 -- not ~1.03, which tints the whole body pinker than the face."""
     blob = (_BGEM_HEAD + _bgem_string(diffuse) + _BGEM_MID
-            + _bgem_string(normal) + _BGEM_TAIL)
+            + _bgem_string(normal) + _bgem_tail(base_colour))
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_bytes(blob)
     return len(blob)
@@ -215,17 +227,27 @@ def sweat_alpha(size, count, max_r, sheen_peak, drop_peak, trails, seed):
     return ImageChops.lighter(sheen, beads)
 
 
-def save_dds(dest, rgb, alpha):
-    im = Image.merge("RGBA", (
-        Image.new("L", alpha.size, rgb[0]),
-        Image.new("L", alpha.size, rgb[1]),
-        Image.new("L", alpha.size, rgb[2]),
-        alpha))
+# How much a droplet brightens the skin under it, at full sweat intensity: factor = 1 + LIFT x
+# intensity x the sweat's slightly cool tint. Bead peaks (~0.41) land near x1.4, what the old alpha
+# blend toward near-white gave a mid skin tone -- but now lit, and dark at night.
+LIFT = 1.0
+
+
+def save_dds(dest, rgb, intensity):
+    """The multiply texture: NEUTRAL everywhere, lifted where the sweat is. Returns (size, the base
+    colour that makes the DECODED neutral exactly 1)."""
+    channels = []
+    for c in rgb:
+        k = LIFT * c / 255.0
+        channels.append(intensity.point(lambda a, k=k: int(round(min(1.0, (1.0 + k * a / 255.0) * NEUTRAL) * 255))))
+    im = Image.merge("RGBA", (*channels, Image.new("L", intensity.size, 255)))
     dest.parent.mkdir(parents=True, exist_ok=True)
-    # BC3/DXT5: interpolated alpha, which a soft-edged decal needs. DXT1 would
-    # give this a one-bit alpha and a hard jagged rim around every droplet.
     im.save(dest, "DDS", pixel_format="DXT5")
-    return dest.stat().st_size
+    # Read the neutral back as the GPU will: the most common decoded texel is skin with no sweat.
+    decoded = Image.open(dest).convert("RGB")
+    neutral = max(decoded.getcolors(1 << 24), key=lambda e: e[0])[1]
+    base = tuple(255.0 / (SCALE * max(1, v)) for v in neutral)
+    return dest.stat().st_size, base, neutral
 
 
 # ---------------------------------------------------------------------------
@@ -247,12 +269,13 @@ def main():
     for setID, count, max_r, sheen, drop, trails in SWEAT:
         alpha = sweat_alpha(SIZE_BODY, count, max_r, sheen, drop, trails,
                             seed=hash(setID) & 0xFFFF)
-        n = save_dds(tex / (setID + ".dds"), SWEAT_RGB, alpha)
+        n, base, neutral = save_dds(tex / (setID + ".dds"), SWEAT_RGB, alpha)
         label = "Rapport - Sweat %d" % (SWEAT.index(
             (setID, count, max_r, sheen, drop, trails)) + 1)
         write_bgem(mat / (setID + ".bgem"),
-                   "Overlays\\Rapport\\" + setID + ".dds", BODY_NORMAL)
-        print("  %-18s body  %7d bytes" % (setID, n))
+                   "Overlays\\Rapport\\" + setID + ".dds", BODY_NORMAL, base)
+        print("  %-18s body  %7d bytes  decoded neutral %s -> base colour %s" % (
+            setID, n, neutral, tuple(round(b, 4) for b in base)))
         for gender in (0, 1):
             templates.append({
                 "id": setID, "name": label,

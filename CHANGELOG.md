@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.7 (2026-10-04)
+
+- Sweat follows the scene's light: it no longer glows in the dark.
+
 ## 0.2.6 (2026-10-02)
 
 Released together with the Anatomy Engine 1.2.3.
