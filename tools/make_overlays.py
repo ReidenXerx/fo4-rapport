@@ -176,11 +176,16 @@ SIZE_BODY = 2048
 # sheen with small beads sitting in it, so the sheen peak climbs hard with
 # intensity while the bead alpha barely moves, and beads stay tiny: 2 px at 2048
 # across a whole body is about right.
-SWEAT = [
-    ("Rapport_Sweat_1", 2200, 1, 26,  55,   0),
-    ("Rapport_Sweat_2", 5200, 2, 46,  80, 180),
-    ("Rapport_Sweat_3", 9000, 2, 68, 105, 620),
+# The bead version (pale 1-2 px dots lifting the skin to x1.37) read as dandruff in the owner's photo,
+# 2026-10-04 (Screenshot276), so the sweat is now a DAMP FILM: tools/damp_film.py.
+# (id, darkening at full film, coverage 0..1, runs)
+SWEAT_FILM = [
+    ("Rapport_Sweat_1", 0.05, 0.35, 0),
+    ("Rapport_Sweat_2", 0.08, 0.60, 12),
+    ("Rapport_Sweat_3", 0.12, 0.90, 30),
 ]
+SEXES = {"female": (1, "F", r"actors\character\basehumanfemale\FemaleBody_n.dds"),
+         "male": (0, "M", r"actors\character\basehumanmale\BaseMaleBody_n.dds")}
 
 def sweat_alpha(size, count, max_r, sheen_peak, drop_peak, trails, seed):
     rng = random.Random(seed)
@@ -257,17 +262,11 @@ def _texconv():
     return pathlib.Path(found)
 
 
-def save_dds(dest, rgb, intensity):
-    """The multiply texture: NEUTRAL everywhere, lifted where the sweat is, encoded BC7 with mipmaps.
+def save_dds(dest, painted):
+    """The multiply texture (painted: an RGB image of factor x NEUTRAL), encoded BC7 with mipmaps.
     BC1/DXT5 keep colours as 5-6-5 endpoints: neutral 128 decodes to (132,130,132), and a soft edge a
-    few levels off neutral decodes 2-5% wrong in mixed blocks -- a patch around every droplet
-    (Complexion, measured 2026-10-04). BC7 holds 128 exactly. Returns (size, the base colour that
-    makes the DECODED neutral exactly 1, that neutral, the worst 8x8 patch error)."""
-    channels = []
-    for c in rgb:
-        k = LIFT * c / 255.0
-        channels.append(intensity.point(lambda a, k=k: int(round(min(1.0, (1.0 + k * a / 255.0) * NEUTRAL) * 255))))
-    painted = Image.merge("RGB", channels)
+    few levels off neutral decodes 2-5% wrong in mixed blocks (Complexion, measured 2026-10-04). BC7
+    holds 128 exactly. Returns (size, the base colour, the decoded neutral, the worst 8x8 patch error)."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         png = pathlib.Path(tmp) / (dest.stem + ".png")
@@ -282,13 +281,23 @@ def save_dds(dest, rgb, intensity):
         shutil.copyfile(made, dest)
     # Read it back as the GPU will. The most common decoded texel is skin with no sweat.
     decoded = Image.open(dest).convert("RGB")
-    neutral = max(decoded.getcolors(1 << 24), key=lambda e: e[0])[1]
-    if neutral != (128, 128, 128):
-        sys.exit("%s: clean skin decodes to %s, not the exact neutral (128,128,128)" % (dest.name, neutral))
-    base = tuple(255.0 / (SCALE * max(1, v)) for v in neutral)
+    # Every texel painted exactly neutral (skin with no sweat, off the islands) must decode to 128.
+    import numpy as np
+    pnt8 = np.asarray(painted)
+    dec8 = np.asarray(decoded)
+    # Whole 8x8 areas of clean skin must decode to it exactly (a texel right at the film's edge may move a
+    # few levels in a mixed BC7 block; the patch check below bounds what that does to an area).
+    h8, w8 = pnt8.shape[0] // 8 * 8, pnt8.shape[1] // 8 * 8
+    clean = np.all((pnt8[:h8, :w8] == 128).reshape(h8 // 8, 8, w8 // 8, 8, 3), axis=(1, 3, 4))
+    if clean.any():
+        blocks = dec8[:h8, :w8].astype(int).reshape(h8 // 8, 8, w8 // 8, 8, 3)
+        off = np.abs(blocks.transpose(0, 2, 1, 3, 4)[clean] - 128).max()
+        if off > 1:
+            sys.exit("%s: clean skin decodes up to %d levels off the neutral 128" % (dest.name, off))
+    neutral = (128, 128, 128)
+    base = tuple(255.0 / (SCALE * v) for v in neutral)
     # Patch check: the factor the game draws (texel x scale x base) against the painted factor
     # (texel / neutral), averaged over 8x8 texel areas.
-    import numpy as np
     dec = np.asarray(decoded, dtype=np.float64) / 255.0 * SCALE * np.array(base)
     pnt = np.asarray(painted, dtype=np.float64) / (NEUTRAL * 255.0)
     h, w = dec.shape[0] // 8 * 8, dec.shape[1] // 8 * 8
@@ -315,21 +324,28 @@ def main():
 
     templates = []
 
-    for setID, count, max_r, sheen, drop, trails in SWEAT:
-        alpha = sweat_alpha(SIZE_BODY, count, max_r, sheen, drop, trails,
-                            seed=hash(setID) & 0xFFFF)
-        n, base, neutral, worst = save_dds(tex / (setID + ".dds"), SWEAT_RGB, alpha)
-        label = "Rapport - Sweat %d" % (SWEAT.index(
-            (setID, count, max_r, sheen, drop, trails)) + 1)
-        write_bgem(mat / (setID + ".bgem"),
-                   "Overlays\\Rapport\\" + setID + ".dds", BODY_NORMAL, base)
-        print("  %-18s body  %7d bytes  BC7, decoded neutral %s -> base colour %s, worst 8x8 patch %.4f" % (
-            setID, n, neutral, tuple(round(b, 4) for b in base), worst))
-        for gender in (0, 1):
+    import damp_film
+    import numpy as np
+    for old in list(tex.glob("Rapport_Sweat_?.dds")) + list(mat.glob("Rapport_Sweat_?.bgem")):
+        old.unlink()   # the one-texture-for-both-sexes files of 0.2.6-0.2.8
+    for n, (setID, depth, coverage, runs) in enumerate(SWEAT_FILM, start=1):
+        label = "Rapport - Sweat %d" % n
+        for sex, (gender, tag, normal) in SEXES.items():
+            factor = damp_film.film_factor(sex, SIZE_BODY, depth, coverage, runs, seed=1000 * n + gender)
+            # Dither the film by up to half a level so its gentle gradients do not band into contour
+            # rings (13% of darkening is only ~17 levels); clean skin is left exactly neutral.
+            level = factor * NEUTRAL * 255.0
+            jitter = np.random.default_rng(7 * n + gender).uniform(-0.5, 0.5, level.shape)
+            level = np.where(factor < 1.0 - 1e-6, level + jitter, level)
+            rgb = np.clip(np.floor(level + 0.5), 0, 255).astype(np.uint8)
+            name = "%s_%s" % (setID, tag)
+            size, base, neutral, worst = save_dds(tex / (name + ".dds"), Image.fromarray(rgb, "RGB"))
+            write_bgem(mat / (name + ".bgem"), "Overlays\\Rapport\\" + name + ".dds", normal, base)
+            print("  %-20s %-6s %8d bytes  BC7, darkest x%.3f, worst 8x8 patch %.4f" % (
+                name, sex, size, float(factor.min()), worst))
             templates.append({
                 "id": setID, "name": label,
-                "slots": [{"slot": 3,
-                           "material": "overlays\\Rapport\\" + setID + ".BGEM"}],
+                "slots": [{"slot": 3, "material": "overlays\\Rapport\\" + name + ".BGEM"}],
                 "playable": True, "transformable": True, "sort": 0, "gender": gender,
             })
 

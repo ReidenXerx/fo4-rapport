@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.9 (2026-10-04)
+
+- Sweat looks like damp skin instead of pale specks, and fades out before the neck and wrists.
+
 ## 0.2.8 (2026-10-04)
 
 - Sweat no longer leaves faint patches on the skin around the droplets.
