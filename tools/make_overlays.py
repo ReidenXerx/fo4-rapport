@@ -81,7 +81,11 @@ KNOWN LIMITATIONS, STATED RATHER THAN DISCOVERED IN GAME
 import json
 import pathlib
 import random
+import shutil
 import struct
+import subprocess
+import sys
+import tempfile
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
@@ -233,21 +237,66 @@ def sweat_alpha(size, count, max_r, sheen_peak, drop_peak, trails, seed):
 LIFT = 1.0
 
 
+TEXCONV = [pathlib.Path(r"D:\xEdit.4.1.5f\Edit Scripts\Texconvx64.exe"),
+           pathlib.Path(r"D:\DynDOLOD\Edit Scripts\Texconvx64.exe")]
+# What an eye sees as a patch, as a multiply factor over 8x8 texel areas. Clean skin must decode to the
+# neutral EXACTLY (BC7 does: 128); inside the sweat film, which is itself a few-percent lift with random
+# variation, the decoded sweat may differ from the painted by up to PATCH_LIMIT. Measured 2026-10-04 on
+# Rapport_Sweat_1: clean-skin blocks within 0.003, the film's worst block 0.012 (1-2 px beads are harder
+# for BC7 than Complexion's broad marks, which reach 0.001-0.003).
+PATCH_LIMIT = 0.02
+
+
+def _texconv():
+    for tool in TEXCONV:
+        if tool.exists():
+            return tool
+    found = shutil.which("texconv")
+    if not found:
+        sys.exit("texconv not found (Texconvx64.exe from xEdit or DynDOLOD)")
+    return pathlib.Path(found)
+
+
 def save_dds(dest, rgb, intensity):
-    """The multiply texture: NEUTRAL everywhere, lifted where the sweat is. Returns (size, the base
-    colour that makes the DECODED neutral exactly 1)."""
+    """The multiply texture: NEUTRAL everywhere, lifted where the sweat is, encoded BC7 with mipmaps.
+    BC1/DXT5 keep colours as 5-6-5 endpoints: neutral 128 decodes to (132,130,132), and a soft edge a
+    few levels off neutral decodes 2-5% wrong in mixed blocks -- a patch around every droplet
+    (Complexion, measured 2026-10-04). BC7 holds 128 exactly. Returns (size, the base colour that
+    makes the DECODED neutral exactly 1, that neutral, the worst 8x8 patch error)."""
     channels = []
     for c in rgb:
         k = LIFT * c / 255.0
         channels.append(intensity.point(lambda a, k=k: int(round(min(1.0, (1.0 + k * a / 255.0) * NEUTRAL) * 255))))
-    im = Image.merge("RGBA", (*channels, Image.new("L", intensity.size, 255)))
+    painted = Image.merge("RGB", channels)
     dest.parent.mkdir(parents=True, exist_ok=True)
-    im.save(dest, "DDS", pixel_format="DXT5")
-    # Read the neutral back as the GPU will: the most common decoded texel is skin with no sweat.
+    with tempfile.TemporaryDirectory() as tmp:
+        png = pathlib.Path(tmp) / (dest.stem + ".png")
+        painted.save(png)
+        r = subprocess.run([str(_texconv()), "-nologo", "-y", "-ft", "dds", "-f", "BC7_UNORM", "-bcmax", "-m", "0",
+                            "-o", tmp, str(png)], capture_output=True, text=True)
+        made = pathlib.Path(tmp) / (dest.stem + ".DDS")
+        if not made.exists():
+            made = pathlib.Path(tmp) / (dest.stem + ".dds")
+        if r.returncode != 0 or not made.exists():
+            sys.exit("texconv failed on %s: %s %s" % (png, r.stdout[-300:], r.stderr[-300:]))
+        shutil.copyfile(made, dest)
+    # Read it back as the GPU will. The most common decoded texel is skin with no sweat.
     decoded = Image.open(dest).convert("RGB")
     neutral = max(decoded.getcolors(1 << 24), key=lambda e: e[0])[1]
+    if neutral != (128, 128, 128):
+        sys.exit("%s: clean skin decodes to %s, not the exact neutral (128,128,128)" % (dest.name, neutral))
     base = tuple(255.0 / (SCALE * max(1, v)) for v in neutral)
-    return dest.stat().st_size, base, neutral
+    # Patch check: the factor the game draws (texel x scale x base) against the painted factor
+    # (texel / neutral), averaged over 8x8 texel areas.
+    import numpy as np
+    dec = np.asarray(decoded, dtype=np.float64) / 255.0 * SCALE * np.array(base)
+    pnt = np.asarray(painted, dtype=np.float64) / (NEUTRAL * 255.0)
+    h, w = dec.shape[0] // 8 * 8, dec.shape[1] // 8 * 8
+    diff = (dec[:h, :w] - pnt[:h, :w]).reshape(h // 8, 8, w // 8, 8, 3).mean(axis=(1, 3))
+    worst = float(np.abs(diff).max())
+    if worst > PATCH_LIMIT:
+        sys.exit("%s: worst 8x8 patch is off by %.4f (limit %.2f)" % (dest.name, worst, PATCH_LIMIT))
+    return dest.stat().st_size, base, neutral, worst
 
 
 # ---------------------------------------------------------------------------
@@ -269,13 +318,13 @@ def main():
     for setID, count, max_r, sheen, drop, trails in SWEAT:
         alpha = sweat_alpha(SIZE_BODY, count, max_r, sheen, drop, trails,
                             seed=hash(setID) & 0xFFFF)
-        n, base, neutral = save_dds(tex / (setID + ".dds"), SWEAT_RGB, alpha)
+        n, base, neutral, worst = save_dds(tex / (setID + ".dds"), SWEAT_RGB, alpha)
         label = "Rapport - Sweat %d" % (SWEAT.index(
             (setID, count, max_r, sheen, drop, trails)) + 1)
         write_bgem(mat / (setID + ".bgem"),
                    "Overlays\\Rapport\\" + setID + ".dds", BODY_NORMAL, base)
-        print("  %-18s body  %7d bytes  decoded neutral %s -> base colour %s" % (
-            setID, n, neutral, tuple(round(b, 4) for b in base)))
+        print("  %-18s body  %7d bytes  BC7, decoded neutral %s -> base colour %s, worst 8x8 patch %.4f" % (
+            setID, n, neutral, tuple(round(b, 4) for b in base), worst))
         for gender in (0, 1):
             templates.append({
                 "id": setID, "name": label,

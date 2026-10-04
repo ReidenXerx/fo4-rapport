@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.8 (2026-10-04)
+
+- Sweat no longer leaves faint patches on the skin around the droplets.
+
 ## 0.2.7 (2026-10-04)
 
 - Sweat follows the scene's light: it no longer glows in the dark.
