@@ -732,7 +732,16 @@ namespace RP
 			a_scene.climaxSeen = true;
 			why = "a climax tag";
 		} else if (intensity == 0 && face.starts_with("Rapport_Pleasure")) {
-			face = "Rapport_Anticipation";
+			if (a_scene.steps > 0) {
+				// Moved past its entry animation: under way, whatever the clock says. A
+				// player stepping an untimed scene by hand is read against a nominal
+				// 150 s, and a toy scene stepped five times in 36 s kept the waiting face
+				// for 40 s (2026-10-05).
+				face = "Rapport_Pleasure_1";
+				why += ", past its first animation";
+			} else {
+				face = "Rapport_Anticipation";
+			}
 		}
 		return { face, why };
 	}

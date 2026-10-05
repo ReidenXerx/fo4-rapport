@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.10 (2026-10-05)
+
+- Faces and aftermath recognise more acts in any AAF scene: fisting, toys, footjobs, titjobs, spanking, missionary/cowgirl and more.
+- A scene you step through by hand leaves the waiting face as soon as it moves on.
+
 ## 0.2.9 (2026-10-04)
 
 - Sweat looks like damp skin instead of pale specks, and fades out before the neck and wrists.

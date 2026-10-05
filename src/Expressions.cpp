@@ -44,7 +44,8 @@ namespace
 		static constexpr std::array kSex{
 			"penisto"sv, "mouthto"sv, "handto"sv, "vaginal"sv, "anal"sv, "blowjob"sv,
 			"cunnilingus"sv, "masturbation"sv, "straponto"sv, "dildoto"sv, "climax"sv,
-			"analingus"sv, "anusto"sv, "vaginato"sv, "footto"sv
+			"analingus"sv, "anusto"sv, "vaginato"sv, "footto"sv, "penist"sv, "fist"sv,
+			"fingerto"sv, "stickto"sv, "footjob"sv, "titjob"sv, "boobjob"sv, "jackoff"sv
 		};
 		const auto lowered = Lower(a_tags);
 		return std::ranges::any_of(kSex, [&](std::string_view needle) {
@@ -378,8 +379,8 @@ namespace RP
 		// not a target. "tongueto" is narrowed for the same reason before it finds
 		// a tonguetomouth in some pack nobody here has installed.
 		if (any({ "blowjob"sv, "cunnilingus"sv, "analingus"sv, "fellatio"sv, "irrumatio"sv,
-				  "oral"sv, "69"sv, "rimjob"sv, "rimming"sv, "licking"sv,
-				  "penistomouth"sv, "anustomouth"sv, "vaginatomouth"sv,
+				  "oral"sv, "69"sv, "rimjob"sv, "rimming"sv, "lick"sv, "swallow"sv, "facesitting"sv,
+				  "penistomouth"sv, "anustomouth"sv, "vaginatomouth"sv, "sticktomouth"sv,
 				  "mouthtovagina"sv, "mouthtopenis"sv, "mouthtoanus"sv,
 				  "tonguetoanus"sv, "tonguetopenis"sv, "tonguetovagina"sv })) {
 			return "Rapport_Oral"sv;
@@ -389,10 +390,19 @@ namespace RP
 		// SCISSOR, FEETTOVAGINA, STIM9 fell through every family and landed on a
 		// KISS face. "footto" was in this list; the pack spells it FEETto. That is
 		// the whole lesson again in one tag.
-		if (any({ "penisto"sv, "vaginal"sv, "anal"sv, "vaginato"sv, "anusto"sv, "strapon"sv,
+		//
+		// The second half came from running every tag on the AE install (336 of them,
+		// 2026-10-05) through these families: act words that fell through to the Stim
+		// fallback or to nothing. Missionary 704 and Cowgirl 563 carry a Stim number most
+		// of the time, which is the only reason nobody saw them miss; Fisting, Footjob,
+		// TitJob, SpankToButt ("spanking" never matched it), FingerToAnus, the StickTo*
+		// family and PenisTAnus (a pack's typo -- hence "penist", not "penisto") did not.
+		if (any({ "penist"sv, "vaginal"sv, "anal"sv, "vaginato"sv, "anusto"sv, "strapon"sv,
 				  "dildo"sv, "handjob"sv, "handto"sv, "footto"sv, "feetto"sv, "fingering"sv,
-				  "titfuck"sv, "masturbat"sv, "spanking"sv, "scissor"sv, "tribb"sv, "grinding"sv,
-				  "doggy"sv })) {
+				  "titfuck"sv, "masturbat"sv, "spank"sv, "scissor"sv, "tribb"sv, "grinding"sv,
+				  "doggy"sv, "fist"sv, "fingerto"sv, "stickto"sv, "footjob"sv, "titjob"sv,
+				  "boobjob"sv, "jackoff"sv, "missionary"sv, "cowgirl"sv, "spooning"sv, "pound"sv,
+				  "powerbomb"sv, "wheelbarrow"sv, "doubleteam"sv, "spitroast"sv, "ovipos"sv })) {
 			return pleasure();
 		}
 
@@ -404,7 +414,8 @@ namespace RP
 		// when nothing else matched, and then it decided wrongly, putting a kiss
 		// face on a scissoring scene at STIM9. A word that is right only when it is
 		// never reached is not a rule, it is a trap.
-		if (any({ "kissing"sv, "mouthtomouth"sv, "foreplay"sv, "grope"sv, "fondle"sv, "cuddle"sv })) {
+		if (any({ "kissing"sv, "mouthtomouth"sv, "foreplay"sv, "forelplay"sv, "grope"sv, "fondle"sv,
+				  "cuddle"sv, "hugging"sv, "holdinghands"sv })) {
 			return "Rapport_Kiss"sv;
 		}
 
@@ -462,7 +473,7 @@ namespace RP
 			}
 			if (named({ "missionary"sv, "cowgirl"sv, "doggy"sv, "spooning"sv, "pronebone"sv,
 						"prone"sv, "grind"sv, "anal"sv, "impregnate"sv, "fuck"sv, "sex"sv,
-						"scissor"sv, "handjob"sv })) {
+						"scissor"sv, "handjob"sv, "fist"sv, "dildo"sv, "finger"sv, "strapon"sv })) {
 				return pleasureFor(a_intensity);
 			}
 			if (named({ "kiss"sv, "cuddle"sv, "hug"sv, "hold"sv })) {
