@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.11 (2026-10-05)
+
+- Aftermath now lands after PenisToEither, StrapOnToEither, handjob, footjob, titjob and rimming positions.
+- Children and creatures in other mods' scenes get no moans.
+- The climax face waits for the climax animation instead of a timer; bound, gagged and strangled positions count as rough.
+
 ## 0.2.10 (2026-10-05)
 
 - Faces and aftermath recognise more acts in any AAF scene: fisting, toys, footjobs, titjobs, spanking, missionary/cowgirl and more.

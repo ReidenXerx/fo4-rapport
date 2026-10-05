@@ -49,7 +49,7 @@ namespace RP
 		}
 		auto settings = document.value("observers", nlohmann::json::object());
 		McmSettings::Overlay("Observers", settings);
-		_enabled = McmSettings::ReadBool(settings, "enabled", false);
+		_enabled = McmSettings::ReadBool(settings, "enabled", true);
 		_radius = settings.value("radius", 900.0f);
 		_hearRadius = (std::min)(settings.value("hearRadius", 600.0f), _radius);
 		_chance = std::clamp(settings.value("chance", 0.33f), 0.0f, 1.0f);

@@ -2,6 +2,7 @@
 
 #include "Barks.h"
 #include "Compat.h"
+#include "Config.h"
 #include "FaceAuthority.h"
 #include "TreeIndex.h"
 
@@ -178,10 +179,22 @@ namespace RP
 	{
 		// Main thread: the bridge's natives. Game state is read HERE, never on the event thread.
 		std::vector<std::pair<std::uint32_t, std::string>> found;
+		std::vector<std::uint32_t>                          silent;
+		bool                                                child = false;
 		for (const auto id : a_actors) {
 			auto*      actor = id ? RE::TESForm::GetFormByID<RE::Actor>(id) : nullptr;
 			const auto sex = Compat::Sex(actor ? actor->GetNPC() : nullptr);
-			if (sex < 0) {
+			// The same screen ForeignScenes gives faces and cum: a child anywhere leaves
+			// the whole scene alone, and a race Rapport does not dress (a creature) has
+			// no human voice to give. Before this, an AAF-menu scene that the face and
+			// cum paths refused still got moans.
+			if (actor && actor->IsChild()) {
+				child = true;
+			}
+			const bool raceOk = actor && (actor == RE::PlayerCharacter::GetSingleton() ||
+			                              Config::GetSingleton().IsRaceAllowed(actor->race));
+			if (sex < 0 || !raceOk) {
+				silent.push_back(id);
 				continue;
 			}
 			auto persona = Barks::GetSingleton().PersonaOf(id);
@@ -191,6 +204,20 @@ namespace RP
 			found.emplace_back(id, std::string{ sex == 1 ? "female_" : "male_" } + persona);
 		}
 		std::lock_guard lock{ _lock };
+		if (child) {
+			for (const auto id : a_actors) {
+				if (const auto it = _actors.find(id); it != _actors.end()) {
+					it->second.character.clear();
+				}
+			}
+			logger::info("moans: a child is in this scene - nobody in it is voiced");
+			return;
+		}
+		for (const auto id : silent) {
+			if (const auto it = _actors.find(id); it != _actors.end()) {
+				it->second.character.clear();
+			}
+		}
 		for (auto& [id, who] : found) {
 			_actors[id].character = std::move(who);
 		}
@@ -385,7 +412,8 @@ namespace RP
 	// says which opening, and a scene tag would have put the giver on the pain set too.
 	bool Moans::RoughTag(std::string_view a_tags)
 	{
-		static constexpr std::array<std::string_view, 14> kWords{ "aggressive", "rough", "bdsm", "bondage",
+		static constexpr std::array<std::string_view, 19> kWords{ "aggressive", "rough", "bdsm", "bondage", "bound", "gagged",
+			"strangled", "spanktobutt", "garrotepole",
 			"spank", "spanking", "whip", "whipping", "choke", "choking", "pain", "painful", "forced", "punishment" };
 		return std::ranges::any_of(Tokens(a_tags), [](const std::string& t) {
 			return std::ranges::find(kWords, std::string_view{ t }) != kWords.end();

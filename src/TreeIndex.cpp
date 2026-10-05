@@ -499,7 +499,16 @@ namespace RP
 	const TreeIndex::Entry* TreeIndex::Find(std::string_view a_positionID) const
 	{
 		const auto found = std::ranges::find(_entries, a_positionID, &Entry::positionID);
-		return found == _entries.end() ? nullptr : &*found;
+		if (found != _entries.end()) {
+			return &*found;
+		}
+		// A position id from Papyrus comes back in whichever case was interned first, and
+		// AAF matches ids case-insensitively: so does this, after the exact try.
+		const auto loose = std::ranges::find_if(_entries, [&](const Entry& a_entry) {
+			return a_entry.positionID.size() == a_positionID.size() &&
+			       _strnicmp(a_entry.positionID.data(), a_positionID.data(), a_positionID.size()) == 0;
+		});
+		return loose == _entries.end() ? nullptr : &*loose;
 	}
 
 	bool TreeIndex::NeedsFurniture(const Entry& a_entry)

@@ -51,9 +51,19 @@ namespace
 		const auto has = [&](std::string_view a_part) {
 			return lowered.find(a_part) != std::string::npos;
 		};
+		// The second halves came from the AE census (2026-10-05): PenisToEither is on 562
+		// positions and named no part here, so every one of them ended "the tags name no
+		// act that leaves anything" although aftermath.json has a rule for it. The same
+		// for StrapOnToEither 93, PenisToHand 57, Handjob 41, Footjob 25, Rimming...
+		// A part that is not a vagina lands on whoever the pair rule picks.
 		return Parts{
-			has("tovagina"sv) || has("tonipples"sv) || has("cunnilingus"sv) || has("vaginato"sv),
-			has("tomouth"sv) || has("toanus"sv) || has("blowjob"sv) || has("analingus"sv) || has("anusto"sv)
+			has("tovagina"sv) || has("tonipples"sv) || has("cunnilingus"sv) || has("vaginato"sv) ||
+				has("fisting"sv) || has("facesitting"sv),
+			has("tomouth"sv) || has("toanus"sv) || has("blowjob"sv) || has("analingus"sv) || has("anusto"sv) ||
+				has("toeither"sv) || has("toface"sv) || has("tohand"sv) || has("tofoot"sv) || has("tofeet"sv) ||
+				has("topenis"sv) || has("handjob"sv) || has("footjob"sv) || has("titjob"sv) || has("titfuck"sv) ||
+				has("boobjob"sv) || has("masturbat"sv) || has("jackoff"sv) || has("rimjob"sv) ||
+				has("rimming"sv) || has("swallow"sv) || has("spitroast"sv) || has("anal"sv) || has("dildo"sv)
 		};
 	}
 }

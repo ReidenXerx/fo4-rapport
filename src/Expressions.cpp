@@ -725,7 +725,18 @@ namespace RP
 						_nextStep = _steps.size();   // nothing further; hold this face
 					}
 				} else {
-					while (_nextStep < _steps.size() && fraction >= _steps[_nextStep].at) {
+					// The climax is never TIMED -- only a climax tag gives it, as for a
+					// foreign scene (docs/aaf-under-the-hood.md section 17: a timed one
+					// arrived a minute early). The clock carries the build up to the step
+					// before it, and the tag carries the rest whenever it comes.
+					if (_nextStep < _steps.size() &&
+						FaceForAct(_liveAct, _livePosition, 3) == "Rapport_Climax"sv) {
+						logger::info("expressions: a climax tag - Rapport_Climax");
+						Collect("Rapport_Climax"sv, outgoing);
+						_nextStep = _steps.size();
+					}
+					while (_nextStep < _steps.size() && fraction >= _steps[_nextStep].at &&
+						   _steps[_nextStep].set != "Rapport_Climax"sv) {
 						// Logged BEFORE it is queued. If this ever stops working
 						// again, the log says which side of the queue it died on
 						// rather than leaving it to be reasoned about.

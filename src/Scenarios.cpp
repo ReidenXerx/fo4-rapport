@@ -1089,7 +1089,17 @@ namespace RP
 		std::vector<Order> outgoing;
 		{
 			NamedLock lock{ _lock, "scenarios" };
-			if (!_running || _treeSteps == 0) {
+			if (!_running) {
+				return;
+			}
+			if (_treeSteps == 0) {
+				// No tree: stages run on the clock -- from the FIRST ANIMATION, not from
+				// Begin. AAF's walk takes 8-14 s before it (aaf-under-the-hood), and timing
+				// from Begin spent most of stage 0 on two people walking over.
+				if (_stepsSeen == 0 && _stage == 0) {
+					_stageStartedAt = std::chrono::steady_clock::now();
+				}
+				_stepsSeen = 1;
 				return;
 			}
 
