@@ -261,6 +261,7 @@ namespace RP
 		bool          _dazing{ false };
 		bool          _clearPending{ false };   // a save was made mid-scene
 		std::size_t   _nextStep{ 0 };
+		bool          _waiting{ false };   // Anticipation is on and no act has been named yet
 		std::string   _tags;
 		bool          _sawSexTag{ false };
 

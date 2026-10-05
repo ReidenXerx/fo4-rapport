@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.12 (2026-10-05)
+
+- Faces no longer start on the calm waiting look when the scene opens straight into sex: they begin at the act's own face.
+
 ## 0.2.11 (2026-10-05)
 
 - Aftermath now lands after PenisToEither, StrapOnToEither, handjob, footjob, titjob and rimming positions.

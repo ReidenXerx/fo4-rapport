@@ -731,18 +731,11 @@ namespace RP
 		if (face == "Rapport_Climax") {
 			a_scene.climaxSeen = true;
 			why = "a climax tag";
-		} else if (intensity == 0 && face.starts_with("Rapport_Pleasure")) {
-			if (a_scene.steps > 0) {
-				// Moved past its entry animation: under way, whatever the clock says. A
-				// player stepping an untimed scene by hand is read against a nominal
-				// 150 s, and a toy scene stepped five times in 36 s kept the waiting face
-				// for 40 s (2026-10-05).
-				face = "Rapport_Pleasure_1";
-				why += ", past its first animation";
-			} else {
-				face = "Rapport_Anticipation";
-			}
 		}
+		// No Anticipation here, ever. It is the face of WAITING for an act, and a face
+		// is only chosen once the tags name one (liveAct): an act that is already
+		// happening wears at least Pleasure_1 (FaceForAct floors the level at 1). The
+		// owner's photo, 2026-10-05: 29 s into a PenisToVagina cowgirl, still waiting.
 		return { face, why };
 	}
 

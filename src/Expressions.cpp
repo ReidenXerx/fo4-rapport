@@ -148,6 +148,7 @@ namespace RP
 		_stoodDown = false;
 		_dazing = false;
 		_nextStep = 0;
+		_waiting = false;
 		_tags.clear();
 		_sawSexTag = false;
 		// This scene's own high-water mark. One started in the last one's afterglow
@@ -725,6 +726,15 @@ namespace RP
 						_nextStep = _steps.size();   // nothing further; hold this face
 					}
 				} else {
+					// Waiting, and now the tags name an act: its face at once, not at 25%.
+					if (_waiting) {
+						const auto act = FaceForAct(_liveAct, _livePosition, 1);
+						if (!act.empty() && act != "Rapport_Kiss"sv) {
+							_waiting = false;
+							logger::info("expressions: the act is named - {} instead of waiting", act);
+							Collect(act, outgoing);
+						}
+					}
 					// The climax is never TIMED -- only a climax tag gives it, as for a
 					// foreign scene (docs/aaf-under-the-hood.md section 17: a timed one
 					// arrived a minute early). The clock carries the build up to the step
@@ -743,7 +753,21 @@ namespace RP
 						logger::info(
 							"expressions: {:.0f}% through - {}",
 							fraction * 100.0f, _steps[_nextStep].set);
-						Collect(_steps[_nextStep].set, outgoing);
+						// The waiting face only while nothing is happening yet: once the
+						// tags name an act, the act's own face at the lowest level (the
+						// owner's photo, 2026-10-05: Anticipation during penetration).
+						std::string_view set = _steps[_nextStep].set;
+						if (set == "Rapport_Anticipation"sv) {
+							const auto act = FaceForAct(_liveAct, _livePosition, 1);
+							if (!act.empty() && act != "Rapport_Kiss"sv) {
+								set = act;
+							} else {
+								_waiting = true;   // no act named yet: take it when one is
+							}
+						} else {
+							_waiting = false;   // a later step: never pulled back down to level 1
+						}
+						Collect(set, outgoing);
 						++_nextStep;
 					}
 				}
@@ -1010,6 +1034,7 @@ namespace RP
 		_dazing = false;
 		_clearPending = false;
 		_nextStep = 0;
+		_waiting = false;
 		_first = 0;
 		_second = 0;
 		_tags.clear();
