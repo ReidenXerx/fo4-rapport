@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActiveClock.h"
 #include "NamedLock.h"
 
 namespace RP
@@ -47,6 +48,8 @@ namespace RP
 		void Load();
 
 		void OnSceneStarted(std::int32_t a_request, std::uint32_t a_first, std::uint32_t a_second);
+		// The first animation of our scene: the delay counts from here, not across AAF's walk.
+		void NoteAnimating();
 		void OnSceneEnded();
 
 		// For the bridge's sweep. Radius 0 means "do not sweep this poll": no scene,
@@ -62,7 +65,7 @@ namespace RP
 		void EndSweep();
 
 	private:
-		using Clock = std::chrono::steady_clock;
+		using Clock = ActiveClock;   // a paused game is not scene time
 
 		mutable std::timed_mutex _lock;
 
@@ -80,6 +83,7 @@ namespace RP
 		std::uint32_t                                         _first{ 0 };
 		std::uint32_t                                         _second{ 0 };
 		Clock::time_point                                     _startedAt{};
+		bool                                                  _animating{ false };
 		std::unordered_set<std::uint32_t>                     _rolled;     // this scene
 		std::unordered_map<std::uint32_t, std::uint32_t>      _noticed;    // id -> sweep it turned
 		std::uint32_t                                         _sweeps{ 0 };

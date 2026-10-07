@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActiveClock.h"
 #include "NamedLock.h"
 #include "Orders.h"
 
@@ -82,7 +83,7 @@ namespace RP
 		void Reset();
 
 	private:
-		using Clock = std::chrono::steady_clock;
+		using Clock = ActiveClock;   // a paused game is not scene time
 
 		struct Scene
 		{

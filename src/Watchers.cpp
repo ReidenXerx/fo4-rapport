@@ -69,11 +69,23 @@ namespace RP
 		_first = a_first;
 		_second = a_second;
 		_startedAt = Clock::now();
+		_animating = false;
 		_rolled.clear();
 		_sweep.clear();
 		_noticed.clear();
 		_pending.clear();
 		_sweeps = 0;
+	}
+
+	void Watchers::NoteAnimating()
+	{
+		NamedLock lock{ _lock, "watchers" };
+		if (_request != 0 && !_animating) {
+			// AAF walks the pair over for 8-14 s before the first animation; a 10 s delay
+			// from the start let bystanders react to two people walking.
+			_animating = true;
+			_startedAt = Clock::now();
+		}
 	}
 
 	void Watchers::OnSceneEnded()
@@ -104,7 +116,7 @@ namespace RP
 	float Watchers::SweepRadius() const
 	{
 		NamedLock lock{ _lock, "watchers" };
-		if (!_enabled || _request == 0) {
+		if (!_enabled || _request == 0 || !_animating) {
 			return 0.0f;
 		}
 		const auto elapsed = std::chrono::duration<float>{ Clock::now() - _startedAt }.count();

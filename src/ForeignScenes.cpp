@@ -37,8 +37,8 @@ namespace RP
 			return (std::max)(a_duration * 3.0f, a_duration + 300.0f);
 		}
 
-		[[nodiscard]] float SecondsBetween(std::chrono::steady_clock::time_point a_from,
-			std::chrono::steady_clock::time_point a_to)
+		[[nodiscard]] float SecondsBetween(RP::ActiveClock::time_point a_from,
+			RP::ActiveClock::time_point a_to)
 		{
 			return std::chrono::duration<float>{ a_to - a_from }.count();
 		}

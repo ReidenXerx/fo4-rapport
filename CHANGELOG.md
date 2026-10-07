@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.13 (2026-10-07)
+
+- Pausing or photo mode no longer counts toward a scene's time, so a long photo session can't end a scene early.
+- Bystanders react once the scene begins, not while the pair is still walking over.
+- Climax positions get the climax face even without a climax tag; gentle scenes skip spanking and bondage positions.
+
 ## 0.2.12 (2026-10-05)
 
 - Faces no longer start on the calm waiting look when the scene opens straight into sex: they begin at the act's own face.

@@ -133,10 +133,10 @@ namespace RP::Placement
 				return false;
 			}
 			const auto name = file->GetFilename();
-			if (name == "AAF.esm"sv) {
+			if (name.size() == 7 && _strnicmp(name.data(), "AAF.esm", 7) == 0) {
 				return true;
 			}
-			if (name == "Fallout4.esm"sv) {
+			if (name.size() == 12 && _strnicmp(name.data(), "Fallout4.esm", 12) == 0) {
 				const auto local = a_base->GetFormID() & 0x00FFFFFF;
 				return local == 0x34 || local == 0x3B || local == 0x32;
 			}

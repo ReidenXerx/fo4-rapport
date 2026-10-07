@@ -150,7 +150,11 @@ namespace RP::McmSettings
 					continue;
 				}
 				try {
-					entry.values[Trim(std::string_view{ text }.substr(0, equals)) + ":" + section] =
+					// Lowered: the key arrives from Papyrus in whichever case was interned
+					// first, and an ini key's case is the mod author's.
+					auto name = Trim(std::string_view{ text }.substr(0, equals)) + ":" + section;
+					std::ranges::transform(name, name.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+					entry.values[name] =
 						std::stod(Trim(std::string_view{ text }.substr(equals + 1)));
 				} catch (const std::exception&) {
 					// a string setting: not a number, not for these natives
@@ -165,7 +169,8 @@ namespace RP::McmSettings
 		if (a_mod.empty() || a_mod.find_first_of("/\\.:") != std::string_view::npos) {
 			return std::nullopt;   // a mod NAME, never a path
 		}
-		const std::string key{ a_key };
+		std::string key{ a_key };
+		std::ranges::transform(key, key.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 		std::scoped_lock  lock{ g_parsedLock };
 		for (const auto& path : { std::filesystem::path{ "Data" } / "MCM" / "Settings" / (std::string{ a_mod } + ".ini"),
 				 std::filesystem::path{ "Data" } / "MCM" / "Config" / std::string{ a_mod } / "settings.ini" }) {

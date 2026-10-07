@@ -347,6 +347,13 @@ namespace RP
 		if (any({ "climax"sv, "orgasm"sv })) {
 			return "Rapport_Climax"sv;
 		}
+		// A climax position the tree says is one, tagged or not: the moan already
+		// followed it (Moans, IsClimaxPosition) and the face stayed on pleasure, so the
+		// two disagreed about the same moment (microscope wave 1, 2026-10-05). Tree data
+		// is authored, not a guess from a name.
+		if (!a_position.empty() && TreeIndex::GetSingleton().IsClimaxPosition(a_position)) {
+			return "Rapport_Climax"sv;
+		}
 
 		// Mouth working around something, and the TARGET is what decides it.
 		//

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActiveClock.h"
 #include "NamedLock.h"
 #include "Orders.h"
 
@@ -328,7 +329,7 @@ namespace RP
 		// NoteAffair for the in-flight pair, committed only if the scene starts.
 		std::uint64_t _stagedAffair{ 0 };
 		std::int32_t _inFlightRequest{ 0 };
-		std::chrono::steady_clock::time_point _sceneStartedAt{};
+		ActiveClock::time_point               _sceneStartedAt{};   // a paused game is not scene time
 		bool         _sceneRunning{ false };
 		bool         _stopAsked{ false };
 

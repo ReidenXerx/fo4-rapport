@@ -597,6 +597,7 @@ namespace
 		// THREE. The tags say what is happening; the fact that this arrived at all
 		// says the tree moved, and that is what advances the story now.
 		RP::Scenarios::GetSingleton().NoteAnimationAdvanced();
+		RP::Watchers::GetSingleton().NoteAnimating();
 	}
 
 	// The second doorbell. Same shape as the first and for the same reason: the
@@ -2141,7 +2142,7 @@ namespace RP
 		// catalogue comes close. A pack with a much longer tree would want this
 		// raised -- which is why the log says the number rather than just tripping.
 		const auto elapsed =
-			std::chrono::duration<float>{ std::chrono::steady_clock::now() - _sceneStartedAt }.count();
+			std::chrono::duration<float>{ ActiveClock::now() - _sceneStartedAt }.count();
 		if (elapsed < Config::GetSingleton().maxSceneSeconds) {
 			return 0;
 		}
@@ -2272,7 +2273,7 @@ namespace RP
 		// The clock starts HERE, not when the request was made: AAF walks the pair
 		// to each other first, and that walk is not the scene. Measured at 12.5
 		// seconds across an open market -- 40% of a thirty-second scene.
-		_sceneStartedAt = std::chrono::steady_clock::now();
+		_sceneStartedAt = ActiveClock::now();
 		_sceneRunning = true;
 		_stopAsked = false;
 
@@ -2713,6 +2714,27 @@ namespace RP
 	{
 		if (a_step == 1) {
 			_pollEntries.fetch_add(1);
+			// The scene clock: time the game stood still is not scene time. Only what
+			// truly stops the game counts -- the Pip-Boy is menu mode and AAF animates on.
+			bool still = false;
+			if (const auto main = RE::Main::GetSingleton(); main && main->freezeTime) {
+				still = true;
+			}
+			if (const auto ui = RE::UI::GetSingleton(); ui && !still) {
+				if (ui->freezeFramePause > 0) {
+					still = true;
+				} else {
+					RE::BSAutoReadLock l{ RE::UI::GetMenuMapRWLock() };
+					for (const auto& [name, entry] : ui->menuMap) {
+						if (entry.menu && entry.menu->OnStack() && entry.menu->menuFlags.all(RE::UI_MENU_FLAGS::kPausesGame)) {
+							still = true;
+							break;
+						}
+					}
+				}
+			}
+			const auto gap = std::chrono::duration<float>{ (std::max)(10.0f, Config::GetSingleton().pollSeconds * 3.0f) };
+			ActiveClock::Tick(still, std::chrono::duration_cast<ActiveClock::duration>(gap));
 		}
 		_pollStep.store(a_step);
 		_pollStepAtMs.store(NowMs());

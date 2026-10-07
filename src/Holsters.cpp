@@ -18,7 +18,8 @@ namespace RP
 			if (!a_object || a_depth > kMaxDepth || a_found.count == kMaxFound) {
 				return;
 			}
-			if (a_object->GetName().starts_with("VisFav")) {
+			if (const std::string_view name{ a_object->GetName() };
+				name.size() >= 6 && _strnicmp(name.data(), "VisFav", 6) == 0) {
 				// The display's root. What is under it is the weapon's own mesh.
 				a_found.nodes[a_found.count++] = a_object;
 				return;

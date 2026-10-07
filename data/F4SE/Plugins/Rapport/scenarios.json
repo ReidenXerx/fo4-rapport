@@ -163,14 +163,14 @@
           "id": "prelude",
           "seconds": 50,
           "include": "Kissing,MouthToMouth,Hugging,Cuddle,Loving",
-          "exclude": "Rough,Aggressive",
+          "exclude": "Rough,Aggressive,Spanking,SpankToButt,Bound,Gagged,Strangled",
           "face": "Rapport_Kiss"
         },
         {
           "id": "main",
           "seconds": 70,
           "include": "Missionary,Spooning,PenisToVagina,Loving",
-          "exclude": "Rough,Aggressive,Dom9",
+          "exclude": "Rough,Aggressive,Spanking,SpankToButt,Bound,Gagged,Strangled,Dom9",
           "face": "Rapport_Pleasure_1"
         },
         {
@@ -179,7 +179,7 @@
           "tree": true,
           "requireEnding": true,
           "include": "Missionary,Spooning,PenisToVagina,Loving,Cowgirl",
-          "exclude": "Rough,Aggressive",
+          "exclude": "Rough,Aggressive,Spanking,SpankToButt,Bound,Gagged,Strangled",
           "face": "Rapport_Climax"
         }
       ]
