@@ -224,7 +224,11 @@ namespace RP
 			// actor, voice the item, extra its slots (decimal, bit n = F4SE slot index n), setID
 			// "first" or "second" look. NOT an AAF call; the bridge equips without force, the way
 			// the game's own scripts do -- AAF's force-equip is what locked gear (its 1.7.x notes).
-			kRedress = 34
+			kRedress = 34,
+
+			// The player's view (FreeCam): setID "first" or "third". NOT an AAF call; the
+			// bridge runs Game.ForceFirstPerson / Game.ForceThirdPerson.
+			kCameraView = 35
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

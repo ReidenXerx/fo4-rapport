@@ -45,6 +45,7 @@ Request[] _inFlight
 ; Heads a watcher sweep turned to a scene (R-12), released when it ends.
 Actor[] _lookers
 Bool _ready = false
+InputEnableLayer _cameraLayer = None   ; the free camera's own layer (kind 35 "probe"/"release")
 String _allMorphIDs = ""
 
 ;---------------------------------------------------------------------------
@@ -1166,6 +1167,32 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 	; no AAF call, and its own IsOccupied check answers "held" while AAF is not ready.
 	If aiKind == 34
 		Self.Redress(aiFormID, aiVoice, asExtra, asSetID)
+		Return
+	EndIf
+
+	; The player's view for the free camera (the plugin's FreeCam). No AAF call. The plugin's
+	; own camera call did not take on a player AAF holds; this one does, mid-scene.
+	If aiKind == 35
+		If asSetID == "first"
+			Game.ForceFirstPerson()
+		ElseIf asSetID == "third"
+			Game.ForceThirdPerson()
+		ElseIf asSetID == "probe"
+			; The mouse in the free camera: AAF's scene may have disabled looking.
+			Rapport:Core.Trace("free camera: looking controls " + Game.IsLookingControlsEnabled() + ", movement " + Game.IsMovementControlsEnabled())
+			If !Game.IsLookingControlsEnabled()
+				If _cameraLayer == None
+					_cameraLayer = InputEnableLayer.Create()
+				EndIf
+				_cameraLayer.EnableLooking(true)
+				Rapport:Core.Trace("free camera: an input layer of ours asked for looking - looking now " + Game.IsLookingControlsEnabled())
+			EndIf
+		ElseIf asSetID == "release"
+			If _cameraLayer != None
+				_cameraLayer.Delete()
+				_cameraLayer = None
+			EndIf
+		EndIf
 		Return
 	EndIf
 

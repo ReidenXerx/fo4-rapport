@@ -1,6 +1,8 @@
 #include "FreeCam.h"
 
 #include "Config.h"
+#include "Orders.h"
+#include "PapyrusLink.h"
 
 namespace RP
 {
@@ -16,8 +18,20 @@ namespace RP
 		// -1 when there is no camera state to read.
 		[[nodiscard]] int StateNow()
 		{
+			// By POINTER, not by the state's id field: on AE through the RD layout the id read 3
+			// (free) on a first-person camera, and the free camera quit as "already free" without
+			// a word (Fo4-mcp, 0.2.15). Which slot of cameraStates is current cannot be misread.
 			const auto* camera = RE::PlayerCamera::GetSingleton();
-			return camera && camera->currentState ? static_cast<int>(camera->currentState->id.get()) : -1;
+			if (!camera || !camera->currentState) {
+				return -1;
+			}
+			const auto* current = camera->currentState.get();
+			for (std::uint32_t i = 0; i < RE::CameraStates::kTotal; ++i) {
+				if (camera->cameraStates[i].get() == current) {
+					return static_cast<int>(i);
+				}
+			}
+			return -2;   // a state that is none of the player camera's own
 		}
 
 		[[nodiscard]] bool Settled(int a_id)
@@ -40,20 +54,20 @@ namespace RP
 			func(a_camera, false);   // false: the world, and the scene, keep running
 		}
 
+		// First or third person through the bridge: Game.ForceFirstPerson / ForceThirdPerson.
+		// A raw PlayerCamera::SetState did NOT take on a player held by AAF (Fo4-mcp, 0.2.14,
+		// two runs: the camera stayed first person); the Papyrus call did, mid-scene.
 		void SetView(bool a_first)
 		{
-			if (auto* camera = RE::PlayerCamera::GetSingleton()) {
-				if (auto* state = camera->cameraStates[a_first ? States::kFirstPerson : States::k3rdPerson].get()) {
-					camera->SetState(state);
-				}
-			}
+			PapyrusLink::GetSingleton().QueueOrders(
+				{ Order{ Order::Kind::kCameraView, 0x14, a_first ? "first" : "third" } });
 		}
 
 		// A job for the game's thread, run a_tries times every 100 ms until it answers true.
 		// Tasks stall during a loading screen, so every job re-reads the camera when it runs.
-		void Retry(std::function<bool()> a_job, int a_tries)
+		void Retry(std::function<bool()> a_job, int a_tries, std::function<void()> a_gaveUp = {})
 		{
-			std::thread([job = std::move(a_job), a_tries] {
+			std::thread([job = std::move(a_job), a_tries, gaveUp = std::move(a_gaveUp)] {
 				auto done = std::make_shared<std::atomic_bool>(false);
 				for (int i = 0; i < a_tries && !done->load(); ++i) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -63,6 +77,12 @@ namespace RP
 								done->store(true);
 							}
 						});
+					}
+				}
+				if (gaveUp) {
+					std::this_thread::sleep_for(std::chrono::milliseconds(300));   // the last job's turn
+					if (!done->load()) {
+						gaveUp();
 					}
 				}
 			}).detach();
@@ -105,30 +125,61 @@ namespace RP
 		_misses = 0;
 		logger::info("free camera: the player's scene is animating - the free camera goes on (view before it: {} person)",
 			_lastFirst ? "first" : "third");
-		// Up to 5 s for AAF's own camera to settle. A body seen from first person is
+		// Up to 15 s: AAF's own camera settles, and a first-person view is asked into third
+		// person ONCE through the bridge (a poll away). A body seen from first person is
 		// culled and not animated, so the free camera is entered from third person.
-		Retry([this, generation] {
+		auto asked = std::make_shared<bool>(false);
+		auto tookOver = std::make_shared<bool>(false);
+		Retry([this, generation, asked, tookOver] {
 			if (generation != _generation || !_inScene) {
-				return true;   // that scene is over
+				logger::info("free camera: the scene ended before the camera came free");
+				return true;
 			}
 			const auto id = StateNow();
 			if (id == static_cast<int>(States::kFree)) {
-				return true;   // already free: the player's own tfc, not ours to take off
-			}
-			if (!Settled(id)) {
-				return false;
+				// Free at the first animation and not by us: AAF's own scene fly-cam, which flies
+				// but does not turn with the mouse (owner, live, 2026-10-07). Taken over ONCE:
+				// out of it, and ours goes on from the third-person view it lands in.
+				if (!*tookOver) {
+					*tookOver = true;
+					if (auto* camera = RE::PlayerCamera::GetSingleton()) {
+						ToggleFree(camera);
+					}
+					logger::info("free camera: AAF's own fly-cam is up - taking it over (now state {})", StateNow());
+					return false;
+				}
+				logger::info("free camera: free again (state {}) after the takeover - AAF holds it, left alone", id);
+				return true;
 			}
 			if (First(id)) {
-				SetView(false);
+				if (!*asked) {
+					*asked = true;
+					_changed = true;
+					SetView(false);
+					logger::info("free camera: first person - asking the bridge for third person first");
+				}
 				return false;   // enter on a later try, from the third-person state
+			}
+			if (id != static_cast<int>(States::k3rdPerson)) {
+				return false;   // a transition, a tween, a dialogue camera: wait for it to settle
 			}
 			if (auto* camera = RE::PlayerCamera::GetSingleton()) {
 				ToggleFree(camera);
 				_entered = StateNow() == static_cast<int>(States::kFree);
 				logger::info("free camera: {}", _entered ? "on" : "the toggle did not take - left alone");
+				if (_entered) {
+					// The mouse: if AAF disabled looking, the bridge says so and asks a layer of
+					// its own to enable it (released at the end).
+					PapyrusLink::GetSingleton().QueueOrders({ Order{ Order::Kind::kCameraView, 0x14, "probe" } });
+				}
 			}
 			return true;
-		}, 50);
+		}, 150, [this, generation] {
+			if (generation == _generation && _inScene && !_entered) {
+				logger::info("free camera: gave up - the camera was in state {} after 15 s, never third person "
+				             "(RE::CameraStates order)", StateNow());
+			}
+		});
 	}
 
 	void FreeCam::SceneEnded(const std::vector<std::uint32_t>& a_actors)
@@ -141,7 +192,12 @@ namespace RP
 			return;
 		}
 		const auto generation = ++_generation;
-		const bool ours = _entered.exchange(false);
+		const bool entered = _entered.exchange(false);
+		const bool changed = _changed.exchange(false);
+		const bool ours = entered || changed;
+		if (entered) {
+			PapyrusLink::GetSingleton().QueueOrders({ Order{ Order::Kind::kCameraView, 0x14, "release" } });
+		}
 		const bool first = _lastFirst;
 		if (!ours) {
 			return;   // never on, or the player left it: their camera, untouched
@@ -150,14 +206,14 @@ namespace RP
 		auto off = std::make_shared<bool>(false);
 		// Off first, then the first SETTLED landing put right -- that one only (General-mods'
 		// VATS Bullets scar: correcting a later change overrode the player's own switch).
-		Retry([this, generation, first, off] {
+		Retry([this, generation, first, off, entered] {
 			if (generation != _generation) {
 				return true;   // a new scene took over
 			}
 			const auto id = StateNow();
 			if (!*off) {
 				*off = true;
-				if (id == static_cast<int>(States::kFree)) {
+				if (entered && id == static_cast<int>(States::kFree)) {   // ours to take off, nobody else's
 					if (auto* camera = RE::PlayerCamera::GetSingleton()) {
 						ToggleFree(camera);
 					}
@@ -168,7 +224,7 @@ namespace RP
 				return false;
 			}
 			if (First(id) != first) {
-				SetView(first);
+				SetView(first);   // once: this is the first landing, and the job ends here
 				logger::info("free camera: landed in {} person - put back in {}", First(id) ? "first" : "third",
 					first ? "first" : "third");
 			}
@@ -206,6 +262,7 @@ namespace RP
 		++_generation;
 		_inScene = false;
 		_entered = false;
+		_changed = false;
 		_held = false;
 		_misses = 0;
 	}

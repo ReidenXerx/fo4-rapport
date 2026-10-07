@@ -135,7 +135,7 @@ Commonwealth Moisturizer: check this yourself. Optional: the aftermath on bodies
         <group name="Free camera" type="SelectAll">
           <plugins order="Explicit">
             <plugin name="Free camera">
-              <description>In every AAF scene you are in, Rapport's or any other mod's, the camera comes free at the first animation: fly it with your usual movement and mouse while the scene plays on. When the scene ends you are back in the view you had before it, first or third person. FreeCamera = 0 in Rapport.ini leaves the camera to AAF.</description>
+              <description>In every AAF scene you are in, Rapport's or any other mod's, the camera comes free at the first animation: fly it with your usual movement and mouse while the scene plays on. When the scene ends you are back in the view you had before it, first or third person. FreeCamera = 0 in Rapport.ini leaves the camera to AAF. Using Commonwealth Camera? Turn off its Camera Lag ([CameraLag] bEnabled=0): it stops every free camera, tfc included, from turning with the mouse.</description>
               <image path="fomod/images/freecam.jpg"/>
               <typeDescriptor><type name="Required"/></typeDescriptor>
             </plugin>

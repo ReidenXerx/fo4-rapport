@@ -1757,7 +1757,11 @@ namespace RP
 				why = Story::LifeStateName(actor->lifeState);
 			} else if (!playersOwn && actor->talkingToPlayer) {
 				why = "is talking to the player";
-			} else if (actor->boolFlags.any(RE::Actor::BOOL_FLAGS::kInRandomScene)) {
+			} else if (!playersOwn && actor->boolFlags.any(RE::Actor::BOOL_FLAGS::kInRandomScene)) {
+				// Exempt for the player's own request as the dialogue test is: a vanilla greet
+				// scene (JohnGreetScene in the Diamond City salon) holds the NPC the player is
+				// talking to, re-attaching within seconds -- and refused Overture's yes every
+				// time, for a minute, until it was lost (Fo4-mcp, 2026-10-07).
 				why = "is in the middle of a conversation";
 			}
 			if (!why.empty()) {

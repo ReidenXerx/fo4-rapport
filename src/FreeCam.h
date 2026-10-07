@@ -41,6 +41,7 @@ namespace RP
 
 		std::atomic_bool     _inScene{ false };     // the player is in an AAF scene we follow
 		std::atomic_bool     _entered{ false };     // we turned the free camera on, and it is still ours
+		std::atomic_bool     _changed{ false };     // we asked for third person: the view is ours to put back
 		std::atomic_bool     _lastFirst{ false };   // the player's view before the scene: first person
 		std::atomic_bool     _held{ false };        // a walk began: _lastFirst is frozen until the scene ends
 		std::atomic_int64_t  _heldAtMs{ 0 };
