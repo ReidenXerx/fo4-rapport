@@ -2,7 +2,8 @@
 
 ## 0.2.16 (2026-10-07)
 
-- Free camera now works: it takes over AAF's own scene fly-cam and turns on from first person too (in 0.2.14 it could stay off). Using Commonwealth Camera? Turn off its Camera Lag, or no free camera turns with the mouse.
+- Free camera now works: it takes over AAF's own scene fly-cam and turns on from first person too (in 0.2.14 it could stay off).
+- Commonwealth Camera's Camera Lag is incompatible with the free camera: turn it off, or the mouse cannot turn the camera.
 - A yes from someone you are talking to is no longer refused because a greeting scene still holds them.
 
 ## 0.2.14 (2026-10-07)
