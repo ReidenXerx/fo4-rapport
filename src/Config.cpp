@@ -115,6 +115,8 @@ namespace RP
 					aafReviveRetrySeconds = Clamp(std::stof(value), 1.0f, 600.0f);
 				} else if (key == "AAFReviveAttempts") {
 					aafReviveAttempts = Clamp<std::uint32_t>(std::stoul(value), 0, 10);
+				} else if (key == "FreeCamera") {
+					freeCamera = !(value == "0" || value == "false" || value == "False");
 				} else if (key == "PollSeconds") {
 					pollSeconds = Clamp(std::stof(value), 1.0f, 30.0f);
 				} else if (key == "DryRun") {

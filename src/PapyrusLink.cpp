@@ -1,4 +1,5 @@
 #include "PapyrusLink.h"
+#include "FreeCam.h"
 #include "Layout.h"
 #include "Placement.h"
 
@@ -290,6 +291,7 @@ namespace
 			const auto members = Members(a_actors);
 			RP::ForeignScenes::GetSingleton().Animation(a_location, members, Text(a_position), Text(a_tags));
 			RP::Holsters::GetSingleton().SceneStarted(Ids(members));
+			RP::FreeCam::GetSingleton().Animating(Ids(members));
 			RP::Moans::GetSingleton().SceneTags(Ids(members), a_position.empty() ? "" : a_position.c_str(),
 				a_tags.empty() ? "" : a_tags.c_str());
 			// Stage 1 of "no scene inside a table", for menu scenes too: log only.
@@ -310,6 +312,7 @@ namespace
 	{
 		try {
 			auto members = Members(a_actors);
+			RP::FreeCam::GetSingleton().SceneEnded(Ids(members));
 			RP::Holsters::GetSingleton().SceneEnded(Ids(members));
 			RP::Moans::GetSingleton().SceneEnded(Ids(members));
 			RP::ForeignScenes::GetSingleton().Ended(a_location, std::move(members), Text(a_position), Text(a_tags));
@@ -328,6 +331,7 @@ namespace
 	{
 		try {
 			const auto members = Members(a_actors);
+			RP::FreeCam::GetSingleton().SceneEnded(Ids(members));
 			RP::Holsters::GetSingleton().SceneEnded(Ids(members));
 			RP::Moans::GetSingleton().SceneEnded(Ids(members));
 			RP::ForeignScenes::GetSingleton().OwnSceneEnded(a_location, members);
@@ -472,11 +476,14 @@ namespace
 	{
 		std::vector<RE::Actor*> out;
 		try {
-			for (const auto& member : Members(a_actors)) {
+			const auto members = Members(a_actors);
+			for (const auto& member : members) {
 				if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(member.formID)) {
 					out.push_back(actor);
 				}
 			}
+			// Asked only at AAF's walk (Bridge OnWalkInit): the player's view before the scene.
+			RP::FreeCam::GetSingleton().Walking(Ids(members));
 		} catch (...) {
 			logger::critical("ActorsOf threw");
 		}
@@ -598,6 +605,10 @@ namespace
 		// says the tree moved, and that is what advances the story now.
 		RP::Scenarios::GetSingleton().NoteAnimationAdvanced();
 		RP::Watchers::GetSingleton().NoteAnimating();
+		{
+			const auto [first, second] = RP::PapyrusLink::GetSingleton().InFlightPair();
+			RP::FreeCam::GetSingleton().Animating({ first, second });
+		}
 	}
 
 	// The second doorbell. Same shape as the first and for the same reason: the
@@ -642,6 +653,7 @@ namespace
 			RP::Morphs::GetSingleton().Pump();
 			RP::Wardrobe::GetSingleton().Pump();
 			RP::Holsters::GetSingleton().Pump();
+			RP::FreeCam::GetSingleton().Pump();
 			RP::Moans::GetSingleton().Pump();
 			if (watching) {
 				logger::info("pump: returned normally");
@@ -2005,6 +2017,7 @@ namespace RP
 		ForeignScenes::GetSingleton().Reset();
 		FaceAuthority::GetSingleton().Reset();
 		Holsters::GetSingleton().Reset();
+		FreeCam::GetSingleton().Reset();
 		Moans::GetSingleton().Reset();
 		ClearInFlight();
 		_sceneInFlight.store(false);
@@ -3010,6 +3023,7 @@ namespace RP
 			Aftermath::GetSingleton().OnSceneEnded(first, second);
 			Morphs::GetSingleton().OnSceneEnded(first, second);
 			Holsters::GetSingleton().SceneEnded({ first, second });
+			FreeCam::GetSingleton().SceneEnded({ first, second });
 			Moans::GetSingleton().OwnSceneEnded(first, second);
 		}
 		Expressions::GetSingleton().OnSceneEnded();
@@ -3113,6 +3127,7 @@ namespace RP
 		// AAF may have got as far as walking them in before it failed.
 		Morphs::GetSingleton().OnSceneEnded(first, second);
 		Holsters::GetSingleton().SceneEnded({ first, second });
+			FreeCam::GetSingleton().SceneEnded({ first, second });
 		Expressions::GetSingleton().OnSceneEnded();
 		Barks::GetSingleton().OnSceneEnded();
 		Watchers::GetSingleton().OnSceneEnded();

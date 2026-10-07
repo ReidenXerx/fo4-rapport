@@ -99,6 +99,9 @@ namespace RP
 		// Almost every ask returns nothing, so this is a doorbell, not a scan.
 		float         pollSeconds{ 3.0f };
 
+		// The free camera in the player's AAF scenes (FreeCam). On by default.
+		bool          freeCamera{ true };
+
 		// ---- the AAF watchdog ------------------------------------------------
 		// How long AAF gets to come back on its own before Rapport restarts it.
 		// A normal load has it answering within a couple of seconds; this is

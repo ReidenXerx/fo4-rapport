@@ -8,7 +8,7 @@ set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
 
 project(
 	Rapport
-	VERSION 0.2.13
+	VERSION 0.2.14
 	LANGUAGES CXX
 )
 
@@ -73,6 +73,7 @@ set(SOURCES
 	"src/Aftermath.h"
 	"src/Aftermath.cpp"
 	"src/Holsters.cpp"
+	"src/FreeCam.cpp"
 	"src/Moans.cpp"
 	"src/Morphs.cpp"
 	"src/Wardrobe.h"

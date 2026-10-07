@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.14 (2026-10-07)
+
+- New: a free camera in every AAF scene you are in, on at the first animation; when the scene ends you get your previous first- or third-person view back. FreeCamera = 0 in Rapport.ini turns it off.
+
 ## 0.2.13 (2026-10-07)
 
 - Pausing or photo mode no longer counts toward a scene's time, so a long photo session can't end a scene early.
