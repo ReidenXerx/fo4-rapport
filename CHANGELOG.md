@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.18 (2026-10-08)
+
+- Servitrons speak Overture's lines in a human voice for now: a woman's with the female abdomen, a man's with the male one.
+
 ## 0.2.17 (2026-10-08)
 
 - Servitron support: a Servitron has no working mouth, so the scenes Rapport picks never use hers (no kissing or oral on her side); she can still receive, and use her hands and body.

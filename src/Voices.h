@@ -56,6 +56,10 @@ namespace RP
 		// (scripts/voice-dialogue-map.py). 0: nothing to borrow.
 		[[nodiscard]] bool          IsDialoguePlugin(std::string_view a_plugin) const;
 		[[nodiscard]] std::uint32_t DialogueBorrow(std::uint32_t a_voiceType) const;
+		// A voice type whose borrowed voice depends on the BODY the speaker wears, not the
+		// record's sex (a Servitron's robot voice: the game marks every one male). {female, male},
+		// or {0, 0} when this voice type has no such entry.
+		[[nodiscard]] std::pair<std::uint32_t, std::uint32_t> DialogueBySex(std::uint32_t a_voiceType) const;
 
 	private:
 		[[nodiscard]] static std::uint32_t Resolve(const nlohmann::json& a_ref, std::string_view a_what);
@@ -69,5 +73,6 @@ namespace RP
 		std::uint32_t                                    _unmappedMale{ 0 };
 		std::vector<std::string>                         _dialoguePlugins;   // lower-case
 		std::unordered_map<std::uint32_t, std::uint32_t> _dialogue;          // voice type -> voice type
+		std::unordered_map<std::uint32_t, std::pair<std::uint32_t, std::uint32_t>> _dialogueBySex;   // -> {female, male}
 	};
 }

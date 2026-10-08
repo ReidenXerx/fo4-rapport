@@ -6231,6 +6231,16 @@
   "plugins": [
    "Overture.esp"
   ],
+  "bySex": [
+   {
+    "_": "Servitrons (owner, 2026-10-08): a human voice until a robotic one is rendered, by the abdomen worn (AAF gender override keyword), not the record's sex",
+    "voice": "RobotAssaultron",
+    "master": "Fallout4.esm",
+    "id": 452002,
+    "female": { "voice": "FemaleEvenToned", "master": "Fallout4.esm", "id": 80605 },
+    "male": { "voice": "MaleEvenToned", "master": "Fallout4.esm", "id": 80594 }
+   }
+  ],
   "voices": [
    {
     "voice": "FemaleBoston",

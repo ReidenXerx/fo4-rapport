@@ -98,6 +98,7 @@ namespace RP
 
 		_dialoguePlugins.clear();
 		_dialogue.clear();
+		_dialogueBySex.clear();
 		if (const auto dialogue = document.find("dialogue"); dialogue != document.end() && dialogue->is_object()) {
 			for (const auto& plugin : dialogue->value("plugins", nlohmann::json::array())) {
 				auto name = plugin.get<std::string>();
@@ -111,8 +112,16 @@ namespace RP
 					_dialogue[from] = as;
 				}
 			}
-			logger::info("voices: dialogue lines of {} plugin(s) borrow for {} voice type(s)", _dialoguePlugins.size(),
-				_dialogue.size());
+			for (const auto& entry : dialogue->value("bySex", nlohmann::json::array())) {
+				const auto from = Resolve(entry, "dialogue voice (by sex)");
+				const auto female = from ? Resolve(entry.value("female", nlohmann::json{}), "female voice") : 0u;
+				const auto male = from ? Resolve(entry.value("male", nlohmann::json{}), "male voice") : 0u;
+				if (from && (female || male)) {
+					_dialogueBySex[from] = { female, male };
+				}
+			}
+			logger::info("voices: dialogue lines of {} plugin(s) borrow for {} voice type(s), {} of them by the body worn",
+				_dialoguePlugins.size(), _dialogue.size(), _dialogueBySex.size());
 		}
 
 		_enabled = document.value("enabled", true) && !_own.empty();
@@ -146,6 +155,16 @@ namespace RP
 		}
 		const auto found = _dialogue.find(a_voiceType);
 		return found == _dialogue.end() ? 0u : found->second;
+	}
+
+	std::pair<std::uint32_t, std::uint32_t> Voices::DialogueBySex(std::uint32_t a_voiceType) const
+	{
+		NamedLock lock{ _lock, "voices" };
+		if (!lock || !_enabled) {
+			return {};
+		}
+		const auto found = _dialogueBySex.find(a_voiceType);
+		return found == _dialogueBySex.end() ? std::pair<std::uint32_t, std::uint32_t>{} : found->second;
 	}
 
 	std::uint32_t Voices::BorrowFor(std::uint32_t a_speaker) const

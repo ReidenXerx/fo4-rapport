@@ -77,6 +77,47 @@ namespace RP::DialogueVoice
 			return false;
 		}
 
+		// Female, male or unknown (-1) by the BODY: AAF's gender override keywords (AAF.esm
+		// 0x0121BC female, 0x0121BB male) -- a Servitron wears one with her abdomen, and her
+		// record says male whatever she wears. Without a keyword, the record's sex.
+		[[nodiscard]] int BodySex(RE::Actor* a_actor)
+		{
+			static const auto keywords = [] {
+				auto* handler = RE::TESDataHandler::GetSingleton();
+				const auto* f = handler ? handler->LookupForm(0x0121BC, "AAF.esm"sv) : nullptr;
+				const auto* m = handler ? handler->LookupForm(0x0121BB, "AAF.esm"sv) : nullptr;
+				return std::pair{ f ? f->As<RE::BGSKeyword>() : nullptr, m ? m->As<RE::BGSKeyword>() : nullptr };
+			}();
+			if (keywords.first && a_actor->HasKeywordHelper(keywords.first, nullptr)) {
+				return 1;
+			}
+			if (keywords.second && a_actor->HasKeywordHelper(keywords.second, nullptr)) {
+				return 0;
+			}
+			auto* npc = a_actor->GetNPC();
+			return npc ? static_cast<int>(npc->GetSex()) : -1;
+		}
+
+		// Who is saying this line: the actor talking to the player whose voice type it is. The
+		// voice path builder is told the voice type, not the speaker; dialogue is the player's,
+		// so the speaker is among the simulated actors flagged talking to the player.
+		[[nodiscard]] RE::Actor* SpeakerWith(const RE::BGSVoiceType* a_voice)
+		{
+			auto* lists = RE::ProcessLists::GetSingleton();
+			if (!lists) {
+				return nullptr;
+			}
+			for (const auto& handle : lists->highActorHandles) {
+				auto  ptr = handle.get();
+				auto* actor = ptr.get();
+				auto* npc = actor ? actor->GetNPC() : nullptr;
+				if (npc && actor->talkingToPlayer && npc->voiceType == a_voice) {
+					return actor;
+				}
+			}
+			return nullptr;
+		}
+
 		bool Thunk(void* a_response, char* a_path, RE::BGSVoiceType* a_voice, void* a_topic, RE::TESTopicInfo* a_info)
 		{
 			const bool built = g_build(a_response, a_path, a_voice, a_topic, a_info);
@@ -96,7 +137,14 @@ namespace RP::DialogueVoice
 				if (!voices.IsDialoguePlugin(PluginOf(path)) || HasAudio(path)) {
 					return built;
 				}
-				const auto as = voices.DialogueBorrow(a_voice->GetFormID());
+				auto as = voices.DialogueBorrow(a_voice->GetFormID());
+				if (const auto [female, male] = voices.DialogueBySex(a_voice->GetFormID()); female || male) {
+					// By the body worn (owner, 2026-10-08: Servitrons borrow a human voice for now,
+					// a woman's with the female abdomen). Unknown speaker: the female one.
+					auto*      speaker = SpeakerWith(a_voice);
+					const auto sex = speaker ? BodySex(speaker) : 1;
+					as = sex == 0 ? (male ? male : female) : (female ? female : male);
+				}
 				auto*      borrowed = as ? RE::TESForm::GetFormByID<RE::BGSVoiceType>(as) : nullptr;
 				if (!borrowed) {
 					SayOnce(a_voice, path, "no file of its own and nothing to borrow - subtitle only");
