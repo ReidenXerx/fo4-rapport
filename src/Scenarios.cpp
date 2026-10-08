@@ -58,6 +58,38 @@ namespace
 		return out;
 	}
 
+	// A Servitron (Servitron.esm, Nexus 32801) has a robot head and no working mouth
+	// (owner, 2026-10-08). Her race, looked up softly: without the plugin nobody matches.
+	[[nodiscard]] bool Mouthless(std::uint32_t a_formID)
+	{
+		static const RE::TESForm* servitron = [] {
+			auto* handler = RE::TESDataHandler::GetSingleton();
+			return handler ? handler->LookupForm(0xF99, "Servitron.esm"sv) : nullptr;
+		}();
+		const auto* actor = servitron ? RE::TESForm::GetFormByID<RE::Actor>(a_formID) : nullptr;
+		return actor && actor->race == servitron;
+	}
+
+	// The acts that would need a mouthless partner's mouth, as AAF tags them (exact, from
+	// the install's census). With a man she is the f of f_m, so only the acts on HER
+	// mouth go; with a woman nobody can tell whose mouth a tag means, so every mouth act
+	// goes. She can still receive, and use her hands and her body.
+	[[nodiscard]] std::string MouthExcludes(std::uint32_t a_first, std::uint32_t a_second, std::string_view a_composition)
+	{
+		if (!Mouthless(a_first) && !Mouthless(a_second)) {
+			return {};
+		}
+		std::string out =
+			"Kissing,SEUKissing,MouthToMouth,Blowjob,PenisToMouth,MouthToPenis,TongueToPenis,Fellatio,Deepthroat,"
+			"Irrumatio,69,StrapOnToMouth,StickToMouth,AnusToMouth,Swallow,Oral,Rimjob,RimJob,Rimming,Analingus,"
+			"MouthToAnus,TongueToAnus";
+		if (a_composition != "f_m") {
+			out += ",MouthToVagina,TongueToVagina,Cunnilingus,VaginaToMouth,VaginaToFace,FaceSitting,Licking,"
+				   "LickTease,MouthToNipples";
+		}
+		return out;
+	}
+
 	// Can AAF play this pair's OWN kind here: a position that survived its overrides,
 	// tagged with the composition (f_m / m_m / f_f), carrying any of the acts asked for
 	// (none asked = any) and none of the exclusions?
@@ -356,6 +388,18 @@ namespace RP
 	{
 		const auto key = PairKey(a_first, a_second);
 		_filtersSentFor.store(0);
+		const auto mouth = MouthExcludes(a_first, a_second, Aftermath::GetSingleton().CompositionOf(a_first, a_second));
+		if (!mouth.empty() && OnAnyPose(key)) {
+			// Any pose -- but never one that needs the mouth she does not have.
+			const auto given = Trim(a_given);
+			std::string out = given.empty() || Lower(given) == "default_excludetags" ? _aafExcludes : std::string{ given };
+			out += out.empty() ? "" : ",";
+			out += mouth;
+			logger::info("unconstrained start: any pose for {:08X} and {:08X}, except the mouth acts - a Servitron "
+						 "has no working mouth", a_first, a_second);
+			_filtersSentFor.store(key);
+			return out;
+		}
 		if (OnAnyPose(key)) {
 			logger::info(
 				"unconstrained start: {:08X} and {:08X} got nothing from AAF with Rapport's filters last time - any "
@@ -392,6 +436,10 @@ namespace RP
 				excludes += ',';
 				excludes += styleExclude;
 			}
+			if (!mouth.empty()) {
+				excludes += ',';
+				excludes += mouth;
+			}
 			// The act list IncludeTagsFor sends: the style's, but nothing for a shy pair or two women.
 			const auto include =
 				(style && shy.empty() && composition != "f_f") ? Trim(style->include) : std::string_view{};
@@ -404,7 +452,7 @@ namespace RP
 			}
 		}
 
-		if (!nonSex && styleExclude.empty() && otherPairs.empty()) {
+		if (!nonSex && styleExclude.empty() && otherPairs.empty() && mouth.empty()) {
 			if (!shy.empty()) {
 				logger::info("unconstrained start: {} - AAF may give them a hug or a kiss; its own exclusions stand",
 					shy);
@@ -435,11 +483,17 @@ namespace RP
 		if (!otherPairs.empty()) {
 			append(otherPairs);
 		}
+		if (!mouth.empty()) {
+			append(mouth);
+		}
 		logger::info("unconstrained start: AAF picks, excluding [{}] - {}{}{}{}{}", out,
 			sentinel ? std::format("AAF's own ({})", _aafExcludesFrom) : std::string{ "the list it was given" },
 			nonSex ? ", the non-sex markers" : "", styleExclude.empty() ? "" : std::format(", \"{}\"'s style", a_scenario),
 			otherPairs.empty() ? "" : std::format(", not {} (a {} pair)", otherPairs, composition),
 			shy.empty() ? "" : std::format(" ({}, so a hug or a kiss may still come)", shy));
+		if (!mouth.empty()) {
+			logger::info("unconstrained start: no mouth acts - a Servitron has no working mouth");
+		}
 		_filtersSentFor.store(key);
 		return out;
 	}
@@ -902,8 +956,14 @@ namespace RP
 		// 10-point band, so they were erased rather than merely demoted.
 		const auto  budget = scenario->PlayableSeconds();
 		const auto  composition = Aftermath::GetSingleton().CompositionOf(a_first, a_second);
+		const auto  mouth = MouthExcludes(a_first, a_second, composition);
+		const auto  excludeAll = mouth.empty() ? std::string{ ending->exclude }
+		                                       : std::string{ ending->exclude } + (ending->exclude.empty() ? "" : ",") + mouth;
+		if (!mouth.empty()) {
+			logger::info("scenario \"{}\": a Servitron is in the pair - no tree whose positions use her mouth", scenario->id);
+		}
 		const auto* chosen = index.Choose(
-			ending->include, ending->exclude, composition, ending->requireEnding,
+			ending->include, excludeAll, composition, ending->requireEnding,
 			a_avoidFurniture, budget);
 
 		// Nothing without furniture fits either, so take the furniture one back --
@@ -915,7 +975,7 @@ namespace RP
 				"after all",
 				scenario->id);
 			chosen = index.Choose(
-				ending->include, ending->exclude, composition, ending->requireEnding, false,
+				ending->include, excludeAll, composition, ending->requireEnding, false,
 				budget);
 		}
 
@@ -939,7 +999,7 @@ namespace RP
 		// and the log is where that difference has to be visible.
 		if (!chosen && ending->requireEnding) {
 			chosen = index.Choose(
-				ending->include, ending->exclude, composition, false, false, budget);
+				ending->include, excludeAll, composition, false, false, budget);
 			if (chosen) {
 				out.relaxed = true;
 				logger::warn(
