@@ -460,7 +460,7 @@ namespace RP
 		std::string them = "them";
 		std::string their = "their";
 		if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_second); actor && actor->GetNPC()) {
-			if (RP::Compat::Female(actor->GetNPC())) {
+			if (RP::Compat::Female(actor)) {   // the role worn
 				they = "she";
 				them = "her";
 				their = "her";

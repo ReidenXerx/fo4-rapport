@@ -288,7 +288,7 @@ namespace RP
 		}
 		const auto formID = a_actor->GetFormID();
 		const auto base = a_actor->GetNPC()->GetFormID();
-		const bool female = RP::Compat::Female(a_actor->GetNPC());
+		const bool female = RP::Compat::Female(a_actor);   // the role worn
 
 		bool known = false;
 		{

@@ -391,7 +391,7 @@ namespace RP
 			persona = a_order.formID == 0x14 ? std::string{} : Barks::GetSingleton().PersonaOf(a_order.formID);
 			if (auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_order.formID)) {
 				if (auto* npc = actor->GetNPC()) {
-					sex = RP::Compat::Female(npc) ? 'f' : 'm';
+					sex = RP::Compat::Female(actor) ? 'f' : 'm';   // the role worn
 				}
 			}
 		}

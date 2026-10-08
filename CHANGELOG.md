@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.19 (2026-10-08)
+
+- Servitrons join autonomy: paired by the abdomen they wear (woman or man), never with none, and open to anyone.
+
 ## 0.2.18 (2026-10-08)
 
 - Servitrons speak Overture's lines in a human voice for now: a woman's with the female abdomen, a man's with the male one.

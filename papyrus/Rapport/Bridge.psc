@@ -394,8 +394,8 @@ Function BeginRequest(Int aiRequest, Int aiFirstID, Int aiSecondID, Float afDura
 
 	; Their sexes, while we hold real Actors. The plugin decides from this which
 	; one a scene's cum belongs to -- the receiving one, and only them.
-	Rapport:Core.NoteActorSex(akFirst.GetFormID(), akFirst.GetLeveledActorBase().GetSex())
-	Rapport:Core.NoteActorSex(akSecond.GetFormID(), akSecond.GetLeveledActorBase().GetSex())
+	Rapport:Core.NoteActorSex(akFirst.GetFormID(), Rapport:Core.SceneSex(akFirst))
+	Rapport:Core.NoteActorSex(akSecond.GetFormID(), Rapport:Core.SceneSex(akSecond))
 	; What they wear, before AAF can undress them (the plugin's Wardrobe).
 	Self.NoteOutfit(akFirst)
 	Self.NoteOutfit(akSecond)
@@ -464,8 +464,9 @@ Actor[] Function ForAAF(Actor akFirst, Actor akSecond)
 	Actor[] actors = new Actor[2]
 	actors[0] = akFirst
 	actors[1] = akSecond
-	; GetSex: 0 male, 1 female, -1 none. Swap only on a clear male-first pair.
-	If akFirst.GetLeveledActorBase().GetSex() == 0 && akSecond.GetLeveledActorBase().GetSex() == 1
+	; 0 male, 1 female, -1 none, by the role worn (a Servitron's record says male). Swap only
+	; on a clear male-first pair.
+	If Rapport:Core.SceneSex(akFirst) == 0 && Rapport:Core.SceneSex(akSecond) == 1
 		actors[0] = akSecond
 		actors[1] = akFirst
 		Rapport:Core.Trace("bridge: female first for AAF's slots - " + Rapport:Core.FormIdText(akSecond.GetFormID()) + " takes slot 0")

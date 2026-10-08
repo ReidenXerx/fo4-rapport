@@ -213,6 +213,9 @@ Function NoteScenePosition(String asPosition) Global Native
 ; An actor's sex: 0 male, 1 female, anything else unknown. Reported from Papyrus
 ; because only Papyrus holds a real Actor to ask.
 Function NoteActorSex(Int aiFormID, Int aiSex) Global Native
+; The sex a scene uses: 1 woman, 0 man, -1 unknown -- the role worn (AAF gender override
+; keywords) before the record, which says male on every Servitron. ApiVersion 219+.
+Int Function SceneSex(Actor akActor) Global Native
 
 ; What an actor wears going into a scene, slot by slot (F4SE slot index, item form id), so a
 ; scene that dies without AAF's own redress still gets them dressed (the plugin's Wardrobe).

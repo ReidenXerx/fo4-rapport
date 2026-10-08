@@ -12,6 +12,12 @@
   ],
   "allow": [
     {
+      "id": "ServitronRace",
+      "plugin": "Servitron.esm",
+      "form": "0x00000F99",
+      "_": "Servitron (Nexus 32801), owner 2026-10-08: always willing; paired by the abdomen she wears (AAF gender override keyword), never with none. Skipped when the plugin is not loaded."
+    },
+    {
       "id": "Human",
       "plugin": "Fallout4.esm",
       "form": "0x00013746"

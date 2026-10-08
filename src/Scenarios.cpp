@@ -533,7 +533,7 @@ namespace RP
 				known = false;
 				continue;
 			}
-			man = man || RP::Compat::Male(npc);
+			man = man || RP::Compat::RoleSex(actor) == 0;   // the role worn (a Servitron's record says male)
 		}
 		if (!man || !known) {
 			logger::info("unconstrained start: \"{}\" asks for no act - {}", a_scenario,

@@ -183,7 +183,7 @@ namespace RP
 		bool                                                child = false;
 		for (const auto id : a_actors) {
 			auto*      actor = id ? RE::TESForm::GetFormByID<RE::Actor>(id) : nullptr;
-			const auto sex = Compat::Sex(actor ? actor->GetNPC() : nullptr);
+			const auto sex = Compat::RoleSex(actor);   // the role worn: a Servitron's record says male
 			// The same screen ForeignScenes gives faces and cum: a child anywhere leaves
 			// the whole scene alone, and a race Rapport does not dress (a creature) has
 			// no human voice to give. Before this, an AAF-menu scene that the face and

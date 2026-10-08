@@ -184,7 +184,7 @@ namespace
 		RP::ForeignScenes::Member member;
 		member.formID = actor->GetFormID();
 		auto* npc = actor->GetNPC();   // not const: GetSex() is not declared const here
-		member.sex = npc ? static_cast<std::int32_t>(npc->GetSex()) : -1;
+		member.sex = npc ? static_cast<std::int32_t>((std::max)(RP::Compat::RoleSex(actor), -1)) : -1;
 		member.player = actor == RE::PlayerCharacter::GetSingleton();
 		member.child = actor->IsChild();
 		// The player is not a race question: they are in the scene because they chose it.
@@ -453,9 +453,17 @@ namespace
 
 	// Only Papyrus holds a real Actor to ask, so the sex comes from there rather
 	// than from a form lookup on whichever thread happens to be running.
+	std::int32_t Papyrus_SceneSex(std::monostate, RE::Actor* a_actor)
+	{
+		return (std::max)(RP::Compat::RoleSex(a_actor), -1);
+	}
+
 	void Papyrus_NoteActorSex(std::monostate, std::int32_t a_formID, std::int32_t a_sex)
 	{
-		RP::Aftermath::GetSingleton().NoteSex(static_cast<std::uint32_t>(a_formID), a_sex);
+		// The role worn wins over Papyrus' GetSex: a Servitron's record is always male.
+		auto*      actor = RE::TESForm::GetFormByID<RE::Actor>(static_cast<std::uint32_t>(a_formID));
+		const auto role = actor ? RP::Compat::RoleSex(actor) : -1;
+		RP::Aftermath::GetSingleton().NoteSex(static_cast<std::uint32_t>(a_formID), role >= 0 ? role : a_sex);
 	}
 
 	// What an actor wears going into a scene, slot by slot, read by the bridge with F4SE's
@@ -1561,6 +1569,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteScenePosition"sv, Papyrus_NoteScenePosition, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteActorSex"sv, Papyrus_NoteActorSex, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "SceneSex"sv, Papyrus_SceneSex, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteOutfit"sv, Papyrus_NoteOutfit, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ActorsOf"sv, Papyrus_ActorsOf, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "CycleOrientationInFront"sv, Papyrus_CycleOrientationInFront, std::nullopt,

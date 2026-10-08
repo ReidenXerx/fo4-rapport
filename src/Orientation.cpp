@@ -35,11 +35,12 @@ namespace RP
 
 		[[nodiscard]] std::optional<bool> Female(RE::Actor* a_actor)
 		{
-			auto* npc = a_actor ? a_actor->GetNPC() : nullptr;   // not const: GetSex() is not
-			if (!npc) {
+			// By the role worn, not the record: a Servitron's record is always male.
+			const auto sex = RP::Compat::RoleSex(a_actor);
+			if (sex < 0) {
 				return std::nullopt;
 			}
-			return RP::Compat::Female(npc);
+			return sex == 1;
 		}
 
 		[[nodiscard]] std::string ActorName(RE::Actor* a_actor)
@@ -225,6 +226,11 @@ namespace RP
 	{
 		if (const auto pin = PinOf(a_formID)) {
 			return *pin;
+		}
+		// A Servitron is always willing (owner poll, 2026-10-08): anyone, so bi -- unless a
+		// pin above or the player's hotkey (Of) says otherwise.
+		if (RP::Compat::Servitron(RE::TESForm::GetFormByID<RE::Actor>(a_formID))) {
+			return Kind::kBi;
 		}
 		const float draw = Draw(a_formID);
 		return draw < kStraightShare                ? Kind::kStraight :

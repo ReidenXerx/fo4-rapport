@@ -158,11 +158,11 @@ namespace RP::DebugTriggers
 		// True for a woman, false for a man; nullopt with no NPC record to ask.
 		[[nodiscard]] std::optional<bool> Female(RE::Actor* a_actor)
 		{
-			auto* npc = a_actor ? a_actor->GetNPC() : nullptr;   // not const: GetSex() is not
-			if (!npc) {
+			const auto sex = RP::Compat::RoleSex(a_actor);   // the role worn
+			if (sex < 0) {
 				return std::nullopt;
 			}
-			return RP::Compat::Female(npc);
+			return sex == 1;
 		}
 
 		[[nodiscard]] std::string Refuse(bool a_force, std::string_view a_why)

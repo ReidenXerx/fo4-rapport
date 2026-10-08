@@ -80,22 +80,12 @@ namespace RP::DialogueVoice
 		// Female, male or unknown (-1) by the BODY: AAF's gender override keywords (AAF.esm
 		// 0x0121BC female, 0x0121BB male) -- a Servitron wears one with her abdomen, and her
 		// record says male whatever she wears. Without a keyword, the record's sex.
+		// Female, male or unknown (-1) by the BODY worn (Compat::RoleSex): a Servitron's record
+		// says male whatever she wears.
 		[[nodiscard]] int BodySex(RE::Actor* a_actor)
 		{
-			static const auto keywords = [] {
-				auto* handler = RE::TESDataHandler::GetSingleton();
-				const auto* f = handler ? handler->LookupForm(0x0121BC, "AAF.esm"sv) : nullptr;
-				const auto* m = handler ? handler->LookupForm(0x0121BB, "AAF.esm"sv) : nullptr;
-				return std::pair{ f ? f->As<RE::BGSKeyword>() : nullptr, m ? m->As<RE::BGSKeyword>() : nullptr };
-			}();
-			if (keywords.first && a_actor->HasKeywordHelper(keywords.first, nullptr)) {
-				return 1;
-			}
-			if (keywords.second && a_actor->HasKeywordHelper(keywords.second, nullptr)) {
-				return 0;
-			}
-			auto* npc = a_actor->GetNPC();
-			return npc ? static_cast<int>(npc->GetSex()) : -1;
+			const auto sex = RP::Compat::RoleSex(a_actor);
+			return sex < 0 ? -1 : sex;
 		}
 
 		// Who is saying this line: the actor talking to the player whose voice type it is. The

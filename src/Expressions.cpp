@@ -237,8 +237,8 @@ namespace RP
 		// Sex, read now: 1 female, 0 male, -1 unknown.
 		const auto sexOf = [](std::uint32_t a_id) {
 			auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_id);
-			auto* npc = actor ? actor->GetNPC() : nullptr;   // not const: GetSex() is not
-			return npc ? static_cast<int>(RP::Compat::Female(npc)) : -1;
+			const auto sex = RP::Compat::RoleSex(actor);   // the role worn: a Servitron's record says male
+			return sex < 0 ? -1 : sex;
 		};
 		const int s0 = sexOf(a_members[0]);
 		const int s1 = sexOf(a_members[1]);

@@ -259,7 +259,7 @@ namespace RP
 			return;
 		}
 		auto*       npc = actor ? actor->GetNPC() : nullptr;
-		const auto  sex = npc ? static_cast<std::int32_t>(npc->GetSex()) : -1;
+		const auto  sex = npc ? static_cast<std::int32_t>((std::max)(RP::Compat::RoleSex(const_cast<RE::Actor*>(actor)), -1)) : -1;
 		const auto  persona = std::string{ Barks::GetSingleton().PersonaOf(speaker) };
 		const bool heard = next.heard;
 		const auto [topic, id] = Barks::GetSingleton().PickObserver(persona, next.audience, sex, heard);

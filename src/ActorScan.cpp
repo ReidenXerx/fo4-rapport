@@ -168,7 +168,9 @@ namespace RP
 					// Unconscious, restrained, bleeding out -- or frozen in a Vault 111 pod,
 					// which the Nexus report found paired up. Alive, and nobody who can agree.
 					++_counters.notAwake;
-				} else if (!config.IsRaceAllowed(actor->race)) {
+				} else if (!config.IsRaceAllowed(actor->race) || RP::Compat::RoleSex(actor) < 0) {
+					// A race we do not dress, or a Servitron with no role worn yet (or none at
+					// all: AAF_ActorBlocked) -- never paired.
 					++_counters.raceNotAllowed;
 					++_rejectedRaces[actor->race ? actor->race->GetFormID() : 0u];
 				} else if (actor->talkingToPlayer) {

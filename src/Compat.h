@@ -27,6 +27,51 @@ namespace RP::Compat
 	[[nodiscard]] inline bool Female(RE::TESNPC* a_npc) { return Sex(a_npc) == 1; }
 	[[nodiscard]] inline bool Male(RE::TESNPC* a_npc) { return Sex(a_npc) == 0; }
 
+	// A Servitron (Servitron.esm, Nexus 32801): her record is always MALE. Looked up softly.
+	[[nodiscard]] inline bool Servitron(const RE::Actor* a_actor)
+	{
+		static const RE::TESForm* race = [] {
+			auto* handler = RE::TESDataHandler::GetSingleton();
+			return handler ? handler->LookupForm(0xF99, "Servitron.esm"sv) : nullptr;
+		}();
+		return race && a_actor && a_actor->race == race;
+	}
+
+	// The sex a SCENE uses: 1 woman, 0 man, -1 unknown, -2 never pair (no genitals worn).
+	// AAF's gender override keywords on the ACTOR come first -- Anatomy puts them on a
+	// Servitron each tick by the abdomen she wears (AAF.esm 0x0121BC female, 0x0121BB male,
+	// 0x022BB0 AAF_ActorBlocked: none worn) -- then the record. A Servitron with none of the
+	// three has not been ticked yet: unknown, skipped this pass (owner, 2026-10-08).
+	[[nodiscard]] inline int RoleSex(RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			return -1;
+		}
+		static const auto keywords = [] {
+			auto*      handler = RE::TESDataHandler::GetSingleton();
+			const auto kw = [&](std::uint32_t a_id) {
+				const auto* form = handler ? handler->LookupForm(a_id, "AAF.esm"sv) : nullptr;
+				return form ? form->As<RE::BGSKeyword>() : nullptr;
+			};
+			return std::array<const RE::BGSKeyword*, 3>{ kw(0x0121BC), kw(0x0121BB), kw(0x022BB0) };
+		}();
+		const auto has = [&](const RE::BGSKeyword* a_kw) { return a_kw && a_actor->HasKeywordHelper(a_kw, nullptr); };
+		if (has(keywords[2])) {
+			return -2;
+		}
+		if (has(keywords[0])) {
+			return 1;
+		}
+		if (has(keywords[1])) {
+			return 0;
+		}
+		if (Servitron(a_actor)) {
+			return -1;
+		}
+		return Sex(a_actor->GetNPC());
+	}
+	[[nodiscard]] inline bool Female(RE::Actor* a_actor) { return RoleSex(a_actor) == 1; }
+
 	// The name the game shows for this reference: a custom name on it (Rapport's own, O-10;
 	// a quest's) first, then its base record's. alandtse's GetDisplayFullName is the engine's
 	// own call; CommonLibF4RD does not declare it, so the RD side reads the same two sources
