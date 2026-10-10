@@ -289,6 +289,14 @@ namespace RP
 		}
 	}
 
+	bool Moans::BodyHeardWithin(std::int64_t a_ms) const noexcept
+	{
+		const auto last = _lastBodyMs.load();
+		const auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now().time_since_epoch()).count();
+		return last != 0 && now - last <= a_ms;
+	}
+
 	void Moans::OnEvent(const void* a_data, std::uint32_t a_length)
 	{
 		// Forward-compatible: later versions only APPEND (the contract), so anything from 24 bytes on is
@@ -305,6 +313,8 @@ namespace RP
 			}
 			return;
 		}
+		_lastBodyMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now().time_since_epoch()).count();
 		std::vector<Message> out;
 		{
 			std::lock_guard lock{ _lock };

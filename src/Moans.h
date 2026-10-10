@@ -42,6 +42,12 @@ namespace RP
 		// From AnatomyHandler: one 'RFAE' message, raw. Any size it does not know is ignored.
 		void OnEvent(const void* a_data, std::uint32_t a_length);
 
+		// Has Anatomy sent a body event (a stroke, an impact) within the last a_ms? While it
+		// has, Rapport voices the scene and the packs' own moans are muted; when it has not --
+		// a strap-on or a toy, which Anatomy does not measure -- muting them would leave the
+		// scene silent (falloutfan2077, F_F strap-on, 0.2.19), so they play.
+		[[nodiscard]] bool BodyHeardWithin(std::int64_t a_ms) const noexcept;
+
 		// Main thread: these actors are in an AAF scene; learn who they are (sex x persona).
 		void Register(const std::vector<std::uint32_t>& a_actors);
 
@@ -125,6 +131,7 @@ namespace RP
 		// what was sent, and why the rest was not -- a summary line every kSummaryEvery events.
 		std::uint64_t _received{ 0 };
 		bool          _saidBadEvent{ false };
+		std::atomic_int64_t _lastBodyMs{ 0 };
 		std::vector<std::uint32_t> _unknown;   // actors to learn on the next Pump
 		std::uint64_t _skipNotLoaded{ 0 }, _skipBusy{ 0 }, _skipMouth{ 0 }, _skipNoPeer{ 0 }, _skipUnknown{ 0 },
 			_skipNoSound{ 0 };

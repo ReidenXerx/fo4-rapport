@@ -1,6 +1,7 @@
 #include "DialogueVoice.h"
 
 #include "FaceAuthority.h"
+#include "Moans.h"
 #include "Voices.h"
 
 namespace RP::DialogueVoice
@@ -119,8 +120,14 @@ namespace RP::DialogueVoice
 				// A scene sound from another mod while ours are on: no file, no sound.
 				if (g_topicsReady.load() && !g_scenePlugins.empty() && FaceAuthority::GetSingleton().SoundOverride() &&
 					g_scenePlugins.contains(LowerText(PluginOf(path)))) {
-					SayOnce(a_voice, path, "muted - an AAF scene topic, and Anatomy's sex sounds are on");
-					strcpy_s(a_path, kPathSize, kMuted.data());
+					// Only while Anatomy is measuring contact and Rapport voices it: a strap-on or a
+					// toy gives no body events, and muting the pack then left the scene silent.
+					if (Moans::GetSingleton().BodyHeardWithin(20000)) {
+						SayOnce(a_voice, path, "muted - an AAF scene topic, and Anatomy's sex sounds are on");
+						strcpy_s(a_path, kPathSize, kMuted.data());
+						return built;
+					}
+					SayOnce(a_voice, path, "kept - no body contact from Anatomy for 20 s (a strap-on or a toy?), so the pack voices it");
 					return built;
 				}
 				auto&                  voices = Voices::GetSingleton();

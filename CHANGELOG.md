@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.20 (2026-10-10)
+
+- Strap-on and toy scenes are no longer silent: when the Anatomy Engine measures no body contact, the animation pack's own moans play instead of being muted.
+
 ## 0.2.19 (2026-10-08)
 
 - Servitrons join autonomy: paired by the abdomen they wear (woman or man), never with none, and open to anyone.
