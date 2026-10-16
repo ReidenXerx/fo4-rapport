@@ -109,7 +109,9 @@ namespace
 	{
 		constexpr std::uint32_t kHello = 0x52464148;   // 'RFAH'
 		constexpr std::uint32_t kEvent = 0x52464145;   // 'RFAE': a partner's body, for the moans (R-29)
-		if (!a_message || !a_message->data || (a_message->type != kHello && a_message->type != kEvent)) {
+		constexpr std::uint32_t kFluid = 0x5246414D;   // 'RFAM': her mouth's climax fluid, for her face
+		if (!a_message || !a_message->data ||
+			(a_message->type != kHello && a_message->type != kEvent && a_message->type != kFluid)) {
 			return;
 		}
 		// The Runtime Database build hears every sender (F4SEPlugin_Load says why): only cbp.dll's.
@@ -118,6 +120,10 @@ namespace
 		}
 		if (a_message->type == kEvent) {
 			RP::Moans::GetSingleton().OnEvent(a_message->data, a_message->dataLen);
+			return;
+		}
+		if (a_message->type == kFluid) {
+			RP::FaceAuthority::GetSingleton().OnMouthFluid(a_message->data, a_message->dataLen);
 			return;
 		}
 		if (a_message->dataLen < 8) {

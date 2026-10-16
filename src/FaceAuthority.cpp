@@ -36,6 +36,8 @@ namespace RP
 		// Roadmap item 3 (fo4-anatomy A-67): its SoundPlay mute hooked on this game, so it takes 'RFAU'.
 		// Without an RFAU it stays OFF, and the packs sound as they always did.
 		constexpr std::uint32_t kSoundOverride = 1u << 10;
+		// Her mouth's climax fluid, pushed as 'RFAM' on every change (fo4-ocbpc, Engine 1.2.29).
+		constexpr std::uint32_t kMouthFluid = 1u << 13;
 		constexpr std::uint32_t kRoll = 1u << 0;          // RFAG flags: an eye roll, target = the looker
 		constexpr std::uint32_t kLongestGlanceMs = 10000; // Anatomy clamps there; so do we
 
@@ -186,6 +188,7 @@ namespace RP
 		std::unordered_map<std::string, Deep>                      deep;
 		std::unordered_map<std::string, std::unordered_map<std::string, Deep>> deepBy, glanceFaces;
 		std::unordered_map<std::string, std::vector<Deep>>                     drift;
+		std::array<Deep, 4>                                                     fluid{};
 		std::uint64_t                                              mouth = 0;
 		std::uint32_t                                              morphs = 50;
 		try {
@@ -247,6 +250,12 @@ namespace RP
 					glanceFaces[context].emplace(persona, face(settings));
 				}
 			}
+			for (const auto& [state, settings] : document.value("fluid", nlohmann::json::object()).items()) {
+				const auto index = std::stoul(state);
+				if (index > 0 && index < fluid.size()) {
+					fluid[index] = face(settings);
+				}
+			}
 		} catch (const std::exception& e) {
 			logger::error("face authority: {} has a shape this plugin cannot read ({}) - the AAF path alone",
 				PathText(path), e.what());
@@ -260,6 +269,7 @@ namespace RP
 			_deepBy = std::move(deepBy);
 			_drift = std::move(drift);
 			_glanceFaces = std::move(glanceFaces);
+			_fluidFaces = fluid;
 			_mouth = mouth;
 			_morphs = morphs;
 			_unknown.clear();
@@ -298,6 +308,8 @@ namespace RP
 		logger::info("face authority: glance faces {}; eased faces {} (faces that don't freeze {}); eye rolls {}",
 			(a_features & kGlanceFaces) ? "ON" : "not offered", (a_features & kEasedFaces) ? "ON" : "not offered",
 			(a_features & kEasedFaces) ? "ON" : "off without it", (a_features & kEyeRolls) ? "ON" : "not offered");
+		logger::info("face authority: mouth fluid {}",
+			(a_features & kMouthFluid) ? "ON - her face holds it, lets it run out or swallows" : "not offered by this cbp.dll");
 	}
 
 	bool FaceAuthority::ValuesOf(const std::string& a_setID, std::array<float, kSlots>& a_out)
@@ -357,7 +369,72 @@ namespace RP
 				}
 			}
 		}
+		if (a_held.fluid > 0 && a_held.fluid < _fluidFaces.size()) {
+			const auto& fluid = _fluidFaces[a_held.fluid];
+			for (std::size_t id = 0; id < kSlots; ++id) {
+				if (fluid.mask & (std::uint64_t{ 1 } << id)) {
+					a_out[id] = fluid.values[id];
+				}
+			}
+		}
 		return true;
+	}
+
+	void FaceAuthority::OnMouthFluid(const void* a_data, std::uint32_t a_length)
+	{
+		if (!a_data || a_length < 12) {
+			return;
+		}
+		const auto* words = static_cast<const std::uint32_t*>(a_data);
+		const auto  formID = words[1];
+		const auto  state = words[2];
+		if (words[0] < 1 || formID == 0 || state > 3) {
+			return;
+		}
+		// Anatomy is inside its own Dispatch here: answering it with an RFAS from this thread
+		// would re-enter it. A game task does the work, on the main thread, a frame later.
+		if (auto* task = F4SE::GetTaskInterface()) {
+			task->AddTask([formID, state] { GetSingleton().ApplyMouthFluid(formID, state); });
+		}
+	}
+
+	void FaceAuthority::ApplyMouthFluid(std::uint32_t a_formID, std::uint32_t a_state)
+	{
+		if (!Available()) {
+			return;
+		}
+		Send send;
+		send.formID = a_formID;
+		send.generation = _generation.load();
+		bool first = false;
+		bool resend = false;
+		{
+			NamedLock lock{ _lock, "face authority" };
+			if (!lock) {
+				return;
+			}
+			first = !std::exchange(_fluidHeard, true);
+			if (a_state == 0) {
+				_fluid.erase(a_formID);
+			} else {
+				_fluid[a_formID] = a_state;
+			}
+			// Only a face we hold is ours to change; a later face picks the state up in OnOrder.
+			if (const auto found = _held.find(a_formID); found != _held.end() && found->second.fluid != a_state) {
+				auto& held = found->second;
+				held.fluid = a_state;
+				send.owned = MaskFor(held);
+				DeepOf(held, send);
+				resend = ValuesFor(held, send.values);
+			}
+		}
+		if (first) {
+			logger::info("face authority: first mouth-fluid state from Anatomy ({:08X} -> {}) - her face follows it",
+				a_formID, a_state);
+		}
+		if (resend) {
+			Dispatch(send);
+		}
 	}
 
 	std::uint64_t FaceAuthority::MaskFor(const Held& a_held) const noexcept
@@ -411,13 +488,19 @@ namespace RP
 					return;
 				}
 				auto& held = _held[a_order.formID];
+				// (values are rebuilt below once the held face knows its fluid state)
 				held.setID = a_order.setID;
 				held.base = BaseOf(a_order.setID);
 				held.persona = persona;
 				held.sex = sex;
 				held.drift = -1;   // a new face starts as itself
+				const auto fluid = _fluid.find(a_order.formID);
+				held.fluid = fluid == _fluid.end() ? 0u : fluid->second;
 				held.nextDrift = Clock::now() + std::chrono::milliseconds(static_cast<int>(
 					std::uniform_real_distribution<float>{ kDriftMin, kDriftMax }(_driftDice) * 1000.0f));
+				if (held.fluid != 0) {
+					(void)ValuesFor(held, send.values);   // the set, with her mouth's fluid laid over it
+				}
 				send.owned = MaskFor(held);
 				DeepOf(held, send);
 			} else if (a_order.kind == Order::Kind::kSayTopic) {
@@ -801,6 +884,7 @@ namespace RP
 		{
 			NamedLock lock{ _lock, "face authority" };
 			_held.clear();
+			_fluid.clear();
 			// A new world: anything built for the old one is stale from here (release review:
 			// a Pump could build a face, lose the race to the clear-all below, and land after it).
 			_generation.fetch_add(1);

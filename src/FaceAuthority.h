@@ -61,6 +61,11 @@ namespace RP
 		// "Anatomy's sex sounds" as last sent in RFAU: Rapport's moans follow it, the climax too.
 		[[nodiscard]] bool SoundOverride() const noexcept { return _soundOverride.load(); }
 
+		// Her mouth's climax fluid, from Anatomy ('RFAM' { u32 version=1; u32 formID; u32 state; },
+		// hello bit 13): 0 nothing, 1 full, 2 running out of her lips, 3 swallowing. Arrives on
+		// Anatomy's scan thread, mid-dispatch: it is applied from a game task, never from here.
+		void OnMouthFluid(const void* a_data, std::uint32_t a_length);
+
 		// Every order Rapport queues: a face put on, a face cleared, a line spoken.
 		void OnOrder(const Order& a_order);
 
@@ -92,6 +97,7 @@ namespace RP
 			char              sex{ 0 };  // 'f', 'm', 0 unknown
 			int               drift{ -1 };
 			Clock::time_point nextDrift{};
+			std::uint32_t     fluid{ 0 };   // her mouth's climax fluid (RFAM), laid over the face
 		};
 
 		struct Send
@@ -128,6 +134,9 @@ namespace RP
 		void DeepOf(const Held& a_held, Send& a_send) const;
 
 		static void Dispatch(const Send& a_send);
+
+		// The game-task half of OnMouthFluid.
+		void ApplyMouthFluid(std::uint32_t a_formID, std::uint32_t a_state);
 
 		// GLANCES (owner, 2026-09-25: "glance in the partner eyes. for ex during blowjob time to time
 		// glances on 1-2 seconds maybe in another poses"). Rapport decides who, when and how long, by
@@ -176,6 +185,9 @@ namespace RP
 		std::unordered_map<std::string, std::unordered_map<std::string, Deep>> _deepBy;        // base -> who
 		std::unordered_map<std::string, std::vector<Deep>>                     _drift;         // base -> siblings
 		std::unordered_map<std::string, std::unordered_map<std::string, Deep>> _glanceFaces;   // oral|face -> persona
+		std::array<Deep, 4>                                                     _fluidFaces{};  // by RFAM state; [0] unused
+		std::unordered_map<std::uint32_t, std::uint32_t>                       _fluid;         // formID -> RFAM state
+		bool                                                                    _fluidHeard{ false };   // said once
 		std::mt19937                                                            _driftDice{ std::random_device{}() };
 		std::unordered_set<std::string>                            _unknown;   // said once each
 		std::unordered_map<std::uint32_t, Held>                    _held;

@@ -555,6 +555,23 @@ GLANCE = {
     },
 }
 
+# FLUID: her mouth's climax fluid (owner roadmap: "she may let it run out or swallow"), from
+# Anatomy's 'RFAM' (hello bit 13), by its state: 1 full (his shaft still in her mouth: the contact
+# mouth keeps the lips, so this is the eyes and brows of holding it), 2 running out of her lips,
+# 3 swallowing (1.5 s). Laid OVER the held face: only the morphs listed here change.
+FLUID = {
+    1: [("Brow Squeeze", 35), ("Pucker", 30), ("Sticky Lips", 40)] + sym("Middle Brow Up", 45)
+       + sym("Cheek Up", 35) + sym("Upper Eye Lid Down", 35) + sym("Lower Eye Lid Up", 20),     # cheeks full, lips sealed
+    2: [("Jaw Open", 20), ("Lower Lip Roll Out", 35), ("Upper Lip Roll In", 0), ("Pucker", 0),
+        ("Sticky Lips", 0), ("Tongue To Roof", 0)] + sym("Lower Lip Down", 30)
+       + sym("Upper Eye Lid Down", 30) + sym("Middle Brow Up", 35),                              # lips parted, it runs out
+    3: [("Jaw Open", 0), ("Brow Squeeze", 30), ("Pucker", 20), ("Lower Lip Roll In", 30),
+        ("Upper Lip Roll In", 20), ("Tongue To Roof", 60), ("Sticky Lips", 0)] + sym("Upper Eye Lid Down", 90)
+       + sym("Nose Up", 15) + sym("Lower Lip Down", 0),                                          # a closed-mouth gulp, eyes shut
+}
+for _face in FLUID.values():
+    assert {n for n, _ in _face} <= set(MORPHS)
+
 for _table in (DEEP_BY,):
     for _set, _faces in _table.items():
         assert _set in {entry[0] for entry in SETS}, _set
@@ -653,6 +670,8 @@ def main():
         "deepBy": {s: {k: {str(ID[n]): v for n, v in f} for k, f in faces_.items()} for s, faces_ in DEEP_BY.items()},
         "drift": {s: {k: {str(ID[n]): v for n, v in f} for k, f in sib.items()} for s, sib in DRIFT.items()},
         "glance": {c: {p: {str(ID[n]): v for n, v in f} for p, f in faces_.items()} for c, faces_ in GLANCE.items()},
+        # Her mouth's climax fluid, by Anatomy's RFAM state (1 full, 2 running out, 3 swallowing). See FLUID.
+        "fluid": {str(s): {str(ID[n]): v for n, v in f} for s, f in FLUID.items()},
     }
     with io.open(faces_path, 'w', encoding="utf-8", newline="\n") as fh:
         fh.write(json.dumps(document, indent=1) + "\n")
