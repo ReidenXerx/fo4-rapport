@@ -18,6 +18,12 @@
       "_": "Servitron (Nexus 32801), owner 2026-10-08: always willing; paired by the abdomen she wears (AAF gender override keyword), never with none. Skipped when the plugin is not loaded."
     },
     {
+      "id": "AceHumanRace",
+      "plugin": "AceMaleRace.esp",
+      "form": "0x00000F99",
+      "_": "Ace Male Race (Nexus 84395), 10-23: a clean HumanRace copy (ActorTypeHuman, human skeleton, adults only). Skipped when the plugin is not loaded."
+    },
+    {
       "id": "Human",
       "plugin": "Fallout4.esm",
       "form": "0x00013746"
