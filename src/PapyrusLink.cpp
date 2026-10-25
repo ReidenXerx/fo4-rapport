@@ -345,13 +345,20 @@ namespace
 	// ---- debug triggers (R-23): the MCM's Debug page and its hotkeys --------------
 	// The actor the player faces. Also Chemistry's and Overture's way to name "him":
 	// one definition of "in front of you" for all three mods.
-	RE::Actor* Papyrus_ActorInFront(std::monostate, float a_maxDistance, float a_maxAngle)
+	// A form id, not the Actor: Core.psc's ActorInFront turns it into one with Game.GetForm.
+	// Returning RE::Actor* reached a player's AE game as a type the VM refused (Discord 10-25).
+	std::int32_t Papyrus_ActorInFrontID(std::monostate, float a_maxDistance, float a_maxAngle)
 	{
 		try {
-			return RP::DebugTriggers::ActorInFront(a_maxDistance, a_maxAngle);
+			auto* actor = RP::DebugTriggers::ActorInFront(a_maxDistance, a_maxAngle);
+			if (actor) {
+				const char* name = RP::Compat::DisplayName(actor);
+				logger::info("actor in front: {:08X} ({})", actor->GetFormID(), name && *name ? name : "no name");
+			}
+			return actor ? static_cast<std::int32_t>(actor->GetFormID()) : 0;
 		} catch (...) {
 			logger::critical("ActorInFront threw");
-			return nullptr;
+			return 0;
 		}
 	}
 
@@ -1552,7 +1559,7 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "ForeignSceneAnimation"sv, Papyrus_ForeignSceneAnimation, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "ForeignSceneEnded"sv, Papyrus_ForeignSceneEnded, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "OwnSceneEnded"sv, Papyrus_OwnSceneEnded, std::nullopt, false);
-		a_vm->BindNativeMethod(kCoreScript, "ActorInFront"sv, Papyrus_ActorInFront, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "ActorInFrontID"sv, Papyrus_ActorInFrontID, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugSceneWith"sv, Papyrus_DebugSceneWith, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugSceneFor"sv, Papyrus_DebugSceneFor, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "DebugScenePair"sv, Papyrus_DebugScenePair, std::nullopt, false);

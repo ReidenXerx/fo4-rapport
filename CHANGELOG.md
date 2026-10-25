@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.21 (2026-10-25)
+
+- Fixed "nobody in front of you" from Rapport's and Overture's debug keys on some games while someone stood right there.
+
 ## 0.2.20 (2026-10-10)
 
 - Strap-on and toy scenes are no longer silent: when the Anatomy Engine measures no body contact, the animation pack's own moans play instead of being muted.

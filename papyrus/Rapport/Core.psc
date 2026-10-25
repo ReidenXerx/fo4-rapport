@@ -78,7 +78,18 @@ Function OwnSceneEnded(Int aiLocation, Var akActors) Global Native
 ; The actor the player is facing: within afMaxDistance units and afMaxAngle degrees
 ; either side of the player's heading, the smallest angle winning. None when nobody.
 ; Chemistry and Overture name their target with this too: one "in front of you".
-Actor Function ActorInFront(Float afMaxDistance, Float afMaxAngle) Global Native
+; The plugin hands back a form id and Papyrus turns it into the Actor, the way the bridge
+; takes every actor (TakenFirstID, WatchFirstID): a native returning the Actor itself
+; reached a player's AE 1.11.240 game with a type the VM refused ("Mismatched types
+; assigning to variable", Overture's debug key, Discord 10-25), so his target was None.
+Actor Function ActorInFront(Float afMaxDistance, Float afMaxAngle) Global
+	Int id = Rapport:Core.ActorInFrontID(afMaxDistance, afMaxAngle)
+	If id == 0
+		Return None
+	EndIf
+	Return Game.GetForm(id) as Actor
+EndFunction
+Int Function ActorInFrontID(Float afMaxDistance, Float afMaxAngle) Global Native
 ; A scene now. abForce skips the soft gates (the bar, cooldowns, privacy, time of
 ; day); without it every gate the stand-in obeys applies. The hard rules always do.
 ; Returns one line for the HUD: what happened, or what refused and why.
