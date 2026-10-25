@@ -184,6 +184,23 @@ namespace RP
 			return;
 		}
 
+		// "off" undoes only what a debug profile switched on. A player who turns Papyrus logging on
+		// for a report keeps it (Vex, Discord 10-25: the shipped "off" reset it at every launch).
+		// The marker says a debug profile asked for logging on this machine; "off" reverts and clears it.
+		auto marker = path;
+		marker += ".rapport-logging-on";
+		{
+			std::error_code ec;
+			if (a_enabled) {
+				std::ofstream{ marker, std::ios::trunc } << "Rapport's debug profile asked for Papyrus logging.\n";
+			} else if (!std::filesystem::exists(marker, ec)) {
+				logger::info("debug hub: engine logging left as the player set it");
+				return;
+			} else {
+				std::filesystem::remove(marker, ec);
+			}
+		}
+
 		std::string text;
 		{
 			std::ifstream in{ path, std::ios::binary };

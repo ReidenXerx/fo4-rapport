@@ -4,6 +4,7 @@
 #include "Compat.h"
 #include "Config.h"
 #include "FaceAuthority.h"
+#include "McmSettings.h"
 #include "TreeIndex.h"
 
 namespace RP
@@ -277,15 +278,38 @@ namespace RP
 			a_when, _received, _played, _skipBusy, _skipMouth, _skipNoPeer, _skipUnknown, _skipNoSound, _skipNotLoaded);
 	}
 
+	// The player's volume and hearing range (MCM > Bodies & faces > Sounds; cityofinvid, Discord
+	// 10-25: a Vault 81 depot scene heard from Residential, and deafening up close with Voice at
+	// max for Ivy). The SNDRs sit in the Voice category on the dialogue output model, which carries
+	// 3000 units through walls, so Rapport fades each moan by the player's distance itself: full
+	// up to half the range, silent beyond it.
 	void Moans::Send(const std::vector<Message>& a_out)
 	{
 		if (a_out.empty()) {
 			return;
 		}
-		if (const auto messaging = F4SE::GetMessagingInterface()) {
-			for (auto message : a_out) {
-				messaging->Dispatch(kPlay, &message, sizeof(message), kPeer);
+		const auto messaging = F4SE::GetMessagingInterface();
+		if (!messaging) {
+			return;
+		}
+		const auto volume = std::clamp(McmSettings::ModSetting("Rapport", "fMoanVolume:Anatomy").value_or(1.0), 0.0, 2.0);
+		const auto range = std::clamp(McmSettings::ModSetting("Rapport", "fMoanRange:Anatomy").value_or(1500.0), 100.0, 10000.0);
+		const auto* player = RE::PlayerCharacter::GetSingleton();
+		for (auto message : a_out) {
+			double fade = 1.0;
+			if (player && message.formID != player->GetFormID()) {
+				const auto* form = RE::TESForm::GetFormByID(message.formID);
+				const auto* actor = form ? form->As<RE::Actor>() : nullptr;
+				if (actor) {
+					const auto distance = static_cast<double>(player->GetPosition().GetDistance(actor->GetPosition()));
+					fade = std::clamp(2.0 - 2.0 * distance / range, 0.0, 1.0);
+				}
 			}
+			message.volume = static_cast<float>(volume * fade);
+			if (message.volume < 0.01f) {
+				continue;   // out of earshot, or turned all the way down
+			}
+			messaging->Dispatch(kPlay, &message, sizeof(message), kPeer);
 		}
 	}
 

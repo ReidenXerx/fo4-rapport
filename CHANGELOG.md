@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.22 (2026-10-25)
+
+- New MCM settings (Bodies & faces > Sounds): scene moan volume, on top of the game's Voice slider, and how far away moans carry (about 21 m by default, silent beyond).
+- Rapport no longer switches off Papyrus logging that you turned on yourself.
+
 ## 0.2.21 (2026-10-25)
 
 - Fixed "nobody in front of you" from Rapport's and Overture's debug keys on some games while someone stood right there.

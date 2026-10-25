@@ -158,6 +158,12 @@ PAGES = [
         ("Anatomy", "soundOverride", anatomy, "Anatomy's sex sounds", "Anatomy mutes the animation packs' own "
          "sounds during scenes - their moans too - and makes the body sounds itself from what it measures; Rapport's own moans play only while this is on. "
          "Off: the packs sound as they always have.", None, None, None),
+        # cityofinvid / alasdairn, Discord 10-25: Rapport's moans follow the Voice slider (kept at max for
+        # Ivy) and carried through Vault 81. Rapport's own, never sent to Anatomy as knobs; Moans::Send.
+        ("Anatomy", "moanVolume", anatomy, "Scene moan volume", "Rapport's moans, on top of the game's Voice "
+         "slider: 1 as shipped, 0 silent, 2 double.", 0.0, 2.0, 0.05),
+        ("Anatomy", "moanRange", anatomy, "Moans heard up to (units)", "They fade as you walk away and are "
+         "silent beyond this. 1500 is about 21 metres.", 300.0, 6000.0, 100.0),
     ]),
 ]
 

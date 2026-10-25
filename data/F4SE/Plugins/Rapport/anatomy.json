@@ -11,5 +11,7 @@
   "headMin": 1.2,
   "headMax": 1.25,
   "reactScale": 1.0,
-  "soundOverride": true
+  "soundOverride": true,
+  "moanVolume": 1.0,
+  "moanRange": 1500.0
 }

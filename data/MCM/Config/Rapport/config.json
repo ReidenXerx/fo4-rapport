@@ -610,6 +610,30 @@
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
+        },
+        {
+          "type": "slider",
+          "id": "fMoanVolume:Anatomy",
+          "text": "Scene moan volume",
+          "help": "Rapport's moans, on top of the game's Voice slider: 1 as shipped, 0 silent, 2 double.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 2.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "fMoanRange:Anatomy",
+          "text": "Moans heard up to (units)",
+          "help": "They fade as you walk away and are silent beyond this. 1500 is about 21 metres.",
+          "valueOptions": {
+            "min": 300.0,
+            "max": 6000.0,
+            "step": 100.0,
+            "sourceType": "ModSettingFloat"
+          }
         }
       ]
     }
