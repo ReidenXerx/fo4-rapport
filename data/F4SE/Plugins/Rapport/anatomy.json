@@ -13,5 +13,7 @@
   "reactScale": 1.0,
   "soundOverride": true,
   "moanVolume": 1.0,
-  "moanRange": 1500.0
+  "moanRange": 1500.0,
+  "bodyVolume": 1.0,
+  "bodyRange": 1500.0
 }

@@ -164,6 +164,12 @@ PAGES = [
          "slider: 1 as shipped, 0 silent, 2 double.", 0.0, 2.0, 0.05),
         ("Anatomy", "moanRange", anatomy, "Moans heard up to (units)", "They fade as you walk away and are "
          "silent beyond this. 1500 is about 21 metres.", 300.0, 6000.0, 100.0),
+        # Anatomy Engine 1.2.30 (fo4-ocbpc a75a331) reads these two from this ini itself, every 2 s:
+        # its slaps, wet and mouth sounds get the same controls as the moans (alasdairn, 10-25).
+        ("Anatomy", "bodyVolume", anatomy, "Scene body sound volume", "Anatomy's slaps, wet and mouth sounds: "
+         "1 as shipped, 0 silent, 2 double.", 0.0, 2.0, 0.05),
+        ("Anatomy", "bodyRange", anatomy, "Body sounds heard up to (units)", "They fade as you walk away and are "
+         "silent beyond this. 1500 is about 21 metres.", 300.0, 6000.0, 100.0),
     ]),
 ]
 

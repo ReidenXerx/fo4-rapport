@@ -634,6 +634,30 @@
             "step": 100.0,
             "sourceType": "ModSettingFloat"
           }
+        },
+        {
+          "type": "slider",
+          "id": "fBodyVolume:Anatomy",
+          "text": "Scene body sound volume",
+          "help": "Anatomy's slaps, wet and mouth sounds: 1 as shipped, 0 silent, 2 double.",
+          "valueOptions": {
+            "min": 0.0,
+            "max": 2.0,
+            "step": 0.05,
+            "sourceType": "ModSettingFloat"
+          }
+        },
+        {
+          "type": "slider",
+          "id": "fBodyRange:Anatomy",
+          "text": "Body sounds heard up to (units)",
+          "help": "They fade as you walk away and are silent beyond this. 1500 is about 21 metres.",
+          "valueOptions": {
+            "min": 300.0,
+            "max": 6000.0,
+            "step": 100.0,
+            "sourceType": "ModSettingFloat"
+          }
         }
       ]
     }
