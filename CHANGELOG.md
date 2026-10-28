@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.23 (2026-10-28)
+
+- Doors wait a few seconds for a nearby scene to end instead of crashing. Walk away or open the Pip-Boy to cancel; HoldDoors = 0 in Rapport.ini turns it off.
+
 ## 0.2.22 (2026-10-25)
 
 - New MCM settings (Bodies & faces > Sounds): scene moan volume, on top of the game's Voice slider, and how far away moans carry (about 21 m by default, silent beyond).

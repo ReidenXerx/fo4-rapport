@@ -78,6 +78,9 @@ namespace RP
 		// a scene that never began to animate at all.
 		void Pump();
 
+		// The members of every scene that has begun and not ended, one list per scene (DoorHold).
+		[[nodiscard]] std::vector<std::vector<std::uint32_t>> RunningScenes() const;
+
 		// A load or a new game. No scene survives one, and the faces they left are the
 		// wearing list's to clear -- this only forgets.
 		void Reset();

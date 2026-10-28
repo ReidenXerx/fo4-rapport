@@ -202,6 +202,13 @@ Function NoteStopAsked() Global Native
 ; arguments instead of eleven; the scenario tries its next alternative.
 Function SceneRefused(String asWhy) Global Native
 
+; True while the player waits at a load door for the scenes there to end (the plugin's
+; DoorHold). The bridge starts no scene meanwhile.
+Bool Function DoorHeld() Global Native
+
+; Every OnSceneEnd's actors (akArgs[1]), for the door hold's count of AAF's scenes.
+Function NoteSceneEndActors(Var akActors) Global Native
+
 ; AAF refused the scene we asked for, and the refusal carried OUR meta tag. Fails
 ; the request in flight instead of leaving it to the 780-second watchdog, which
 ; is thirteen minutes of both actors flagged busy in AAF and the framework

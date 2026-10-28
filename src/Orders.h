@@ -228,7 +228,11 @@ namespace RP
 
 			// The player's view (FreeCam): setID "first" or "third". NOT an AAF call; the
 			// bridge runs Game.ForceFirstPerson / Game.ForceThirdPerson.
-			kCameraView = 35
+			kCameraView = 35,
+
+			// Stop the AAF scene this actor is in (DoorHold: the player is at a load door).
+			// An AAF call: StopScene(actor, -1).
+			kStopScene = 36
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };

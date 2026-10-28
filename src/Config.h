@@ -102,6 +102,11 @@ namespace RP
 		// The free camera in the player's AAF scenes (FreeCam). On by default.
 		bool          freeCamera{ true };
 
+		// A load door waits for the AAF scenes in the player's cell to end (DoorHold). On by default.
+		bool          holdDoors{ true };
+		// Seconds the door still waits after the scenes have ended: AAF's own teardown.
+		float         doorSettleSeconds{ 2.0f };
+
 		// ---- the AAF watchdog ------------------------------------------------
 		// How long AAF gets to come back on its own before Rapport restarts it.
 		// A normal load has it answering within a couple of seconds; this is

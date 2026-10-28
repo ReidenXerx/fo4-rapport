@@ -643,6 +643,25 @@ namespace RP
 		Carry(retired);
 	}
 
+	std::vector<std::vector<std::uint32_t>> ForeignScenes::RunningScenes() const
+	{
+		std::vector<std::vector<std::uint32_t>> out;
+		NamedLock lock{ _lock, "foreign scenes" };
+		if (!lock) {
+			return out;
+		}
+		for (const auto& [location, scene] : _scenes) {
+			if (!scene.started || scene.ended) {
+				continue;
+			}
+			auto& ids = out.emplace_back();
+			for (const auto& member : scene.members) {
+				ids.push_back(member.formID);
+			}
+		}
+		return out;
+	}
+
 	void ForeignScenes::OwnSceneStarted(std::uint32_t a_first, std::uint32_t a_second)
 	{
 		std::vector<Member> ours;

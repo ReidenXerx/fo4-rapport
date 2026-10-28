@@ -594,6 +594,13 @@ Function DoStartScene(Int aiRequest)
 		Return
 	EndIf
 
+	; The player is at a load door waiting for the scenes there to end: a scene started now
+	; would keep it shut, or be torn down by the unload (10-28, door-hold-4).
+	If Rapport:Core.DoorHeld()
+		Self.Release(index, "the player is leaving through a door")
+		Return
+	EndIf
+
 	Rapport:Core.Trace("bridge: request " + aiRequest + " starting for " + Rapport:Core.FormIdText(akFirst.GetFormID()) + " and " + Rapport:Core.FormIdText(akSecond.GetFormID()) + ", aaf status " + status)
 	_api.StartScene(actors, settings)
 	Rapport:Core.Trace("bridge: StartScene returned for request " + aiRequest)
@@ -860,6 +867,9 @@ EndEvent
 
 Event AAF:AAF_API.OnSceneEnd(AAF:AAF_API akSender, Var[] akArgs)
 	Self.TraceArgs("OnSceneEnd", akArgs)
+	If akArgs != None && akArgs.Length > 1
+		Rapport:Core.NoteSceneEndActors(akArgs[1])
+	EndIf
 
 	; Whoever's scene it was, its actors are free now. The id's position differs
 	; between events, so every Int is offered -- the plugin ignores 0 and anything
@@ -1525,6 +1535,10 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 	ElseIf aiKind == 4
 		Self.ReleaseActor(target)
 		Rapport:Core.Trace("released the AAF busy keywords from " + Rapport:Core.FormIdText(aiFormID))
+	ElseIf aiKind == 36
+		; The player is at a load door (the plugin's DoorHold): end the scene while AAF's HUD still lives.
+		Rapport:Core.Trace("door hold: asking AAF to stop the scene " + Rapport:Core.FormIdText(aiFormID) + " is in")
+		_api.StopScene(target, -1)
 	ElseIf aiKind == 15
 		Self.QueryAnimationsFor(aiFormID, asSetID, asExtra)
 		Return

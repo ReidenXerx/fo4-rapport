@@ -280,6 +280,8 @@ namespace RP
 		// of the playthrough. That is exactly the damage this record exists to
 		// prevent, failing in the one case it was built for.
 		[[nodiscard]] std::pair<std::uint32_t, std::uint32_t> InFlightPair() const;
+		// The same pair, only once AAF's OnSceneInit has come for it (0, 0 otherwise): DoorHold.
+		[[nodiscard]] std::pair<std::uint32_t, std::uint32_t> RunningPair() const;
 		void RestoreInFlightPair(std::uint32_t a_first, std::uint32_t a_second);
 
 		void OnBridgeReady(bool a_aafPresent);

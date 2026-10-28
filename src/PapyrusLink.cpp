@@ -1,5 +1,6 @@
 #include "PapyrusLink.h"
 #include "FreeCam.h"
+#include "DoorHold.h"
 #include "Layout.h"
 #include "Placement.h"
 
@@ -73,7 +74,9 @@ namespace
 
 	float Papyrus_PollSeconds(std::monostate)
 	{
-		return RP::Config::GetSingleton().pollSeconds;
+		// A held door is a player waiting: poll fast until it opens (DoorHold.h).
+		const auto seconds = RP::Config::GetSingleton().pollSeconds;
+		return RP::DoorHold::Active() ? (std::min)(seconds, 0.5f) : seconds;
 	}
 
 	// How many onlookers are free before the crowd penalty starts. Chemistry reads
@@ -315,6 +318,7 @@ namespace
 			RP::FreeCam::GetSingleton().SceneEnded(Ids(members));
 			RP::Holsters::GetSingleton().SceneEnded(Ids(members));
 			RP::Moans::GetSingleton().SceneEnded(Ids(members));
+			RP::DoorHold::Ended(Ids(members));
 			RP::ForeignScenes::GetSingleton().Ended(a_location, std::move(members), Text(a_position), Text(a_tags));
 		} catch (const std::exception& e) {
 			logger::critical("ForeignSceneEnded threw: {}", e.what());
@@ -334,6 +338,7 @@ namespace
 			RP::FreeCam::GetSingleton().SceneEnded(Ids(members));
 			RP::Holsters::GetSingleton().SceneEnded(Ids(members));
 			RP::Moans::GetSingleton().SceneEnded(Ids(members));
+			RP::DoorHold::Ended(Ids(members));
 			RP::ForeignScenes::GetSingleton().OwnSceneEnded(a_location, members);
 		} catch (const std::exception& e) {
 			logger::critical("OwnSceneEnded threw: {}", e.what());
@@ -499,6 +504,8 @@ namespace
 			}
 			// Asked only at AAF's walk (Bridge OnWalkInit): the player's view before the scene.
 			RP::FreeCam::GetSingleton().Walking(Ids(members));
+			// And a scene from here on, for a load door (DoorHold.h).
+			RP::DoorHold::Walking(Ids(members));
 		} catch (...) {
 			logger::critical("ActorsOf threw");
 		}
@@ -582,6 +589,24 @@ namespace
 	void Papyrus_SceneRefused(std::monostate, RE::BSFixedString a_why)
 	{
 		RP::Scenarios::GetSingleton().OnRefused(a_why.c_str());
+		RP::DoorHold::Refused();
+	}
+
+	// Every OnSceneEnd's actors, whoever's scene it was and whatever its shape: a door's count
+	// of AAF's scenes must lose a walk at its end even when no other handler claims the end.
+	void Papyrus_NoteSceneEndActors(std::monostate, const RE::BSScript::Variable* a_actors)
+	{
+		try {
+			RP::DoorHold::Ended(Ids(Members(a_actors)));
+		} catch (...) {
+			logger::critical("NoteSceneEndActors threw");
+		}
+	}
+
+	// The bridge asks before every StartScene: no scene starts while a door is held (DoorHold.h).
+	bool Papyrus_DoorHeld(std::monostate)
+	{
+		return RP::DoorHold::Active();
 	}
 
 	bool Papyrus_RefusedOurScene(std::monostate, RE::BSFixedString a_why)
@@ -663,6 +688,7 @@ namespace
 			RP::Scenarios::GetSingleton().Pump();
 			RP::Expressions::GetSingleton().Pump();
 			RP::ForeignScenes::GetSingleton().Pump();
+			RP::DoorHold::Pump();
 			RP::FaceAuthority::GetSingleton().Pump();
 			RP::Barks::GetSingleton().Pump();
 			RP::Morphs::GetSingleton().Pump();
@@ -1572,6 +1598,8 @@ namespace RP
 		a_vm->BindNativeMethod(kCoreScript, "SetupProblem"sv, Papyrus_SetupProblem, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "BlockFaces"sv, Papyrus_BlockFaces, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "SceneRefused"sv, Papyrus_SceneRefused, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "DoorHeld"sv, Papyrus_DoorHeld, std::nullopt, false);
+		a_vm->BindNativeMethod(kCoreScript, "NoteSceneEndActors"sv, Papyrus_NoteSceneEndActors, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "RefusedOurScene"sv, Papyrus_RefusedOurScene, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteSceneTags"sv, Papyrus_NoteSceneTags, std::nullopt, false);
 		a_vm->BindNativeMethod(kCoreScript, "NoteScenePosition"sv, Papyrus_NoteScenePosition, std::nullopt, false);
@@ -1734,6 +1762,13 @@ namespace RP
 		if (!_bridgeReady.load()) {
 			logger::warn("scene wanted before the bridge reported ready");
 			return refuse("the bridge is not ready yet - give it a few seconds after a load");
+		}
+		// The player is at a load door waiting for the scenes here to end (DoorHold.h). A new
+		// one would keep the door shut, or be torn down by the unload: 10-27, Chemistry started
+		// one 5 s into a hold.
+		if (DoorHold::Active()) {
+			logger::info("request refused: the player is leaving through a door");
+			return refuse("the player is leaving through a door");
 		}
 		// THE PLAYER'S LANE, here in the funnel every request passes -- addons and
 		// Rapport's own stand-in alike. It used to sit in the addon door only, and
@@ -2360,6 +2395,15 @@ namespace RP
 			_inFlightScenario);
 	}
 
+	std::pair<std::uint32_t, std::uint32_t> PapyrusLink::RunningPair() const
+	{
+		NamedLock lock{ _counter, "request counter" };
+		if (!_sceneRunning) {
+			return {};
+		}
+		return { static_cast<std::uint32_t>(_inFlightFirst), static_cast<std::uint32_t>(_inFlightSecond) };
+	}
+
 	std::int32_t PapyrusLink::RunningRequest() const
 	{
 		NamedLock lock{ _counter, "request counter" };
@@ -2542,6 +2586,41 @@ namespace RP
 			_orderExtra.clear();
 			_orderVoice = 0;
 			return 0;
+		}
+
+		// NOTHING DRAINS JUST AFTER A DOOR. Every order ends in an AAF ui.Invoke, and a
+		// door frees the HUD images before any LoadingMenu shows. 10-27 (Fallout-collection,
+		// Concord Station): faces asked of a foreign scene's actors 1 s after the player
+		// left by the door, then a crash in Scaleform Image::Update. Held, not dropped:
+		// the queue waits until the player's new cell has stood for kSettle.
+		{
+			static constexpr auto       kSettle = std::chrono::seconds{ 5 };
+			// The old cell is remembered by value: it is never read through again.
+			static RE::TESObjectCELL*   lastCell = nullptr;
+			static bool                 lastInterior = false;
+			static RE::TESWorldSpace*   lastWorld = nullptr;
+			static std::chrono::steady_clock::time_point movedAt{};
+			const auto  now = std::chrono::steady_clock::now();
+			const auto  player = RE::PlayerCharacter::GetSingleton();
+			const auto  cell = player ? player->GetParentCell() : nullptr;
+			if (!cell) {
+				movedAt = now;
+				return 0;
+			}
+			if (cell != lastCell) {
+				// Walking from one outdoor cell to the next is no door: same worldspace, no unload of the scene's cell.
+				const bool walked = lastCell && !lastInterior && !cell->IsInterior() && lastWorld == cell->worldSpace;
+				if (lastCell && !walked) {
+					movedAt = now;
+					logger::info("orders: the player changed cell through a door - {} order(s) wait {}s", _orders.size(), kSettle.count());
+				}
+				lastCell = cell;
+				lastInterior = cell->IsInterior();
+				lastWorld = cell->worldSpace;
+			}
+			if (now - movedAt < kSettle) {
+				return 0;
+			}
 		}
 
 		const auto order = _orders.front();

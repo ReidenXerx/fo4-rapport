@@ -4,6 +4,7 @@
 #include "Aftermath.h"
 #include "Barks.h"
 #include "DialogueVoice.h"
+#include "DoorHold.h"
 #include "Orientation.h"
 #include "Narrator.h"
 #include "Names.h"
@@ -315,6 +316,8 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	// The one engine hook Rapport owns: dialogue lines in a borrowed voice (DialogueVoice.h).
 	F4SE::AllocTrampoline(1 << 6);
 	RP::DialogueVoice::Install();
+	// And a vtable entry, no trampoline: load doors wait for a nearby AAF scene (DoorHold.h).
+	RP::DoorHold::Install();
 
 	// Each step of the rest of Load says it returned. AE 1.11.240, 2026-09-26: the game exited
 	// with no dump, no WER report and no [critical] line, somewhere after F4SE logged the second
