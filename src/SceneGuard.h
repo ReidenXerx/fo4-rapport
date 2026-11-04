@@ -9,8 +9,10 @@
 // And Skinny Malone and Darla were paired off mid-conversation with Nick and the player.
 //
 // What stops a running scene (owner go, 11-05):
-//  - a member dead, dying, unconscious, essential-down or bleeding out -- every AAF scene,
+//  - a member dead or dying -- every AAF scene,
 //    other mods' too: AAF posing a corpse is broken for whoever started it;
+//  - a member unconscious, essential-down or bleeding out -- Rapport's scenes and the player's:
+//    another mod may mean that (a defeat, a captive, a sleeper);
 //  - a member in combat -- scenes Rapport started (its own requests, Chemistry's, Overture's)
 //    and the player's: another mod's scene may be meant for a fight's aftermath;
 //  - a member pulled into the player's conversation (InConversation) -- every scene but the

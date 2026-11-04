@@ -1782,7 +1782,13 @@ namespace RP
 		}
 		// Walking up to one, facing it: the scenes here were asked to stop (owner go, 11-05).
 		if (DoorHold::Near() && a_first->GetFormID() != 0x14 && a_second->GetFormID() != 0x14) {
-			logger::info("request refused: the player is at a load door");
+			// Once every 10 s at most: an addon asks again every tick while the player stands there.
+			static std::atomic<std::int64_t> said{ 0 };
+			const auto secs = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+			if (secs - said.load() >= 10) {
+				said = secs;
+				logger::info("request refused: the player is at a load door");
+			}
 			return refuse("the player is at a load door");
 		}
 		// THE PLAYER'S LANE, here in the funnel every request passes -- addons and
@@ -2113,6 +2119,7 @@ namespace RP
 		// The world being left's outfits; the arriving save's come from its co-save (Ledger).
 		Wardrobe::GetSingleton().Forget();
 		SceneGuard::Forget();
+		DoorHold::Forget();
 		// And the player's choices of orientation and persona: per save, from its co-save too.
 		Orientation::GetSingleton().ForgetChosen();
 		Barks::GetSingleton().ForgetChosenPersonas();

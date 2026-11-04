@@ -45,14 +45,24 @@ namespace RP::DoorHold
 		// of that time passes while they walk the last steps. And no new scene starts here meanwhile.
 		// Facing, because a town street is lined with shop doors (Diamond City) and walking past one
 		// must not end every scene in the market.
+		//
+		// APPROACHING, not standing near (microscope 11-05): the player arriving through a door
+		// stands right beside its way back, and a small shop has every door within reach. So the
+		// approach begins only when the player MOVES toward a door they face; once begun it holds
+		// while they stay close and keep facing it.
 		constexpr float kNear = 300.0f;
 		constexpr float kNearLeave = 450.0f;
-		constexpr float kRightAt = 120.0f;   // this close, any heading counts
-		constexpr float kFacing = 0.7f;      // cosine: within about 45 degrees of straight ahead
+		constexpr float kRightAt = 60.0f;     // this close, any heading counts
+		constexpr float kFacing = 0.7f;       // cosine: within about 45 degrees of straight ahead
+		constexpr float kMoving = 15.0f;      // units closer since the last poll: walking at it
 		constexpr float kDoorHeight = 300.0f;
-		// Within this of a load door with a scene here, the bridge polls fast (PollSeconds), so the
-		// approach is seen in time: at the usual 3 s a running player covers the 300 u unseen.
-		constexpr float kWatch = 1000.0f;
+		// Within this of a load door with a scene here, the bridge polls fast (PollSeconds). The
+		// interval in force was set by the PREVIOUS poll, so this must cover a 3 s poll at a run.
+		constexpr float kWatch = 2000.0f;
+		// The doors of the outdoor persistent cell nearer than this are read with the grid cell's.
+		constexpr float kDoorRead = 4096.0f;
+		constexpr auto  kRescan = std::chrono::seconds{ 5 };     // a cell read with no door yet
+		constexpr auto  kAskAgainAt = std::chrono::seconds{ 15 }; // a stop asked and still running
 
 		struct Hold
 		{
@@ -80,12 +90,20 @@ namespace RP::DoorHold
 		std::mutex        g_walkLock;   // never taken while g_lock is held, nor the other way round
 		std::vector<Walk> g_walks;
 
+		struct Asked
+		{
+			Group             members;
+			Clock::time_point at{};
+		};
 		struct Approach
 		{
+			const void*               place{ nullptr };   // the interior, or the worldspace outdoors
 			const RE::TESObjectCELL*  cell{ nullptr };
-			std::vector<RE::NiPoint3> doors;   // the load doors of the player's cell, read once per cell
+			Clock::time_point         readAt{};
+			std::vector<RE::NiPoint3> doors;   // the load doors around the player, read per cell
+			std::optional<RE::NiPoint3> last;  // the player's position at the previous poll
 			bool                      near{ false };
-			std::vector<Group>        asked;   // scenes asked to stop on this approach
+			std::vector<Asked>        asked;   // scenes asked to stop on this approach
 		};
 		std::mutex       g_approachLock;   // taken before g_walkLock, never inside g_lock
 		Approach         g_approach;
@@ -97,20 +115,35 @@ namespace RP::DoorHold
 			return a_door->extraList && a_door->extraList->GetByType(RE::EXTRA_DATA_TYPE::kTeleport);
 		}
 
-		// The cell's load doors where they stand. Only the player's own cell: outdoors a door just
-		// over a cell border is missed here, and the press still holds it.
-		[[nodiscard]] std::vector<RE::NiPoint3> DoorsIn(RE::TESObjectCELL& a_cell)
+		// The cell's load doors where they stand, within a_range of a_near.
+		void DoorsIn(RE::TESObjectCELL& a_cell, const RE::NiPoint3& a_near, float a_range, std::vector<RE::NiPoint3>& a_out)
 		{
-			std::vector<RE::NiPoint3>      doors;
 			RE::BSAutoLock<RE::BSSpinLock> lock{ a_cell.spinLock };
 			for (const auto& held : a_cell.references) {
 				auto* ref = held.get();
 				if (!ref || RP::Compat::Disabled(ref) || ref->IsDeleted() || !IsLoadDoor(ref)) {
 					continue;
 				}
-				doors.push_back(ref->data.location);
+				if (ref->data.location.GetDistance(a_near) <= a_range) {
+					a_out.push_back(ref->data.location);
+				}
 			}
-			return doors;
+		}
+
+		// Outdoors a building's load door is a PERSISTENT reference: it lives in the worldspace's
+		// persistent cell, not in the grid cell the player stands in (microscope 11-05). That
+		// member's offset is not one Layout.h checks, so the read proves itself: a CELL whose
+		// worldspace is this one, or nothing.
+		[[nodiscard]] RE::TESObjectCELL* PersistentCell(RE::TESWorldSpace* a_world)
+		{
+			__try {
+				auto* cell = a_world->persistentCell;
+				if (cell && cell->GetFormType() == RE::ENUM_FORM_ID::kCELL && !cell->IsInterior() && cell->worldSpace == a_world) {
+					return cell;
+				}
+			} __except (1) {
+			}
+			return nullptr;
 		}
 
 		// Here = what a load door unloads: the player's interior, or the outdoor worldspace they stand in.
@@ -229,25 +262,41 @@ namespace RP::DoorHold
 				g_watching = false;
 				return;
 			}
+			const auto      now = Clock::now();
 			auto*           cell = a_player.GetParentCell();
+			const auto&     at = a_player.data.location;
 			std::lock_guard lock{ g_approachLock };
-			if (cell != g_approach.cell) {
+
+			const void* place = !cell ? nullptr : cell->IsInterior() ? static_cast<const void*>(cell) : static_cast<const void*>(cell->worldSpace);
+			if (place != g_approach.place) {
 				if (g_approach.near) {
-					logger::info("door approach: the player changed cell - new scenes may start again");
+					logger::info("door approach: the player changed place - new scenes may start again");
 				}
 				g_approach = {};
+				g_approach.place = place;
+			}
+			if (cell != g_approach.cell || (g_approach.doors.empty() && now - g_approach.readAt >= kRescan)) {
 				g_approach.cell = cell;
+				g_approach.readAt = now;
+				g_approach.doors.clear();
 				if (cell) {
-					g_approach.doors = DoorsIn(*cell);
+					DoorsIn(*cell, at, kDoorRead, g_approach.doors);
+					if (!cell->IsInterior() && cell->worldSpace) {
+						if (auto* persistent = PersistentCell(cell->worldSpace)) {
+							DoorsIn(*persistent, at, kDoorRead, g_approach.doors);
+						}
+					}
 				}
 			}
 
-			const auto& at = a_player.data.location;
 			const float yaw = a_player.data.angle.z;
 			const float fx = std::sin(yaw);
 			const float fy = std::cos(yaw);
-			float       best = (std::numeric_limits<float>::max)();
-			bool        facing = false;
+			const auto  last = g_approach.last;
+			g_approach.last = at;
+			float best = (std::numeric_limits<float>::max)();   // the nearest door, any heading
+			float approached = -1.0f;                           // the nearest door being walked at
+			bool  stillFacing = false;                          // a faced door within kNearLeave
 			for (const auto& door : g_approach.doors) {
 				if (std::abs(door.z - at.z) > kDoorHeight) {
 					continue;   // another floor
@@ -255,9 +304,17 @@ namespace RP::DoorHold
 				const float dx = door.x - at.x;
 				const float dy = door.y - at.y;
 				const float dist = std::hypot(dx, dy);
-				if (dist < best) {
-					best = dist;
-					facing = dist <= kRightAt || (dx * fx + dy * fy) / dist >= kFacing;
+				best = (std::min)(best, dist);
+				const bool faced = dist <= kRightAt || (dx * fx + dy * fy) / dist >= kFacing;
+				if (!faced) {
+					continue;
+				}
+				if (dist <= kNearLeave) {
+					stillFacing = true;
+				}
+				const bool closing = last && std::hypot(door.x - last->x, door.y - last->y) - dist >= kMoving;
+				if (dist <= kNear && closing && (approached < 0.0f || dist < approached)) {
+					approached = dist;
 				}
 			}
 
@@ -265,13 +322,24 @@ namespace RP::DoorHold
 			if (best <= kWatch) {
 				here = ScenesHere(a_player, a_ghosts);
 			}
-			const bool nearNow = best <= kNear && facing;
-			if (nearNow) {
-				if (!g_approach.near) {
-					logger::info("door approach: the player is {:.0f}u from a load door, facing it - {} scene(s) here asked to stop, and none starts here meanwhile",
-						best, here.size());
-				}
+			// Scenes over are forgotten, so the same actors' next scene is asked again.
+			std::erase_if(g_approach.asked, [&](const Asked& a_asked) {
+				return std::ranges::none_of(here, [&](const Group& a_group) {
+					return std::ranges::any_of(a_group, [&](std::uint32_t a_id) { return Contains(a_asked.members, a_id); });
+				});
+			});
+
+			if (!g_approach.near && approached >= 0.0f) {
+				logger::info("door approach: the player walks at a load door {:.0f}u away - {} scene(s) here asked to stop, and none starts here meanwhile",
+					approached, here.size());
 				g_approach.near = true;
+			} else if (g_approach.near && !stillFacing) {
+				logger::info("door approach: the player turned or walked away from the door - new scenes may start here again");
+				g_approach.near = false;
+				g_approach.asked.clear();
+			}
+
+			if (g_approach.near) {
 				// Our own request AAF has not walked yet is not asked: a stop that early sends no end
 				// at all (10-28), and the bridge releases it before StartScene instead (DoorHeld).
 				// Once it walks, it is a scene here like any other and the next poll asks it.
@@ -282,21 +350,21 @@ namespace RP::DoorHold
 					if (unwalked && (Contains(members, first) || Contains(members, second))) {
 						continue;
 					}
-					const bool asked = std::ranges::any_of(g_approach.asked, [&](const Group& a_asked) {
-						return std::ranges::any_of(members, [&](std::uint32_t a_id) { return Contains(a_asked, a_id); });
+					auto asked = std::ranges::find_if(g_approach.asked, [&](const Asked& a_asked) {
+						return std::ranges::any_of(members, [&](std::uint32_t a_id) { return Contains(a_asked.members, a_id); });
 					});
-					if (!asked) {
+					if (asked == g_approach.asked.end()) {
 						fresh.push_back(members);
-						g_approach.asked.push_back(members);
+						g_approach.asked.push_back(Asked{ members, now });
+					} else if (now - asked->at >= kAskAgainAt) {
+						// Still running 15 s on: the stop may have been lost. Asked once more.
+						fresh.push_back(members);
+						asked->at = now;
 					}
 				}
 				if (!fresh.empty()) {
 					AskToStop(fresh);
 				}
-			} else if (g_approach.near && (best > kNearLeave || !facing)) {
-				logger::info("door approach: the player turned or walked away from the door - new scenes may start here again");
-				g_approach.near = false;
-				g_approach.asked.clear();
 			}
 			g_near = g_approach.near;
 			g_watching = best <= kWatch && (g_approach.near || !here.empty());
@@ -372,6 +440,14 @@ namespace RP::DoorHold
 	bool Near()
 	{
 		return g_near.load();
+	}
+
+	void Forget()
+	{
+		std::lock_guard lock{ g_approachLock };
+		g_approach = {};
+		g_near = false;
+		g_watching = false;
 	}
 
 	bool Watching()

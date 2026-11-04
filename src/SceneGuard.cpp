@@ -16,11 +16,15 @@ namespace RP::SceneGuard
 		// 0.7-12 s to reach OnSceneEnd (Fo4-mcp 10-27), and a second stop mid-teardown helps nobody.
 		// Past it, a scene still running is asked once more.
 		constexpr auto kAskAgain = std::chrono::seconds{ 60 };
+		// A record whose end Rapport missed stays "running" for good: asked this often, then left
+		// alone (microscope 11-05: a dead member re-asked and re-logged every minute, forever).
+		constexpr std::uint32_t kMaxAsks = 3;
 
 		struct Stopped
 		{
 			Group             members;   // sorted
 			Clock::time_point at{};
+			std::uint32_t     asks{ 1 };
 		};
 
 		std::mutex           g_lock;
@@ -37,17 +41,21 @@ namespace RP::SceneGuard
 			return form ? form->As<RE::Actor>() : nullptr;
 		}
 
-		// Dead, or on the way there, or down: nobody AAF should still be posing.
+		// Dead, or on the way there: nobody AAF should still be posing, in anybody's scene.
+		[[nodiscard]] bool Dead(const RE::Actor& a_actor)
+		{
+			using State = RE::ACTOR_LIFE_STATE;
+			const auto state = static_cast<State>(a_actor.lifeState);
+			return a_actor.IsDead(true) || state == State::kDying || state == State::kDead;
+		}
+
+		// Knocked out, essential-down or bleeding out. Only for Rapport's own scenes and the
+		// player's: another mod may mean exactly that -- a defeat, a captive, a sleeper
+		// (microscope 11-05).
 		[[nodiscard]] std::string_view Down(const RE::Actor& a_actor)
 		{
 			using State = RE::ACTOR_LIFE_STATE;
-			if (a_actor.IsDead(true)) {
-				return "is dead";
-			}
 			switch (static_cast<State>(a_actor.lifeState)) {
-			case State::kDying:
-			case State::kDead:
-				return "is dead";
 			case State::kUnconscious:
 			case State::kEssentialDown:
 				return "is down";
@@ -113,9 +121,16 @@ namespace RP::SceneGuard
 			scenes.push_back({ own.first, own.second });
 		}
 		const auto now = Clock::now();
+		for (auto& members : scenes) {
+			std::erase(members, 0u);
+			std::ranges::sort(members);
+		}
 		{
+			// A scene no longer running is forgotten; one still running keeps its count of asks.
 			std::lock_guard lock{ g_lock };
-			std::erase_if(g_stopped, [&](const Stopped& a_stop) { return now - a_stop.at > kAskAgain; });
+			std::erase_if(g_stopped, [&](const Stopped& a_stop) {
+				return std::ranges::none_of(scenes, [&](const Group& a_group) { return a_group == a_stop.members; });
+			});
 		}
 		if (scenes.empty()) {
 			return;
@@ -126,16 +141,19 @@ namespace RP::SceneGuard
 		bool                             talkingRead = false;
 
 		std::vector<Order> stops;
-		for (auto& members : scenes) {
-			std::erase(members, 0u);
+		for (const auto& members : scenes) {
 			if (members.empty()) {
 				continue;
 			}
-			std::ranges::sort(members);
+			std::uint32_t asked = 0;
 			{
 				std::lock_guard lock{ g_lock };
-				if (std::ranges::any_of(g_stopped, [&](const Stopped& a_stop) { return a_stop.members == members; })) {
-					continue;
+				const auto found = std::ranges::find(g_stopped, members, &Stopped::members);
+				if (found != g_stopped.end()) {
+					if (found->asks >= kMaxAsks || now - found->at < kAskAgain) {
+						continue;
+					}
+					asked = found->asks;
 				}
 			}
 			const bool withPlayer = Contains(members, playerID);
@@ -144,15 +162,20 @@ namespace RP::SceneGuard
 			std::string     why;
 			std::uint32_t   who = 0;
 			RE::Actor*      living = nullptr;
+			RE::Actor*      fallen = nullptr;
 			for (const auto id : members) {
 				auto* actor = ActorOf(id);
 				if (!actor || !actor->Get3D()) {
 					continue;   // not here: the door hold and AAF's own distance check have them
 				}
-				if (const auto down = Down(*actor); !down.empty()) {
+				const auto down = Dead(*actor) ? std::string_view{ "is dead" } : ours ? Down(*actor) : std::string_view{};
+				if (!down.empty()) {
 					if (why.empty()) {
 						why = down;
 						who = id;
+					}
+					if (!fallen) {
+						fallen = actor;
 					}
 					continue;
 				}
@@ -176,15 +199,26 @@ namespace RP::SceneGuard
 					}
 				}
 			}
-			if (why.empty() || !living) {
+			if (why.empty()) {
 				continue;
 			}
-			// AAF's StopScene takes any actor of the scene: a living one, never the corpse.
-			stops.push_back(Order{ Order::Kind::kStopScene, living->GetFormID(), {} });
-			logger::info("scene guard: {:08X} {} - asking AAF to stop the scene ({} member(s), {})", who, why,
-				members.size(), ours ? "Rapport's" : "another mod's");
+			// AAF's StopScene takes any actor of the scene: a living one by preference, the body
+			// when nobody else is here (the partner unloaded, or a scene of one).
+			auto* target = living ? living : fallen;
+			if (!target) {
+				continue;
+			}
+			stops.push_back(Order{ Order::Kind::kStopScene, target->GetFormID(), {} });
+			logger::info("scene guard: {:08X} {} - asking AAF to stop the scene ({} member(s), {}){}", who, why,
+				members.size(), ours ? "Rapport's" : "another mod's",
+				asked ? std::format(" - ask {} of {}, the last one went unanswered", asked + 1, kMaxAsks) : std::string{});
 			std::lock_guard lock{ g_lock };
-			g_stopped.push_back(Stopped{ members, now });
+			if (const auto found = std::ranges::find(g_stopped, members, &Stopped::members); found != g_stopped.end()) {
+				found->at = now;
+				++found->asks;
+			} else {
+				g_stopped.push_back(Stopped{ members, now, 1 });
+			}
 		}
 		if (!stops.empty()) {
 			PapyrusLink::GetSingleton().QueueOrders(stops);

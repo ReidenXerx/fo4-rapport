@@ -28,6 +28,8 @@ namespace RP::DoorHold
 	// The player is close to a load door and facing it: the scenes here were asked to stop,
 	// and no new one starts (owner go, 11-05).
 	[[nodiscard]] bool Near();
+	// A load: the approach starts over in the arriving world.
+	void Forget();
 	// A door is held, or the player is near a load door with a scene here: the bridge polls fast.
 	[[nodiscard]] bool Watching();
 

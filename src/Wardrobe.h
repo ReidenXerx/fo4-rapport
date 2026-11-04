@@ -74,6 +74,10 @@ namespace RP
 			// Looks in a row that found AAF's busy flag on them with no scene of theirs anywhere.
 			std::uint32_t      heldIdle{ 0 };
 			std::uint32_t      heldIdleLook{ 0 };   // the look heldIdle last counted
+			// Rapport saw their scene END (OnSceneEnd), and when. A flag is called stale only after
+			// that: an actor whose scene Rapport never saw end may be in one Rapport cannot see.
+			bool               endSeen{ false };
+			Clock::time_point  endedAt{};
 		};
 
 		// A scene lasts minutes; a look while AAF holds them costs one cheap stack per piece.
@@ -83,10 +87,18 @@ namespace RP
 		// After their scene: a shy persona's first look, and the latest anyone else's comes. A game
 		// hour is 3 real minutes at the default timescale of 20.
 		static constexpr auto kShyLook = std::chrono::seconds{ 2 };
-		static constexpr auto kLatestLook = std::chrono::seconds{ 180 };
+		// Never later than the safety net always came (microscope 11-05: a three-minute wait made
+		// the "naked in public" complaint worse, not better).
+		static constexpr auto kLatestLook = std::chrono::seconds{ 90 };
 		static constexpr auto kEarliestLook = std::chrono::seconds{ 20 };
-		// Looks in a row held by a flag no running scene explains before Rapport releases it.
+		// Just after the end AAF often still holds them (its unlock follows OnSceneEnd): looked at
+		// again this soon, not a whole kLookEvery later.
+		static constexpr auto kHeldSoon = std::chrono::seconds{ 5 };
+		static constexpr auto kJustEnded = std::chrono::seconds{ 30 };
+		// Looks in a row held by a flag no running scene explains before Rapport releases it, and
+		// how long after the end at the least.
 		static constexpr std::uint32_t kStaleHeldLooks = 2;
+		static constexpr auto          kStaleAfter = std::chrono::seconds{ 60 };
 		// Looks at a LOADED actor before an outfit nobody resolves is dropped (~1 h held by AAF).
 		static constexpr std::uint32_t kMaxLooks = 120;
 		static constexpr std::size_t   kMaxActors = 256;

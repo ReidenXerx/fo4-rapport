@@ -45,6 +45,9 @@ namespace RP
 		outfit.nextLook = Clock::now() + kLookEvery;
 		outfit.looks = 0;
 		outfit.freeOnce = false;
+		outfit.heldIdle = 0;
+		outfit.heldIdleLook = 0;
+		outfit.endSeen = false;
 		if (outfit.pieces.empty()) {
 			_outfits.erase(a_actor);
 			return;
@@ -75,6 +78,8 @@ namespace RP
 			outfit.nextLook = now + wait;
 			outfit.freeOnce = false;
 			outfit.heldIdle = 0;
+			outfit.endSeen = true;
+			outfit.endedAt = now;
 			logger::info("wardrobe: {:08X}'s scene ended - dressed {} if AAF has not", id,
 				shy ? "at once (shy)" : std::format("within {}s", std::chrono::duration_cast<std::chrono::seconds>(wait).count()));
 		}
@@ -92,7 +97,11 @@ namespace RP
 		if (found == _outfits.end()) {
 			return;
 		}
-		auto& outfit = found->second;
+		auto&      outfit = found->second;
+		const auto now = Clock::now();
+		if (a_result != Checked::kHeld) {
+			outfit.heldIdle = 0;   // "in a row"
+		}
 		switch (a_result) {
 		case Checked::kWorn:
 		case Checked::kGone:
@@ -113,13 +122,16 @@ namespace RP
 			// actor's own: AAF's busy flag, and no scene AAF has been handed has them in it, look
 			// after look. Then the flag goes through AAF's own unlock (Bridge ReleaseActor).
 			outfit.freeOnce = false;
-			if (!idle) {
+			if (outfit.endSeen && now - outfit.endedAt < kJustEnded) {
+				outfit.nextLook = (std::min)(outfit.nextLook, now + kHeldSoon);
+			}
+			if (!idle || !outfit.endSeen) {
 				outfit.heldIdle = 0;
 			} else if (outfit.heldIdleLook != outfit.looks) {
 				outfit.heldIdleLook = outfit.looks;
-				if (++outfit.heldIdle >= kStaleHeldLooks) {
+				if (++outfit.heldIdle >= kStaleHeldLooks && now - outfit.endedAt >= kStaleAfter) {
 					outfit.heldIdle = 0;
-					outfit.nextLook = Clock::now() + kSecondLook;
+					outfit.nextLook = now + kSecondLook;
 					release = true;
 				}
 			}
@@ -217,6 +229,10 @@ namespace RP
 			auto& outfit = _outfits[actor];
 			outfit.pieces = std::move(pieces);
 			outfit.nextLook = first;
+			// Owed from a save: whatever scene took them ended before the load (AAF's scenes do
+			// not survive one), so a flag still on them after the evidence window is stale.
+			outfit.endSeen = true;
+			outfit.endedAt = Clock::now();
 		}
 		if (!_outfits.empty()) {
 			logger::info("wardrobe: {} actor(s) in this save are still owed clothes a scene took - checking them",
