@@ -19,7 +19,7 @@
 [CmdletBinding()]
 param(
     [string] $Base     = 'D:\F4CustomMods\PapyrusBase\Source\Base',
-    [string] $Compiler = 'D:\GOGGames\Fallout 4 GOTY\Papyrus Compiler\PapyrusCompiler.exe',
+    [string] $Compiler = 'D:\F4Tools\Papyrus Compiler\PapyrusCompiler.exe',
     [switch] $Quiet
 )
 
