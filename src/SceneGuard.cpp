@@ -105,6 +105,13 @@ namespace RP::SceneGuard
 			return;
 		}
 		auto scenes = ForeignScenes::GetSingleton().RunningScenes();
+		// Our own scene is not among them: ForeignScenes evicts its pair at OwnSceneStarted, so
+		// it is the running pair or nothing. Fo4-mcp 11-04: a corpse in our own scene, no stop.
+		const auto own = PapyrusLink::GetSingleton().RunningPair();
+		if ((own.first != 0 || own.second != 0) &&
+			std::ranges::none_of(scenes, [&](const Group& a_group) { return Contains(a_group, own.first) || Contains(a_group, own.second); })) {
+			scenes.push_back({ own.first, own.second });
+		}
 		const auto now = Clock::now();
 		{
 			std::lock_guard lock{ g_lock };
@@ -114,7 +121,6 @@ namespace RP::SceneGuard
 			return;
 		}
 
-		const auto own = PapyrusLink::GetSingleton().RunningPair();
 		const auto playerID = RE::PlayerCharacter::GetSingleton() ? RE::PlayerCharacter::GetSingleton()->GetFormID() : 0x14u;
 		std::vector<const RE::BGSScene*> talking;
 		bool                             talkingRead = false;
