@@ -258,10 +258,12 @@ namespace RP
 		{
 			return _cmkzRegions.find(a_letter) != std::string::npos;
 		}
-		[[nodiscard]] std::int32_t       OrderActorID() const noexcept { return _orderActor; }
-		[[nodiscard]] const std::string& OrderSetID() const noexcept { return _orderSet; }
-		[[nodiscard]] const std::string& OrderExtra() const noexcept { return _orderExtra; }
-		[[nodiscard]] std::int32_t       OrderVoice() const noexcept { return _orderVoice; }
+		// The order just taken, field by field: the bridge reads all four after TakeOverlayOrder,
+		// voice last, and reading the voice ends the handover (see TakeOverlayOrder).
+		[[nodiscard]] std::int32_t OrderActorID() const;
+		[[nodiscard]] std::string  OrderSetID() const;
+		[[nodiscard]] std::string  OrderExtra() const;
+		[[nodiscard]] std::int32_t OrderVoice();
 
 		// One line that says what has and has not happened. Logged periodically and
 		// on anything notable.
@@ -354,6 +356,9 @@ namespace RP
 		Order::Kind        _orderKind{};
 		std::deque<Order>  _cmkzOrders;
 		std::int32_t       _orderActor{ 0 };
+		// An order handed over and not yet fully read, and since when (TakeOverlayOrder).
+		bool                                  _orderUnread{ false };
+		std::chrono::steady_clock::time_point _orderTakenAt{};
 		std::string        _orderSet;
 		std::string        _orderExtra;
 		std::int32_t       _orderVoice{ 0 };

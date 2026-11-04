@@ -2608,6 +2608,27 @@ namespace RP
 	std::int32_t PapyrusLink::TakeOverlayOrder()
 	{
 		NamedLock lock{ _orderLock, "order queue" };
+		// ONE HANDOVER AT A TIME. The bridge takes an order, then reads its four fields with four
+		// more calls -- and two drains have overlapped: a second take (or the empty queue's reset
+		// below) rewrote the fields between those reads. Measured: a face asked with a bark's
+		// voice number for its set, a topic said as a face, and every scene guard stop of the
+		// 11-04 run delivered as "order: 00000000 no longer resolves" (Fo4-mcp, 0.2.24c). So a
+		// take while the last order is still being read hands out nothing; that drain ends and
+		// the next poll carries on. A reader that died mid-read gives way after kUnreadFor.
+		static constexpr auto kUnreadFor = std::chrono::seconds{ 2 };
+		if (_orderUnread) {
+			if (std::chrono::steady_clock::now() - _orderTakenAt < kUnreadFor) {
+				static std::atomic<std::int64_t> said{ 0 };
+				const auto secs = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+				if (secs - said.load() >= 30) {
+					said = secs;
+					logger::info("orders: a second drain asked while an order was still being read - it waits for the next poll");
+				}
+				return 0;
+			}
+			logger::warn("orders: an order handed over {}s ago was never fully read - the next one goes out", kUnreadFor.count());
+			_orderUnread = false;
+		}
 		if (_orders.empty()) {
 			_orderActor = 0;
 			_orderSet.clear();
@@ -2659,7 +2680,34 @@ namespace RP
 		_orderExtra = order.extra;
 		_orderVoice = static_cast<std::int32_t>(order.voice);
 		_orderKind = order.kind;
+		_orderUnread = true;
+		_orderTakenAt = std::chrono::steady_clock::now();
 		return static_cast<std::int32_t>(order.kind);
+	}
+
+	std::int32_t PapyrusLink::OrderActorID() const
+	{
+		NamedLock lock{ _orderLock, "order queue" };
+		return _orderActor;
+	}
+
+	std::string PapyrusLink::OrderSetID() const
+	{
+		NamedLock lock{ _orderLock, "order queue" };
+		return _orderSet;
+	}
+
+	std::string PapyrusLink::OrderExtra() const
+	{
+		NamedLock lock{ _orderLock, "order queue" };
+		return _orderExtra;
+	}
+
+	std::int32_t PapyrusLink::OrderVoice()
+	{
+		NamedLock lock{ _orderLock, "order queue" };
+		_orderUnread = false;
+		return _orderVoice;
 	}
 
 	void PapyrusLink::Release(std::uint32_t a_formID)
