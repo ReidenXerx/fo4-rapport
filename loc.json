@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "label": "code",
-  "message": "25.8k lines",
+  "message": "26.4k lines",
   "color": "informational",
   "_breakdown": {
     "JavaScript": 985,
@@ -9,11 +9,11 @@
     "Shell": 346,
     "Python": 5182,
     "PowerShell": 298,
-    "C++": 17331
+    "C++": 17873
   },
-  "_files": 151,
+  "_files": 153,
   "_top": [
-    "17.3k C++",
+    "17.9k C++",
     "5.2k Python"
   ]
 }
