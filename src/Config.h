@@ -105,7 +105,10 @@ namespace RP
 		// A load door waits for the AAF scenes in the player's cell to end (DoorHold). On by default.
 		bool          holdDoors{ true };
 		// Seconds the door still waits after the scenes have ended: AAF's own teardown.
-		float         doorSettleSeconds{ 2.0f };
+		float         doorSettleSeconds{ 1.0f };
+		// A running scene whose member dies, goes down, fights or is pulled into the player's
+		// conversation is asked to stop (SceneGuard). On by default.
+		bool          guardScenes{ true };
 
 		// ---- the AAF watchdog ------------------------------------------------
 		// How long AAF gets to come back on its own before Rapport restarts it.

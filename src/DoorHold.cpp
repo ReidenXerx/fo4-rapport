@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "ForeignScenes.h"
 #include "Orders.h"
+#include "Compat.h"
 #include "PapyrusLink.h"
 
 namespace RP::DoorHold
@@ -38,6 +39,21 @@ namespace RP::DoorHold
 		constexpr float kWalkAway = 300.0f;
 		constexpr auto  kMessage = "Rapport: Wrapping scene up for travel";   // alasdairn's wording, 10-27
 
+		// THE APPROACH (owner go, 11-05; WisdomTongue on Nexus: "you just have to stand there while
+		// moans come from somewhere off-screen"). AAF needs 0.7-12 s to end a scene, so the stop is
+		// asked for as the player comes up to a load door, facing it, rather than at the press: most
+		// of that time passes while they walk the last steps. And no new scene starts here meanwhile.
+		// Facing, because a town street is lined with shop doors (Diamond City) and walking past one
+		// must not end every scene in the market.
+		constexpr float kNear = 300.0f;
+		constexpr float kNearLeave = 450.0f;
+		constexpr float kRightAt = 120.0f;   // this close, any heading counts
+		constexpr float kFacing = 0.7f;      // cosine: within about 45 degrees of straight ahead
+		constexpr float kDoorHeight = 300.0f;
+		// Within this of a load door with a scene here, the bridge polls fast (PollSeconds), so the
+		// approach is seen in time: at the usual 3 s a running player covers the 300 u unseen.
+		constexpr float kWatch = 1000.0f;
+
 		struct Hold
 		{
 			bool                active{ false };
@@ -64,9 +80,37 @@ namespace RP::DoorHold
 		std::mutex        g_walkLock;   // never taken while g_lock is held, nor the other way round
 		std::vector<Walk> g_walks;
 
+		struct Approach
+		{
+			const RE::TESObjectCELL*  cell{ nullptr };
+			std::vector<RE::NiPoint3> doors;   // the load doors of the player's cell, read once per cell
+			bool                      near{ false };
+			std::vector<Group>        asked;   // scenes asked to stop on this approach
+		};
+		std::mutex       g_approachLock;   // taken before g_walkLock, never inside g_lock
+		Approach         g_approach;
+		std::atomic_bool g_near{ false };
+		std::atomic_bool g_watching{ false };
+
 		[[nodiscard]] bool IsLoadDoor(RE::TESObjectREFR* a_door)
 		{
 			return a_door->extraList && a_door->extraList->GetByType(RE::EXTRA_DATA_TYPE::kTeleport);
+		}
+
+		// The cell's load doors where they stand. Only the player's own cell: outdoors a door just
+		// over a cell border is missed here, and the press still holds it.
+		[[nodiscard]] std::vector<RE::NiPoint3> DoorsIn(RE::TESObjectCELL& a_cell)
+		{
+			std::vector<RE::NiPoint3>      doors;
+			RE::BSAutoLock<RE::BSSpinLock> lock{ a_cell.spinLock };
+			for (const auto& held : a_cell.references) {
+				auto* ref = held.get();
+				if (!ref || RP::Compat::Disabled(ref) || ref->IsDeleted() || !IsLoadDoor(ref)) {
+					continue;
+				}
+				doors.push_back(ref->data.location);
+			}
+			return doors;
 		}
 
 		// Here = what a load door unloads: the player's interior, or the outdoor worldspace they stand in.
@@ -178,6 +222,86 @@ namespace RP::DoorHold
 			PapyrusLink::GetSingleton().QueueOrders(stops);
 		}
 
+		void ApproachStep(const RE::PlayerCharacter& a_player, const std::unordered_set<std::uint32_t>& a_ghosts)
+		{
+			if (!Config::GetSingleton().holdDoors) {
+				g_near = false;
+				g_watching = false;
+				return;
+			}
+			auto*           cell = a_player.GetParentCell();
+			std::lock_guard lock{ g_approachLock };
+			if (cell != g_approach.cell) {
+				if (g_approach.near) {
+					logger::info("door approach: the player changed cell - new scenes may start again");
+				}
+				g_approach = {};
+				g_approach.cell = cell;
+				if (cell) {
+					g_approach.doors = DoorsIn(*cell);
+				}
+			}
+
+			const auto& at = a_player.data.location;
+			const float yaw = a_player.data.angle.z;
+			const float fx = std::sin(yaw);
+			const float fy = std::cos(yaw);
+			float       best = (std::numeric_limits<float>::max)();
+			bool        facing = false;
+			for (const auto& door : g_approach.doors) {
+				if (std::abs(door.z - at.z) > kDoorHeight) {
+					continue;   // another floor
+				}
+				const float dx = door.x - at.x;
+				const float dy = door.y - at.y;
+				const float dist = std::hypot(dx, dy);
+				if (dist < best) {
+					best = dist;
+					facing = dist <= kRightAt || (dx * fx + dy * fy) / dist >= kFacing;
+				}
+			}
+
+			std::vector<Group> here;
+			if (best <= kWatch) {
+				here = ScenesHere(a_player, a_ghosts);
+			}
+			const bool nearNow = best <= kNear && facing;
+			if (nearNow) {
+				if (!g_approach.near) {
+					logger::info("door approach: the player is {:.0f}u from a load door, facing it - {} scene(s) here asked to stop, and none starts here meanwhile",
+						best, here.size());
+				}
+				g_approach.near = true;
+				// Our own request AAF has not walked yet is not asked: a stop that early sends no end
+				// at all (10-28), and the bridge releases it before StartScene instead (DoorHeld).
+				// Once it walks, it is a scene here like any other and the next poll asks it.
+				const auto [first, second] = PapyrusLink::GetSingleton().InFlightPair();
+				const bool unwalked = OwnUnwalked();
+				std::vector<Group> fresh;
+				for (const auto& members : here) {
+					if (unwalked && (Contains(members, first) || Contains(members, second))) {
+						continue;
+					}
+					const bool asked = std::ranges::any_of(g_approach.asked, [&](const Group& a_asked) {
+						return std::ranges::any_of(members, [&](std::uint32_t a_id) { return Contains(a_asked, a_id); });
+					});
+					if (!asked) {
+						fresh.push_back(members);
+						g_approach.asked.push_back(members);
+					}
+				}
+				if (!fresh.empty()) {
+					AskToStop(fresh);
+				}
+			} else if (g_approach.near && (best > kNearLeave || !facing)) {
+				logger::info("door approach: the player turned or walked away from the door - new scenes may start here again");
+				g_approach.near = false;
+				g_approach.asked.clear();
+			}
+			g_near = g_approach.near;
+			g_watching = best <= kWatch && (g_approach.near || !here.empty());
+		}
+
 		bool Thunk(RE::TESObjectDOOR* a_this, RE::TESObjectREFR* a_door, RE::TESObjectREFR* a_actor,
 			RE::TESBoundObject* a_object, std::int32_t a_count)
 		{
@@ -245,6 +369,21 @@ namespace RP::DoorHold
 		return g_hold.active;
 	}
 
+	bool Near()
+	{
+		return g_near.load();
+	}
+
+	bool Watching()
+	{
+		return g_watching.load() || g_near.load() || Active();
+	}
+
+	bool InAnyScene(std::uint32_t a_actor)
+	{
+		return std::ranges::any_of(Tracked(), [&](const Group& a_group) { return Contains(a_group, a_actor); });
+	}
+
 	void Walking(const std::vector<std::uint32_t>& a_actors)
 	{
 		Group group;
@@ -294,6 +433,18 @@ namespace RP::DoorHold
 
 		Hold                              snapshot;
 		std::unordered_set<std::uint32_t> ghosts;
+		bool                              held = false;
+		{
+			std::lock_guard lock{ g_lock };
+			held = g_hold.active;
+			ghosts = g_ghosts;
+		}
+		if (!held) {
+			if (player) {
+				ApproachStep(*player, ghosts);
+			}
+			return;
+		}
 		{
 			std::lock_guard lock{ g_lock };
 			if (!g_hold.active) {

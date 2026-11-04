@@ -44,6 +44,11 @@ namespace RP
 		// From the bridge's pump, every poll: queue the looks that have come due.
 		void Pump();
 
+		// Their scene ended (any OnSceneEnd). The redress is due now: at once for a shy persona,
+		// within about a game hour for the rest (owner go, 11-05; Nexus 11-03: "3-4 butt naked NPCs
+		// walking around" Diamond City). AAF's own redress still goes first.
+		void SceneEnded(const std::vector<std::uint32_t>& a_actors);
+
 		// A load: the arriving save's outfits come from the co-save (Restore), so the world
 		// being left is forgotten first.
 		void Forget();
@@ -66,12 +71,22 @@ namespace RP
 			Clock::time_point  nextLook{};
 			std::uint32_t      looks{ 0 };    // looks queued, to give up on an outfit nobody resolves
 			bool               freeOnce{ false };
+			// Looks in a row that found AAF's busy flag on them with no scene of theirs anywhere.
+			std::uint32_t      heldIdle{ 0 };
+			std::uint32_t      heldIdleLook{ 0 };   // the look heldIdle last counted
 		};
 
 		// A scene lasts minutes; a look while AAF holds them costs one cheap stack per piece.
 		static constexpr auto kLookEvery = std::chrono::seconds{ 30 };
 		// After the first sighting free of AAF: long enough for AAF's own redress to land first.
 		static constexpr auto kSecondLook = std::chrono::seconds{ 10 };
+		// After their scene: a shy persona's first look, and the latest anyone else's comes. A game
+		// hour is 3 real minutes at the default timescale of 20.
+		static constexpr auto kShyLook = std::chrono::seconds{ 2 };
+		static constexpr auto kLatestLook = std::chrono::seconds{ 180 };
+		static constexpr auto kEarliestLook = std::chrono::seconds{ 20 };
+		// Looks in a row held by a flag no running scene explains before Rapport releases it.
+		static constexpr std::uint32_t kStaleHeldLooks = 2;
 		// Looks at a LOADED actor before an outfit nobody resolves is dropped (~1 h held by AAF).
 		static constexpr std::uint32_t kMaxLooks = 120;
 		static constexpr std::size_t   kMaxActors = 256;

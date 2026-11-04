@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.24 (2026-11-05)
+
+- A scene stops when one of its actors dies, is knocked down, starts fighting, or gets pulled into your conversation.
+- Walking up to a load door ends the scenes nearby early, so the door rarely makes you wait.
+- Actors are dressed again after their scene: shy ones at once, the rest within about a game hour.
+
 ## 0.2.23 (2026-10-28)
 
 - Doors wait a few seconds for a nearby scene to end instead of crashing. Walk away or open the Pip-Boy to cancel; HoldDoors = 0 in Rapport.ini turns it off.

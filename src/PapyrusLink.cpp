@@ -1,6 +1,7 @@
 #include "PapyrusLink.h"
 #include "FreeCam.h"
 #include "DoorHold.h"
+#include "SceneGuard.h"
 #include "Layout.h"
 #include "Placement.h"
 
@@ -74,9 +75,10 @@ namespace
 
 	float Papyrus_PollSeconds(std::monostate)
 	{
-		// A held door is a player waiting: poll fast until it opens (DoorHold.h).
+		// A held door is a player waiting, and a player walking up to a load door with a scene
+		// here must be seen in time: poll fast until it opens (DoorHold.h).
 		const auto seconds = RP::Config::GetSingleton().pollSeconds;
-		return RP::DoorHold::Active() ? (std::min)(seconds, 0.5f) : seconds;
+		return RP::DoorHold::Watching() ? (std::min)(seconds, 0.5f) : seconds;
 	}
 
 	// How many onlookers are free before the crowd penalty starts. Chemistry reads
@@ -597,16 +599,23 @@ namespace
 	void Papyrus_NoteSceneEndActors(std::monostate, const RE::BSScript::Variable* a_actors)
 	{
 		try {
-			RP::DoorHold::Ended(Ids(Members(a_actors)));
+			const auto ids = Ids(Members(a_actors));
+			RP::DoorHold::Ended(ids);
+			RP::Wardrobe::GetSingleton().SceneEnded(ids);
 		} catch (...) {
 			logger::critical("NoteSceneEndActors threw");
 		}
 	}
 
-	// The bridge asks before every StartScene: no scene starts while a door is held (DoorHold.h).
+	// The bridge asks before every StartScene: no scene starts while a door is held, nor while
+	// the player walks up to one -- unless it is the player's own (DoorHold.h).
 	bool Papyrus_DoorHeld(std::monostate)
 	{
-		return RP::DoorHold::Active();
+		if (RP::DoorHold::Active()) {
+			return true;
+		}
+		const auto [first, second] = RP::PapyrusLink::GetSingleton().InFlightPair();
+		return RP::DoorHold::Near() && first != 0x14 && second != 0x14;
 	}
 
 	bool Papyrus_RefusedOurScene(std::monostate, RE::BSFixedString a_why)
@@ -689,6 +698,7 @@ namespace
 			RP::Expressions::GetSingleton().Pump();
 			RP::ForeignScenes::GetSingleton().Pump();
 			RP::DoorHold::Pump();
+			RP::SceneGuard::Pump();
 			RP::FaceAuthority::GetSingleton().Pump();
 			RP::Barks::GetSingleton().Pump();
 			RP::Morphs::GetSingleton().Pump();
@@ -1770,6 +1780,11 @@ namespace RP
 			logger::info("request refused: the player is leaving through a door");
 			return refuse("the player is leaving through a door");
 		}
+		// Walking up to one, facing it: the scenes here were asked to stop (owner go, 11-05).
+		if (DoorHold::Near() && a_first->GetFormID() != 0x14 && a_second->GetFormID() != 0x14) {
+			logger::info("request refused: the player is at a load door");
+			return refuse("the player is at a load door");
+		}
 		// THE PLAYER'S LANE, here in the funnel every request passes -- addons and
 		// Rapport's own stand-in alike. It used to sit in the addon door only, and
 		// the stand-in (the autonomy of an install with Overture but no Chemistry)
@@ -1787,6 +1802,9 @@ namespace RP
 		// player's own request is exempt from the dialogue test: the NPC was talking
 		// to the player a moment ago because that is where its yes came from.
 		const bool playersOwn = a_first->GetFormID() == 0x14 || a_second->GetFormID() == 0x14;
+		// The player's conversation: who they talk to, and everyone standing in that scene with
+		// them (Nexus 11-04: Skinny Malone and Darla paired off mid-conversation with Nick).
+		const auto talking = playersOwn ? std::vector<const RE::BGSScene*>{} : SceneGuard::ConversationScenes();
 		for (auto* actor : { a_first, a_second }) {
 			if (actor->GetFormID() == 0x14) {
 				continue;
@@ -1808,6 +1826,8 @@ namespace RP
 				why = Story::LifeStateName(actor->lifeState);
 			} else if (!playersOwn && actor->talkingToPlayer) {
 				why = "is talking to the player";
+			} else if (!playersOwn && SceneGuard::InConversation(*actor, talking)) {
+				why = "is in the player's conversation";
 			} else if (!playersOwn && actor->boolFlags.any(RE::Actor::BOOL_FLAGS::kInRandomScene)) {
 				// Exempt for the player's own request as the dialogue test is: a vanilla greet
 				// scene (JohnGreetScene in the Diamond City salon) holds the NPC the player is
@@ -2092,6 +2112,7 @@ namespace RP
 		Morphs::GetSingleton().Forget();
 		// The world being left's outfits; the arriving save's come from its co-save (Ledger).
 		Wardrobe::GetSingleton().Forget();
+		SceneGuard::Forget();
 		// And the player's choices of orientation and persona: per save, from its co-save too.
 		Orientation::GetSingleton().ForgetChosen();
 		Barks::GetSingleton().ForgetChosenPersonas();

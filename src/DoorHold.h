@@ -25,6 +25,16 @@ namespace RP::DoorHold
 	// A door is held right now: the bridge polls fast and starts no scene.
 	[[nodiscard]] bool Active();
 
+	// The player is close to a load door and facing it: the scenes here were asked to stop,
+	// and no new one starts (owner go, 11-05).
+	[[nodiscard]] bool Near();
+	// A door is held, or the player is near a load door with a scene here: the bridge polls fast.
+	[[nodiscard]] bool Watching();
+
+	// This actor is in a scene AAF has been handed and not finished: walking, running, or our
+	// own request in flight (the same count the door uses).
+	[[nodiscard]] bool InAnyScene(std::uint32_t a_actor);
+
 	// AAF's walk began for these actors (any mod's scene; Bridge OnWalkInit).
 	void Walking(const std::vector<std::uint32_t>& a_actors);
 	// Their scene ended (OnSceneEnd, ours or not).

@@ -186,6 +186,10 @@ namespace RP
 		// start that carried any of this, that pair's next start gets none of it -- no
 		// style, no non-sex markers, AAF's own defaults alone -- until a scene of theirs
 		// starts. A scene never fails twice over Rapport's filters.
+		//
+		// IsShy: their persona is one of nonSex.allowedFor (reticent). The wardrobe dresses
+		// them at once after a scene (Wardrobe::SceneEnded).
+		[[nodiscard]] bool IsShy(std::uint32_t a_actor) const { return !ShyIn(a_actor, 0).empty(); }
 		[[nodiscard]] std::string ExcludeTagsFor(
 			std::string_view a_given, std::uint32_t a_first, std::uint32_t a_second,
 			std::string_view a_scenario) const;

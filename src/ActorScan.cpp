@@ -1,6 +1,7 @@
 #include "ActorScan.h"
 
 #include "Config.h"
+#include "SceneGuard.h"
 #include "Story.h"
 
 namespace
@@ -121,6 +122,8 @@ namespace RP
 		// Once per slice: the game's opening (Story.h) makes nobody a candidate. They are
 		// still counted as present, witnesses and loaded, as everyone always is.
 		const bool opening = Story::OpeningRunning();
+		// Once per slice too: the scenes the player is talking in (SceneGuard.h).
+		const auto talking = SceneGuard::ConversationScenes();
 
 		std::size_t sinceClock = 0;
 		while (_cursor < _handles.size()) {
@@ -173,7 +176,9 @@ namespace RP
 					// all: AAF_ActorBlocked) -- never paired.
 					++_counters.raceNotAllowed;
 					++_rejectedRaces[actor->race ? actor->race->GetFormID() : 0u];
-				} else if (actor->talkingToPlayer) {
+				} else if (SceneGuard::InConversation(*actor, talking)) {
+					// Talking to the player, or listening in the same scene: Darla and Nick while
+					// Skinny Malone talks (Nexus 11-04). talkingToPlayer is the speaker alone.
 					++_counters.inDialogue;
 				} else if (actor->boolFlags.any(RE::Actor::BOOL_FLAGS::kInRandomScene)) {
 					// Two NPCs in the middle of an ambient conversation. talkingToPlayer

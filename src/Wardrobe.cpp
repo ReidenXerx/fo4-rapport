@@ -1,7 +1,9 @@
 #include "Wardrobe.h"
 
+#include "DoorHold.h"
 #include "Orders.h"
 #include "PapyrusLink.h"
+#include "Scenarios.h"
 
 namespace RP
 {
@@ -51,8 +53,40 @@ namespace RP
 			outfit.pieces.size());
 	}
 
+	void Wardrobe::SceneEnded(const std::vector<std::uint32_t>& a_actors)
+	{
+		static std::mt19937 random{ std::random_device{}() };
+		const auto           now = Clock::now();
+		for (const auto id : a_actors) {
+			if (id == 0 || id == 0x14) {
+				continue;
+			}
+			// Read before our lock: the persona is Barks', behind its own.
+			const bool shy = Scenarios::GetSingleton().IsShy(id);
+			NamedLock  lock{ _lock, "wardrobe" };
+			const auto found = _outfits.find(id);
+			if (found == _outfits.end()) {
+				continue;
+			}
+			auto&      outfit = found->second;
+			const auto wait = shy ? std::chrono::duration_cast<Clock::duration>(kShyLook)
+			                      : std::chrono::duration_cast<Clock::duration>(std::chrono::seconds{
+									std::uniform_int_distribution<std::int64_t>{ kEarliestLook.count(), kLatestLook.count() }(random) });
+			outfit.nextLook = now + wait;
+			outfit.freeOnce = false;
+			outfit.heldIdle = 0;
+			logger::info("wardrobe: {:08X}'s scene ended - dressed {} if AAF has not", id,
+				shy ? "at once (shy)" : std::format("within {}s", std::chrono::duration_cast<std::chrono::seconds>(wait).count()));
+		}
+	}
+
 	void Wardrobe::OnChecked(std::uint32_t a_actor, std::uint32_t a_item, Checked a_result)
 	{
+		// AAF's busy flag with no scene of theirs anywhere: evidence for a stale flag, read before
+		// our lock (the scene count takes the door's).
+		const bool idle = a_result == Checked::kHeld && !DoorHold::InAnyScene(a_actor);
+		bool       release = false;
+		{
 		NamedLock  lock{ _lock, "wardrobe" };
 		const auto found = _outfits.find(a_actor);
 		if (found == _outfits.end()) {
@@ -73,16 +107,33 @@ namespace RP
 			outfit.nextLook = (std::min)(outfit.nextLook, Clock::now() + kSecondLook);
 			break;
 		case Checked::kHeld:
-			// A scene, or AAF's busy flag left on a dead one. The flag is not ours to judge here:
-			// Rapport releases a stale one the next time anything asks for this actor
-			// (PapyrusLink::NoteActorBusy), and the look after that finds them free.
+			// A scene, or AAF's busy flag left on a dead one. PapyrusLink::NoteActorBusy judges a
+			// stale flag only when no scene runs ANYWHERE -- in a town where scenes keep starting,
+			// never, and the actor walked the streets naked (Nexus 11-03). Here the evidence is the
+			// actor's own: AAF's busy flag, and no scene AAF has been handed has them in it, look
+			// after look. Then the flag goes through AAF's own unlock (Bridge ReleaseActor).
 			outfit.freeOnce = false;
+			if (!idle) {
+				outfit.heldIdle = 0;
+			} else if (outfit.heldIdleLook != outfit.looks) {
+				outfit.heldIdleLook = outfit.looks;
+				if (++outfit.heldIdle >= kStaleHeldLooks) {
+					outfit.heldIdle = 0;
+					outfit.nextLook = Clock::now() + kSecondLook;
+					release = true;
+				}
+			}
 			break;
 		case Checked::kNotLoaded:
 			break;
 		}
 		if (outfit.pieces.empty()) {
 			_outfits.erase(found);
+		}
+		}
+		if (release) {
+			logger::info("wardrobe: {:08X} still carries AAF's busy flag and no scene has them - released through AAF's unlock, then dressed", a_actor);
+			PapyrusLink::GetSingleton().QueueOrder(Order{ Order::Kind::kRelease, a_actor, {} });
 		}
 	}
 
