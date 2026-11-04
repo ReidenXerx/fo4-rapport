@@ -213,6 +213,10 @@ namespace RP
 				continue;
 			}
 
+			if (const auto flag = entry.find("private"); flag != entry.end() && flag->is_boolean()) {
+				scenario.goPrivate = flag->get<bool>();
+			}
+
 			for (const auto& raw : *stages) {
 				Stage stage;
 				stage.id = raw.value("id", std::string{});

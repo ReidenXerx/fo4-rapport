@@ -434,8 +434,9 @@ namespace
 	std::vector<float> Papyrus_SceneSpot(std::monostate, RE::Actor* a_slot0, RE::Actor* a_slot1, RE::BSFixedString a_position)
 	{
 		try {
+			auto& link = RP::PapyrusLink::GetSingleton();
 			return RP::Placement::ChooseSpot(a_slot0, a_slot1, a_position.empty() ? "" : a_position.c_str(),
-				RP::PapyrusLink::GetSingleton().InFlightRequest());
+				link.InFlightRequest(), link.InFlightScenario());
 		} catch (const std::exception& e) {
 			logger::critical("SceneSpot threw: {} - AAF's own spot stands", e.what());
 		} catch (...) {
@@ -602,6 +603,7 @@ namespace
 			const auto ids = Ids(Members(a_actors));
 			RP::DoorHold::Ended(ids);
 			RP::Wardrobe::GetSingleton().SceneEnded(ids);
+			RP::Placement::SceneEnded(ids);
 		} catch (...) {
 			logger::critical("NoteSceneEndActors threw");
 		}
@@ -2716,6 +2718,12 @@ namespace RP
 			return;
 		}
 		QueueOrder(Order{ Order::Kind::kRelease, a_formID, {} });
+	}
+
+	std::string PapyrusLink::InFlightScenario() const
+	{
+		NamedLock lock{ _counter, "request counter" };
+		return _sceneInFlight.load() ? _inFlightScenario : std::string{};
 	}
 
 	std::pair<std::uint32_t, std::uint32_t> PapyrusLink::InFlightPair() const

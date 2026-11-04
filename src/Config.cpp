@@ -121,6 +121,10 @@ namespace RP
 					holdDoors = !(value == "0" || value == "false" || value == "False");
 				} else if (key == "DoorSettleSeconds") {
 					doorSettleSeconds = Clamp<float>(std::stof(value), 0.0f, 20.0f);
+				} else if (key == "PrivateSpots") {
+					privateSpots = !(value == "0" || value == "false" || value == "False");
+				} else if (key == "PrivateSpotReach") {
+					privateSpotReach = Clamp<float>(std::stof(value), 100.0f, 2000.0f);
 				} else if (key == "GuardScenes") {
 					guardScenes = !(value == "0" || value == "false" || value == "False");
 				} else if (key == "PollSeconds") {

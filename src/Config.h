@@ -110,6 +110,13 @@ namespace RP
 		// conversation is asked to stop (SceneGuard). On by default.
 		bool          guardScenes{ true };
 
+		// A pair more people can see than the crowd tolerance walks to a spot fewer can, before
+		// the scene (Placement::PrivateSpot; owner go, 11-05). On by default.
+		bool          privateSpots{ true };
+		// How far, in units, that walk may go. AAF gives its walk walk_timeout seconds (10 as
+		// shipped) before it starts the animation wherever they are.
+		float         privateSpotReach{ 400.0f };
+
 		// ---- the AAF watchdog ------------------------------------------------
 		// How long AAF gets to come back on its own before Rapport restarts it.
 		// A normal load has it answering within a couple of seconds; this is

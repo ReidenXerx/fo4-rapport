@@ -284,6 +284,8 @@ namespace RP
 		[[nodiscard]] std::pair<std::uint32_t, std::uint32_t> InFlightPair() const;
 		// The same pair, only once AAF's OnSceneInit has come for it (0, 0 otherwise): DoorHold.
 		[[nodiscard]] std::pair<std::uint32_t, std::uint32_t> RunningPair() const;
+		// The scenario of the request in flight, or empty.
+		[[nodiscard]] std::string InFlightScenario() const;
 		void RestoreInFlightPair(std::uint32_t a_first, std::uint32_t a_second);
 
 		void OnBridgeReady(bool a_aafPresent);

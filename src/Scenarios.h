@@ -87,6 +87,9 @@ namespace RP
 		{
 			std::string        id;
 			std::vector<Stage> stages;
+			// A pair others can see walks to a private spot first (Placement::PrivateSpot). False
+			// where the scenario is already private: "athome" (owner go, 11-05).
+			bool               goPrivate{ true };
 
 			// Total of the stages that can actually be played. A skipped stage
 			// costs nothing, so this is what the scene should be asked to run for.

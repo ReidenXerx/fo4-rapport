@@ -23,6 +23,11 @@ namespace RP::Placement
 	// the actors stand where the scene plays). Called on Rapport's poll.
 	void Pump();
 
+	// A scene ended (any OnSceneEnd's actors). A pair that walked to a private spot is looked
+	// at 90 s and 180 s later: how far each stands from where they were before the walk --
+	// the evidence that their own AI took them back to their post (owner, 11-05).
+	void SceneEnded(const std::vector<std::uint32_t>& a_actors);
+
 	// STAGE 2 (owner, same day): where OUR scene should play. Asked by the bridge just before
 	// StartScene, with the actors in AAF's slot order (slot 0 is where AAF would put it).
 	//
@@ -42,6 +47,13 @@ namespace RP::Placement
 	// box reaches into the footprint (settlement builds and moved clutter, which the baked
 	// navmesh does not know). It must be REACHABLE: a straight walk from slot 0 stays on the
 	// navmesh. Every decision is one Rapport.log line.
+	//
+	// A PRIVATE SPOT comes first (owner go, 11-05; Nexus 11-03: "3-4 butt naked NPCs walking
+	// around" Diamond City; alasdairn: "couples trying to find a private spot rather than f***
+	// next to Power Noodles"). When more onlookers than the crowd tolerance can see the pair, a
+	// clear spot within PrivateSpotReach that no more than the tolerance can see is chosen, and
+	// AAF walks them there. Not for the player's scenes, not for a scenario marked "private":
+	// false (athome), not for two raiders.
 	[[nodiscard]] std::vector<float> ChooseSpot(RE::Actor* a_slot0, RE::Actor* a_slot1, std::string_view a_position,
-		std::int32_t a_request);
+		std::int32_t a_request, std::string_view a_scenario = {});
 }

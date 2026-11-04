@@ -1,5 +1,7 @@
 #include "Placement.h"
 
+#include "Config.h"
+#include "Scenarios.h"
 #include "TreeIndex.h"
 
 namespace RP::Placement
@@ -416,6 +418,37 @@ namespace RP::Placement
 		};
 		std::mutex           g_pendingLock;
 		std::vector<Pending> g_pending;
+
+		// Pairs walked to a private spot, and where they stood before it.
+		struct Walked
+		{
+			std::array<std::uint32_t, 2>                         ids{};
+			std::array<RE::NiPoint3, 2>                          from{};
+			std::int32_t                                         request{ 0 };
+			std::chrono::steady_clock::time_point                madeAt{};
+			std::optional<std::chrono::steady_clock::time_point> endedAt;
+			std::uint32_t                                        checks{ 0 };
+		};
+		constexpr auto        kBackFirst = std::chrono::seconds{ 90 };
+		constexpr auto        kBackSecond = std::chrono::seconds{ 180 };
+		constexpr auto        kWalkedForget = std::chrono::minutes{ 30 };
+		std::mutex            g_walkedLock;
+		std::vector<Walked>   g_walked;
+
+		void LookBack(Walked& a_walked, std::int64_t a_seconds)
+		{
+			std::string out;
+			for (std::size_t i = 0; i < 2; ++i) {
+				const auto* actor = RE::TESForm::GetFormByID<RE::Actor>(a_walked.ids[i]);
+				out += std::format("{}{:08X} ", i ? ", " : "", a_walked.ids[i]);
+				if (!actor || !actor->Get3D()) {
+					out += "not loaded";
+				} else {
+					out += std::format("{:.0f}u from where it stood", actor->GetPosition().GetDistance(a_walked.from[i]));
+				}
+			}
+			logger::info("private spot: request {}, {}s after the scene: {}", a_walked.request, a_seconds, out);
+		}
 	}
 
 	void RunSurvey(const std::vector<std::uint32_t>& a_actors, std::string_view a_position, std::string_view a_tags,
@@ -449,6 +482,38 @@ namespace RP::Placement
 		}
 		for (const auto& job : due) {
 			RunSurvey(job.actors, job.position, job.tags, job.ours);
+		}
+
+		const auto      now = std::chrono::steady_clock::now();
+		std::lock_guard lock{ g_walkedLock };
+		for (auto it = g_walked.begin(); it != g_walked.end();) {
+			if (!it->endedAt) {
+				it = now - it->madeAt > kWalkedForget ? g_walked.erase(it) : std::next(it);
+				continue;
+			}
+			const auto since = now - *it->endedAt;
+			if (it->checks == 0 && since >= kBackFirst) {
+				LookBack(*it, kBackFirst.count());
+				it->checks = 1;
+			} else if (it->checks == 1 && since >= kBackSecond) {
+				LookBack(*it, kBackSecond.count());
+				it = g_walked.erase(it);
+				continue;
+			}
+			++it;
+		}
+	}
+
+	void SceneEnded(const std::vector<std::uint32_t>& a_actors)
+	{
+		std::lock_guard lock{ g_walkedLock };
+		const auto      now = std::chrono::steady_clock::now();
+		for (auto& walked : g_walked) {
+			if (!walked.endedAt && std::ranges::any_of(a_actors, [&](std::uint32_t a_id) {
+					return a_id != 0 && (a_id == walked.ids[0] || a_id == walked.ids[1]);
+				})) {
+				walked.endedAt = now;
+			}
 		}
 	}
 
@@ -519,8 +584,375 @@ namespace RP::Placement
 			found.enclosing ? std::format(", {} enclosing piece(s) not counted", found.enclosing) : std::string{}, ours);
 	}
 
+	namespace
+	{
+		// ---- the private spot ---------------------------------------------------------------
+		//
+		// Who can SEE a spot is a line from an onlooker's eyes to the pair's middle, and Rapport
+		// has no engine raycast it trusts on every runtime (shared memory: the cell Pick id is
+		// wrong on AE). So sight is judged against the same bounds boxes Scan reads: a line
+		// through a solid box taller than a crouch and wider than a post is blocked. Precombined
+		// walls keep their references and boxes even without their own 3D, so they count.
+		constexpr std::uint32_t kRaiderFaction = 0x01CBED;   // Fallout4.esm RaiderFaction
+		constexpr float         kEyes = 110.0f;
+		constexpr float         kBodies = 50.0f;
+		constexpr float         kOccluderTall = 100.0f;
+		constexpr float         kOccluderWide = 80.0f;
+		constexpr float         kPrivateFirst = 150.0f;
+		constexpr float         kPrivateStep = 50.0f;
+		constexpr std::int32_t  kPrivateAngles = 24;
+		// A box this long on both sides is a building shell or a static collection's whole extent,
+		// open courtyards and arches included: it hides nothing by itself (microscope 11-05). A
+		// long thin one is a wall and still counts.
+		constexpr float         kOccluderHuge = 600.0f;
+		constexpr float         kOccluderThin = 60.0f;
+		// An onlooker more than this above or below sees through no floor: another storey.
+		constexpr float         kOtherStorey = 200.0f;
+		// The search runs on the bridge's stack as the scene starts: past this, they play in place.
+		constexpr auto          kPrivateBudget = std::chrono::milliseconds{ 50 };
+
+		struct Box
+		{
+			RE::NiPoint3 at;
+			float        c{ 1.0f }, s{ 0.0f };
+			float        minX{}, maxX{}, minY{}, maxY{}, minZ{}, maxZ{};
+
+			[[nodiscard]] RE::NiPoint3 Local(const RE::NiPoint3& a_p) const
+			{
+				const float dx = a_p.x - at.x;
+				const float dy = a_p.y - at.y;
+				return { dx * c - dy * s, dx * s + dy * c, a_p.z - at.z };
+			}
+			[[nodiscard]] bool Inside(const RE::NiPoint3& a_l) const
+			{
+				return a_l.x >= minX && a_l.x <= maxX && a_l.y >= minY && a_l.y <= maxY && a_l.z >= minZ && a_l.z <= maxZ;
+			}
+			// The segment a-b passes through the box (slab test in the box's own frame).
+			[[nodiscard]] bool Blocks(const RE::NiPoint3& a_from, const RE::NiPoint3& a_to) const
+			{
+				const auto p = Local(a_from);
+				const auto q = Local(a_to);
+				if (Inside(p) || Inside(q)) {
+					return false;   // a room shell around either end hides nothing
+				}
+				float      t0 = 0.0f, t1 = 1.0f;
+				const auto slab = [&](float a_p, float a_q, float a_min, float a_max) {
+					const float d = a_q - a_p;
+					if (std::fabs(d) < 1e-6f) {
+						return a_p >= a_min && a_p <= a_max;
+					}
+					float u = (a_min - a_p) / d;
+					float v = (a_max - a_p) / d;
+					if (u > v) {
+						std::swap(u, v);
+					}
+					t0 = (std::max)(t0, u);
+					t1 = (std::min)(t1, v);
+					return t0 <= t1;
+				};
+				return slab(p.x, q.x, minX, maxX) && slab(p.y, q.y, minY, maxY) && slab(p.z, q.z, minZ, maxZ);
+			}
+		};
+
+		[[nodiscard]] bool Raider(const RE::Actor* a_actor)
+		{
+			// Not cached as a null: a call before the forms exist must not make every raider a townsman.
+			static const RE::TESFaction* faction = nullptr;
+			if (!faction) {
+				faction = RE::TESForm::GetFormByID<RE::TESFaction>(kRaiderFaction);
+			}
+			return faction && a_actor && a_actor->IsInFaction(faction);
+		}
+
+		// Everyone who could look on: loaded, alive, awake people near the pair, not the two of
+		// them and not the player (the player's own eyes are theirs to point).
+		// Held, not borrowed: an actor can unload between this list and the last line-of-sight test.
+		[[nodiscard]] std::vector<RE::NiPointer<RE::Actor>> Onlookers(const RE::Actor* a_first, const RE::Actor* a_second,
+			const RE::NiPoint3& a_centre, float a_range)
+		{
+			std::vector<RE::NiPointer<RE::Actor>> out;
+			const auto* lists = RE::ProcessLists::GetSingleton();
+			const auto* player = RE::PlayerCharacter::GetSingleton();
+			if (!lists) {
+				return out;
+			}
+			const auto& config = Config::GetSingleton();
+			for (const auto& handle : lists->highActorHandles) {
+				auto actor = handle.get();
+				auto* raw = actor.get();
+				if (!raw || raw == a_first || raw == a_second || raw == player || !raw->Get3D() || raw->IsChild() ||
+					raw->IsDead(true) || raw->lifeState != 0 || !config.IsRaceAllowed(raw->race)) {
+					continue;
+				}
+				const auto p = raw->GetPosition();
+				if (p.GetDistance(a_centre) <= a_range && std::fabs(p.z - a_centre.z) <= kOtherStorey) {
+					out.push_back(std::move(actor));
+				}
+			}
+			return out;
+		}
+
+		[[nodiscard]] std::vector<Box> Occluders(const std::vector<RE::TESObjectCELL*>& a_cells, const RE::NiPoint3& a_centre,
+			float a_range)
+		{
+			std::vector<Box> boxes;
+			for (auto* cell : a_cells) {
+				RE::BSAutoLock<RE::BSSpinLock> lock{ cell->spinLock };
+				for (const auto& held : cell->references) {
+					auto* ref = held.get();
+					if (!ref || ref->Is(RE::ENUM_FORM_ID::kACHR) || RP::Compat::Disabled(ref) || ref->IsDeleted()) {
+						continue;
+					}
+					auto* base = ref->GetObjectReference();
+					if (!base || !Solid(base->GetFormType()) || Marker(base)) {
+						continue;
+					}
+					// A door may stand open; a tree or rock prop's box is mostly canopy and air.
+					const auto type = base->GetFormType();
+					if (type == RE::ENUM_FORM_ID::kDOOR || type == RE::ENUM_FORM_ID::kMSTT) {
+						continue;
+					}
+					const auto  pos = ref->GetPosition();
+					const auto& bd = base->boundData;
+					const float scale = ref->refScale ? static_cast<float>(ref->refScale) / 100.0f : 1.0f;
+					Box         box;
+					box.minX = bd.boundMin.x * scale, box.maxX = bd.boundMax.x * scale;
+					box.minY = bd.boundMin.y * scale, box.maxY = bd.boundMax.y * scale;
+					box.minZ = bd.boundMin.z * scale, box.maxZ = bd.boundMax.z * scale;
+					const float sideX = box.maxX - box.minX;
+					const float sideY = box.maxY - box.minY;
+					if (box.maxZ - box.minZ < kOccluderTall || (std::max)(sideX, sideY) < kOccluderWide) {
+						continue;
+					}
+					if (sideX > kOccluderHuge && sideY > kOccluderHuge) {
+						continue;   // a shell, not a wall
+					}
+					if ((sideX > kOccluderHuge || sideY > kOccluderHuge) && (std::min)(sideX, sideY) > kOccluderThin) {
+						continue;   // a long block of a building, not a wall: courtyards pass through it
+					}
+					const float half = std::hypot((std::max)(std::fabs(box.minX), std::fabs(box.maxX)),
+						(std::max)(std::fabs(box.minY), std::fabs(box.maxY)));
+					if (std::hypot(pos.x - a_centre.x, pos.y - a_centre.y) > a_range + half) {
+						continue;
+					}
+					box.at = pos;
+					box.c = std::cos(-ref->data.angle.z);
+					box.s = std::sin(-ref->data.angle.z);
+					boxes.push_back(box);
+				}
+			}
+			return boxes;
+		}
+
+		// How many onlookers within a_range see a spot whose floor is a_floor; counting stops at
+		// a_enough, past which the answer no longer matters.
+		[[nodiscard]] std::uint32_t Seen(const std::vector<RE::NiPointer<RE::Actor>>& a_onlookers, const std::vector<Box>& a_boxes,
+			const RE::NiPoint3& a_spot, float a_floor, float a_range, std::uint32_t a_enough = (std::numeric_limits<std::uint32_t>::max)())
+		{
+			const RE::NiPoint3 bodies{ a_spot.x, a_spot.y, a_floor + kBodies };
+			std::uint32_t      seen = 0;
+			for (const auto& onlooker : a_onlookers) {
+				if (seen >= a_enough) {
+					break;
+				}
+				auto eyes = onlooker->GetPosition();
+				if (eyes.GetDistance(bodies) > a_range) {
+					continue;
+				}
+				eyes.z += kEyes;
+				if (std::ranges::none_of(a_boxes, [&](const Box& a_box) { return a_box.Blocks(eyes, bodies); })) {
+					++seen;
+				}
+			}
+			return seen;
+		}
+
+		// The pair's private spot, or nothing: they are not seen by more than the tolerance,
+		// the rule does not apply, or nowhere within reach is better.
+		[[nodiscard]] std::vector<float> PrivateSpot(RE::Actor* a_slot0, RE::Actor* a_slot1, std::int32_t a_request,
+			std::string_view a_scenario, float a_radius)
+		{
+			const auto& config = Config::GetSingleton();
+			if (!config.privateSpots || !a_slot1) {
+				return {};
+			}
+			const auto* player = RE::PlayerCharacter::GetSingleton();
+			if (a_slot0 == player || a_slot1 == player) {
+				return {};
+			}
+			if (!a_scenario.empty()) {
+				if (const auto* scenario = Scenarios::GetSingleton().Find(a_scenario); scenario && !scenario->goPrivate) {
+					logger::info("private spot: request {}: '{}' is private already - they play where they are", a_request, a_scenario);
+					return {};
+				}
+			}
+			if (Raider(a_slot0) && Raider(a_slot1)) {
+				logger::info("private spot: request {}: two raiders - they play where they are", a_request);
+				return {};
+			}
+
+			const auto&  weights = config.Weights();
+			const float  range = weights.observerRadius;
+			const auto   tolerance = weights.observerTolerance;
+			const float  reach = config.privateSpotReach;
+			const auto   p0 = a_slot0->GetPosition();
+			const auto   p1 = a_slot1->GetPosition();
+			const RE::NiPoint3 from{ (p0.x + p1.x) * 0.5f, (p0.y + p1.y) * 0.5f, (std::min)(p0.z, p1.z) };
+
+			const auto onlookers = Onlookers(a_slot0, a_slot1, from, range + reach);
+			if (onlookers.size() <= tolerance) {
+				logger::info("private spot: request {}: {} onlooker(s) within {:.0f}u on their floor (tolerance {}) - they play where they are",
+					a_request, onlookers.size(), range + reach, tolerance);
+				return {};
+			}
+
+			// The pair's cells and every onlooker's: outdoors the spot behind a building is often
+			// in the next cell, and an onlooker's cell is loaded by definition.
+			std::vector<RE::TESObjectCELL*> cells;
+			std::vector<std::pair<int, int>> squares;
+			const bool outdoors = a_slot0->GetParentCell() && !a_slot0->GetParentCell()->IsInterior();
+			constexpr float kCellSize = 4096.0f;
+			const auto add = [&](RE::Actor* a_actor) {
+				auto* cell = a_actor->GetParentCell();
+				if (cell && std::ranges::find(cells, cell) == cells.end()) {
+					cells.push_back(cell);
+				}
+				const auto p = a_actor->GetPosition();
+				const std::pair<int, int> square{ static_cast<int>(std::floor(p.x / kCellSize)), static_cast<int>(std::floor(p.y / kCellSize)) };
+				if (std::ranges::find(squares, square) == squares.end()) {
+					squares.push_back(square);
+				}
+			};
+			add(a_slot0);
+			add(a_slot1);
+			for (const auto& onlooker : onlookers) {
+				add(onlooker.get());
+			}
+			const auto insideSquares = [&](float a_x, float a_y, float a_r) {
+				if (!outdoors) {
+					return true;
+				}
+				for (const float dx : { -a_r, a_r }) {
+					for (const float dy : { -a_r, a_r }) {
+						const std::pair<int, int> square{ static_cast<int>(std::floor((a_x + dx) / kCellSize)),
+							static_cast<int>(std::floor((a_y + dy) / kCellSize)) };
+						if (std::ranges::find(squares, square) == squares.end()) {
+							return false;
+						}
+					}
+				}
+				return true;
+			};
+
+			const auto boxes = Occluders(cells, from, range + reach);
+			const auto seenHere = Seen(onlookers, boxes, from, from.z, range);
+			if (seenHere <= tolerance) {
+				logger::info("private spot: request {}: {} onlooker(s) near, {} can see them (tolerance {}) - they play where they are",
+					a_request, onlookers.size(), seenHere, tolerance);
+				return {};
+			}
+
+			std::string why;
+			auto        tris = Navmesh(cells, why);
+			const float box = reach + a_radius + 60.0f;
+			std::erase_if(tris, [&](const Tri& t) {
+				const float minX = (std::min)({ t.a.x, t.b.x, t.c.x }), maxX = (std::max)({ t.a.x, t.b.x, t.c.x });
+				const float minY = (std::min)({ t.a.y, t.b.y, t.c.y }), maxY = (std::max)({ t.a.y, t.b.y, t.c.y });
+				return maxX < from.x - box || minX > from.x + box || maxY < from.y - box || minY > from.y + box;
+			});
+			if (tris.empty()) {
+				logger::info("private spot: request {}: {} can see them, but {} - they play where they are", a_request, seenHere,
+					why.empty() ? "no navmesh within reach" : why);
+				return {};
+			}
+
+			struct Best
+			{
+				RE::NiPoint3  spot{};
+				std::uint32_t seen{ 0 };
+				float         distance{ 0.0f };
+			};
+			std::optional<Best> best;
+			std::uint32_t       tried = 0, clear = 0;
+			bool                outOfTime = false;
+			const auto          started = std::chrono::steady_clock::now();
+			for (float d = kPrivateFirst; d <= reach && !outOfTime; d += kPrivateStep) {
+				for (std::int32_t k = 0; k < kPrivateAngles; ++k) {
+					if (std::chrono::steady_clock::now() - started > kPrivateBudget) {
+						outOfTime = true;
+						break;
+					}
+					const float a = kPi * 2.0f * static_cast<float>(k) / static_cast<float>(kPrivateAngles);
+					const float x = from.x + d * std::cos(a);
+					const float y = from.y + d * std::sin(a);
+					++tried;
+					if (!insideSquares(x, y, a_radius)) {
+						continue;
+					}
+					std::string reason;
+					const auto  floor = FootprintOnFloor(tris, x, y, from.z, a_radius, reason);
+					if (!floor) {
+						continue;
+					}
+					const RE::NiPoint3 spot{ x, y, *floor };
+					// Cheapest test first. A spot no better than the best so far is not worth more.
+					const auto seen = Seen(onlookers, boxes, spot, *floor, range, best ? best->seen : seenHere);
+					if (seen >= (best ? best->seen : seenHere)) {
+						continue;
+					}
+					// A straight walk on the navmesh: no spot behind a wall or across water. AAF's
+					// walk would path round, but its 10 s does not wait for a detour.
+					if (!Reachable(tris, from, x, y)) {
+						continue;
+					}
+					if (Scan(cells, spot, *floor, a_radius, false).Blocking() > 0) {
+						continue;
+					}
+					++clear;
+					best = Best{ spot, seen, d };
+				}
+				// The nearest ring with a spot the tolerance allows wins: a short walk.
+				if (best && best->seen <= tolerance) {
+					break;
+				}
+			}
+			// Worth the walk only when it is private, or hides them from at least half: a spot seen
+			// by 4 instead of 6 is still in the open (Fo4-mcp 11-05, request 3).
+			if (best && best->seen > tolerance && best->seen * 2 > seenHere) {
+				logger::info("private spot: request {}: {} of {} onlooker(s) can see them; the best spot within {:.0f}u is still seen "
+							 "by {} - not worth the walk, they play where they are",
+					a_request, seenHere, onlookers.size(), reach, best->seen);
+				return {};
+			}
+			if (!best || best->seen >= seenHere) {
+				logger::info("private spot: request {}: {} of {} onlooker(s) can see them, and no clear, walkable spot within {:.0f}u "
+							 "is better ({} tried, {} better{}) - they play where they are",
+					a_request, seenHere, onlookers.size(), reach, tried, clear, outOfTime ? ", out of time" : "");
+				return {};
+			}
+			const float facing = a_slot0->data.angle.z * 180.0f / kPi;
+			logger::info("private spot: request {}: {} of {} onlooker(s) can see them where they stand - they walk {:.0f}u to "
+						 "({:.0f}, {:.0f}, {:.0f}), seen by {} ({} tried, {} clear, {} occluder(s), {} cell(s))",
+				a_request, seenHere, onlookers.size(), best->distance, best->spot.x, best->spot.y, best->spot.z, best->seen,
+				tried, clear, boxes.size(), cells.size());
+			{
+				std::scoped_lock lock{ g_lock };
+				g_chosen = Chosen{ PairKey({ a_slot0->GetFormID(), a_slot1->GetFormID() }), best->spot, a_request };
+			}
+			{
+				std::lock_guard lock{ g_walkedLock };
+				if (g_walked.size() >= 8) {
+					g_walked.erase(g_walked.begin());
+				}
+				g_walked.push_back(Walked{ { a_slot0->GetFormID(), a_slot1->GetFormID() }, { p0, p1 }, a_request,
+					std::chrono::steady_clock::now(), std::nullopt, 0 });
+			}
+			return { best->spot.x, best->spot.y, best->spot.z, facing };
+		}
+	}
+
 	std::vector<float> ChooseSpot(RE::Actor* a_slot0, RE::Actor* a_slot1, std::string_view a_position,
-		std::int32_t a_request)
+		std::int32_t a_request, std::string_view a_scenario)
 	{
 		if (!a_slot0 || !a_slot0->GetParentCell()) {
 			return {};
@@ -534,6 +966,10 @@ namespace RP::Placement
 		}
 		const auto  from = a_slot0->GetPosition();
 		const float radius = RadiusFor(a_position, "");
+
+		if (auto away = PrivateSpot(a_slot0, a_slot1, a_request, a_scenario, radius); !away.empty()) {
+			return away;
+		}
 
 		std::vector<RE::TESObjectCELL*> cells{ a_slot0->GetParentCell() };
 		if (a_slot1 && a_slot1->GetParentCell() && a_slot1->GetParentCell() != cells.front()) {
