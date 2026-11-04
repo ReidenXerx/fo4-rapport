@@ -4,7 +4,8 @@
 
 - A scene stops when one of its actors dies, is knocked down, starts fighting, or gets pulled into your conversation.
 - Walking up to a load door ends the scenes nearby early, so the door rarely makes you wait.
-- Actors are dressed again after their scene: shy ones at once, the rest within about a game hour.
+- Actors are dressed again after their scene: shy ones at once, the rest within a minute or so.
+- Fixed faces, overlays and scene stops that were sometimes lost on their way to AAF.
 
 ## 0.2.23 (2026-10-28)
 
