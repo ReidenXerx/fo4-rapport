@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.25 (2026-11-08)
+
+- Private spots: when a crowd can see them, a pair walks to a nearby spot out of sight before their scene. Scenes at home and between raiders still play where they are.
+- PrivateSpots = 0 in Rapport.ini turns it off; PrivateSpotReach sets how far they may walk (400 by default).
+
 ## 0.2.24 (2026-11-05)
 
 - A scene stops when one of its actors dies, is knocked down, starts fighting, or gets pulled into your conversation.
