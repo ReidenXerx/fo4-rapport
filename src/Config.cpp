@@ -127,6 +127,8 @@ namespace RP
 					privateSpotReach = Clamp<float>(std::stof(value), 100.0f, 2000.0f);
 				} else if (key == "GuardScenes") {
 					guardScenes = !(value == "0" || value == "false" || value == "False");
+				} else if (key == "ForeignScenesFollowRules") {
+					foreignScenesFollowRules = !(value == "0" || value == "false" || value == "False");
 				} else if (key == "PollSeconds") {
 					pollSeconds = Clamp(std::stof(value), 1.0f, 30.0f);
 				} else if (key == "DryRun") {

@@ -109,6 +109,10 @@ namespace RP
 		// A running scene whose member dies, goes down, fights or is pulled into the player's
 		// conversation is asked to stop (SceneGuard). On by default.
 		bool          guardScenes{ true };
+		// Another mod's NPC-controlled scene of NPCs only follows Rapport's rules -- orientation
+		// (R-27) and adults only -- or is asked to stop (owner, 11-09: "all mods that pair npcs
+		// do it only using rapport"). On by default.
+		bool          foreignScenesFollowRules{ true };
 
 		// A pair more people can see than the crowd tolerance walks to a spot fewer can, before
 		// the scene (Placement::PrivateSpot; owner go, 11-05). On by default.

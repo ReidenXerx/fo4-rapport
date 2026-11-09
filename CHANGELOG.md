@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.26 (2026-11-09)
+
+- Sex scenes other mods start between NPCs now follow Rapport's rules: nobody is paired against their orientation, and never a child. A scene that breaks them stops as it begins.
+- ForeignScenesFollowRules = 0 in Rapport.ini turns it off.
+
 ## 0.2.25 (2026-11-08)
 
 - Private spots: when a crowd can see them, a pair walks to a nearby spot out of sight before their scene. Scenes at home and between raiders still play where they are.

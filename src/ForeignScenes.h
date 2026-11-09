@@ -80,6 +80,10 @@ namespace RP
 
 		// The members of every scene that has begun and not ended, one list per scene (DoorHold).
 		[[nodiscard]] std::vector<std::vector<std::uint32_t>> RunningScenes() const;
+		// The same, only the scenes AAF was told run themselves (isNPCControlled) and whose
+		// animation names an act: another mod's ambient pairing, never the AAF menu's, which
+		// the player steers, and never a hug or a dance (SceneGuard).
+		[[nodiscard]] std::vector<std::vector<std::uint32_t>> NpcControlledScenes() const;
 
 		// A load or a new game. No scene survives one, and the faces they left are the
 		// wearing list's to clear -- this only forgets.

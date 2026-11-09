@@ -662,6 +662,36 @@ namespace RP
 		return out;
 	}
 
+	std::vector<std::vector<std::uint32_t>> ForeignScenes::NpcControlledScenes() const
+	{
+		std::vector<std::vector<std::uint32_t>> out;
+		NamedLock lock{ _lock, "foreign scenes" };
+		if (!lock) {
+			return out;
+		}
+		for (const auto& [location, scene] : _scenes) {
+			// Only once an animation names an act (the face table: kissing up), and not one its
+			// author tagged NONSEX: a hug, a dance or a wrestle another mod plays is no pairing.
+			// Fo4-mcp 11-09: "(CHAK) *Staged* Hugs" (LOVING, FOREPLAY, NONSEX) got a kiss face and
+			// was stopped.
+			if (!scene.started || scene.ended || !scene.npcControlled || scene.liveAct.empty()) {
+				continue;
+			}
+			{
+				std::string tags = scene.liveAct;
+				std::ranges::transform(tags, tags.begin(), [](unsigned char a_c) { return static_cast<char>(std::tolower(a_c)); });
+				if (tags.find("nonsex") != std::string::npos) {
+					continue;
+				}
+			}
+			auto& ids = out.emplace_back();
+			for (const auto& member : scene.members) {
+				ids.push_back(member.formID);
+			}
+		}
+		return out;
+	}
+
 	void ForeignScenes::OwnSceneStarted(std::uint32_t a_first, std::uint32_t a_second)
 	{
 		std::vector<Member> ours;

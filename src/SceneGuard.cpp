@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "ForeignScenes.h"
 #include "Orders.h"
+#include "Orientation.h"
 #include "PapyrusLink.h"
 
 namespace RP::SceneGuard
@@ -61,9 +62,45 @@ namespace RP::SceneGuard
 				return "is down";
 			case State::kBleedout:
 				return "is bleeding out";
-			default:
+				default:
 				return {};
 			}
+		}
+
+		// Another mod paired these NPCs on its own. Rapport's rules for a pairing, as RequestScene
+		// applies them to every addon: adults only, and each of them wants at least one other
+		// person there (R-27; a pair = both want each other; owner default A, 11-09).
+		[[nodiscard]] std::string BreaksRules(const Group& a_members, std::uint32_t& a_who)
+		{
+			std::vector<RE::Actor*> here;
+			for (const auto id : a_members) {
+				auto* actor = ActorOf(id);
+				// The dead count for nobody: a body is no partner who wants anything (review 11-09).
+				if (!actor || !actor->Get3D() || Dead(*actor)) {
+					continue;
+				}
+				if (actor->IsChild()) {
+					a_who = id;
+					return "is a child - never";
+				}
+				here.push_back(actor);
+			}
+			if (here.size() < 2) {
+				return {};
+			}
+			const auto& orientation = Orientation::GetSingleton();
+			for (auto* who : here) {
+				const bool wantsSomebody = std::ranges::any_of(here, [&](RE::Actor* a_other) {
+					return a_other != who && orientation.Attracted(who, a_other);
+				});
+				if (!wantsSomebody) {
+					a_who = who->GetFormID();
+					auto* other = here[here[0] == who ? 1 : 0];
+					return here.size() == 2 ? orientation.WhyNot(who, other)
+					                        : std::format("{} - nobody in the scene is their type", orientation.WhyNot(who, other));
+				}
+			}
+			return {};
 		}
 	}
 
@@ -109,10 +146,17 @@ namespace RP::SceneGuard
 
 	void Pump()
 	{
-		if (!Config::GetSingleton().guardScenes) {
+		const auto& config = Config::GetSingleton();
+		if (!config.guardScenes && !config.foreignScenesFollowRules) {
 			return;
 		}
 		auto scenes = ForeignScenes::GetSingleton().RunningScenes();
+		auto ambient = config.foreignScenesFollowRules ? ForeignScenes::GetSingleton().NpcControlledScenes()
+		                                               : std::vector<Group>{};
+		for (auto& members : ambient) {
+			std::erase(members, 0u);
+			std::ranges::sort(members);
+		}
 		// Our own scene is not among them: ForeignScenes evicts its pair at OwnSceneStarted, so
 		// it is the running pair or nothing. Fo4-mcp 11-04: a corpse in our own scene, no stop.
 		const auto own = PapyrusLink::GetSingleton().RunningPair();
@@ -163,6 +207,14 @@ namespace RP::SceneGuard
 			std::uint32_t   who = 0;
 			RE::Actor*      living = nullptr;
 			RE::Actor*      fallen = nullptr;
+			bool            rules = false;
+			if (!ours && std::ranges::find(ambient, members) != ambient.end()) {
+				why = BreaksRules(members, who);
+				rules = !why.empty();
+			}
+			if (!config.guardScenes && !rules) {
+				continue;
+			}
 			for (const auto id : members) {
 				auto* actor = ActorOf(id);
 				if (!actor || !actor->Get3D()) {
@@ -210,7 +262,7 @@ namespace RP::SceneGuard
 			}
 			stops.push_back(Order{ Order::Kind::kStopScene, target->GetFormID(), {} });
 			logger::info("scene guard: {:08X} {} - asking AAF to stop the scene ({} member(s), {}){}", who, why,
-				members.size(), ours ? "Rapport's" : "another mod's",
+				members.size(), ours ? "Rapport's" : rules ? "another mod's NPC pairing, against Rapport's rules" : "another mod's",
 				asked ? std::format(" - ask {} of {}, the last one went unanswered", asked + 1, kMaxAsks) : std::string{});
 			std::lock_guard lock{ g_lock };
 			if (const auto found = std::ranges::find(g_stopped, members, &Stopped::members); found != g_stopped.end()) {
