@@ -1,5 +1,6 @@
 #include "Expressions.h"
 
+#include "McmSettings.h"
 #include "PapyrusLink.h"
 #include "TreeIndex.h"
 
@@ -613,6 +614,11 @@ namespace RP
 		return -1;
 	}
 
+	namespace
+	{
+		[[nodiscard]] bool SweatOn();
+	}
+
 	std::string Expressions::HeatSetFor(int a_level)
 	{
 		if (a_level <= 0 || a_level > kHeatLevels) {
@@ -650,9 +656,10 @@ namespace RP
 			}
 		}
 
-		logger::info("expressions: skin {} -> {} (scenario)",
+		logger::info("expressions: skin {} -> {} (scenario){}",
 			_heatApplied.empty() ? "(none)" : _heatApplied.c_str(),
-			heat.empty() ? "(none)" : heat.c_str());
+			heat.empty() ? "(none)" : heat.c_str(),
+			SweatOn() ? "" : " - sweat is off in MCM, nothing put on");
 		_heatApplied = std::move(heat);
 		_heatLevel = level;
 	}
@@ -684,9 +691,10 @@ namespace RP
 		}
 
 		if (shift) {
-			logger::info("expressions: skin {} -> {}",
+			logger::info("expressions: skin {} -> {}{}",
 				_heatApplied.empty() ? "(none)" : _heatApplied.c_str(),
-				heat.empty() ? "(none)" : heat.c_str());
+				heat.empty() ? "(none)" : heat.c_str(),
+				SweatOn() ? "" : " - sweat is off in MCM, nothing put on");
 			_heatApplied = std::move(heat);
 			_heatLevel = level;
 		}
@@ -917,10 +925,30 @@ namespace RP
 		return 0;
 	}
 
+	namespace
+	{
+		// MCM Aftermath > Sweat (olaffdb, Nexus 11-11: "doesn't look good on my DLSS config").
+		// On as shipped. Read at most every few seconds: the MCM file is the player's.
+		[[nodiscard]] bool SweatOn()
+		{
+			static std::atomic<std::int64_t> readAt{ (std::numeric_limits<std::int64_t>::min)() / 2 };
+			static std::atomic<bool>         on{ true };
+			const auto now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+			if (now - readAt.load() >= 5) {
+				on = McmSettings::ModSetting("Rapport", "bSweat:Aftermath").value_or(1.0) != 0.0;
+				readAt = now;
+			}
+			return on.load();
+		}
+	}
+
 	void Expressions::ClimbHeat(std::uint32_t a_formID, int a_level, std::vector<Order>& a_out)
 	{
 		if (a_formID == 0 || a_level <= 0) {
 			return;   // -1 leaves the skin alone, and 0 puts nothing on
+		}
+		if (!SweatOn()) {
+			return;   // the player turned sweat off: nothing new goes on (what is on still comes off)
 		}
 		const auto on = _heatOn.find(a_formID);
 		const int  wearing = on != _heatOn.end() ? LevelOfHeat(on->second) : 0;

@@ -119,6 +119,8 @@ namespace RP
 					freeCamera = !(value == "0" || value == "false" || value == "False");
 				} else if (key == "HoldDoors") {
 					holdDoors = !(value == "0" || value == "false" || value == "False");
+				} else if (key == "HoldFastTravel") {
+					holdFastTravel = !(value == "0" || value == "false" || value == "False");
 				} else if (key == "DoorSettleSeconds") {
 					doorSettleSeconds = Clamp<float>(std::stof(value), 0.0f, 20.0f);
 				} else if (key == "PrivateSpots") {

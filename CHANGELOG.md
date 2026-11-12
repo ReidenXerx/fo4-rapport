@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.27 (2026-11-12)
+
+- Fast travel waits while an AAF scene runs nearby, and briefly after it ends, instead of crashing. Opening the Pip-Boy there wraps the scene up; HoldFastTravel = 0 in Rapport.ini turns it off.
+- New MCM options (Aftermath): turn sweat off, and set how many layers each mark gets (1-3).
+
 ## 0.2.26 (2026-11-09)
 
 - Sex scenes other mods start between NPCs now follow Rapport's rules: nobody is paired against their orientation, and never a child. A scene that breaks them stops as it begins.

@@ -104,6 +104,9 @@ namespace RP
 
 		// A load door waits for the AAF scenes in the player's cell to end (DoorHold). On by default.
 		bool          holdDoors{ true };
+		// Fast travel waits while an AAF scene runs where the player is, and a little after
+		// (DoorHold's travel hold; Fo4-mcp 11-09: fast travel next to a scene crashed). On.
+		bool          holdFastTravel{ true };
 		// Seconds the door still waits after the scenes have ended: AAF's own teardown.
 		float         doorSettleSeconds{ 1.0f };
 		// A running scene whose member dies, goes down, fights or is pulled into the player's

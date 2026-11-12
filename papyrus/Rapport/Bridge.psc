@@ -46,6 +46,7 @@ Request[] _inFlight
 Actor[] _lookers
 Bool _ready = false
 InputEnableLayer _cameraLayer = None   ; the free camera's own layer (kind 35 "probe"/"release")
+InputEnableLayer _travelLayer = None   ; the travel hold's own layer (kind 37 "lock"/"unlock")
 String _allMorphIDs = ""
 
 ;---------------------------------------------------------------------------
@@ -1183,6 +1184,28 @@ Function DoOrder(Int aiKind, Int aiFormID, String asSetID, String asExtra, Int a
 
 	; The player's view for the free camera (the plugin's FreeCam). No AAF call. The plugin's
 	; own camera call did not take on a player AAF holds; this one does, mid-scene.
+	; Fast travel off or back on while an AAF scene runs where the player is (the plugin's
+	; DoorHold travel hold). No AAF call. A layer of our own, so a quest's own lock stands.
+	If aiKind == 37
+		If asSetID == "lock"
+			If _travelLayer == None
+				_travelLayer = InputEnableLayer.Create()
+			EndIf
+			If _travelLayer == None
+				Rapport:Core.Trace("travel hold: no input layer to be had - fast travel stays as it is")
+			Else
+				_travelLayer.EnableFastTravel(false)
+				Rapport:Core.Trace("travel hold: fast travel off while a scene runs here")
+			EndIf
+		ElseIf _travelLayer != None
+			_travelLayer.EnableFastTravel(true)
+			_travelLayer.Delete()
+			_travelLayer = None
+			Rapport:Core.Trace("travel hold: fast travel back on")
+		EndIf
+		Return
+	EndIf
+
 	If aiKind == 35
 		If asSetID == "first"
 			Game.ForceFirstPerson()

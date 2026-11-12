@@ -463,6 +463,31 @@
             "step": 1,
             "sourceType": "ModSettingInt"
           }
+        },
+        {
+          "type": "section",
+          "text": "Look"
+        },
+        {
+          "type": "slider",
+          "id": "iLayers:Aftermath",
+          "text": "Mark layers",
+          "help": "How many layers of each mark go on: 3 as shipped, 1 for a lighter look. Applies from the next scene.",
+          "valueOptions": {
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "sourceType": "ModSettingInt"
+          }
+        },
+        {
+          "type": "switcher",
+          "id": "bSweat:Aftermath",
+          "text": "Sweat",
+          "help": "Skin grows flushed and sweaty as a scene builds. Off: no sweat goes on (works without Moisturizer).",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         }
       ]
     },

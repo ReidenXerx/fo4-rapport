@@ -442,8 +442,14 @@ namespace RP::DoorHold
 		return g_near.load();
 	}
 
+	namespace
+	{
+		void ForgetTravel();   // the travel hold, below Pump
+	}
+
 	void Forget()
 	{
+		ForgetTravel();
 		std::lock_guard lock{ g_approachLock };
 		g_approach = {};
 		g_near = false;
@@ -502,6 +508,222 @@ namespace RP::DoorHold
 		});
 	}
 
+	namespace
+	{
+		// THE TRAVEL HOLD (Fo4-mcp 11-09, Watcher GO). Fast travel and coc next to an AAF scene
+		// crashed in Scaleform the way a door does (Image::Update, TreeContainer::GetSize: a
+		// Papyrus call into AAF's UI during the load) -- 90 s into a scene, and once 18 s after
+		// its end, 7 s after Rapport's after-scene face went to AAF. The map has no door to
+		// swallow, so fast travel is switched OFF through an input layer of the bridge's own
+		// while a scene runs here and for kTravelAfter past the last one; opening the Pip-Boy
+		// there is the player reaching for the map, and asks the scenes to stop.
+		constexpr auto kTravelAfter = std::chrono::seconds{ 22 };   // the after-scene face is 20 s
+		// Never locked for good (Sonnet review 11-10): a looping scene, a tree, or one whose end
+		// Rapport missed would keep the map shut all session. The scenes still here are let be
+		// for travel (their actors become travel ghosts until their records end) and the map
+		// opens once they ignored the Pip-Boy's stop for kAskedCap, or held the map kTravelCap
+		// in all: a crash risk the player can choose, against a map that never opens.
+		// Both count the game's running time, not the wall clock: a Pip-Boy or a pause stops a
+		// scene too. And the long one is long because a lock begins at the WALK (Fo4-mcp 11-12:
+		// 47 s of walk-in plus a 120 s tree was cut mid-scene by a 120 s cap from the lock).
+		constexpr auto kTravelCap = std::chrono::seconds{ 300 };
+		constexpr auto kAskedCap = std::chrono::seconds{ 30 };
+		constexpr auto kTravelReask = std::chrono::seconds{ 15 };   // a Pip-Boy open asks again past this
+		// Every state is sent twice, kTravelRepeat apart: a lock and an unlock drained in one batch
+		// run on separate stacks in no order, and the later-sent one must be the last applied.
+		constexpr auto kTravelRepeat = std::chrono::seconds{ 3 };
+
+		std::mutex                        g_travelLock;
+		bool                              g_travelLocked = false;
+		bool                              g_travelResend = true;   // a load: the save may carry the bridge's layer
+		Clock::duration                   g_heldFor{};             // running time locked with a scene here
+		Clock::time_point                 g_lastStep{};
+		std::optional<Clock::duration>    g_heldAtAsk;             // g_heldFor at the first Pip-Boy ask this lock
+		Clock::time_point                 g_askedAt{};             // the last Pip-Boy ask; {} = none this lock
+		Clock::time_point                 g_lastSceneHere{};
+		std::optional<Clock::time_point>  g_repeatAt;
+		std::vector<Group>                g_travelScenes;          // the last poll's, for the Pip-Boy
+		std::unordered_set<std::uint32_t> g_travelGhosts;
+
+		void RegisterPipboy();
+
+		void TravelStep(const RE::PlayerCharacter& a_player, const std::unordered_set<std::uint32_t>& a_ghosts)
+		{
+			RegisterPipboy();
+			// Not across a load: a lock queued for the world being left would land in the new one
+			// (review 11-10). The load's Forget re-arms the resend for after it.
+			if (const auto* ui = RE::UI::GetSingleton(); ui && ui->GetMenuOpen("LoadingMenu")) {
+				return;
+			}
+			const bool on = Config::GetSingleton().holdFastTravel;
+			auto       all = on ? ScenesHere(a_player, a_ghosts) : std::vector<Group>{};
+			const auto now = Clock::now();
+
+			// Our own request that AAF has neither walked nor begun is no scene yet: past kUnwalked
+			// it no longer holds the map (Fo4-mcp 11-10: one never started and locked travel for
+			// the whole 120 s cap; the Pip-Boy's stop had nothing to stop).
+			{
+				static std::pair<std::uint32_t, std::uint32_t> unwalked{};
+				static Clock::time_point                       unwalkedSince{};
+				const auto pair = PapyrusLink::GetSingleton().InFlightPair();
+				if (!OwnUnwalked()) {
+					unwalked = {};
+				} else {
+					if (pair != unwalked) {
+						unwalked = pair;
+						unwalkedSince = now;
+					}
+					if (now - unwalkedSince >= kUnwalked) {
+						std::erase_if(all, [&](const Group& a_group) {
+							return std::ranges::all_of(a_group, [&](std::uint32_t a_id) { return a_id == pair.first || a_id == pair.second; });
+						});
+					}
+				}
+			}
+
+			std::optional<bool> send;
+			bool                reopened = false;
+			{
+				std::lock_guard lock{ g_travelLock };
+				// Travel ghosts last only as long as their scenes: an actor no scene here holds
+				// any more is forgotten.
+				std::erase_if(g_travelGhosts, [&](std::uint32_t a_id) {
+					return std::ranges::none_of(all, [&](const Group& a_group) { return Contains(a_group, a_id); });
+				});
+				std::vector<Group> here;
+				for (auto& group : all) {
+					if (!std::ranges::all_of(group, [&](std::uint32_t a_id) { return g_travelGhosts.contains(a_id); })) {
+						here.push_back(std::move(group));
+					}
+				}
+				// The running clock: a step's gap counts up to two polls; a longer one was the game
+				// standing still (the bridge's timer stops in menus), as is a Pip-Boy still open.
+				const auto stepMax = std::chrono::duration_cast<Clock::duration>(
+					std::chrono::duration<float>{ (std::max)(4.0f, Config::GetSingleton().pollSeconds * 2.0f) });
+				const auto step = g_lastStep == Clock::time_point{} ? Clock::duration{} : (std::min)(now - g_lastStep, stepMax);
+				g_lastStep = now;
+				const auto* ui = RE::UI::GetSingleton();
+				if (g_travelLocked && !here.empty() && !(ui && ui->GetMenuOpen("PipboyMenu"))) {
+					g_heldFor += step;
+				}
+				const bool ignoredAsk = g_heldAtAsk && g_heldFor - *g_heldAtAsk >= kAskedCap;
+				if (g_travelLocked && !here.empty() && (ignoredAsk || g_heldFor >= kTravelCap)) {
+					for (const auto& group : here) {
+						g_travelGhosts.insert(group.begin(), group.end());
+					}
+					if (ignoredAsk) {
+						logger::warn("travel hold: {} scene(s) here did not stop {}s after the Pip-Boy asked - fast travel opens despite them",
+							here.size(), kAskedCap.count());
+					} else {
+						logger::warn("travel hold: {} scene(s) here held fast travel {}s - it opens despite them",
+							here.size(), kTravelCap.count());
+					}
+					here.clear();
+					g_lastSceneHere = {};
+				}
+				if (!here.empty()) {
+					g_lastSceneHere = now;
+				}
+				const bool want = on && (!here.empty() ||
+					(g_lastSceneHere != Clock::time_point{} && now - g_lastSceneHere < kTravelAfter));
+				if (want != g_travelLocked || g_travelResend) {
+					send = want;
+					reopened = g_travelLocked && !want && g_askedAt != Clock::time_point{};
+					if (want != g_travelLocked) {
+						g_heldFor = {};
+						g_heldAtAsk.reset();
+					}
+					g_travelLocked = want;
+					g_travelResend = false;
+					if (!want) {
+						g_askedAt = {};
+					}
+					g_repeatAt = now + kTravelRepeat;
+				} else if (g_repeatAt && now >= *g_repeatAt) {
+					send = g_travelLocked;
+					g_repeatAt.reset();
+				}
+				g_travelScenes = std::move(here);
+			}
+			if (!send) {
+				return;
+			}
+			PapyrusLink::GetSingleton().QueueOrders({ Order{ Order::Kind::kTravelHold, a_player.GetFormID(), *send ? "lock" : "unlock" } });
+			logger::info("travel hold: fast travel {}", *send ? "off - an AAF scene runs here" : "on");
+			if (reopened) {
+				// Pump runs on the VM's thread; the HUD is the game's (as the door hold's own line).
+				if (const auto* tasks = F4SE::GetTaskInterface()) {
+					tasks->AddTask([] { RE::SendHUDMessage::ShowHUDMessage("Rapport: Fast travel is open again", "", false, false); });
+				}
+			}
+		}
+
+		class PipboySink final : public RE::BSTEventSink<RE::MenuOpenCloseEvent>
+		{
+		public:
+			RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent& a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override
+			{
+				if (!a_event.opening || a_event.menuName != "PipboyMenu") {
+					return RE::BSEventNotifyControl::kContinue;
+				}
+				std::vector<Group> scenes;
+				bool               running = false;
+				{
+					std::lock_guard lock{ g_travelLock };
+					if (!g_travelLocked) {
+						return RE::BSEventNotifyControl::kContinue;
+					}
+					running = !g_travelScenes.empty();
+					const auto now = Clock::now();
+					if (running && (g_askedAt == Clock::time_point{} || now - g_askedAt >= kTravelReask)) {
+						scenes = g_travelScenes;
+						g_askedAt = now;
+						if (!g_heldAtAsk) {
+							g_heldAtAsk = g_heldFor;
+						}
+					}
+					g_repeatAt = now;   // and the layer's state once more, in case a batch crossed
+				}
+				if (!scenes.empty()) {
+					AskToStop(scenes);
+					logger::info("travel hold: the Pip-Boy opened - {} AAF scene(s) here are asked to stop", scenes.size());
+				}
+				RE::SendHUDMessage::ShowHUDMessage(running ? kMessage : "Rapport: Fast travel opens again in a few seconds", "", false, false);
+				return RE::BSEventNotifyControl::kContinue;
+			}
+		};
+		PipboySink g_pipboySink;
+
+		void ForgetTravel()
+		{
+			std::lock_guard lock{ g_travelLock };
+			g_travelLocked = false;
+			g_travelResend = true;
+			g_heldFor = {};
+			g_lastStep = {};
+			g_heldAtAsk.reset();
+			g_askedAt = {};
+			g_lastSceneHere = {};
+			g_repeatAt.reset();
+			g_travelScenes.clear();
+			g_travelGhosts.clear();
+		}
+
+		// Once, the first poll with a UI: the plugin loads before the game builds it.
+		void RegisterPipboy()
+		{
+			static bool registered = false;
+			if (registered) {
+				return;
+			}
+			if (auto* ui = RE::UI::GetSingleton()) {
+				ui->RegisterSink<RE::MenuOpenCloseEvent>(&g_pipboySink);
+				registered = true;
+				logger::info("travel hold: watching the Pip-Boy");
+			}
+		}
+	}
+
 	void Pump()
 	{
 		const auto* player = RE::PlayerCharacter::GetSingleton();
@@ -514,6 +736,9 @@ namespace RP::DoorHold
 			std::lock_guard lock{ g_lock };
 			held = g_hold.active;
 			ghosts = g_ghosts;
+		}
+		if (player) {
+			TravelStep(*player, ghosts);
 		}
 		if (!held) {
 			if (player) {

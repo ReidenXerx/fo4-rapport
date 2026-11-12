@@ -232,7 +232,11 @@ namespace RP
 
 			// Stop the AAF scene this actor is in (DoorHold: the player is at a load door).
 			// An AAF call: StopScene(actor, -1).
-			kStopScene = 36
+			kStopScene = 36,
+
+			// Fast travel off ("lock") or back on ("unlock") through an input layer of the
+			// bridge's own (DoorHold's travel hold). NOT an AAF call.
+			kTravelHold = 37
 		};
 
 		Kind          kind{ Kind::kApplyOverlay };
