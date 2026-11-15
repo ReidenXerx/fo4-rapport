@@ -7,11 +7,22 @@
   <!-- FOMOD standard rule 2: the plugins both managers can see, and refuse the install without.
        F4SE, Runtime Database, MCM, the Anatomy Engine (a DLL) and the Moisturizer are not visible to a FOMOD: Rapport checks
        what it needs at run time, and the Nexus Requirements field lists them. No game version: one DLL
-       runs on 1.10.163 and the Anniversary Edition through Runtime Database (rule 6 needs nothing). -->
+       runs on 1.10.163 and the Anniversary Edition through Runtime Database (rule 6 needs nothing).
+       Installed counts (Active OR Inactive): a collection ticks its plugins only at the end, so an
+       "Active" check refused every install there (Ivy Rev 29, 11-15). -->
   <moduleDependencies operator="And">
-    <fileDependency file="AAF.esm" state="Active"/>
-    <fileDependency file="LooksMenu.esp" state="Active"/>
-    <fileDependency file="Anatomy.esp" state="Active"/>
+    <dependencies operator="Or">
+      <fileDependency file="AAF.esm" state="Active"/>
+      <fileDependency file="AAF.esm" state="Inactive"/>
+    </dependencies>
+    <dependencies operator="Or">
+      <fileDependency file="LooksMenu.esp" state="Active"/>
+      <fileDependency file="LooksMenu.esp" state="Inactive"/>
+    </dependencies>
+    <dependencies operator="Or">
+      <fileDependency file="Anatomy.esp" state="Active"/>
+      <fileDependency file="Anatomy.esp" state="Inactive"/>
+    </dependencies>
   </moduleDependencies>
 
   <requiredInstallFiles>
