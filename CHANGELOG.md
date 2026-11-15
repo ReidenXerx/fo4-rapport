@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.28 (2026-11-15)
+
+- The installer no longer stops when AAF, LooksMenu or Anatomy is installed but not yet ticked, as happens mid-way through a collection install.
+
 ## 0.2.27 (2026-11-12)
 
 - Fast travel waits while an AAF scene runs nearby, and briefly after it ends, instead of crashing. Opening the Pip-Boy there wraps the scene up; HoldFastTravel = 0 in Rapport.ini turns it off.
