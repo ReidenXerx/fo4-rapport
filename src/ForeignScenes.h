@@ -84,6 +84,11 @@ namespace RP
 		// animation names an act: another mod's ambient pairing, never the AAF menu's, which
 		// the player steers, and never a hug or a dance (SceneGuard).
 		[[nodiscard]] std::vector<std::vector<std::uint32_t>> NpcControlledScenes() const;
+		// Every scene AAF started with a CHILD among its own actors, whoever started it: another
+		// mod, the AAF menu, a scene with the player in it. SceneGuard stops each one, with no
+		// setting to turn it off (DESIGN hard rule: adults only). Ignored above, so not in the
+		// two lists before -- which is why 0.2.26-0.2.28 never stopped one.
+		[[nodiscard]] std::vector<std::vector<std::uint32_t>> ChildScenes() const;
 
 		// A load or a new game. No scene survives one, and the faces they left are the
 		// wearing list's to clear -- this only forgets.
@@ -220,6 +225,7 @@ namespace RP
 		mutable std::timed_mutex                     _lock;
 		std::unordered_map<std::int32_t, Scene>      _scenes;
 		std::unordered_set<std::int32_t>             _ignored;   // ours, or holding a child
+		std::unordered_map<std::int32_t, std::vector<std::uint32_t>> _children;   // location -> its actors
 		std::vector<Finished>                        _finished;
 		std::unordered_map<std::int32_t, QuietMark>  _quiet;
 	};

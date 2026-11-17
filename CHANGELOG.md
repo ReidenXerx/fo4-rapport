@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.29 (2026-11-17)
+
+- Any AAF scene with a child among its actors is stopped as it begins, whoever started it: another mod, the AAF menu or the player. No setting turns this off.
+
 ## 0.2.28 (2026-11-15)
 
 - The installer no longer stops when AAF, LooksMenu or Anatomy is installed but not yet ticked, as happens mid-way through a collection install.

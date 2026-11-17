@@ -227,6 +227,9 @@ namespace RP
 				if (verdict != Eligible::kYes || ours) {
 					// Remembered, so its animations and its end are left alone too.
 					_ignored.insert(a_location);
+					if (verdict == Eligible::kChild) {
+						_children[a_location] = IdsOf(a_members);   // and stopped (SceneGuard)
+					}
 					// A record already here is finished now: this scene's own placeholder
 					// (an animation came before the start), or an earlier scene that missed
 					// its end. Left in place, the poll would go on dressing it.
@@ -376,6 +379,7 @@ namespace RP
 					// Seen only now: whatever this scene was given comes off, and it is left
 					// alone from here on -- no cum, whatever its end says.
 					_ignored.insert(a_location);
+					_children[a_location] = IdsOf(a_members);   // and stopped (SceneGuard)
 					RetireAt(a_location, retired, "a child is in it", false, nullptr);
 					return;
 				}
@@ -524,6 +528,7 @@ namespace RP
 			// Every way out of the locked part still reaches the carrying-out below.
 			[&] {
 				const auto now = Clock::now();
+				_children.erase(a_location);   // ended: nothing left to stop
 				if (verdict == Eligible::kChild) {
 					_ignored.erase(a_location);
 					RetireAt(a_location, retired, "a child is in it", false, nullptr);
@@ -658,6 +663,19 @@ namespace RP
 			for (const auto& member : scene.members) {
 				ids.push_back(member.formID);
 			}
+		}
+		return out;
+	}
+
+	std::vector<std::vector<std::uint32_t>> ForeignScenes::ChildScenes() const
+	{
+		std::vector<std::vector<std::uint32_t>> out;
+		NamedLock lock{ _lock, "foreign scenes" };
+		if (!lock) {
+			return out;
+		}
+		for (const auto& [location, ids] : _children) {
+			out.push_back(ids);
 		}
 		return out;
 	}
@@ -1101,6 +1119,7 @@ namespace RP
 		}
 		_scenes.clear();
 		_ignored.clear();
+		_children.clear();
 		_finished.clear();
 		_quiet.clear();
 	}

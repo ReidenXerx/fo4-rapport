@@ -20,6 +20,10 @@ namespace RP::SceneGuard
 		// A record whose end Rapport missed stays "running" for good: asked this often, then left
 		// alone (microscope 11-05: a dead member re-asked and re-logged every minute, forever).
 		constexpr std::uint32_t kMaxAsks = 3;
+		// A scene with a child in it is asked again sooner and longer: past AAF's slowest teardown
+		// (12 s), then every 15 s, ten times. Its record ends with its OnSceneEnd.
+		constexpr auto          kChildAskAgain = std::chrono::seconds{ 15 };
+		constexpr std::uint32_t kChildMaxAsks = 10;
 
 		struct Stopped
 		{
@@ -147,10 +151,19 @@ namespace RP::SceneGuard
 	void Pump()
 	{
 		const auto& config = Config::GetSingleton();
-		if (!config.guardScenes && !config.foreignScenesFollowRules) {
+		// A child in ANY AAF scene -- another mod's, the AAF menu's, one with the player in it --
+		// is stopped whatever the settings say (DESIGN hard rule: adults only; owner + alasdairn
+		// 11-17: "make sure players can't do it too").
+		auto children = ForeignScenes::GetSingleton().ChildScenes();
+		for (auto& members : children) {
+			std::erase(members, 0u);
+			std::ranges::sort(members);
+		}
+		if (!config.guardScenes && !config.foreignScenesFollowRules && children.empty()) {
 			return;
 		}
 		auto scenes = ForeignScenes::GetSingleton().RunningScenes();
+		scenes.insert(scenes.end(), children.begin(), children.end());
 		auto ambient = config.foreignScenesFollowRules ? ForeignScenes::GetSingleton().NpcControlledScenes()
 		                                               : std::vector<Group>{};
 		for (auto& members : ambient) {
@@ -189,12 +202,14 @@ namespace RP::SceneGuard
 			if (members.empty()) {
 				continue;
 			}
+			const bool    child = std::ranges::find(children, members) != children.end();
 			std::uint32_t asked = 0;
 			{
 				std::lock_guard lock{ g_lock };
 				const auto found = std::ranges::find(g_stopped, members, &Stopped::members);
 				if (found != g_stopped.end()) {
-					if (found->asks >= kMaxAsks || now - found->at < kAskAgain) {
+					if (found->asks >= (child ? kChildMaxAsks : kMaxAsks) ||
+						now - found->at < (child ? std::chrono::duration_cast<Clock::duration>(kChildAskAgain) : std::chrono::duration_cast<Clock::duration>(kAskAgain))) {
 						continue;
 					}
 					asked = found->asks;
@@ -208,7 +223,16 @@ namespace RP::SceneGuard
 			RE::Actor*      living = nullptr;
 			RE::Actor*      fallen = nullptr;
 			bool            rules = false;
-			if (!ours && std::ranges::find(ambient, members) != ambient.end()) {
+			if (child) {
+				for (const auto id : members) {
+					if (const auto* actor = ActorOf(id); actor && actor->IsChild()) {
+						who = id;
+						break;
+					}
+				}
+				why = "is a child - never";
+				rules = true;
+			} else if (!ours && std::ranges::find(ambient, members) != ambient.end()) {
 				why = BreaksRules(members, who);
 				rules = !why.empty();
 			}
@@ -262,8 +286,8 @@ namespace RP::SceneGuard
 			}
 			stops.push_back(Order{ Order::Kind::kStopScene, target->GetFormID(), {} });
 			logger::info("scene guard: {:08X} {} - asking AAF to stop the scene ({} member(s), {}){}", who, why,
-				members.size(), ours ? "Rapport's" : rules ? "another mod's NPC pairing, against Rapport's rules" : "another mod's",
-				asked ? std::format(" - ask {} of {}, the last one went unanswered", asked + 1, kMaxAsks) : std::string{});
+				members.size(), child ? "an AAF scene with a CHILD in it, whoever started it" : ours ? "Rapport's" : rules ?"another mod's NPC pairing, against Rapport's rules" : "another mod's",
+				asked ? std::format(" - ask {} of {}, the last one went unanswered", asked + 1, child ? kChildMaxAsks : kMaxAsks) : std::string{});
 			std::lock_guard lock{ g_lock };
 			if (const auto found = std::ranges::find(g_stopped, members, &Stopped::members); found != g_stopped.end()) {
 				found->at = now;
